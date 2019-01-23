@@ -1,7 +1,7 @@
 import hash from 'hash.js';
 import router from 'umi/router';
-import { getSign } from './actAuth';
-import fetch from 'isomorphic-fetch';
+import { getSign } from './auth';
+import fetch from 'isomorphic-fetch'; // @issue: https://github.com/dvajs/dva/issues/2000
 
 export interface RequestOptions extends RequestInit {
   expirys?: number;
@@ -15,7 +15,9 @@ const cachedSave = (response: Response, hashcode: string) => {
   const contentType = response.headers.get('Content-Type');
   if (contentType && contentType.match(/application\/json/i)) {
     // All data is saved as text
-    response.clone().text()
+    response
+      .clone()
+      .text()
       .then(content => {
         sessionStorage.setItem(hashcode, content);
         sessionStorage.setItem(`${hashcode}:timestamp`, Date.now().toString());
@@ -38,8 +40,10 @@ export default function request(url: string, options: RequestOptions): Promise<a
    */
   const jsonBody = options.body && JSON.stringify(options.body);
   const fingerprint: string = url + (jsonBody || '');
-  const hashcode: string = hash.sha256()
-    .update(fingerprint).digest('hex');
+  const hashcode: string = hash
+    .sha256()
+    .update(fingerprint)
+    .digest('hex');
   const newOptions: RequestOptions = {
     expirys: 60,
     credentials: 'omit' as RequestCredentials,
@@ -56,7 +60,7 @@ export default function request(url: string, options: RequestOptions): Promise<a
   ) {
     if (!(newOptions.body instanceof FormData)) {
       newOptions.headers = {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json; charset=utf-8',
         ...newOptions.headers,
       };
@@ -93,15 +97,13 @@ export default function request(url: string, options: RequestOptions): Promise<a
     .catch(e => {
       const status = e.name;
       if (status === 401) {
-        // @HACK
-        /* eslint-disable no-underscore-dangle */
         (window as any).g_app._store.dispatch({
           type: 'login/logout',
         });
         return;
       }
       if (status === 403) return router.push('/exception/403');
-      if (status <= 504 && status >= 500) return router.push('/exception/500');
+      // if (status <= 504 && status >= 500) return router.push('/exception/500');
       if (status >= 404 && status < 422) return router.push('/exception/404');
     });
 }

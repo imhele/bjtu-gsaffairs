@@ -20,23 +20,15 @@ export default {
         dynamicImport: {
           level: 5,
           webpackChunkName: true,
-          loadingComponent: './components/PageLoading/index',
+          loadingComponent: './components/PageLoading',
         },
         locale: {
           enable: true,
           default: 'zh-CN',
         },
-        routes: {
-          exclude: [
-            /models\//,
-            /services\//,
-            /model\.(t|j)sx?$/,
-            /service\.(t|j)sx?$/,
-            /components\//,
-          ],
-        },
       },
     ],
+    // ref: https://github.com/imhele/umi-plugin-nprogress
     'umi-plugin-nprogress',
   ],
 };

@@ -1,16 +1,16 @@
 import { Model } from 'dva';
 import router from 'umi/router';
-import { setSign } from '@/utils/actAuth';
+import { setSign } from '@/utils/auth';
 
-const resetNamespace: string[] = ['user'];
 const defaultState = {
-  scope: null,
+  scope: <null>null,
   status: false, // @TODO
   nickname: 'NULL',
-  avatar: '',
+  avatar: <null>null,
 };
 
 export type LoginState = Readonly<typeof defaultState> & {
+  avatar: string;
   scope: Array<string | number>;
 };
 
@@ -39,19 +39,6 @@ const model: LoginModel = {
       });
       yield router.push('/user/login');
     },
-    *register({ payload }, { call, put }) {
-      // @TODO
-    },
-    *resetNamespace(_, { put }) {
-      yield put({
-        type: 'resetState',
-      });
-      for (const namespace of resetNamespace) {
-        yield put({
-          type: `${namespace}/resetState`,
-        });
-      }
-    },
   },
   reducers: {
     setState(state, { payload }) {
@@ -61,7 +48,7 @@ const model: LoginModel = {
       };
     },
     resetState() {
-      return defaultState;
+      return { ...defaultState };
     },
   },
 };

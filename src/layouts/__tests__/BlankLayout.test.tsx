@@ -1,11 +1,11 @@
 import 'jest';
 import React from 'react';
-import BasicLayout from '../BasicLayout';
+import BlankLayout from '../BlankLayout';
 import renderer, { ReactTestInstance, ReactTestRenderer } from 'react-test-renderer';
 
-describe('Layout: BasicLayout', () => {
+describe('Layout: BlankLayout', () => {
   it('Render correctly', () => {
-    const wrapper: ReactTestRenderer = renderer.create(<BasicLayout />);
+    const wrapper: ReactTestRenderer = renderer.create(<BlankLayout />);
     expect(wrapper.root.children.length).toBe(1);
     const outerLayer = wrapper.root.children[0] as ReactTestInstance;
     expect(outerLayer.type).toBe('div');
