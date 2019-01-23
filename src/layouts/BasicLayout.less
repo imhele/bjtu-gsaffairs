@@ -1,0 +1,119 @@
+@import '../global.less';
+@import '~antd/lib/style/themes/default.less';
+
+.layout {
+  min-height: 100vh;
+}
+
+.header {
+  top: 0;
+  left: 0;
+  padding: 0;
+  width: 100%;
+  position: fixed;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+}
+
+.headerContainer {
+  height: 64px;
+  display: flex;
+  margin: 0 auto;
+  line-height: 64px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  max-width: @screen-xl;
+  padding: 0 @page-gap-4;
+  :global(.ant-menu) {
+    height: 64px;
+    line-height: 64px;
+  }
+  :global(.ant-menu:first-child) {
+    flex: 1;
+    -webkit-box-flex: 1;
+  }
+  :global(.ant-menu-horizontal) {
+    border-bottom: none;
+  }
+  .rightContent {
+    float: right;
+    height: 100%;
+    text-align: center;
+    .spin {
+      width: 32px;
+      margin-top: 4px;
+      margin-right: 22px;
+    }
+    .avatarContainer {
+      cursor: pointer;
+      line-height: 48px;
+      display: inline-block;
+      vertical-align: middle;
+      i {
+        color: #bfbfbf;
+        vertical-align: middle;
+      }
+      .avatar {
+        vertical-align: middle;
+        margin-right: @page-gap-2;
+        background: @primary-color;
+      }
+      .avatar:empty {
+        width: 32px;
+        height: 32px;
+        overflow: hidden;
+        border-radius: 16px;
+        display: inline-block;
+        background-size: 32px 32px;
+        background-repeat: no-repeat;
+        background-image: url('../assets/avatar/cb032b06ddc63a4dd4993e280e94be72.svg');
+      }
+    }
+  }
+}
+
+body .userMenu {
+  :global(.ant-dropdown-menu-item) {
+    min-width: 200px;
+    line-height: 24px;
+    padding: 5px @page-gap-4;
+  }
+  .nickname {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 32px;
+    display: inline-block;
+  }
+}
+
+.content {
+  margin: auto;
+  min-height: 72vh;
+  margin-top: 64px;
+  width: @screen-xl;
+  padding: @page-gap-6 @page-gap-4;
+}
+
+.headerContainer,
+.content {
+  transition: all 0.32s 0.2s ease-in-out;
+  -o-transition: all 0.32s 0.2s ease-in-out;
+  -moz-transition: all 0.32s 0.2s ease-in-out;
+  -webkit-transition: all 0.32s 0.2s ease-in-out;
+}
+
+.footer {
+  color: #8c8c8c;
+  text-align: center;
+  line-height: 24px;
+  a {
+    margin: 0 @page-gap-1;
+    font-size: @font-size-lg;
+  }
+}
+
+@media screen and (max-width: @screen-xl) {
+  .content {
+    width: 100%;
+  }
+}

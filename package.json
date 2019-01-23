@@ -6,16 +6,20 @@
     "test": "umi test",
     "lint:es": "eslint --ext .js src mock tests",
     "lint:ts": "tslint \"src/**/*.ts\" \"src/**/*.tsx\"",
+    "push:hg": "cd .. && hg add . && hg commit -m \"update\" && hg push ",
     "precommit": "lint-staged"
   },
   "dependencies": {
-    "dva": "^2.5.0-beta.2",
     "antd": "^3.12.1",
+    "dva": "^2.5.0-beta.2",
+    "memoize-one": "^5.0.0",
+    "rc-queue-anim": "^1.6.10",
     "react": "^16.7.0",
     "react-dom": "^16.7.0"
   },
   "devDependencies": {
     "@types/jest": "^23.3.12",
+    "@types/memoize-one": "^4.1.0",
     "@types/react": "^16.7.18",
     "@types/react-dom": "^16.0.11",
     "@types/react-test-renderer": "^16.0.3",
@@ -33,11 +37,14 @@
     "tslint-eslint-rules": "^5.4.0",
     "tslint-react": "^3.6.0",
     "umi": "^2.4.2",
-    "umi-plugin-react": "^1.4.0",
-    "umi-plugin-nprogress": "^1.1.6"
+    "umi-plugin-nprogress": "^1.1.6",
+    "umi-plugin-react": "^1.4.0"
   },
   "lint-staged": {
-    "*.{js,jsx}": ["eslint --fix", "git add"]
+    "*.{js,jsx}": [
+      "eslint --fix",
+      "git add"
+    ]
   },
   "engines": {
     "node": ">=8.0.0"
