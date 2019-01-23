@@ -47,7 +47,7 @@ class RightContent extends PureComponent<RightContentProps> {
       <div className={styles.rightContent}>
         {loading ? (
           <Spin delay={100} className={styles.spin} />
-        ) : login ? (
+        ) : login.status ? (
           <Dropdown overlay={UserMenu} placement="bottomRight" trigger={['click', 'hover']}>
             <div className={styles.avatarContainer}>
               {login.avatar ? (

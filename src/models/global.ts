@@ -1,6 +1,6 @@
 import { Model } from 'dva';
 
-const resetNamespace: string[] = ['user'];
+const resetNamespace: string[] = ['login'];
 const defaultState = {
   stateKeep: null,
 };

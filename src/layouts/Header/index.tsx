@@ -7,24 +7,25 @@ import styles from '../BasicLayout.less';
 import RightContent from './RightContent';
 import { Layout, Menu, Icon } from 'antd';
 import { ClickParam } from 'antd/lib/menu';
-import SubMenu from 'antd/lib/menu/SubMenu';
 import MenuItem from 'antd/lib/menu/MenuItem';
 import { Route, pathnameToArr } from '@/utils/utils';
 import { FormattedMessage } from 'umi-plugin-locale';
+import { CheckAuth, Scope } from '@/components/Authorized';
 
 export interface HeaderProps {
-  route: Route;
+  currentScope: Scope;
   location: Location;
+  route: Route;
 }
 
 export default class Header extends PureComponent<HeaderProps> {
-  pathnameToArr: (pathname?: string) => string[] = memoizeOne(pathnameToArr);
+  pathnameToArr = memoizeOne(pathnameToArr);
 
   menuArr: React.ReactNode[] = [];
 
   constructor(props: HeaderProps) {
     super(props);
-    this.menuArr = this.routeToMenu(props.route.routes);
+    this.menuArr = this.routeToMenu(props.route.routes, props.currentScope);
   }
 
   handleClick = ({ key, item }: ClickParam): void => {
@@ -32,13 +33,13 @@ export default class Header extends PureComponent<HeaderProps> {
     if (item.props['data-type'] !== 'href' && key !== location.pathname) router.push(key);
   };
 
-  routeToMenu = (routes: Route[], submenu = false): React.ReactNode[] => {
+  routeToMenu = (routes: Route[], currentScope: Scope): React.ReactNode[] => {
     return routes
       .filter(({ hideInMenu, path, href }) => !hideInMenu && (path || href))
+      .filter(({ scope }) => CheckAuth(scope, currentScope))
       .map(route =>
-        submenu || !Array.isArray(route.routes) || !route.routes.length ? (
-          route.href ? (
-            route.name && (
+        route.href
+          ? route.name && (
               <MenuItem key={route.href} data-type="href">
                 <a href={route.href} target="_blank" rel="noopener noreferrer">
                   {route.icon && <Icon type={route.icon} />}
@@ -46,29 +47,12 @@ export default class Header extends PureComponent<HeaderProps> {
                 </a>
               </MenuItem>
             )
-          ) : (
-            route.name && (
+          : route.name && (
               <MenuItem key={route.path} data-type="path">
                 {route.icon && <Icon type={route.icon} />}
                 <FormattedMessage id={route.name} />
               </MenuItem>
-            )
-          )
-        ) : (
-          <SubMenu
-            key={route.path}
-            title={
-              route.name && (
-                <div>
-                  <Icon type={route.icon} />
-                  <FormattedMessage id={route.name} />
-                </div>
-              )
-            }
-          >
-            {this.routeToMenu(route.routes)}
-          </SubMenu>
-        ),
+            ),
       );
   };
 

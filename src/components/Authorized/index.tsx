@@ -1,7 +1,13 @@
+export type Scope =
+  | Set<string | number>
+  | ReadonlySet<string | number>
+  | Array<string | number>
+  | ReadonlyArray<string | number>;
+
 export interface AuthorizedProps {
   exception?: React.ReactNode | null;
-  scope?: Set<string | number> | ReadonlySet<string | number>;
-  currentScope?: Array<string | number> | ReadonlyArray<string | number>;
+  scope?: Scope;
+  currentScope?: Scope;
 }
 
 export type AuthorizedComponent<P> = (
@@ -10,13 +16,21 @@ export type AuthorizedComponent<P> = (
   },
 ) => React.ReactNode | null;
 
+export const CheckAuth = (scope: Scope, currentScope: Scope) => {
+  scope = Array.from(scope || []);
+  currentScope = Array.from(currentScope || []);
+  if (!scope.length) return true;
+  return currentScope.some(v => {
+    return (scope as Array<string | number>).some(w => w === v);
+  });
+};
+
 const Authorized: AuthorizedComponent<AuthorizedProps> = props => {
-  const { exception = null, scope = new Set(), currentScope = [] } = props;
-  if (scope.size) {
-    const res = currentScope.find(v => scope.has(v));
-    if (res === undefined) return exception;
+  if (CheckAuth(props.scope, props.currentScope)) {
+    return props.children;
+  } else {
+    return props.exception;
   }
-  return props.children;
 };
 
 export default Authorized;

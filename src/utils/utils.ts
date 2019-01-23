@@ -31,7 +31,7 @@ export function UUID(length = 32, join = ''): string {
 export function pathToScope(
   route: Route,
   pathname: string,
-  scope = new Set(),
+  scope: Set<string | number> = new Set(),
 ): Set<string | number> {
   if (!!!route || !!!pathname) return scope;
   if (Array.isArray(route.scope)) route.scope.forEach(v => scope.add(v));

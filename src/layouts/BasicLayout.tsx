@@ -1,7 +1,7 @@
 import Header from './Header';
 import Footer from './Footer';
-import { Layout, Spin } from 'antd';
 import { connect } from 'dva';
+import { Layout, Spin } from 'antd';
 import memoizeOne from 'memoize-one';
 import { Route } from '@/utils/utils';
 import styles from './BasicLayout.less';
@@ -36,7 +36,7 @@ class BasicLayout extends PureComponent<BasicLayoutProps> {
     const { route, location, children, currentScope, loading } = this.props;
     return (
       <Layout className={styles.layout}>
-        <Header {...{ location, route }} />
+        <Header {...{ location, route, currentScope }} />
         <Content className={styles.content}>
           {loading ? (
             <Spin size="large" />
