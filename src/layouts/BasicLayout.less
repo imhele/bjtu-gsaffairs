@@ -6,39 +6,42 @@
 }
 
 .header {
-  top: 0;
-  left: 0;
   padding: 0;
   width: 100%;
-  position: fixed;
-  background: #fff;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  background: #001529;
 }
 
 .headerContainer {
   height: 64px;
-  display: flex;
   margin: 0 auto;
   line-height: 64px;
-  display: -webkit-box;
-  display: -webkit-flex;
-  max-width: @screen-xl;
-  padding: 0 @page-gap-4;
   :global(.ant-menu) {
     height: 64px;
     line-height: 64px;
   }
-  :global(.ant-menu:first-child) {
-    flex: 1;
-    -webkit-box-flex: 1;
-  }
-  :global(.ant-menu-horizontal) {
-    border-bottom: none;
+  .leftContent {
+    z-index: 1;
+    float: left;
+    width: 180px;
+    height: 32px;
+    padding: 0 4px;
+    font-size: 18px;
+    margin: 16px 38px;
+    line-height: 32px;
+    position: relative;
+    text-align: center;
+    box-sizing: border-box;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.2);
   }
   .rightContent {
     float: right;
     height: 100%;
     text-align: center;
+    margin-right: @page-gap-4;
     .spin {
       width: 32px;
       margin-top: 4px;
@@ -90,8 +93,7 @@ body .userMenu {
   width: 100%;
   margin: auto;
   min-height: 72vh;
-  margin-top: 64px;
-  padding: @page-gap-6 @page-gap-4;
+  margin: @page-gap-6 @page-gap-4;
 }
 
 .headerContainer,

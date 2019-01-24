@@ -9,6 +9,7 @@
     "lint:ts": "tslint \"src/**/*.ts\" \"src/**/*.tsx\"",
     "start": "yarn run cleanCache && clear && umi dev",
     "start:win": "yarn run cleanCache:win && cls && umi dev",
+    "pull:hg": "cd .. && hg pull && hg update",
     "push:hg": "cd .. && hg add . && hg commit -m \"update\" && hg push",
     "cleanCache": "rm -r src/pages/.umi && rm -r node_modules/.cache",
     "cleanCache:win": "del /Q /S src\\pages\\.umi && del /Q /S node_modules\\.cache"
@@ -47,6 +48,10 @@
   "lint-staged": {
     "*.{js,jsx}": [
       "eslint --fix",
+      "git add"
+    ],
+    "*.{ts,tsx}": [
+      "tslint --fix",
       "git add"
     ]
   },

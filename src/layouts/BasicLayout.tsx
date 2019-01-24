@@ -3,26 +3,30 @@ import Footer from './Footer';
 import { connect } from 'dva';
 import { Layout, Spin } from 'antd';
 import memoizeOne from 'memoize-one';
-import { Route } from '@/utils/utils';
 import styles from './BasicLayout.less';
-import { pathToScope } from '../utils/utils';
 import React, { PureComponent } from 'react';
+import SiderMenu from '../components/SiderMenu';
 import Authorized from '@/components/Authorized';
 import Exception403 from '@/pages/Exception/403';
+import { pathnameToArr, pathToScope } from '@/utils/utils';
 import { ConnectState, ConnectProps } from '@/models/connect';
 const { Content } = Layout;
 
 export interface BasicLayoutProps extends ConnectProps {
-  route?: Route;
-  loading?: boolean;
+  collapsed?: boolean;
   currentScope?: Array<string | number>;
+  loading?: boolean;
+  route?: Route;
 }
 
-@connect(({ login, loading }: ConnectState) => ({
+@connect(({ global, login, loading }: ConnectState) => ({
+  collapsed: global.collapsed,
   currentScope: login.scope,
   loading: loading.effects['login/fetchUser'],
 }))
 class BasicLayout extends PureComponent<BasicLayoutProps> {
+  pathnameToArr = memoizeOne(pathnameToArr);
+
   pathToScope = memoizeOne(pathToScope);
 
   constructor(props: BasicLayoutProps) {
@@ -32,23 +36,46 @@ class BasicLayout extends PureComponent<BasicLayoutProps> {
     });
   }
 
+  onCollapse = (collapsed: boolean) => {
+    this.props.dispatch({
+      type: 'global/setCollapsed',
+      payload: collapsed,
+    });
+  }
+
   render() {
-    const { route, location, children, currentScope, loading } = this.props;
+    const { route, location, children, collapsed, currentScope, loading } = this.props;
+    const menuSelectedKeys = this.pathnameToArr(location.pathname);
     return (
       <Layout className={styles.layout}>
-        <Header {...{ location, route, currentScope }} />
-        <Content className={styles.content}>
-          {loading ? (
-            <Spin size="large" />
-          ) : (
-            Authorized({
-              children,
-              currentScope,
-              exception: <Exception403 />,
-              scope: this.pathToScope(route, location.pathname),
-            })
-          )}
-        </Content>
+        <Header
+          currentScope={currentScope}
+          location={location}
+          menuSelectedKeys={menuSelectedKeys}
+          route={route}
+        />
+        <Layout>
+          <SiderMenu
+            collapsed={collapsed}
+            currentScope={currentScope}
+            location={location}
+            menuSelectedKeys={menuSelectedKeys}
+            onCollapse={this.onCollapse}
+            route={route}
+          />
+          <Content className={styles.content}>
+            {loading ? (
+              <Spin size="large" />
+            ) : (
+              Authorized({
+                children,
+                currentScope,
+                exception: <Exception403 />,
+                scope: this.pathToScope(route, location.pathname),
+              })
+            )}
+          </Content>
+        </Layout>
         <Footer />
       </Layout>
     );

@@ -27,6 +27,8 @@ export default [
           },
           {
             path: '/position/manage',
+            icon: 'tool',
+            name: 'app.position.manage',
             component: './Position/Manage',
           },
         ],

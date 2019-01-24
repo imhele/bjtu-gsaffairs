@@ -2,7 +2,7 @@ import { Model } from 'dva';
 
 const resetNamespace: string[] = ['login'];
 const defaultState = {
-  stateKeep: null,
+  collapsed: false,
 };
 
 export type GlobalState = Readonly<typeof defaultState>;
@@ -27,7 +27,13 @@ const model: GlobalModel = {
     },
   },
   reducers: {
-    setState(state, { payload }) {
+    setCollapsed(state: GlobalState, { payload }) {
+      return {
+        ...state,
+        collapsed: payload,
+      };
+    },
+    setState(state: GlobalState, { payload }) {
       return {
         ...state,
         ...payload,

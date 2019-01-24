@@ -1,26 +1,24 @@
 import React from 'react';
 import router from 'umi/router';
-import memoizeOne from 'memoize-one';
 import QueueAnim from 'rc-queue-anim';
 import { PureComponent } from 'react';
+import LeftContent from './LeftContent';
 import styles from '../BasicLayout.less';
 import RightContent from './RightContent';
 import { Layout, Menu, Icon } from 'antd';
 import { ClickParam } from 'antd/lib/menu';
 import MenuItem from 'antd/lib/menu/MenuItem';
-import { Route, pathnameToArr } from '@/utils/utils';
 import { FormattedMessage } from 'umi-plugin-locale';
 import { CheckAuth, Scope } from '@/components/Authorized';
 
 export interface HeaderProps {
   currentScope: Scope;
   location: Location;
+  menuSelectedKeys: string[];
   route: Route;
 }
 
 export default class Header extends PureComponent<HeaderProps> {
-  pathnameToArr = memoizeOne(pathnameToArr);
-
   menuArr: React.ReactNode[] = [];
 
   constructor(props: HeaderProps) {
@@ -28,7 +26,7 @@ export default class Header extends PureComponent<HeaderProps> {
     this.menuArr = this.routeToMenu(props.route.routes, props.currentScope);
   }
 
-  handleClick = ({ key, item }: ClickParam): void => {
+  handleClickMenu = ({ key, item }: ClickParam): void => {
     const { location } = this.props;
     if (item.props['data-type'] !== 'href' && key !== location.pathname) router.push(key);
   };
@@ -57,7 +55,7 @@ export default class Header extends PureComponent<HeaderProps> {
   };
 
   render() {
-    const { pathname } = this.props.location;
+    const { menuSelectedKeys } = this.props;
     return (
       <Layout.Header className={styles.header}>
         <QueueAnim
@@ -67,11 +65,13 @@ export default class Header extends PureComponent<HeaderProps> {
             className: styles.headerContainer,
           }}
         >
+          <LeftContent />
           <Menu
+            theme="dark"
             key="leftHeader"
             mode="horizontal"
-            onClick={this.handleClick}
-            selectedKeys={this.pathnameToArr(pathname)}
+            onClick={this.handleClickMenu}
+            selectedKeys={menuSelectedKeys}
           >
             {this.menuArr}
           </Menu>
