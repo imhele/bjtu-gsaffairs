@@ -5,9 +5,10 @@ import { Layout, Spin } from 'antd';
 import memoizeOne from 'memoize-one';
 import styles from './BasicLayout.less';
 import React, { PureComponent } from 'react';
-import SiderMenu from '../components/SiderMenu';
+import SiderMenu from '@/components/SiderMenu';
 import Authorized from '@/components/Authorized';
 import Exception403 from '@/pages/Exception/403';
+import DocumentTitle from '@/components/DocumentTitle';
 import { pathnameToArr, pathToScope } from '@/utils/utils';
 import { ConnectState, ConnectProps } from '@/models/connect';
 const { Content } = Layout;
@@ -47,38 +48,40 @@ class BasicLayout extends PureComponent<BasicLayoutProps> {
     const { route, location, children, collapsed, currentScope, loading } = this.props;
     const menuSelectedKeys = this.pathnameToArr(location.pathname);
     return (
-      <Layout className={styles.layout}>
-        <Header
-          collapsed={collapsed}
-          currentScope={currentScope}
-          location={location}
-          menuSelectedKeys={menuSelectedKeys}
-          route={route}
-        />
-        <Layout>
-          <SiderMenu
+      <DocumentTitle location={location} route={route} defaultTitle="app.name">
+        <Layout className={styles.layout}>
+          <Header
             collapsed={collapsed}
             currentScope={currentScope}
             location={location}
             menuSelectedKeys={menuSelectedKeys}
-            onCollapse={this.onCollapse}
             route={route}
           />
-          <Content className={styles.content}>
-            {loading ? (
-              <Spin size="large" />
-            ) : (
-              Authorized({
-                children,
-                currentScope,
-                exception: <Exception403 />,
-                scope: this.pathToScope(route, location.pathname),
-              })
-            )}
-          </Content>
+          <Layout>
+            <SiderMenu
+              collapsed={collapsed}
+              currentScope={currentScope}
+              location={location}
+              menuSelectedKeys={menuSelectedKeys}
+              onCollapse={this.onCollapse}
+              route={route}
+            />
+            <Content className={styles.content}>
+              {loading ? (
+                <Spin size="large" />
+              ) : (
+                Authorized({
+                  children,
+                  currentScope,
+                  exception: <Exception403 />,
+                  scope: this.pathToScope(route, location.pathname),
+                })
+              )}
+            </Content>
+          </Layout>
+          <Footer />
         </Layout>
-        <Footer />
-      </Layout>
+      </DocumentTitle>
     );
   }
 }
