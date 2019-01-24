@@ -77,9 +77,9 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
         onCollapse={onCollapse}
       >
         <Menu
+          defaultOpenKeys={menuSelectedKeys}
           mode="inline"
           onSelect={this.handleClickMenu}
-          openKeys={collapsed ? [] : menuSelectedKeys}
           selectedKeys={menuSelectedKeys}
         >
           {this.menuArr}

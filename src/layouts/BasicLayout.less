@@ -21,7 +21,7 @@
     height: 64px;
     -webkit-flex: 1;
     line-height: 64px;
-    max-width: calc(100% - 256px - 120px - @page-gap-4);
+    position: relative;
   }
   .leftContent {
     float: left;
@@ -36,8 +36,8 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+    .transition-linear(0.2s, 0s);
     color: rgba(255, 255, 255, 0.9);
-    background: rgba(255, 255, 255, 0.2);
   }
   .rightContent {
     width: 120px;
@@ -76,6 +76,13 @@
         background-repeat: no-repeat;
         background-image: url('../assets/avatar/cb032b06ddc63a4dd4993e280e94be72.svg');
       }
+    }
+  }
+  &.collapsed {
+    .leftContent {
+      width: 72px;
+      margin: 16px 4px;
+      color: transparent;
     }
   }
 }

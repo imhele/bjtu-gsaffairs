@@ -18,3 +18,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
 }
+
+.transition-linear(@duration, @delay: 0s, @property: all) {
+  transition: @property @duration linear @delay;
+  -o-transition: @property @duration linear @delay;
+  -moz-transition: @property @duration linear @delay;
+  -webkit-transition: @property @duration linear @delay;
+}

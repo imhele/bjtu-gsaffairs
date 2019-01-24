@@ -1,5 +1,6 @@
 import React from 'react';
 import router from 'umi/router';
+import classnames from 'classnames';
 import QueueAnim from 'rc-queue-anim';
 import { PureComponent } from 'react';
 import LeftContent from './LeftContent';
@@ -12,6 +13,7 @@ import { FormattedMessage } from 'umi-plugin-locale';
 import { CheckAuth, Scope } from '@/components/Authorized';
 
 export interface HeaderProps {
+  collapsed: boolean;
   currentScope: Scope;
   location: Location;
   menuSelectedKeys: string[];
@@ -55,16 +57,14 @@ export default class Header extends PureComponent<HeaderProps> {
   };
 
   render() {
-    const { menuSelectedKeys } = this.props;
+    const { collapsed, menuSelectedKeys } = this.props;
+    const className = classnames({
+      [styles.headerContainer]: true,
+      [styles.collapsed]: collapsed,
+    });
     return (
       <Layout.Header className={styles.header}>
-        <QueueAnim
-          type="left"
-          delay={200}
-          componentProps={{
-            className: styles.headerContainer,
-          }}
-        >
+        <QueueAnim type="left" delay={200} componentProps={{ className }}>
           <LeftContent key="leftHeader" />
           <Menu
             theme="dark"

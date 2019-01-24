@@ -41,7 +41,7 @@ class BasicLayout extends PureComponent<BasicLayoutProps> {
       type: 'global/setCollapsed',
       payload: collapsed,
     });
-  }
+  };
 
   render() {
     const { route, location, children, collapsed, currentScope, loading } = this.props;
@@ -49,6 +49,7 @@ class BasicLayout extends PureComponent<BasicLayoutProps> {
     return (
       <Layout className={styles.layout}>
         <Header
+          collapsed={collapsed}
           currentScope={currentScope}
           location={location}
           menuSelectedKeys={menuSelectedKeys}
