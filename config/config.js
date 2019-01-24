@@ -5,6 +5,7 @@ export default {
   routes,
   treeShaking: true,
   ignoreMomentLocale: true,
+  publicPath: 'https://cdn.imhele.com/bjtu-papms/',
   plugins: [
     // ref: https://umijs.org/plugin/umi-plugin-react.html
     [
@@ -30,5 +31,14 @@ export default {
     ],
     // ref: https://github.com/imhele/umi-plugin-nprogress
     'umi-plugin-nprogress',
+    // ref: https://github.com/imhele/umi-plugin-oss
+    ['umi-plugin-oss', {
+      acl: 'public-read',
+      bijection: true,
+      bucket: {
+        name: 'imhele',
+        endpoint: 'oss-cn-beijing.aliyuncs.com',
+      },
+    }],
   ],
 };

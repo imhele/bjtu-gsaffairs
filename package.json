@@ -1,8 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "build": "umi build",
     "test": "umi test",
+    "build": "umi build && scp dist/index.html imhele:/home/sites/imhele/bjtu-papms/",
     "precommit": "lint-staged",
     "lint": "yarn lint:es && yarn lint:ts",
     "lint:es": "eslint --ext .js src mock tests",
@@ -45,6 +45,7 @@
     "tslint-react": "^3.6.0",
     "umi": "^2.4.2",
     "umi-plugin-nprogress": "^1.1.6",
+    "umi-plugin-oss": "^1.1.7",
     "umi-plugin-react": "^1.4.0"
   },
   "lint-staged": {
