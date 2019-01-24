@@ -1,20 +1,20 @@
 import router from 'umi/router';
+import styles from './index.less';
+import classnames from 'classnames';
 import { Layout, Menu, Icon } from 'antd';
 import SubMenu from 'antd/lib/menu/SubMenu';
 import { SelectParam } from 'antd/lib/menu';
 import React, { PureComponent } from 'react';
 import MenuItem from 'antd/lib/menu/MenuItem';
 import { ConnectProps } from '@/models/connect';
-import { CollapseType } from 'antd/lib/layout/Sider';
+import { SiderProps } from 'antd/lib/layout/Sider';
 import { FormattedMessage } from 'umi-plugin-locale';
 import { CheckAuth, Scope } from '@/components/Authorized';
 
-export interface SiderMenuProps extends ConnectProps {
-  collapsed: boolean;
+export interface SiderMenuProps extends SiderProps, ConnectProps {
   currentScope: Array<string | number>;
   loading?: boolean;
   menuSelectedKeys: string[];
-  onCollapse: (collapsed: boolean, type: CollapseType) => void;
   route: Route;
 }
 
@@ -67,20 +67,22 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
   };
 
   render() {
-    const { menuSelectedKeys, collapsed, onCollapse } = this.props;
+    const className = classnames(styles.siderMenu, this.props.className || '');
     return (
       <Layout.Sider
         width={256}
+        className={className}
+        collapsed={this.props.collapsed}
         collapsible
+        onCollapse={this.props.onCollapse}
+        style={this.props.style}
         theme="light"
-        collapsed={collapsed}
-        onCollapse={onCollapse}
       >
         <Menu
-          defaultOpenKeys={menuSelectedKeys}
+          defaultOpenKeys={this.props.menuSelectedKeys}
           mode="inline"
           onSelect={this.handleClickMenu}
-          selectedKeys={menuSelectedKeys}
+          selectedKeys={this.props.menuSelectedKeys}
         >
           {this.menuArr}
         </Menu>

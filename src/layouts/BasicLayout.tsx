@@ -3,6 +3,7 @@ import Footer from './Footer';
 import { connect } from 'dva';
 import { Layout, Spin } from 'antd';
 import memoizeOne from 'memoize-one';
+import QueueAnim from 'rc-queue-anim';
 import styles from './BasicLayout.less';
 import React, { PureComponent } from 'react';
 import SiderMenu from '@/components/SiderMenu';
@@ -50,36 +51,39 @@ class BasicLayout extends PureComponent<BasicLayoutProps> {
     return (
       <DocumentTitle location={location} route={route} defaultTitle="app.name">
         <Layout className={styles.layout}>
-          <Header
-            collapsed={collapsed}
-            currentScope={currentScope}
-            location={location}
-            menuSelectedKeys={menuSelectedKeys}
-            route={route}
-          />
-          <Layout>
-            <SiderMenu
+          <QueueAnim type="left" delay={200}>
+            <Header
               collapsed={collapsed}
               currentScope={currentScope}
+              key="Header"
               location={location}
               menuSelectedKeys={menuSelectedKeys}
-              onCollapse={this.onCollapse}
               route={route}
             />
-            <Content className={styles.content}>
-              {loading ? (
-                <Spin size="large" />
-              ) : (
-                Authorized({
-                  children,
-                  currentScope,
-                  exception: <Exception403 />,
-                  scope: this.pathToScope(route, location.pathname),
-                })
-              )}
-            </Content>
-          </Layout>
-          <Footer />
+            <Layout key="Layout">
+              <SiderMenu
+                collapsed={collapsed}
+                currentScope={currentScope}
+                location={location}
+                menuSelectedKeys={menuSelectedKeys}
+                onCollapse={this.onCollapse}
+                route={route}
+              />
+              <Content className={styles.content}>
+                {loading ? (
+                  <Spin size="large" />
+                ) : (
+                  Authorized({
+                    children,
+                    currentScope,
+                    exception: <Exception403 />,
+                    scope: this.pathToScope(route, location.pathname),
+                  })
+                )}
+                <Footer key="Footer" />
+              </Content>
+            </Layout>
+          </QueueAnim>
         </Layout>
       </DocumentTitle>
     );

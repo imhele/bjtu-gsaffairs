@@ -5,6 +5,9 @@ export default {
   routes,
   treeShaking: true,
   ignoreMomentLocale: true,
+  // Remove the following two lines and umi-plugin-oss when deploying formally
+  // Preview site at https://imhele.com/bjtu-papms/
+  base: 'bjtu-papms',
   publicPath: 'https://cdn.imhele.com/bjtu-papms/',
   plugins: [
     // ref: https://umijs.org/plugin/umi-plugin-react.html

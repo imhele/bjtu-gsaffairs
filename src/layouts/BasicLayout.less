@@ -44,7 +44,8 @@
     float: right;
     height: 100%;
     text-align: right;
-    margin-right: @page-gap-4;
+    padding: 0 @page-gap-4;
+    box-sizing: border-box;
     .spin {
       width: 32px;
       margin-top: 4px;
@@ -103,9 +104,8 @@ body .userMenu {
 
 .content {
   width: 100%;
-  margin: auto;
-  min-height: 72vh;
-  margin: @page-gap-6 @page-gap-4;
+  min-height: calc(100vh - 64px - @page-gap-6);
+  margin: @page-gap-6 @page-gap-4 0 @page-gap-4;
 }
 
 .headerContainer,

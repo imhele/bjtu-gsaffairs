@@ -1,7 +1,6 @@
 import React from 'react';
 import router from 'umi/router';
 import classnames from 'classnames';
-import QueueAnim from 'rc-queue-anim';
 import { PureComponent } from 'react';
 import LeftContent from './LeftContent';
 import styles from '../BasicLayout.less';
@@ -64,19 +63,18 @@ export default class Header extends PureComponent<HeaderProps> {
     });
     return (
       <Layout.Header className={styles.header}>
-        <QueueAnim type="left" delay={200} componentProps={{ className }}>
-          <LeftContent key="leftHeader" />
+        <div className={className}>
+          <LeftContent />
           <Menu
             theme="dark"
-            key="centerHeader"
             mode="horizontal"
             onClick={this.handleClickMenu}
             selectedKeys={menuSelectedKeys}
           >
             {this.menuArr}
           </Menu>
-          <RightContent key="rightHeader" />
-        </QueueAnim>
+          <RightContent />
+        </div>
       </Layout.Header>
     );
   }
