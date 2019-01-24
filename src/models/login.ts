@@ -4,7 +4,7 @@ import { setSign } from '@/utils/auth';
 
 const defaultState = {
   scope: <null>null,
-  status: false, // @TODO
+  status: false,
   nickname: 'NULL',
   avatar: <null>null,
 };

@@ -65,10 +65,10 @@ export default class Header extends PureComponent<HeaderProps> {
             className: styles.headerContainer,
           }}
         >
-          <LeftContent />
+          <LeftContent key="leftHeader" />
           <Menu
             theme="dark"
-            key="leftHeader"
+            key="centerHeader"
             mode="horizontal"
             onClick={this.handleClickMenu}
             selectedKeys={menuSelectedKeys}

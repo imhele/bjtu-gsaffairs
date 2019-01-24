@@ -13,14 +13,17 @@
 
 .headerContainer {
   height: 64px;
+  display: flex;
   margin: 0 auto;
   line-height: 64px;
   :global(.ant-menu) {
+    flex: 1;
     height: 64px;
+    -webkit-flex: 1;
     line-height: 64px;
+    max-width: calc(100% - 256px - 120px - @page-gap-4);
   }
   .leftContent {
-    z-index: 1;
     float: left;
     width: 180px;
     height: 32px;
@@ -28,7 +31,6 @@
     font-size: 18px;
     margin: 16px 38px;
     line-height: 32px;
-    position: relative;
     text-align: center;
     box-sizing: border-box;
     text-overflow: ellipsis;
@@ -38,9 +40,10 @@
     background: rgba(255, 255, 255, 0.2);
   }
   .rightContent {
+    width: 120px;
     float: right;
     height: 100%;
-    text-align: center;
+    text-align: right;
     margin-right: @page-gap-4;
     .spin {
       width: 32px;
@@ -48,8 +51,10 @@
       margin-right: 22px;
     }
     .avatarContainer {
+      top: -4px;
       cursor: pointer;
-      line-height: 48px;
+      line-height: 64px;
+      position: relative;
       display: inline-block;
       vertical-align: middle;
       i {
