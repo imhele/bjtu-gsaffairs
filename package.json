@@ -18,14 +18,17 @@
     "antd": "^3.12.1",
     "classnames": "^2.2.6",
     "dva": "^2.5.0-beta.2",
+    "lodash": "^4.17.11",
     "memoize-one": "^5.0.0",
     "rc-queue-anim": "^1.6.10",
     "react": "^16.7.0",
-    "react-dom": "^16.7.0"
+    "react-dom": "^16.7.0",
+    "react-media": "^1.9.2"
   },
   "devDependencies": {
     "@types/classnames": "^2.2.7",
     "@types/jest": "^23.3.12",
+    "@types/lodash": "^4.14.120",
     "@types/memoize-one": "^4.1.0",
     "@types/react": "^16.7.18",
     "@types/react-dom": "^16.0.11",

@@ -1,7 +1,7 @@
 import router from 'umi/router';
 import styles from './index.less';
 import classnames from 'classnames';
-import { Layout, Menu, Icon } from 'antd';
+import { Layout, Menu, Icon, Drawer } from 'antd';
 import SubMenu from 'antd/lib/menu/SubMenu';
 import { SelectParam } from 'antd/lib/menu';
 import React, { PureComponent } from 'react';
@@ -13,7 +13,8 @@ import { CheckAuth, Scope } from '@/components/Authorized';
 
 export interface SiderMenuProps extends SiderProps, ConnectProps {
   currentScope: Array<string | number>;
-  loading?: boolean;
+  drawerTitle?: string;
+  isMobile: boolean;
   menuSelectedKeys: string[];
   route: Route;
 }
@@ -28,7 +29,6 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
 
   handleClickMenu = ({ key }: SelectParam): void => {
     const { location } = this.props;
-    console.log(key);
     if (key !== location.pathname) router.push(key);
   };
 
@@ -67,14 +67,15 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
   };
 
   render() {
+    const { collapsed, drawerTitle, isMobile, onCollapse } = this.props;
     const className = classnames(styles.siderMenu, this.props.className || '');
-    return (
+    const Sider = (
       <Layout.Sider
         width={256}
-        className={className}
-        collapsed={this.props.collapsed}
         collapsible
-        onCollapse={this.props.onCollapse}
+        className={className}
+        collapsed={!isMobile && collapsed}
+        onCollapse={onCollapse}
         style={this.props.style}
         theme="light"
       >
@@ -87,6 +88,22 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
           {this.menuArr}
         </Menu>
       </Layout.Sider>
+    );
+    return isMobile ? (
+      <Drawer
+        width={256}
+        closable={false}
+        placement="left"
+        visible={!collapsed}
+        className={styles.drawer}
+        bodyStyle={{ padding: 0 }}
+        onClose={() => onCollapse(true, 'clickTrigger')}
+        title={<FormattedMessage id={drawerTitle} defaultMessage={drawerTitle} />}
+      >
+        {Sider}
+      </Drawer>
+    ) : (
+      Sider
     );
   }
 }

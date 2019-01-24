@@ -15,7 +15,7 @@ export default {
       'umi-plugin-react',
       {
         antd: true,
-        hardSource: true,
+        // hardSource: true,
         title: 'bjtu-papms',
         dva: {
           hmr: true,

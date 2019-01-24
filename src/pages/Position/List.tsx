@@ -1,3 +1,22 @@
-import React from 'react';
+import React, { Component } from 'react';
+import StandardFilter, { FilterType } from '@/components/StandardFilter';
 
-export default () => <div />;
+export default class List extends Component {
+  render() {
+    return (
+      <div>
+        <StandardFilter
+          filters={[
+            { id: 'test', type: FilterType.Input },
+            { id: 'test2', type: FilterType.InputNumber },
+            {
+              id: 'test3',
+              type: FilterType.Select,
+              selectOptions: [{ value: 'Option1' }, { value: 'Option2' }],
+            },
+          ]}
+        />
+      </div>
+    );
+  }
+}

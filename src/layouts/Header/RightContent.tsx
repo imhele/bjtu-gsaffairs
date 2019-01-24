@@ -55,7 +55,6 @@ class RightContent extends PureComponent<RightContentProps> {
               ) : (
                 <div className={styles.avatar} />
               )}
-              <Icon type="caret-down" />
             </div>
           </Dropdown>
         ) : (

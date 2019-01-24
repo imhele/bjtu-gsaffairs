@@ -14,8 +14,10 @@ import { CheckAuth, Scope } from '@/components/Authorized';
 export interface HeaderProps {
   collapsed: boolean;
   currentScope: Scope;
+  isMobile: boolean;
   location: Location;
   menuSelectedKeys: string[];
+  onOpenMenu: () => void;
   route: Route;
 }
 
@@ -56,15 +58,15 @@ export default class Header extends PureComponent<HeaderProps> {
   };
 
   render() {
-    const { collapsed, menuSelectedKeys } = this.props;
+    const { collapsed, isMobile, menuSelectedKeys, onOpenMenu } = this.props;
     const className = classnames({
       [styles.headerContainer]: true,
-      [styles.collapsed]: collapsed,
+      [styles.collapsed]: collapsed || isMobile,
     });
     return (
       <Layout.Header className={styles.header}>
         <div className={className}>
-          <LeftContent />
+          <LeftContent onOpenMenu={onOpenMenu} isMobile={isMobile} />
           <Menu
             theme="dark"
             mode="horizontal"

@@ -1,6 +1,7 @@
 import Header from './Header';
 import Footer from './Footer';
 import { connect } from 'dva';
+import Media from 'react-media';
 import { Layout, Spin } from 'antd';
 import memoizeOne from 'memoize-one';
 import QueueAnim from 'rc-queue-anim';
@@ -17,15 +18,11 @@ const { Content } = Layout;
 export interface BasicLayoutProps extends ConnectProps {
   collapsed?: boolean;
   currentScope?: Array<string | number>;
+  isMobile?: boolean;
   loading?: boolean;
   route?: Route;
 }
 
-@connect(({ global, login, loading }: ConnectState) => ({
-  collapsed: global.collapsed,
-  currentScope: login.scope,
-  loading: loading.effects['login/fetchUser'],
-}))
 class BasicLayout extends PureComponent<BasicLayoutProps> {
   pathnameToArr = memoizeOne(pathnameToArr);
 
@@ -46,7 +43,7 @@ class BasicLayout extends PureComponent<BasicLayoutProps> {
   };
 
   render() {
-    const { route, location, children, collapsed, currentScope, loading } = this.props;
+    const { children, collapsed, currentScope, isMobile, location, loading, route } = this.props;
     const menuSelectedKeys = this.pathnameToArr(location.pathname);
     return (
       <DocumentTitle location={location} route={route} defaultTitle="app.name">
@@ -55,15 +52,19 @@ class BasicLayout extends PureComponent<BasicLayoutProps> {
             <Header
               collapsed={collapsed}
               currentScope={currentScope}
+              isMobile={isMobile}
               key="Header"
               location={location}
               menuSelectedKeys={menuSelectedKeys}
+              onOpenMenu={() => this.onCollapse(false)}
               route={route}
             />
             <Layout key="Layout">
               <SiderMenu
                 collapsed={collapsed}
                 currentScope={currentScope}
+                drawerTitle="app.name"
+                isMobile={isMobile}
                 location={location}
                 menuSelectedKeys={menuSelectedKeys}
                 onCollapse={this.onCollapse}
@@ -90,4 +91,12 @@ class BasicLayout extends PureComponent<BasicLayoutProps> {
   }
 }
 
-export default BasicLayout;
+export default connect(({ global, login, loading }: ConnectState) => ({
+  collapsed: global.collapsed,
+  currentScope: login.scope,
+  loading: loading.effects['login/fetchUser'],
+}))((props: BasicLayoutProps) => (
+  <Media query="(max-width: 599px)">
+    {isMobile => <BasicLayout {...props} isMobile={isMobile} />}
+  </Media>
+));

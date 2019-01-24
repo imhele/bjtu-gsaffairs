@@ -1,3 +1,9 @@
 import React from 'react';
+import List from './List';
+import commonStyles from '../common.less';
 
-export default () => <div style={{ width: '100%', height: '100vh', background: '#fff' }} />;
+export default () => (
+  <div className={commonStyles.contentBody}>
+    <List />
+  </div>
+);

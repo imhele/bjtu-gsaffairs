@@ -33,3 +33,14 @@ export function pathToScope(
   );
   // redirect path will not appear in props.route of Component in Routes[].
 }
+
+export function groupByAmount<T = any>(arr: T[], amount: number): T[][] {
+  if (!Array.isArray(arr) || arr.length <= amount) return [arr];
+  let res: T[][] = [];
+  arr.forEach((value, index) => {
+    const group = index % amount;
+    if (group) res[(index - group) / amount].push(value);
+    else res.push([value]);
+  });
+  return res;
+}

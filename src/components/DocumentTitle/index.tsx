@@ -36,8 +36,8 @@ const routeToTitle = (
 };
 
 export default class DocumentTitle extends PureComponent<DocumentTitleProps, DocumentTitleStates> {
-  state = {
-    pathname: '/',
+  static defaultProps = {
+    spacer: ' - ',
   };
 
   static getDerivedStateFromProps(nextProps: DocumentTitleProps, prevState: DocumentTitleStates) {
@@ -55,6 +55,10 @@ export default class DocumentTitle extends PureComponent<DocumentTitleProps, Doc
     }
     return { pathname };
   }
+
+  state = {
+    pathname: '/',
+  };
 
   render() {
     return this.props.children;
