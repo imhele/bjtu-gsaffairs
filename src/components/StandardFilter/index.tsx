@@ -1,13 +1,11 @@
 import styles from './index.less';
 import classnames from 'classnames';
-import isEqual from 'lodash/isEqual';
-import memoizeOne from 'memoize-one';
-import QueueAnim, { IProps as QueueAnimProps } from 'rc-queue-anim';
 import React, { Component } from 'react';
 import { groupByAmount } from '@/utils/utils';
 import { RowProps, ColProps } from 'antd/lib/grid';
 import { GetFieldDecoratorOptions } from 'antd/lib/form/Form';
 import { FormComponentProps, FormItemProps } from 'antd/lib/form';
+import QueueAnim, { IProps as QueueAnimProps } from 'rc-queue-anim';
 import { Button, Col, Form, Icon, Row, Input, InputNumber, Select, DatePicker } from 'antd';
 
 export enum FilterType {
@@ -176,18 +174,13 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
     );
   };
 
-  memoizedRenderFormitem: (filter: Filter) => React.ReactNode = memoizeOne(
-    this.renderFormItem,
-    isEqual,
-  );
-
   renderFilters = (): React.ReactNode[] => {
     const { colProps, rowProps } = this.props;
     return this.getGroup().map((value, index) => (
       <Row {...rowProps} key={index}>
         {value.map(item => (
           <Col {...colProps} {...item.colProps} key={item.id}>
-            {this.memoizedRenderFormitem(item)}
+            {this.renderFormItem(item)}
           </Col>
         ))}
       </Row>

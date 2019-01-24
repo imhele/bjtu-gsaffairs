@@ -36,7 +36,7 @@ export function pathToScope(
 
 export function groupByAmount<T = any>(arr: T[], amount: number): T[][] {
   if (!Array.isArray(arr) || arr.length <= amount) return [arr];
-  let res: T[][] = [];
+  const res: T[][] = [];
   arr.forEach((value, index) => {
     const group = index % amount;
     if (group) res[(index - group) / amount].push(value);
