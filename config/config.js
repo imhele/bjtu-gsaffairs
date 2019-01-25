@@ -9,6 +9,9 @@ export default {
   // Preview site at https://imhele.com/bjtu-papms/
   base: 'bjtu-papms',
   publicPath: 'https://cdn.imhele.com/bjtu-papms/',
+  targets: {
+    ie: 11,
+  },
   plugins: [
     // ref: https://umijs.org/plugin/umi-plugin-react.html
     [

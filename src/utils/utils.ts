@@ -60,12 +60,35 @@ export const addWindowEvent = (() => {
           `You seem to be adding event listeners to an existing value.`,
         );
       }
-      window[`on${type}`] = (...args: any[]) => {
+      window[`on${type}`] = (event: WindowEventMap[T]) => {
         windowEvents.get(type).forEach(value => {
-          if (typeof value === 'function') value(...args);
+          if (typeof value === 'function') value(event);
         });
       };
     }
     windowEvents.get(type).set(id, fn);
   };
 })();
+
+export function sandwichArray<T = any, U = any, V = any>(
+  arr: T[],
+  join: U | U[],
+  interval: number = 1,
+  wrap: boolean = false,
+  handleJoin: (join: U | U[], value: T, index: number) => U | V | U[] | V[] = v => v,
+) {
+  if (!Array.isArray) return arr;
+  const res: Array<T | U | V> = [];
+  arr.forEach((value, index) => {
+    if (!(index % interval)) {
+      const handled = handleJoin(join, value, index);
+      res.push(...(Array.isArray(handled) ? handled : [handled]));
+    }
+    res.push(value);
+  });
+  if (wrap) {
+    return res.concat(handleJoin(join, undefined, undefined));
+  }
+  res.splice(0, 1);
+  return res;
+}

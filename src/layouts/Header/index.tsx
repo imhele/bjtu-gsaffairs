@@ -8,20 +8,37 @@ import RightContent from './RightContent';
 import { Layout, Menu, Icon } from 'antd';
 import { ClickParam } from 'antd/es/menu';
 import MenuItem from 'antd/es/menu/MenuItem';
+import { LoginState } from '@/models/connect';
 import { FormattedMessage } from 'umi-plugin-locale';
 import { CheckAuth, Scope } from '@/components/Authorized';
 
 export interface HeaderProps {
-  collapsed: boolean;
-  currentScope: Scope;
-  isMobile: boolean;
+  collapsed?: boolean;
+  currentScope?: Scope;
+  isMobile?: boolean;
   location: Location;
+  loading?: boolean | undefined;
+  login: LoginState;
   menuSelectedKeys: string[];
+  onLogout?: () => void;
   onOpenMenu: () => void;
   route: Route;
 }
 
 export default class Header extends Component<HeaderProps> {
+  static defaultProps = {
+    collapsed: true,
+    currentScope: [],
+    isMobile: false,
+    location: {},
+    loading: false,
+    login: {},
+    menuSelectedKeys: [],
+    onLogout: () => {},
+    onOpenMenu: () => {},
+    route: {},
+  };
+
   menuArr: React.ReactNode[] = [];
 
   constructor(props: HeaderProps) {
@@ -79,7 +96,11 @@ export default class Header extends Component<HeaderProps> {
               {this.menuArr}
             </Menu>
           )}
-          <RightContent />
+          <RightContent
+            loading={this.props.loading}
+            login={this.props.login}
+            onLogout={this.props.onLogout}
+          />
         </div>
       </Layout.Header>
     );

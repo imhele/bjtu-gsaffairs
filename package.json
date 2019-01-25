@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "test": "umi test",
-    "build": "umi build && scp dist/index.html imhele:/home/sites/imhele/bjtu-papms/",
+    "build": "umi build",
     "precommit": "lint-staged",
     "lint": "yarn lint:es && yarn lint:ts",
     "lint:es": "eslint --ext .js config mock",
@@ -12,7 +12,8 @@
     "pull:hg": "cd .. && hg pull && hg update",
     "push:hg": "cd .. && hg add . && hg commit -m \"update\" && hg push",
     "cleanCache": "rm -r src/pages/.umi && rm -r node_modules/.cache",
-    "cleanCache:win": "del /Q /S src\\pages\\.umi && del /Q /S node_modules\\.cache"
+    "cleanCache:win": "del /Q /S src\\pages\\.umi && del /Q /S node_modules\\.cache",
+    "deploy": "yarn build && scp dist/index.html imhele:/home/sites/imhele/bjtu-papms/"
   },
   "dependencies": {
     "antd": "^3.12.1",

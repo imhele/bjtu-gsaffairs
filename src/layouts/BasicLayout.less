@@ -1,6 +1,8 @@
 @import '../global.less';
 @import '~antd/es/style/themes/default.less';
 
+@headerHeight: 64px;
+
 .layout {
   min-height: 100vh;
 }
@@ -12,15 +14,15 @@
 }
 
 .headerContainer {
-  height: 64px;
+  height: @headerHeight;
   display: flex;
   margin: 0 auto;
-  line-height: 64px;
+  line-height: @headerHeight;
   .centerContent() {
     flex: 1;
-    height: 64px;
+    height: @headerHeight;
     -webkit-flex: 1;
-    line-height: 64px;
+    line-height: @headerHeight;
     position: relative;
   }
   .centerContent {
@@ -32,18 +34,18 @@
   .leftContent {
     float: left;
     width: 192px;
-    height: 32px;
     padding: 0 4px;
     font-size: 18px;
-    margin: 16px 32px;
-    line-height: 32px;
     text-align: center;
     box-sizing: border-box;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
     .transition-linear(0.2s, 0s);
+    margin: @page-gap-4 @page-gap-8;
     color: rgba(255, 255, 255, 0.9);
+    height: calc(@headerHeight - @page-gap-4 * 2);
+    line-height: calc(@headerHeight - @page-gap-4 * 2);
   }
   .rightContent {
     width: 120px;
@@ -60,10 +62,10 @@
     .avatarContainer {
       top: -4px;
       cursor: pointer;
-      line-height: 64px;
       position: relative;
       display: inline-block;
       vertical-align: middle;
+      line-height: @headerHeight;
       i {
         color: #bfbfbf;
         vertical-align: middle;
@@ -109,16 +111,8 @@ body .userMenu {
 }
 
 .content {
-  min-height: calc(100vh - 64px - @page-gap-6);
   margin: @page-gap-6 @page-gap-4 0 @page-gap-4;
-}
-
-.headerContainer,
-.content {
-  transition: all 0.32s 0.2s ease-in-out;
-  -o-transition: all 0.32s 0.2s ease-in-out;
-  -moz-transition: all 0.32s 0.2s ease-in-out;
-  -webkit-transition: all 0.32s 0.2s ease-in-out;
+  min-height: calc(100vh - @headerHeight - @page-gap-6);
 }
 
 .footer {

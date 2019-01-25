@@ -1,27 +1,22 @@
 import Link from 'umi/link';
-import { connect } from 'dva';
 import router from 'umi/router';
 import styles from '../BasicLayout.less';
 import { ClickParam } from 'antd/es/menu';
 import React, { Component } from 'react';
+import { LoginState } from '@/models/connect';
 import { FormattedMessage } from 'umi-plugin-locale';
 import { Spin, Avatar, Dropdown, Menu, Icon, Button } from 'antd';
-import { ConnectState, ConnectProps, LoginState } from '@/models/connect';
 
-export interface RightContentProps extends ConnectProps {
-  login?: LoginState;
+export interface RightContentProps {
   loading?: boolean | undefined;
+  login: LoginState;
+  onLogout?: () => void;
 }
 
-@connect(({ login, loading }: ConnectState) => ({
-  login,
-  loading: loading.effects['login/fetchUser'],
-}))
 class RightContent extends Component<RightContentProps> {
   onLogout = () => {
-    this.props.dispatch({
-      type: 'login/logout',
-    });
+    const { onLogout } = this.props;
+    if (typeof onLogout === 'function') onLogout();
   };
 
   onClickMenu = ({ key }: ClickParam): void => {

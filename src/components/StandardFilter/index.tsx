@@ -9,14 +9,14 @@ import QueueAnim, { IProps as QueueAnimProps } from 'rc-queue-anim';
 import { Button, Col, Form, Icon, Row, Input, InputNumber, Select, DatePicker } from 'antd';
 
 export enum FilterType {
-  Input,
-  InputNumber,
-  DatePicker,
-  Extra,
-  MonthPicker,
-  WeekPicker,
-  RangePicker,
-  Select,
+  Input = 'Input',
+  InputNumber = 'InputNumber',
+  DatePicker = 'DatePicker',
+  Extra = 'Extra',
+  MonthPicker = 'MonthPicker',
+  WeekPicker = 'WeekPicker',
+  RangePicker = 'RangePicker',
+  Select = 'Select',
 }
 
 export interface Filter<T = any> {

@@ -12,7 +12,7 @@ import SiderMenu from '@/components/SiderMenu';
 import Authorized from '@/components/Authorized';
 import Exception403 from '@/pages/Exception/403';
 import DocumentTitle from '@/components/DocumentTitle';
-import { ConnectState, ConnectProps } from '@/models/connect';
+import { ConnectState, ConnectProps, LoginState } from '@/models/connect';
 import { addWindowEvent, pathnameToArr, pathToScope } from '@/utils/utils';
 const { Content } = Layout;
 
@@ -21,6 +21,7 @@ export interface BasicLayoutProps extends ConnectProps {
   currentScope?: Array<string | number>;
   isMobile?: boolean;
   loading?: boolean;
+  login?: LoginState;
   route?: Route;
 }
 
@@ -55,8 +56,23 @@ class BasicLayout extends Component<BasicLayoutProps> {
     addWindowEvent('resize', 'Component: BasicLayout', this.resize);
   }
 
+  onLogout = () => {
+    this.props.dispatch({
+      type: 'login/logout',
+    });
+  };
+
   render() {
-    const { children, collapsed, currentScope, isMobile, location, loading, route } = this.props;
+    const {
+      children,
+      collapsed,
+      currentScope,
+      isMobile,
+      loading,
+      location,
+      login,
+      route,
+    } = this.props;
     const menuSelectedKeys = this.pathnameToArr(location.pathname);
     return (
       <DocumentTitle location={location} route={route} defaultTitle="app.name">
@@ -67,8 +83,11 @@ class BasicLayout extends Component<BasicLayoutProps> {
               currentScope={currentScope}
               isMobile={isMobile}
               key="Header"
+              loading={loading}
               location={location}
+              login={login}
               menuSelectedKeys={menuSelectedKeys}
+              onLogout={this.onLogout}
               onOpenMenu={() => this.onCollapse(false)}
               route={route}
             />
@@ -84,16 +103,12 @@ class BasicLayout extends Component<BasicLayoutProps> {
                 route={route}
               />
               <Content className={styles.content}>
-                {loading ? (
-                  <Spin size="large" />
-                ) : (
-                  Authorized({
-                    children,
-                    currentScope,
-                    exception: <Exception403 />,
-                    scope: pathToScope(route, location.pathname),
-                  })
-                )}
+                {Authorized({
+                  children,
+                  currentScope,
+                  exception: <Exception403 />,
+                  scope: pathToScope(route, location.pathname),
+                })}
                 <Footer key="Footer" />
               </Content>
             </Layout>
@@ -108,6 +123,7 @@ export default connect(({ global, login, loading }: ConnectState) => ({
   collapsed: global.collapsed,
   currentScope: login.scope,
   loading: loading.effects['login/fetchUser'],
+  login,
 }))((props: BasicLayoutProps) => (
   <Media query="(max-width: 599px)">
     {isMobile => <BasicLayout {...props} isMobile={isMobile} />}
