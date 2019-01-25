@@ -37,14 +37,5 @@ export default {
     ],
     // ref: https://github.com/imhele/umi-plugin-nprogress
     'umi-plugin-nprogress',
-    // ref: https://github.com/imhele/umi-plugin-oss
-    ['umi-plugin-oss', {
-      acl: 'public-read',
-      bijection: true,
-      bucket: {
-        name: 'imhele',
-        endpoint: 'oss-cn-beijing.aliyuncs.com',
-      },
-    }],
   ],
 };
