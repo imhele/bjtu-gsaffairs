@@ -12,8 +12,8 @@ import SiderMenu from '@/components/SiderMenu';
 import Authorized from '@/components/Authorized';
 import Exception403 from '@/pages/Exception/403';
 import DocumentTitle from '@/components/DocumentTitle';
-import { pathnameToArr, pathToScope } from '@/utils/utils';
 import { ConnectState, ConnectProps } from '@/models/connect';
+import { addWindowEvent, pathnameToArr, pathToScope } from '@/utils/utils';
 const { Content } = Layout;
 
 export interface BasicLayoutProps extends ConnectProps {
@@ -34,20 +34,26 @@ class BasicLayout extends Component<BasicLayoutProps> {
     });
   }, 30);
 
-  private isMobile = false;
+  resize = debounce(() => {
+    const { collapsed } = this.props;
+    if (typeof this.onCollapse !== 'function') return;
+    if (window.innerWidth <= 999) {
+      if (!collapsed) {
+        this.onCollapse(true);
+      }
+    } else {
+      if (collapsed) {
+        this.onCollapse(false);
+      }
+    }
+  }, 200);
 
   constructor(props: BasicLayoutProps) {
     super(props);
     props.dispatch({ type: 'login/fetchUser' });
     this.onCollapse(props.isMobile);
+    addWindowEvent('resize', 'Component: BasicLayout', this.resize);
   }
-
-  componentDidUpdate = () => {
-    if (this.props.isMobile !== this.isMobile) {
-      this.isMobile = this.props.isMobile;
-      this.onCollapse(this.props.isMobile);
-    }
-  };
 
   render() {
     const { children, collapsed, currentScope, isMobile, location, loading, route } = this.props;

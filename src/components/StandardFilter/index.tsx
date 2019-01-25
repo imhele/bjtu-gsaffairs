@@ -147,10 +147,10 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
     switch (filter.type) {
       case FilterType.Select:
         item = (
-          <Select {...filter.itemProps}>
+          <Select showSearch optionFilterProp="children" {...filter.itemProps}>
             {filter.selectOptions.map(value => (
-              <Select.Option key={`${value.value}`} value={value.title || value.value}>
-                {value.value}
+              <Select.Option key={`${value.value}`} value={value.value || value.title}>
+                {value.title}
               </Select.Option>
             ))}
           </Select>

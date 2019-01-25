@@ -12,7 +12,7 @@ export default class List extends Component {
             {
               id: 'test3',
               type: FilterType.Select,
-              selectOptions: [{ value: 'Option1' }, { value: 'Option2' }],
+              selectOptions: [{ value: 'Option1', title: 'bbb' }, { value: 'Option2', title: 'aaa' }],
             },
           ]}
         />

@@ -44,3 +44,28 @@ export function groupByAmount<T = any>(arr: T[], amount: number): T[][] {
   });
   return res;
 }
+
+export const addWindowEvent = (() => {
+  const windowEvents: Map<string, Map<string, Function>> = new Map();
+  return <T extends keyof WindowEventMap>(
+    type: T,
+    id: string,
+    fn: (event: WindowEventMap[T]) => void,
+  ) => {
+    if (!(windowEvents.get(type) instanceof Map)) {
+      windowEvents.set(type, new Map());
+      if (window[`on${type}`] !== null) {
+        console.warn(
+          `[addWindowEvent]`,
+          `You seem to be adding event listeners to an existing value.`,
+        );
+      }
+      window[`on${type}`] = (...args: any[]) => {
+        windowEvents.get(type).forEach(value => {
+          if (typeof value === 'function') value(...args);
+        });
+      };
+    }
+    windowEvents.get(type).set(id, fn);
+  };
+})();
