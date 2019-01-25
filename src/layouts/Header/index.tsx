@@ -6,8 +6,8 @@ import LeftContent from './LeftContent';
 import styles from '../BasicLayout.less';
 import RightContent from './RightContent';
 import { Layout, Menu, Icon } from 'antd';
-import { ClickParam } from 'antd/lib/menu';
-import MenuItem from 'antd/lib/menu/MenuItem';
+import { ClickParam } from 'antd/es/menu';
+import MenuItem from 'antd/es/menu/MenuItem';
 import { FormattedMessage } from 'umi-plugin-locale';
 import { CheckAuth, Scope } from '@/components/Authorized';
 

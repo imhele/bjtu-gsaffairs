@@ -24,10 +24,10 @@ export interface BasicLayoutProps extends ConnectProps {
 }
 
 class BasicLayout extends PureComponent<BasicLayoutProps> {
-
   pathnameToArr = memoizeOne(pathnameToArr);
 
   pathToScope = memoizeOne(pathToScope);
+
   private isMobile = false;
 
   constructor(props: BasicLayoutProps) {
@@ -53,21 +53,8 @@ class BasicLayout extends PureComponent<BasicLayoutProps> {
   render() {
     const { children, collapsed, currentScope, isMobile, location, loading, route } = this.props;
     const menuSelectedKeys = this.pathnameToArr(location.pathname);
-    const siderMenu = (
-      <SiderMenu
-        collapsed={collapsed}
-        currentScope={currentScope}
-        drawerTitle="app.name"
-        isMobile={isMobile}
-        location={location}
-        menuSelectedKeys={menuSelectedKeys}
-        onCollapse={this.onCollapse}
-        route={route}
-      />
-    );
     return (
       <DocumentTitle location={location} route={route} defaultTitle="app.name">
-        {isMobile && siderMenu}
         <Layout className={styles.layout}>
           <QueueAnim type="left" delay={200}>
             <Header
@@ -81,7 +68,16 @@ class BasicLayout extends PureComponent<BasicLayoutProps> {
               route={route}
             />
             <Layout key="Layout">
-              {!isMobile && siderMenu}
+              <SiderMenu
+                collapsed={collapsed}
+                currentScope={currentScope}
+                drawerTitle="app.name"
+                isMobile={isMobile}
+                location={location}
+                menuSelectedKeys={menuSelectedKeys}
+                onCollapse={this.onCollapse}
+                route={route}
+              />
               <Content className={styles.content}>
                 {loading ? (
                   <Spin size="large" />

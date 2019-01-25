@@ -2,9 +2,9 @@ import styles from './index.less';
 import classnames from 'classnames';
 import React, { Component } from 'react';
 import { groupByAmount } from '@/utils/utils';
-import { RowProps, ColProps } from 'antd/lib/grid';
-import { GetFieldDecoratorOptions } from 'antd/lib/form/Form';
-import { FormComponentProps, FormItemProps } from 'antd/lib/form';
+import { RowProps, ColProps } from 'antd/es/grid';
+import { GetFieldDecoratorOptions } from 'antd/es/form/Form';
+import { FormComponentProps, FormItemProps } from 'antd/es/form';
 import QueueAnim, { IProps as QueueAnimProps } from 'rc-queue-anim';
 import { Button, Col, Form, Icon, Row, Input, InputNumber, Select, DatePicker } from 'antd';
 

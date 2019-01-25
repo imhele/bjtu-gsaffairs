@@ -2,7 +2,7 @@ import Link from 'umi/link';
 import { connect } from 'dva';
 import router from 'umi/router';
 import styles from '../BasicLayout.less';
-import { ClickParam } from 'antd/lib/menu';
+import { ClickParam } from 'antd/es/menu';
 import React, { PureComponent } from 'react';
 import { FormattedMessage } from 'umi-plugin-locale';
 import { Spin, Avatar, Dropdown, Menu, Icon, Button } from 'antd';
