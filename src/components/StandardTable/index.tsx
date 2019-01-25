@@ -87,21 +87,30 @@ export default class StandardTable<T> extends Component<StandardTableProps<T>> {
     <Note key={`Divider-${index}`} type="vertical" />
   );
 
-  renderActionItem = (action: StandardTableAction) => {
+  renderActionItem = (action: StandardTableAction, record: T, index: number) => {
     const { onClickAction } = this.props;
+    const rowKey =
+      typeof this.props.rowKey === 'function'
+        ? this.props.rowKey(record, index)
+        : this.props.rowKey;
     return (
-      <a data-type={action.type} key={action.type} onClick={onClickAction}>
+      <a
+        data-key={record[rowKey]}
+        data-type={action.type}
+        key={action.type}
+        onClick={onClickAction}
+      >
         {action.text || action.type}
       </a>
     );
   };
 
-  renderAction = (actions: StandardTableActionProps): React.ReactNode => {
+  renderAction = (actions: StandardTableActionProps, record: T, index: number): React.ReactNode => {
     if (!Array.isArray(actions)) {
       actions = [actions];
     }
     return sandwichArray(
-      actions.map(this.renderActionItem),
+      actions.map(action => this.renderActionItem(action, record, index)),
       Divider,
       1,
       false,

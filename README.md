@@ -13,6 +13,12 @@ $ npm install
 $ npm start         # visit http://localhost:8000
 ```
 
+
 ## Preview
 
 [Click here to preview](https://imhele.com/bjtu-papms/)
+
+
+## License
+
+GPL-3.0

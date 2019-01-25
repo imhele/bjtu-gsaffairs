@@ -2,12 +2,12 @@
 @import '~antd/es/style/themes/default.less';
 
 .standardFilter {
+  div[class^=ant-col] {
+    opacity: 1;
+    height: 56px;
+    overflow: hidden;
+  }
   :global {
-    .ant-row {
-      opacity: 1;
-      height: 56px;
-      overflow: hidden;
-    }
     .ant-form-item {
       margin-bottom: 24px;
       margin-right: 0;
@@ -30,14 +30,14 @@
     white-space: nowrap;
     margin-bottom: 24px;
   }
-  &.animation :global(.ant-row), &.animation .icon {
+  &.animation div[class^=ant-col], &.animation .icon {
     .transition-easeOutQuart(0.45s);
   }
   &.unexpanded {
     .icon {
       .transform(rotate(-180deg));
     }
-    :global(.ant-row):not(:first-child):not(:last-child) {
+    :global(.ant-row):not(:first-child):not(:last-child) div[class^=ant-col] {
       height: 0;
       opacity: 0;
     }

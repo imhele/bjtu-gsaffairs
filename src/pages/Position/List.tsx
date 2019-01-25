@@ -50,7 +50,7 @@ const columns = [
 
 export default class List extends Component {
   onClickAction = (event: any) => {
-    const { currentTarget: { dataset: { type = '' } = {} } = {} } = event;
+    const { currentTarget: { dataset: { key = '', type = '' } = {} } = {} } = event;
   };
 
   render() {
