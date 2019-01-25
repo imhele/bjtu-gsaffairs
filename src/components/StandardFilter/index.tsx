@@ -3,7 +3,7 @@ import classnames from 'classnames';
 import React, { Component } from 'react';
 import { groupByAmount } from '@/utils/utils';
 import { RowProps, ColProps } from 'antd/es/grid';
-import { GetFieldDecoratorOptions } from 'antd/es/form/Form';
+import { GetFieldDecoratorOptions, WrappedFormUtils } from 'antd/es/form/Form';
 import { FormComponentProps, FormItemProps } from 'antd/es/form';
 import { Button, Col, Form, Icon, Row, Input, InputNumber, Select, DatePicker } from 'antd';
 
@@ -49,8 +49,8 @@ export interface StandardFilterProps extends FormComponentProps {
   formCreateOptions?: FormCreateOptions;
   formItemProps?: FormItemProps;
   groupAmount?: number;
-  onReset?: React.MouseEventHandler<HTMLButtonElement>;
-  onSubmit?: React.FormEventHandler<any>;
+  onReset?: (form: WrappedFormUtils) => void;
+  onSubmit?: (fieldsValue: any, form: WrappedFormUtils) => void;
   operationArea?: React.ReactNode | null;
   resetText?: string | React.ReactNode;
   rowProps?: RowProps;
@@ -71,8 +71,6 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
     expandText: ['Open', 'Close'],
     filters: [],
     groupAmount: 3,
-    onReset: () => {},
-    onSubmit: () => {},
     resetText: 'Reset',
     rowProps: {
       gutter: { md: 8, lg: 24, xl: 48 },
@@ -115,7 +113,7 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
         <Button type="primary" htmlType="submit">
           {this.props.submitText}
         </Button>
-        <Button style={{ marginLeft: 8 }} onClick={this.props.onReset}>
+        <Button style={{ marginLeft: 8 }} onClick={this.onReset}>
           {this.props.resetText}
         </Button>
         {expandVisible && (
@@ -191,12 +189,28 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
       );
   };
 
+  onSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const { form, onSubmit } = this.props;
+    form.validateFieldsAndScroll((err, fieldsValue) => {
+      if (err) return;
+      if (typeof onSubmit === 'function') onSubmit(fieldsValue, form);
+    });
+  };
+
+  onReset = () => {
+    const { form, onReset, onSubmit } = this.props;
+    if (typeof onReset === 'function') return onReset(form);
+    form.resetFields();
+    if (typeof onSubmit === 'function') onSubmit({}, form);
+  };
+
   render() {
     const { animation, filters } = this.props;
     if (!Array.isArray(filters) || !filters.length) return <div />;
     return (
       <Form
-        onSubmit={this.props.onSubmit}
+        onSubmit={this.onSubmit}
         layout="inline"
         className={classnames({
           [styles.standardFilter]: true,
