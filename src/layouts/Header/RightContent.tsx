@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import router from 'umi/router';
 import styles from '../BasicLayout.less';
 import { ClickParam } from 'antd/es/menu';
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { FormattedMessage } from 'umi-plugin-locale';
 import { Spin, Avatar, Dropdown, Menu, Icon, Button } from 'antd';
 import { ConnectState, ConnectProps, LoginState } from '@/models/connect';
@@ -17,7 +17,7 @@ export interface RightContentProps extends ConnectProps {
   login,
   loading: loading.effects['login/fetchUser'],
 }))
-class RightContent extends PureComponent<RightContentProps> {
+class RightContent extends Component<RightContentProps> {
   onLogout = () => {
     this.props.dispatch({
       type: 'login/logout',

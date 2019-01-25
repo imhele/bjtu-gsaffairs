@@ -7,7 +7,7 @@ export default class List extends Component {
       <div>
         <StandardFilter
           filters={[
-            { id: 'test', type: FilterType.Input },
+            { id: 'test1', type: FilterType.Input },
             { id: 'test2', type: FilterType.InputNumber },
             {
               id: 'test3',

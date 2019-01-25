@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import { Component } from 'react';
 import { formatMessage } from 'umi-plugin-locale';
 
 export interface DocumentTitleProps {
@@ -35,7 +35,7 @@ const routeToTitle = (
   return `${formatted}${spacer}${defaultTitle}`;
 };
 
-export default class DocumentTitle extends PureComponent<DocumentTitleProps, DocumentTitleStates> {
+export default class DocumentTitle extends Component<DocumentTitleProps, DocumentTitleStates> {
   static defaultProps = {
     spacer: ' - ',
   };

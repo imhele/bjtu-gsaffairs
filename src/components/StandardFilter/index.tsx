@@ -30,12 +30,24 @@ export interface Filter<T = any> {
   type: FilterType;
 }
 
+export interface FormCreateOptions {
+  onFieldsChange?: (
+    props: StandardFilterProps,
+    fields: object,
+    allFields: any,
+    add: string,
+  ) => void;
+  onValuesChange?: (props: StandardFilterProps, changedValues: any, allValues: any) => void;
+  mapPropsToFields?: (props: StandardFilterProps) => void;
+}
+
 export interface StandardFilterProps extends FormComponentProps {
   animation?: boolean | QueueAnimProps;
   colProps?: ColProps;
   expanded?: boolean;
   expandText?: [string, string] | [React.ReactNode, React.ReactNode];
   filters?: Array<Filter>;
+  formCreateOptions?: FormCreateOptions;
   formItemProps?: FormItemProps;
   groupAmount?: number;
   onReset?: React.MouseEventHandler<HTMLButtonElement>;
@@ -204,8 +216,24 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
   }
 }
 
+const defaultFormCreateOptions: FormCreateOptions = {
+  onFieldsChange: () => {},
+  onValuesChange: () => {},
+  mapPropsToFields: () => {},
+};
+
+let formCreateOptions: FormCreateOptions = defaultFormCreateOptions;
+
 const StandardFilterWrapper: React.SFC<StandardFilterProps> = props => {
+  formCreateOptions = {
+    ...defaultFormCreateOptions,
+    ...props.formCreateOptions,
+  };
   return <StandardFilter {...props} />;
 };
 
-export default Form.create()(StandardFilterWrapper);
+export default Form.create<StandardFilterProps>({
+  onFieldsChange: (...args) => formCreateOptions.onFieldsChange(...args),
+  onValuesChange: (...args) => formCreateOptions.onValuesChange(...args),
+  mapPropsToFields: (...args) => formCreateOptions.mapPropsToFields(...args),
+})(StandardFilterWrapper);

@@ -2,11 +2,12 @@ import Header from './Header';
 import Footer from './Footer';
 import { connect } from 'dva';
 import Media from 'react-media';
+import debounce from 'debounce';
 import { Layout, Spin } from 'antd';
 import memoizeOne from 'memoize-one';
 import QueueAnim from 'rc-queue-anim';
 import styles from './BasicLayout.less';
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import SiderMenu from '@/components/SiderMenu';
 import Authorized from '@/components/Authorized';
 import Exception403 from '@/pages/Exception/403';
@@ -23,10 +24,15 @@ export interface BasicLayoutProps extends ConnectProps {
   route?: Route;
 }
 
-class BasicLayout extends PureComponent<BasicLayoutProps> {
+class BasicLayout extends Component<BasicLayoutProps> {
   pathnameToArr = memoizeOne(pathnameToArr);
 
-  pathToScope = memoizeOne(pathToScope);
+  onCollapse = debounce((collapsed: boolean) => {
+    this.props.dispatch({
+      type: 'global/setCollapsed',
+      payload: collapsed,
+    });
+  }, 30);
 
   private isMobile = false;
 
@@ -41,13 +47,6 @@ class BasicLayout extends PureComponent<BasicLayoutProps> {
       this.isMobile = this.props.isMobile;
       this.onCollapse(this.props.isMobile);
     }
-  };
-
-  onCollapse = (collapsed: boolean) => {
-    this.props.dispatch({
-      type: 'global/setCollapsed',
-      payload: collapsed,
-    });
   };
 
   render() {
@@ -86,7 +85,7 @@ class BasicLayout extends PureComponent<BasicLayoutProps> {
                     children,
                     currentScope,
                     exception: <Exception403 />,
-                    scope: this.pathToScope(route, location.pathname),
+                    scope: pathToScope(route, location.pathname),
                   })
                 )}
                 <Footer key="Footer" />

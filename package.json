@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "@types/classnames": "^2.2.7",
+    "@types/debounce": "^1.2.0",
     "@types/jest": "^23.3.12",
     "@types/memoize-one": "^4.1.0",
     "@types/react": "^16.7.18",

@@ -1,13 +1,13 @@
 import router from 'umi/router';
 import styles from './index.less';
 import classnames from 'classnames';
-import { Layout, Menu, Icon, Drawer } from 'antd';
 import SubMenu from 'antd/es/menu/SubMenu';
 import { SelectParam } from 'antd/es/menu';
-import React, { PureComponent } from 'react';
 import MenuItem from 'antd/es/menu/MenuItem';
+import React, { PureComponent } from 'react';
 import { ConnectProps } from '@/models/connect';
 import { SiderProps } from 'antd/es/layout/Sider';
+import { Layout, Menu, Icon, Drawer } from 'antd';
 import { FormattedMessage } from 'umi-plugin-locale';
 import { CheckAuth, Scope } from '@/components/Authorized';
 

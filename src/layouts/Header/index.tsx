@@ -1,7 +1,7 @@
 import React from 'react';
 import router from 'umi/router';
+import { Component } from 'react';
 import classnames from 'classnames';
-import { PureComponent } from 'react';
 import LeftContent from './LeftContent';
 import styles from '../BasicLayout.less';
 import RightContent from './RightContent';
@@ -21,7 +21,7 @@ export interface HeaderProps {
   route: Route;
 }
 
-export default class Header extends PureComponent<HeaderProps> {
+export default class Header extends Component<HeaderProps> {
   menuArr: React.ReactNode[] = [];
 
   constructor(props: HeaderProps) {
