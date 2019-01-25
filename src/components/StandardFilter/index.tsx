@@ -5,7 +5,6 @@ import { groupByAmount } from '@/utils/utils';
 import { RowProps, ColProps } from 'antd/es/grid';
 import { GetFieldDecoratorOptions } from 'antd/es/form/Form';
 import { FormComponentProps, FormItemProps } from 'antd/es/form';
-import QueueAnim, { IProps as QueueAnimProps } from 'rc-queue-anim';
 import { Button, Col, Form, Icon, Row, Input, InputNumber, Select, DatePicker } from 'antd';
 
 export enum FilterType {
@@ -42,7 +41,7 @@ export interface FormCreateOptions {
 }
 
 export interface StandardFilterProps extends FormComponentProps {
-  animation?: boolean | QueueAnimProps;
+  animation?: boolean;
   colProps?: ColProps;
   expanded?: boolean;
   expandText?: [string, string] | [React.ReactNode, React.ReactNode];
@@ -101,7 +100,7 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
     });
   };
 
-  renderOperationArea = (): Filter => {
+  renderOperationArea = (): React.ReactNode => {
     if (this.props.operationArea)
       return {
         id: 'operationArea',
@@ -110,10 +109,9 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
       };
     const { expanded } = this.state;
     const { filters, groupAmount } = this.props;
-    const onlyChild: boolean = !(filters.length % groupAmount) && expanded;
     const expandVisible: boolean = filters.length >= groupAmount;
     const operationArea = (
-      <div className={classnames(styles.submitButtons, { [styles.expanded]: expanded })}>
+      <div className={styles.operationArea}>
         <Button type="primary" htmlType="submit">
           {this.props.submitText}
         </Button>
@@ -122,24 +120,12 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
         </Button>
         {expandVisible && (
           <a style={{ marginLeft: 8 }} onClick={this.onChangeExpand}>
-            {this.props.expandText[expanded ? 1 : 0]} <Icon type={expanded ? 'up' : 'down'} />
+            {this.props.expandText[expanded ? 1 : 0]} <Icon type="up" className={styles.icon} />
           </a>
         )}
       </div>
     );
-    return {
-      id: 'operationArea',
-      colProps: onlyChild ? { md: 24 } : {},
-      extra: operationArea,
-      type: FilterType.Extra,
-    };
-  };
-
-  getGroup = (): Filter[][] => {
-    const { filters, groupAmount } = this.props;
-    if (this.state.expanded) {
-      return groupByAmount<Filter>(filters.concat(this.renderOperationArea()), groupAmount);
-    } else return [filters.slice(0, groupAmount - 1).concat(this.renderOperationArea())];
+    return operationArea;
   };
 
   renderFormItem = (filter: Filter): React.ReactNode => {
@@ -187,30 +173,38 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
   };
 
   renderFilters = (): React.ReactNode[] => {
-    const { colProps, rowProps } = this.props;
-    return this.getGroup().map((value, index) => (
-      <Row {...rowProps} key={index}>
-        {value.map(item => (
-          <Col {...colProps} {...item.colProps} key={item.id}>
-            {this.renderFormItem(item)}
-          </Col>
-        ))}
-      </Row>
-    ));
+    const { colProps, filters, groupAmount, rowProps } = this.props;
+    return groupByAmount<Filter>(filters, groupAmount)
+      .map((value, index) => (
+        <Row {...rowProps} key={index}>
+          {value.map(item => (
+            <Col {...colProps} {...item.colProps} key={item.id}>
+              {this.renderFormItem(item)}
+            </Col>
+          ))}
+        </Row>
+      ))
+      .concat(
+        <Row {...rowProps} key="OperationArea">
+          <Col>{this.renderOperationArea()}</Col>
+        </Row>,
+      );
   };
 
   render() {
     const { animation, filters } = this.props;
     if (!Array.isArray(filters) || !filters.length) return <div />;
     return (
-      <Form onSubmit={this.props.onSubmit} layout="inline" className={styles.standardFilter}>
-        {animation ? (
-          <QueueAnim type="top" duration={240} {...animation}>
-            {this.renderFilters()}
-          </QueueAnim>
-        ) : (
-          this.renderFilters()
-        )}
+      <Form
+        onSubmit={this.props.onSubmit}
+        layout="inline"
+        className={classnames({
+          [styles.standardFilter]: true,
+          [styles.animation]: animation,
+          [styles.unexpanded]: !this.state.expanded,
+        })}
+      >
+        {this.renderFilters()}
       </Form>
     );
   }

@@ -13,6 +13,7 @@ export type StandardTableActionProps = StandardTableAction | StandardTableAction
 
 export interface StandardTableProps<T> {
   actionKey?: string | ((record: T, index: number) => string);
+  className?: string;
   columns?: ColumnProps<T>[];
   dataSource?: T[];
   footer?: false | ((currentPageData: Object[]) => React.ReactNode);
@@ -31,6 +32,7 @@ export interface StandardTableProps<T> {
   };
   selectable?: boolean | null;
   size?: TableSize;
+  style?: React.CSSProperties;
   unSelectableKey?: string | ((record: T) => string);
 }
 
@@ -110,6 +112,7 @@ export default class StandardTable<T> extends Component<StandardTableProps<T>> {
   render() {
     const {
       actionKey,
+      className,
       columns,
       dataSource,
       footer,
@@ -118,6 +121,7 @@ export default class StandardTable<T> extends Component<StandardTableProps<T>> {
       rowKey,
       scroll,
       size,
+      style,
     } = this.props;
     const actionColumn: ColumnProps<T> = columns.find(column => column.dataIndex === actionKey);
     if (actionColumn && !actionColumn.render) {
@@ -125,6 +129,7 @@ export default class StandardTable<T> extends Component<StandardTableProps<T>> {
     }
     return (
       <Table<T>
+        className={className}
         columns={columns}
         dataSource={dataSource}
         footer={footer === false ? undefined : this.renderFooter}
@@ -134,6 +139,7 @@ export default class StandardTable<T> extends Component<StandardTableProps<T>> {
         rowSelection={this.getRowSelection()}
         scroll={scroll}
         size={size}
+        style={style}
       />
     );
   }

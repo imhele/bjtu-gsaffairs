@@ -1,3 +1,4 @@
+import styles from './List.less';
 import QueueAnim from 'rc-queue-anim';
 import React, { Component } from 'react';
 import StandardTable, { StandardTableActionProps } from '@/components/StandardTable';
@@ -54,14 +55,15 @@ export default class List extends Component {
 
   render() {
     return (
-      <QueueAnim type="top">
+      <QueueAnim type="left">
         <StandardFilter
           key="StandardFilter"
           filters={[
             { id: 'test1', type: FilterType.Input },
             { id: 'test2', type: FilterType.InputNumber },
+            { id: 'test3', type: FilterType.InputNumber },
             {
-              id: 'test3',
+              id: 'test4',
               type: FilterType.Select,
               selectOptions: [
                 { value: 'Option1', title: 'bbb' },

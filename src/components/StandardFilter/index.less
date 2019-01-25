@@ -1,7 +1,13 @@
+@import '../../global.less';
 @import '~antd/es/style/themes/default.less';
 
 .standardFilter {
   :global {
+    .ant-row {
+      opacity: 1;
+      height: 56px;
+      overflow: hidden;
+    }
     .ant-form-item {
       margin-bottom: 24px;
       margin-right: 0;
@@ -19,10 +25,22 @@
       flex: 1;
     }
   }
-  .submitButtons {
+  .operationArea {
     float: right;
     white-space: nowrap;
     margin-bottom: 24px;
+  }
+  &.animation :global(.ant-row), &.animation .icon {
+    .transition-easeOutQuart(0.45s);
+  }
+  &.unexpanded {
+    .icon {
+      .transform(rotate(-180deg));
+    }
+    :global(.ant-row):not(:first-child):not(:last-child) {
+      height: 0;
+      opacity: 0;
+    }
   }
 }
 

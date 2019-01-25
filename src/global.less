@@ -19,9 +19,23 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.transform(@property) {
+  transform: @property;
+  -o-transform: @property;
+  -moz-transform: @property;
+  -webkit-transform: @property;
+}
+
 .transition-linear(@duration, @delay: 0s, @property: all) {
   transition: @property @duration linear @delay;
   -o-transition: @property @duration linear @delay;
   -moz-transition: @property @duration linear @delay;
   -webkit-transition: @property @duration linear @delay;
+}
+
+.transition-easeOutQuart(@duration, @delay: 0s, @property: all) {
+  transition: @property @duration cubic-bezier(0.165, 0.84, 0.44, 1) @delay;
+  -o-transition: @property @duration cubic-bezier(0.165, 0.84, 0.44, 1) @delay;
+  -moz-transition: @property @duration cubic-bezier(0.165, 0.84, 0.44, 1) @delay;
+  -webkit-transition: @property @duration cubic-bezier(0.165, 0.84, 0.44, 1) @delay;
 }
