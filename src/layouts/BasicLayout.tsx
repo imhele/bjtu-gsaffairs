@@ -24,16 +24,24 @@ export interface BasicLayoutProps extends ConnectProps {
 }
 
 class BasicLayout extends PureComponent<BasicLayoutProps> {
+
   pathnameToArr = memoizeOne(pathnameToArr);
 
   pathToScope = memoizeOne(pathToScope);
+  private isMobile = false;
 
   constructor(props: BasicLayoutProps) {
     super(props);
-    props.dispatch({
-      type: 'login/fetchUser',
-    });
+    props.dispatch({ type: 'login/fetchUser' });
+    this.onCollapse(props.isMobile);
   }
+
+  componentDidUpdate = () => {
+    if (this.props.isMobile !== this.isMobile) {
+      this.isMobile = this.props.isMobile;
+      this.onCollapse(this.props.isMobile);
+    }
+  };
 
   onCollapse = (collapsed: boolean) => {
     this.props.dispatch({
@@ -45,8 +53,21 @@ class BasicLayout extends PureComponent<BasicLayoutProps> {
   render() {
     const { children, collapsed, currentScope, isMobile, location, loading, route } = this.props;
     const menuSelectedKeys = this.pathnameToArr(location.pathname);
+    const siderMenu = (
+      <SiderMenu
+        collapsed={collapsed}
+        currentScope={currentScope}
+        drawerTitle="app.name"
+        isMobile={isMobile}
+        location={location}
+        menuSelectedKeys={menuSelectedKeys}
+        onCollapse={this.onCollapse}
+        route={route}
+      />
+    );
     return (
       <DocumentTitle location={location} route={route} defaultTitle="app.name">
+        {isMobile && siderMenu}
         <Layout className={styles.layout}>
           <QueueAnim type="left" delay={200}>
             <Header
@@ -60,16 +81,7 @@ class BasicLayout extends PureComponent<BasicLayoutProps> {
               route={route}
             />
             <Layout key="Layout">
-              <SiderMenu
-                collapsed={collapsed}
-                currentScope={currentScope}
-                drawerTitle="app.name"
-                isMobile={isMobile}
-                location={location}
-                menuSelectedKeys={menuSelectedKeys}
-                onCollapse={this.onCollapse}
-                route={route}
-              />
+              {!isMobile && siderMenu}
               <Content className={styles.content}>
                 {loading ? (
                   <Spin size="large" />

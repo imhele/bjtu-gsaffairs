@@ -2,7 +2,7 @@ import { Model } from 'dva';
 
 const resetNamespace: string[] = ['login'];
 const defaultState = {
-  collapsed: false,
+  collapsed: true,
 };
 
 export type GlobalState = Readonly<typeof defaultState>;

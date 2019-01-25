@@ -16,12 +16,18 @@
   display: flex;
   margin: 0 auto;
   line-height: 64px;
-  :global(.ant-menu) {
+  .centerContent() {
     flex: 1;
     height: 64px;
     -webkit-flex: 1;
     line-height: 64px;
     position: relative;
+  }
+  .centerContent {
+    .centerContent();
+  }
+  :global(.ant-menu) {
+    .centerContent();
   }
   .leftContent {
     float: left;
@@ -103,7 +109,6 @@ body .userMenu {
 }
 
 .content {
-  width: 100%;
   min-height: calc(100vh - 64px - @page-gap-6);
   margin: @page-gap-6 @page-gap-4 0 @page-gap-4;
 }

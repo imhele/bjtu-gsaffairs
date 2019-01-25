@@ -67,14 +67,18 @@ export default class Header extends PureComponent<HeaderProps> {
       <Layout.Header className={styles.header}>
         <div className={className}>
           <LeftContent onOpenMenu={onOpenMenu} isMobile={isMobile} />
-          <Menu
-            theme="dark"
-            mode="horizontal"
-            onClick={this.handleClickMenu}
-            selectedKeys={menuSelectedKeys}
-          >
-            {this.menuArr}
-          </Menu>
+          {isMobile ? (
+            <div className={styles.centerContent} />
+          ) : (
+            <Menu
+              theme="dark"
+              mode="horizontal"
+              onClick={this.handleClickMenu}
+              selectedKeys={menuSelectedKeys}
+            >
+              {this.menuArr}
+            </Menu>
+          )}
           <RightContent />
         </div>
       </Layout.Header>

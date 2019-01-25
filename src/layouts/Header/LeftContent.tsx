@@ -14,12 +14,11 @@ const LeftContent: React.SFC<LeftContentProps> = ({ isMobile, onOpenMenu }) =>
       className={styles.leftContent}
       onClick={onOpenMenu}
       style={{
-        width: 72,
-        height: 40,
-        fontSize: 24,
+        width: 48,
+        fontSize: 20,
         color: '#fff',
-        lineHeight: '40px',
-        margin: '12px 4px',
+        margin: '16px',
+        textAlign: 'left',
       }}
     >
       <Icon type="menu-unfold" />
