@@ -4,13 +4,17 @@
 
 Postgraduate Assistant Post Management System.
 
+## Slogan
+
+🎈 Use experiential technology to make society a little better.
+
 ## Usage
 
 ```bash
 $ git clone https://github.com/imhele/bjtu-papms.git --depth=1
 $ cd bjtu-papms
 $ npm install
-$ npm start         # visit http://localhost:8000
+$ npm start         # or `npm start:win` in Windows CMD
 ```
 
 
