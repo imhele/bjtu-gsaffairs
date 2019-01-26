@@ -6,7 +6,7 @@ Postgraduate Assistant Post Management System.
 
 ## Slogan
 
-🎈 Use experiential technology to make society a little better.
+🎈 Use technology of user experience to make society a little better.
 
 ## Usage
 
