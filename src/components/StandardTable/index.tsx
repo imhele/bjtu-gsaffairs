@@ -1,10 +1,11 @@
 import { SpinProps } from 'antd/es/spin';
 import React, { Component } from 'react';
+import { Divider, Icon, Table } from 'antd';
 import { sandwichArray } from '@/utils/utils';
-import { Divider, Table } from 'antd';
 import { ColumnProps, PaginationConfig, TableRowSelection, TableSize } from 'antd/es/table';
 
 interface StandardTableAction {
+  icon?: string;
   text?: string | number | React.ReactNode;
   type: string;
 }
@@ -93,6 +94,7 @@ export default class StandardTable<T> extends Component<StandardTableProps<T>> {
       typeof this.props.rowKey === 'function'
         ? this.props.rowKey(record, index)
         : this.props.rowKey;
+    const icon = action.icon && <Icon type={action.icon} />;
     return (
       <a
         data-key={record[rowKey]}
@@ -100,7 +102,7 @@ export default class StandardTable<T> extends Component<StandardTableProps<T>> {
         key={action.type}
         onClick={onClickAction}
       >
-        {action.text || action.type}
+        {action.text || icon || action.type}
       </a>
     );
   };
