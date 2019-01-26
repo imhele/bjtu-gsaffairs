@@ -1,3 +1,4 @@
+import { message } from 'antd';
 import styles from './List.less';
 import QueueAnim from 'rc-queue-anim';
 import React, { Component } from 'react';
@@ -52,12 +53,15 @@ const columns: ColumnProps<Test>[] = [
   },
 ];
 
-const operationArea: StandardTableOperationAreaProps<Test> = {
+const operationArea: StandardTableOperationAreaProps = {
+  moreText: '更多',
+  onClick: (rowKeys, type) =>
+    message.info(`Click on ${type}, selected key(s): ${rowKeys.length ? rowKeys.join(' ') : 'None'}`),
   operation: [
     { icon: 'plus', text: '新建', type: 'create' },
-    { text: '导出', type: 'export' },
+    { icon: 'cloud-download', text: '导出', type: 'export', loading: true },
     { text: '删除', type: 'delete' },
-    { text: '示例', type: 'exmaple' },
+    { text: '示例', type: 'exmaple', loading: true },
   ],
 };
 
@@ -90,9 +94,6 @@ export default class List extends Component {
           key="StandardTable"
           columns={columns}
           dataSource={dataSource}
-          getMenthods={({ clearSelectedRowKeys }) => {
-            setTimeout(clearSelectedRowKeys, 10000);
-          }}
           onClickAction={this.onClickAction}
           operationArea={operationArea}
           selectable

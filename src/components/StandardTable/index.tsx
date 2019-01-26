@@ -1,10 +1,26 @@
 import styles from './index.less';
 import { SpinProps } from 'antd/es/spin';
+import { ClickParam } from 'antd/es/menu';
 import React, { Component } from 'react';
 import { ButtonProps } from 'antd/es/button';
 import { sandwichArray } from '@/utils/utils';
-import { Button, Divider, Icon, Table } from 'antd';
+import { DropDownProps } from 'antd/es/dropdown';
+import { Button, Divider, Dropdown, Icon, Menu, Table } from 'antd';
 import { ColumnProps, PaginationConfig, TableRowSelection, TableSize } from 'antd/es/table';
+
+// Ref `antd/es/menu/MenuItem`
+interface MenuItemProps {
+  rootPrefixCls?: string;
+  disabled?: boolean;
+  level?: number;
+  title?: React.ReactNode;
+  children?: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+  onClick?: (param: ClickParam) => void;
+  onMouseEnter?: (event: string, e: MouseEvent) => void;
+  onMouseLeave?: (event: string, e: MouseEvent) => void;
+}
 
 interface StandardTableAction {
   icon?: string;
@@ -14,18 +30,24 @@ interface StandardTableAction {
 
 export { ColumnProps, PaginationConfig, TableRowSelection, TableSize };
 
-export interface StandardTableOperation<T> extends StandardTableAction {
+export interface StandardTableOperation extends StandardTableAction {
   buttonProps?: ButtonProps;
   disabled?: boolean | ((selectedRowKeys: string[] | number[], type: string) => boolean);
   loading?: boolean | ((selectedRowKeys: string[] | number[], type: string) => boolean);
+  menuProps?: MenuItemProps;
   visible?: boolean | ((selectedRowKeys: string[] | number[], type: string) => boolean);
 }
 
-export interface StandardTableOperationAreaProps<T> {
+export interface StandardTableOperationAreaProps {
+  dropdownProps?: DropDownProps;
   maxAmount?: number;
   moreText?: string | React.ReactNode;
-  onClick?: (selectedRowKeys: string[] | number[], type: string, event: React.MouseEvent) => void;
-  operation: StandardTableOperation<T> | StandardTableOperation<T>[];
+  onClick?: (
+    selectedRowKeys: string[] | number[],
+    type: string,
+    event: React.MouseEvent | ClickParam,
+  ) => void;
+  operation: StandardTableOperation | StandardTableOperation[];
 }
 
 export type StandardTableActionProps = StandardTableAction | StandardTableAction[];
@@ -50,7 +72,7 @@ export interface StandardTableProps<T> {
     selectedRows: T[],
   ) => string[] | number[];
   onClickAction?: (event: React.MouseEvent) => void;
-  operationArea?: StandardTableOperationAreaProps<T> | null;
+  operationArea?: StandardTableOperationAreaProps | null;
   pagination?: PaginationConfig | false;
   rowKey?: string | ((record: T, index: number) => string);
   scroll?: {
@@ -197,12 +219,19 @@ export default class StandardTable<T> extends Component<
     }
   };
 
-  onClickOperationItem = (event: any): void => {
+  onClickOperationItem = (event: React.MouseEvent | ClickParam): void => {
     const { selectedRowKeys } = this.state;
-    console.log(event.currentTarget.dataset, selectedRowKeys); // tslint:disable-line
+    const { operationArea } = this.props;
+    if (!operationArea || typeof operationArea.onClick !== 'function') return;
+    if ('currentTarget' in event) {
+      const { dataset: { type = '' } = {} } = event.currentTarget as any;
+      operationArea.onClick(selectedRowKeys, type, event);
+    } else {
+      operationArea.onClick(selectedRowKeys, event.key, event);
+    }
   };
 
-  renderOperationItem = (item: StandardTableOperation<T>, index: number): React.ReactNode => {
+  getOperationItemProps = (item: StandardTableOperation) => {
     const { selectedRowKeys } = this.state;
     const visible =
       typeof item.visible === 'function' ? item.visible(selectedRowKeys, item.type) : item.visible;
@@ -213,20 +242,39 @@ export default class StandardTable<T> extends Component<
         : item.disabled;
     const loading =
       typeof item.loading === 'function' ? item.loading(selectedRowKeys, item.type) : item.loading;
+    return { disabled, loading };
+  };
+
+  renderOperationButtonItem = (item: StandardTableOperation): React.ReactNode => {
+    const itemProps = this.getOperationItemProps(item);
+    if (itemProps === null) return null;
     return (
       <Button
         className={styles.operation}
         data-type={item.type}
-        disabled={disabled}
         icon={item.icon}
         key={item.type}
-        loading={loading}
         onClick={this.onClickOperationItem}
-        type={index ? 'default' : 'primary'}
+        {...itemProps}
         {...item.buttonProps}
       >
         {item.text || item.type}
       </Button>
+    );
+  };
+
+  renderOperationMenuItem = (item: StandardTableOperation): React.ReactNode => {
+    const itemProps = this.getOperationItemProps(item);
+    if (itemProps === null) return null;
+    return (
+      <Menu.Item
+        key={item.type}
+        disabled={itemProps.disabled || itemProps.loading}
+        {...item.menuProps}
+      >
+        {item.loading ? <Icon type="loading" /> : null}
+        {item.text || item.type}
+      </Menu.Item>
     );
   };
 
@@ -237,8 +285,27 @@ export default class StandardTable<T> extends Component<
     const operation = Array.isArray(operationArea.operation)
       ? operationArea.operation
       : [operationArea.operation];
-    if (operation.length <= maxAmount) return operation.map(this.renderOperationItem);
-    return operation.map(this.renderOperationItem);
+    if (!operation.length) return null;
+    operation[0].buttonProps = {
+      type: 'primary',
+      ...operation[0].buttonProps,
+    };
+    if (operation.length <= maxAmount) return operation.map(this.renderOperationButtonItem);
+    const overlay = (
+      <Menu onClick={this.onClickOperationItem}>
+        {operation.slice(maxAmount - 1).map(this.renderOperationMenuItem)}
+      </Menu>
+    );
+    return operation
+      .slice(0, maxAmount - 1)
+      .map(this.renderOperationButtonItem)
+      .concat(
+        <Dropdown key="Dropdown" overlay={overlay} {...operationArea.dropdownProps}>
+          <Button className={styles.operation}>
+            {moreText} <Icon type="down" />
+          </Button>
+        </Dropdown>,
+      );
   };
 
   render() {
