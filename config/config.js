@@ -11,6 +11,7 @@ export default {
   publicPath: 'https://cdn.imhele.com/bjtu-papms/',
   targets: {
     ie: 11,
+    android: 4,
   },
   plugins: [
     // ref: https://umijs.org/plugin/umi-plugin-react.html

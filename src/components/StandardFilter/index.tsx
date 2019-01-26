@@ -3,8 +3,8 @@ import classnames from 'classnames';
 import React, { Component } from 'react';
 import { groupByAmount } from '@/utils/utils';
 import { RowProps, ColProps } from 'antd/es/grid';
-import { GetFieldDecoratorOptions, WrappedFormUtils } from 'antd/es/form/Form';
 import { FormComponentProps, FormItemProps } from 'antd/es/form';
+import { GetFieldDecoratorOptions, WrappedFormUtils } from 'antd/es/form/Form';
 import { Button, Col, Form, Icon, Row, Input, InputNumber, Select, DatePicker } from 'antd';
 
 export enum FilterType {
@@ -99,12 +99,8 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
   };
 
   renderOperationArea = (): React.ReactNode => {
-    if (this.props.operationArea)
-      return {
-        id: 'operationArea',
-        extra: this.props.operationArea,
-        type: FilterType.Extra,
-      };
+    if (this.props.operationArea || this.props === null)
+      return this.props.operationArea;
     const { expanded } = this.state;
     const { filters, groupAmount } = this.props;
     const expandVisible: boolean = filters.length >= groupAmount;

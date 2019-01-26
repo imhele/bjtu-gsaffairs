@@ -1,12 +1,16 @@
 import styles from './List.less';
 import QueueAnim from 'rc-queue-anim';
 import React, { Component } from 'react';
-import StandardTable, { StandardTableActionProps } from '@/components/StandardTable';
 import StandardFilter, { FilterType } from '@/components/StandardFilter';
+import StandardTable, {
+  ColumnProps,
+  StandardTableActionProps,
+  StandardTableOperationAreaProps,
+} from '@/components/StandardTable';
 
 interface Test {
   key: string;
-  name: string;
+  name: StandardTableActionProps;
   age: number;
   address: string;
   action: StandardTableActionProps;
@@ -15,21 +19,21 @@ interface Test {
 const dataSource: Test[] = [
   {
     key: '1',
-    name: '胡彦斌',
+    name: [{ type: '胡彦斌' }],
     age: 32,
     address: '西湖区湖底公园1号',
     action: [{ type: '编辑' }, { type: '删除' }],
   },
   {
     key: '2',
-    name: '胡彦祖',
+    name: [{ type: '胡彦祖' }],
     age: 42,
     address: '西湖区湖底公园1号',
     action: [{ type: '编辑' }, { type: '删除' }],
   },
 ];
 
-const columns = [
+const columns: ColumnProps<Test>[] = [
   {
     title: '姓名',
     dataIndex: 'name',
@@ -47,6 +51,15 @@ const columns = [
     dataIndex: 'action',
   },
 ];
+
+const operationArea: StandardTableOperationAreaProps<Test> = {
+  operation: [
+    { icon: 'plus', text: '新建', type: 'create' },
+    { text: '导出', type: 'export' },
+    { text: '删除', type: 'delete' },
+    { text: '示例', type: 'exmaple' },
+  ],
+};
 
 export default class List extends Component {
   onClickAction = (event: any) => {
@@ -73,10 +86,16 @@ export default class List extends Component {
           ]}
         />
         <StandardTable
+          actionKey={['action', 'name']}
           key="StandardTable"
           columns={columns}
           dataSource={dataSource}
+          getMenthods={({ clearSelectedRowKeys }) => {
+            setTimeout(clearSelectedRowKeys, 10000);
+          }}
           onClickAction={this.onClickAction}
+          operationArea={operationArea}
+          selectable
         />
       </QueueAnim>
     );
