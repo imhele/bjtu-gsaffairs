@@ -1,4 +1,5 @@
 // ref: https://umijs.org/config/
+import { join } from 'path';
 import routes from './routes';
 
 export default {
@@ -39,4 +40,7 @@ export default {
     // ref: https://github.com/imhele/umi-plugin-nprogress
     'umi-plugin-nprogress',
   ],
+  alias: {
+    'isomorphic-fetch': join(__dirname, './mock.js'),
+  },
 };
