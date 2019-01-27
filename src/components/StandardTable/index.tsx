@@ -81,7 +81,7 @@ export interface StandardTableProps<T> {
     x?: boolean | number | string;
     y?: boolean | number | string;
   };
-  selectable?: boolean;
+  selectable?: boolean | TableRowSelection<T>;
   size?: TableSize;
   style?: React.CSSProperties;
   unSelectableKey?: string | ((record: T) => string);
@@ -150,6 +150,7 @@ export default class StandardTable<T> extends Component<
     return {
       getCheckboxProps,
       selectedRowKeys: this.state.selectedRowKeys,
+      ...(selectable === true ? {} : selectable),
       onChange: (selectedRowKeys, selectedRows) => {
         this.setState({ selectedRowKeys: onChangeSelection(selectedRowKeys, selectedRows) });
       },

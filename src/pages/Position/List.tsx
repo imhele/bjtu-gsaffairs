@@ -2,9 +2,10 @@ import { connect } from 'dva';
 // import styles from './List.less';
 import QueueAnim from 'rc-queue-anim';
 import React, { Component } from 'react';
-import { message, Spin } from 'antd';
+import { RadioChangeEvent } from 'antd/es/radio';
 import { FetchListBody } from '@/services/position';
 import { FormattedMessage } from 'umi-plugin-locale';
+import { message, Radio, Skeleton, Spin } from 'antd';
 import StandardFilter from '@/components/StandardFilter';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import StandardTable, {
@@ -118,9 +119,38 @@ export default class List extends Component<ListProps, ListState> {
       onShowSizeChange: this.onShowSizeChange,
       pageSize: this.limit,
       showSizeChanger: true,
-      size: this.state.size === ListSize.Default ? '' : 'small',
+      size: this.state.size,
       total,
     };
+  };
+
+  onChangeListSize = (event: RadioChangeEvent) => {
+    this.setState({ size: event.target.value });
+  };
+
+  renderTableFooter = (): React.ReactNode => {
+    return (
+      <div>
+        <div style={{ display: 'inline-block', marginRight: 12 }}>
+          <FormattedMessage id="position.list.tableSize" />
+        </div>
+        <Radio.Group
+          onChange={this.onChangeListSize}
+          size={this.state.size === ListSize.Small ? 'small' : 'default'}
+          value={this.state.size}
+        >
+          <Radio.Button value={ListSize.Default}>
+            <FormattedMessage id={`position.list.tableSize.${ListSize.Default}`} />
+          </Radio.Button>
+          <Radio.Button value={ListSize.Middle}>
+            <FormattedMessage id={`position.list.tableSize.${ListSize.Middle}`} />
+          </Radio.Button>
+          <Radio.Button value={ListSize.Small}>
+            <FormattedMessage id={`position.list.tableSize.${ListSize.Small}`} />
+          </Radio.Button>
+        </Radio.Group>
+      </div>
+    );
   };
 
   onSubmitFilter = (filtersValue: object) => {
@@ -134,28 +164,36 @@ export default class List extends Component<ListProps, ListState> {
 
   render() {
     const { loading } = this.props;
-    const { actionKey, columns, dataSource, filters, scroll } = this.props.position;
+    const { actionKey, columns, dataSource, filters, scroll, selectable } = this.props.position;
     return (
       <QueueAnim type="left">
-        <Spin key="StandardFilter" size="large" spinning={loading.fetchList}>
-          <StandardFilter
-            expandText={this.filterExpandText}
-            filters={filters}
-            onSubmit={this.onSubmitFilter}
-            resetText={<FormattedMessage id="words.reset" />}
-            submitText={<FormattedMessage id="words.query" />}
-          />
-        </Spin>
+        {filters && filters.length ? (
+          <Spin key="StandardFilter" size="large" spinning={loading.fetchList}>
+            <StandardFilter
+              expandText={this.filterExpandText}
+              filters={filters}
+              onSubmit={this.onSubmitFilter}
+              resetText={<FormattedMessage id="words.reset" />}
+              submitText={<FormattedMessage id="words.query" />}
+            />
+          </Spin>
+        ) : (
+          <div style={{ marginBottom: 24 }}>
+            <Skeleton active />
+          </div>
+        )}
         <StandardTable
           actionKey={actionKey}
           columns={columns}
           dataSource={dataSource}
+          footer={this.renderTableFooter}
           loading={loading.model}
           key="StandardTable"
           onClickAction={this.onClickAction}
           operationArea={operationArea}
           pagination={this.getPagination()}
           scroll={scroll}
+          selectable={selectable}
           size={this.state.size}
         />
       </QueueAnim>

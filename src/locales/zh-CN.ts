@@ -1,4 +1,5 @@
 import exception from './zh-CN/exception';
+import position from './zh-CN/position';
 import user from './zh-CN/user';
 import words from './zh-CN/words';
 
@@ -10,6 +11,7 @@ export default {
   'app.position.manage': '助管岗位',
   'app.position.teach': '助教岗位',
   ...exception,
+  ...position,
   ...user,
   ...words,
 };

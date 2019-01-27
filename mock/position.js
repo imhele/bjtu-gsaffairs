@@ -11,7 +11,11 @@ const possibleValues = {
   campus: ['校本部', '东校区'],
   checkStatus: ['草稿', '待审核', '审核通过', '审核不通过', '无效'],
   depName: ['交通运输学院', '软件学院', '计算机与信息技术学院'],
-  name: [{ text: '中国城市轨道交通协会专家和学术委员会', type: 'preview' }],
+  name: [
+    [{ text: 'aaaaaaaaaaaaaaa', type: 'preview' }],
+    [{ text: 'bbbbbbbbbbbbbbb', type: 'preview' }],
+    [{ text: 'imheleimheleimhele', type: 'preview' }],
+  ],
   releaseStatus: ['未发布', '已发布'],
   sess: ['2018-2019学年 第一学期', '2018-2019学年 第二学期'],
   way: ['固定', '临时'],
@@ -19,32 +23,32 @@ const possibleValues = {
 
 const columns = [
   {
-    width: 195,
+    width: 200,
     title: '学期',
     dataIndex: 'sess',
   },
   {
-    width: 180,
+    width: 185,
     title: '单位',
     dataIndex: 'depName',
   },
   {
-    width: 315,
+    width: 310,
     title: '岗位名称',
     dataIndex: 'name',
   },
   {
-    width: 60,
+    width: 64,
     title: '岗位人数',
     dataIndex: 'needNum',
   },
   {
-    width: 80,
+    width: 78,
     title: '校区',
     dataIndex: 'campus',
   },
   {
-    width: 105,
+    width: 108,
     title: '审核状态',
     dataIndex: 'checkStatus',
   },
@@ -59,12 +63,12 @@ const columns = [
     dataIndex: 'way',
   },
   {
-    width: 105,
+    width: 108,
     title: '申请状态',
     dataIndex: 'applyStatus',
   },
   {
-    width: 150,
+    width: 140,
     title: '操作',
     dataIndex: 'action',
   },
@@ -127,7 +131,7 @@ const source = Array.from({ length: 120 }).map((_, index) => ({
   campus: possibleValues.campus[Math.random() > 0.6 ? 0 : 1],
   checkStatus: possibleValues.checkStatus[index % 5],
   depName: possibleValues.depName[index % 3],
-  name: [{ text: '中国城市轨道交通协会专家和学术委员会', type: 'preview' }],
+  name: possibleValues.name[Math.random() > 0.33 ? (Math.random() > 0.66 ? 0 : 1) : 2],
   needNum: parseInt((Math.random() * 100).toFixed(0), 10),
   releaseStatus: possibleValues.releaseStatus[index % 2],
   sess: possibleValues.sess[index % 2],
@@ -171,7 +175,9 @@ const positionList = (req, res) => {
     columns: columns.filter(col => !['applyStatus', 'way'].includes(col.dataIndex)),
     dataSource,
     filters: filters.filter(col => !['applyStatus', 'way'].includes(col.dataIndex)),
-    selectable: true,
+    selectable: {
+      columnWidth: 57,
+    },
     total: filteredSource.length,
   };
   if (filtersKey.length) {

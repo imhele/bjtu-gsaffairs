@@ -1,6 +1,7 @@
 export default {
   'words.close': '关闭',
   'words.confirm': '确认',
+  'words.create': '创建',
   'words.expand': '展开',
   'words.open': '打开',
   'words.query': '查询',

@@ -97,6 +97,8 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
     expanded: false,
   };
 
+  private initialFieldsValue = {};
+
   onChangeExpand = () => {
     if (this.props.expanded !== undefined) return;
     this.setState({
@@ -105,8 +107,7 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
   };
 
   renderOperationArea = (): React.ReactNode => {
-    if (this.props.operationArea || this.props === null)
-      return this.props.operationArea;
+    if (this.props.operationArea || this.props === null) return this.props.operationArea;
     const { expanded } = this.state;
     const { filters, groupAmount } = this.props;
     const expandVisible: boolean = filters.length >= groupAmount;
@@ -120,7 +121,8 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
         </Button>
         {expandVisible && (
           <a style={{ marginLeft: 8 }} onClick={this.onChangeExpand}>
-            {this.props.expandText[expanded ? 'retract' : 'expand']} <Icon type="up" className={styles.icon} />
+            {this.props.expandText[expanded ? 'retract' : 'expand']}{' '}
+            <Icon type="up" className={styles.icon} />
           </a>
         )}
       </div>
@@ -167,7 +169,10 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
     }
     return (
       <Form.Item label={filter.title || filter.id} {...this.props.formItemProps}>
-        {this.props.form.getFieldDecorator(filter.id, filter.decoratorOptions)(item)}
+        {this.props.form.getFieldDecorator(filter.id, {
+          initialValue: this.initialFieldsValue[filter.id],
+          ...filter.decoratorOptions,
+        })(item)}
       </Form.Item>
     );
   };
@@ -196,12 +201,14 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
     const { form, onSubmit } = this.props;
     form.validateFieldsAndScroll((err, fieldsValue) => {
       if (err) return;
+      this.initialFieldsValue = fieldsValue;
       if (typeof onSubmit === 'function') onSubmit(fieldsValue, form);
     });
   };
 
   onReset = () => {
     const { form, onReset, onSubmit } = this.props;
+    this.initialFieldsValue = {};
     if (typeof onReset === 'function') return onReset(form);
     form.resetFields();
     if (typeof onSubmit === 'function') onSubmit({}, form);
