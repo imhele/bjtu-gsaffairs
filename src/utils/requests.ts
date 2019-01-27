@@ -1,11 +1,29 @@
 import hash from 'hash.js';
+import { message } from 'antd';
 import router from 'umi/router';
 import { getSign } from './auth';
 import fetch from 'isomorphic-fetch'; // @issue: https://github.com/dvajs/dva/issues/2000
 
-export interface RequestOptions extends RequestInit {
+export interface RequestBody {}
+
+export type RequestOptions<T extends RequestBody> = {
+  body?: T | string;
   expirys?: number;
-}
+} & {
+  [P in
+    | 'cache'
+    | 'credentials'
+    | 'headers'
+    | 'integrity'
+    | 'keepalive'
+    | 'method'
+    | 'mode'
+    | 'redirect'
+    | 'referrer'
+    | 'referrerPolicy'
+    | 'signal'
+    | 'window']?: RequestInit[P]
+};
 
 const cachedSave = (response: Response, hashcode: string) => {
   /**
@@ -33,7 +51,10 @@ const cachedSave = (response: Response, hashcode: string) => {
  * @param  {object} [option] The options we want to pass to "fetch"
  * @return {object}           An object containing either "data" or "err"
  */
-export default function request(url: string, options: RequestOptions): Promise<any> {
+export default async function request<T>(
+  url: string,
+  options: RequestOptions<T> = {},
+): Promise<any> {
   /**
    * Produce fingerprints based on url and parameters
    * Maybe url has the same parameters
@@ -44,7 +65,7 @@ export default function request(url: string, options: RequestOptions): Promise<a
     .sha256()
     .update(fingerprint)
     .digest('hex');
-  const newOptions: RequestOptions = {
+  const newOptions: RequestOptions<T> = {
     expirys: 60,
     credentials: 'omit' as RequestCredentials,
     ...options,
@@ -79,14 +100,14 @@ export default function request(url: string, options: RequestOptions): Promise<a
     if (cached !== null && whenCached !== null) {
       const age: number = (Date.now() - parseInt(whenCached, 10)) / 1000;
       if (age < options.expirys) {
-        const response = new Response(new Blob([cached]));
-        return response.json();
+        const cachedResponse = await new Response(new Blob([cached])).json();
+        if (typeof cachedResponse !== 'object' || !cachedResponse.errcode) return cachedResponse;
       }
       sessionStorage.removeItem(hashcode);
       sessionStorage.removeItem(`${hashcode}:timestamp`);
     }
   }
-  return fetch(url, newOptions)
+  const formattedResponse = await fetch(url, newOptions)
     .then(response => cachedSave(response, hashcode))
     .then(response => {
       if (newOptions.method === 'DELETE' || response.status === 204) {
@@ -106,4 +127,7 @@ export default function request(url: string, options: RequestOptions): Promise<a
       // if (status <= 504 && status >= 500) return router.push('/exception/500');
       if (status >= 404 && status < 422) return router.push('/exception/404');
     });
+  if (typeof formattedResponse !== 'object' || !formattedResponse.errcode) return formattedResponse;
+  message.error(`Errcode ${formattedResponse.errcode}: ${formattedResponse.errmsg}`);
+  return {};
 }

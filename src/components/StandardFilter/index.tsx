@@ -45,7 +45,7 @@ export interface StandardFilterProps extends FormComponentProps {
   colProps?: ColProps;
   expanded?: boolean;
   expandText?: [string, string] | [React.ReactNode, React.ReactNode];
-  filters?: Array<Filter>;
+  filters?: Filter[];
   formCreateOptions?: FormCreateOptions;
   formItemProps?: FormItemProps;
   groupAmount?: number;

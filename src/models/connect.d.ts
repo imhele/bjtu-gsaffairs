@@ -1,12 +1,13 @@
 import { GlobalState } from './global';
 import { LoginState } from './login';
+import { PositionState } from '@/pages/Position/models/position';
 
-export { LoginState, GlobalState };
+export { GlobalState, LoginState, PositionState };
 
-export type Dispatch = (
+export type Dispatch = <T = any>(
   action: {
     type: string;
-    payload?: any;
+    payload?: T;
   },
 ) => any;
 
@@ -16,6 +17,7 @@ export interface Loading {
   models: {
     globale?: boolean;
     login?: boolean;
+    position?: boolean;
   };
 }
 
@@ -23,6 +25,7 @@ export interface ConnectState {
   global: GlobalState;
   login: LoginState;
   loading: Loading;
+  position?: PositionState;
 }
 
 export interface ConnectProps extends React.Props<any> {

@@ -4,6 +4,6 @@ import commonStyles from '../common.less';
 
 export default () => (
   <div className={commonStyles.contentBody}>
-    <List />
+    <List type="manage" />
   </div>
 );
