@@ -6,7 +6,10 @@ import React, { Component } from 'react';
 import { FetchListBody } from '@/services/position';
 import StandardFilter from '@/components/StandardFilter';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
-import StandardTable, { StandardTableOperationAreaProps } from '@/components/StandardTable';
+import StandardTable, {
+  PaginationConfig,
+  StandardTableOperationAreaProps,
+} from '@/components/StandardTable';
 
 const operationArea: StandardTableOperationAreaProps = {
   moreText: '更多',
@@ -31,9 +34,14 @@ export interface ListProps extends ConnectProps {
   type?: 'manage' | 'teach';
 }
 
+enum ListSize {
+  Default = 'default',
+  Middle = 'middle',
+  Small = 'small',
+}
+
 interface ListState {
-  limit: number;
-  offset: number;
+  size: ListSize;
 }
 
 @connect(({ loading, position }: ConnectState) => ({
@@ -44,13 +52,21 @@ interface ListState {
   position,
 }))
 export default class List extends Component<ListProps, ListState> {
-  // `filter` is not a state, but just data copy from StandardFilter
-  filtersValue: object = {};
 
   state: ListState = {
-    limit: 10,
-    offset: 0,
+    size: ListSize.Default,
   };
+  /**
+   * `filter` is not a state, but just data copy from StandardFilter
+   */
+  private filtersValue: object = {};
+  /**
+   * When user changes value of `limit` or `offset`,
+   * `onShowSizeChange` and `onChangPage` will call `fetchList`
+   * which makes `props` change and trigger component re-rendering.
+   */
+  private limit: number = 10;
+  private offset: number = 0;
 
   constructor(props: ListProps) {
     super(props);
@@ -63,11 +79,44 @@ export default class List extends Component<ListProps, ListState> {
       type: 'position/fetchList',
       payload: {
         filtersValue: this.filtersValue,
-        limit: this.state.limit,
-        offset: this.state.offset,
+        limit: this.limit,
+        offset: this.offset,
         type: this.props.type,
       },
+      callback: this.correctOffset,
     });
+  };
+
+  correctOffset = () => {
+    const { dataSource, total } = this.props.position;
+    // exception: offset === 0
+    if (this.offset && total <= this.offset) {
+      this.offset = total - dataSource.length;
+    }
+  };
+
+  onChangePage = (page: number, pageSize: number) => {
+    this.limit = pageSize;
+    this.offset = (page - 1) * pageSize;
+    this.fetchList();
+  }
+
+  onShowSizeChange = (_: number, pageSize: number) => {
+    this.limit = pageSize;
+    this.fetchList();
+  };
+
+  getPagination = (): PaginationConfig => {
+    const { total } = this.props.position;
+    return {
+      current: parseInt((this.offset / this.limit + 1).toFixed(0), 10),
+      onChange: this.onChangePage,
+      onShowSizeChange: this.onShowSizeChange,
+      pageSize: this.limit,
+      showSizeChanger: true,
+      size: this.state.size === ListSize.Default ? '' : 'small',
+      total,
+    };
   };
 
   onClickAction = (rowKey: string, actionType: string) => {
@@ -75,7 +124,7 @@ export default class List extends Component<ListProps, ListState> {
   };
 
   render() {
-    const { actionKey, columns, dataSource } = this.props.position;
+    const { actionKey, columns, dataSource, scroll } = this.props.position;
     return (
       <QueueAnim type="left">
         <StandardFilter key="StandardFilter" />
@@ -83,9 +132,13 @@ export default class List extends Component<ListProps, ListState> {
           actionKey={actionKey}
           columns={columns}
           dataSource={dataSource}
+          loading={this.props.loading.model}
           key="StandardTable"
           onClickAction={this.onClickAction}
           operationArea={operationArea}
+          pagination={this.getPagination()}
+          scroll={scroll}
+          size={this.state.size}
         />
       </QueueAnim>
     );

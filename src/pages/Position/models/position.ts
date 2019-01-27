@@ -24,6 +24,9 @@ const defaultState: PositionState = {
   dataSource: [],
   total: 0,
   filterOptions: [],
+  scroll: {
+    x: 1180,
+  },
 };
 
 export interface PositionModel extends Model {
@@ -34,12 +37,13 @@ const model: PositionModel = {
   namespace: 'position',
   state: defaultState,
   effects: {
-    *fetchList({ payload }, { call, put }) {
+    *fetchList({ callback, payload }, { call, put }) {
       const response = yield call(fetchList, payload);
       yield put({
         type: 'setState',
         payload: response,
       });
+      if (typeof callback === 'function') callback();
     },
   },
   reducers: {

@@ -129,5 +129,5 @@ export default async function request<T>(
     });
   if (typeof formattedResponse !== 'object' || !formattedResponse.errcode) return formattedResponse;
   message.error(`Errcode ${formattedResponse.errcode}: ${formattedResponse.errmsg}`);
-  return {};
+  return null;
 }
