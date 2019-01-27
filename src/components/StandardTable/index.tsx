@@ -1,10 +1,11 @@
 import styles from './index.less';
+import React, { Component } from 'react';
 import { SpinProps } from 'antd/es/spin';
 import { ClickParam } from 'antd/es/menu';
-import React, { Component } from 'react';
 import { ButtonProps } from 'antd/es/button';
 import { sandwichArray } from '@/utils/utils';
 import { DropDownProps } from 'antd/es/dropdown';
+import QueueAnim, { IProps as QueueAnimProps } from 'rc-queue-anim';
 import { Button, Divider, Dropdown, Icon, Menu, Table } from 'antd';
 import { ColumnProps, PaginationConfig, TableRowSelection, TableSize } from 'antd/es/table';
 
@@ -39,6 +40,7 @@ export interface StandardTableOperation extends StandardTableAction {
 }
 
 export interface StandardTableOperationAreaProps {
+  animationProps?: QueueAnimProps;
   dropdownProps?: DropDownProps;
   maxAmount?: number;
   moreText?: string | React.ReactNode;
@@ -47,7 +49,7 @@ export interface StandardTableOperationAreaProps {
     type: string,
     event: React.MouseEvent | ClickParam,
   ) => void;
-  operation: StandardTableOperation | StandardTableOperation[];
+  operation?: StandardTableOperation | StandardTableOperation[];
 }
 
 export type StandardTableActionProps = StandardTableAction | StandardTableAction[];
@@ -249,17 +251,18 @@ export default class StandardTable<T> extends Component<
     const itemProps = this.getOperationItemProps(item);
     if (itemProps === null) return null;
     return (
-      <Button
-        className={styles.operation}
-        data-type={item.type}
-        icon={item.icon}
-        key={item.type}
-        onClick={this.onClickOperationItem}
-        {...itemProps}
-        {...item.buttonProps}
-      >
-        {item.text || item.type}
-      </Button>
+      <div key={item.type} style={{ display: 'inline-block' }}>
+        <Button
+          className={styles.operation}
+          data-type={item.type}
+          icon={item.icon}
+          onClick={this.onClickOperationItem}
+          {...itemProps}
+          {...item.buttonProps}
+        >
+          {item.text || item.type}
+        </Button>
+      </div>
     );
   };
 
@@ -282,6 +285,7 @@ export default class StandardTable<T> extends Component<
     const { operationArea } = this.props;
     if (!operationArea) return null;
     const { maxAmount = 3, moreText = 'More' } = operationArea;
+    if (!operationArea.operation) return null;
     const operation = Array.isArray(operationArea.operation)
       ? operationArea.operation
       : [operationArea.operation];
@@ -296,16 +300,22 @@ export default class StandardTable<T> extends Component<
         {operation.slice(maxAmount - 1).map(this.renderOperationMenuItem)}
       </Menu>
     );
-    return operation
-      .slice(0, maxAmount - 1)
-      .map(this.renderOperationButtonItem)
-      .concat(
-        <Dropdown key="Dropdown" overlay={overlay} {...operationArea.dropdownProps}>
-          <Button className={styles.operation}>
-            {moreText} <Icon type="down" />
-          </Button>
-        </Dropdown>,
-      );
+    return (
+      <QueueAnim type="left" {...operationArea.animationProps}>
+        {operation
+          .slice(0, maxAmount - 1)
+          .map(this.renderOperationButtonItem)
+          .concat(
+            <div key="Dropdown" style={{ display: 'inline-block' }}>
+              <Dropdown overlay={overlay} {...operationArea.dropdownProps}>
+                <Button className={styles.operation}>
+                  {moreText} <Icon type="down" />
+                </Button>
+              </Dropdown>
+            </div>,
+          )}
+      </QueueAnim>
+    );
   };
 
   render() {
