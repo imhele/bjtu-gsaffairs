@@ -1,5 +1,6 @@
 import exception from './zh-CN/exception';
 import user from './zh-CN/user';
+import words from './zh-CN/words';
 
 export default {
   'app.name': '研究生三助系统',
@@ -10,4 +11,5 @@ export default {
   'app.position.teach': '助教岗位',
   ...exception,
   ...user,
+  ...words,
 };

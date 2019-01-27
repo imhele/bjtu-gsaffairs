@@ -8,7 +8,7 @@ export interface PositionState {
   dataSource: object[];
   total: number;
   actionKey?: string | string[];
-  filterOptions?: Filter[];
+  filters?: Filter[];
   operationArea?: StandardTableOperationAreaProps;
   rowKey?: string;
   scroll?: {
@@ -23,7 +23,7 @@ const defaultState: PositionState = {
   columns: [],
   dataSource: [],
   total: 0,
-  filterOptions: [],
+  filters: [],
   scroll: {
     x: 1180,
   },

@@ -1,9 +1,10 @@
 import { connect } from 'dva';
-import { message } from 'antd';
 // import styles from './List.less';
 import QueueAnim from 'rc-queue-anim';
 import React, { Component } from 'react';
+import { message, Spin } from 'antd';
 import { FetchListBody } from '@/services/position';
+import { FormattedMessage } from 'umi-plugin-locale';
 import StandardFilter from '@/components/StandardFilter';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import StandardTable, {
@@ -52,7 +53,6 @@ interface ListState {
   position,
 }))
 export default class List extends Component<ListProps, ListState> {
-
   state: ListState = {
     size: ListSize.Default,
   };
@@ -67,6 +67,10 @@ export default class List extends Component<ListProps, ListState> {
    */
   private limit: number = 10;
   private offset: number = 0;
+  private filterExpandText = {
+    expand: <FormattedMessage id="words.expand" />,
+    retract: <FormattedMessage id="words.retract" />,
+  };
 
   constructor(props: ListProps) {
     super(props);
@@ -99,7 +103,7 @@ export default class List extends Component<ListProps, ListState> {
     this.limit = pageSize;
     this.offset = (page - 1) * pageSize;
     this.fetchList();
-  }
+  };
 
   onShowSizeChange = (_: number, pageSize: number) => {
     this.limit = pageSize;
@@ -119,20 +123,34 @@ export default class List extends Component<ListProps, ListState> {
     };
   };
 
+  onSubmitFilter = (filtersValue: object) => {
+    this.filtersValue = filtersValue;
+    this.fetchList();
+  };
+
   onClickAction = (rowKey: string, actionType: string) => {
     message.info(`Click on row ${rowKey}, action ${actionType}`);
   };
 
   render() {
-    const { actionKey, columns, dataSource, scroll } = this.props.position;
+    const { loading } = this.props;
+    const { actionKey, columns, dataSource, filters, scroll } = this.props.position;
     return (
       <QueueAnim type="left">
-        <StandardFilter key="StandardFilter" />
+        <Spin key="StandardFilter" size="large" spinning={loading.fetchList}>
+          <StandardFilter
+            expandText={this.filterExpandText}
+            filters={filters}
+            onSubmit={this.onSubmitFilter}
+            resetText={<FormattedMessage id="words.reset" />}
+            submitText={<FormattedMessage id="words.query" />}
+          />
+        </Spin>
         <StandardTable
           actionKey={actionKey}
           columns={columns}
           dataSource={dataSource}
-          loading={this.props.loading.model}
+          loading={loading.model}
           key="StandardTable"
           onClickAction={this.onClickAction}
           operationArea={operationArea}

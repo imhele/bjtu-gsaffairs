@@ -44,7 +44,10 @@ export interface StandardFilterProps extends FormComponentProps {
   animation?: boolean;
   colProps?: ColProps;
   expanded?: boolean;
-  expandText?: [string, string] | [React.ReactNode, React.ReactNode];
+  expandText?: {
+    expand: string | React.ReactNode;
+    retract: string | React.ReactNode;
+  };
   filters?: Filter[];
   formCreateOptions?: FormCreateOptions;
   formItemProps?: FormItemProps;
@@ -68,7 +71,10 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
       md: 8,
       sm: 24,
     },
-    expandText: ['Open', 'Close'],
+    expandText: {
+      retract: 'Retract',
+      expand: 'Expand',
+    },
     filters: [],
     groupAmount: 3,
     resetText: 'Reset',
@@ -114,7 +120,7 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
         </Button>
         {expandVisible && (
           <a style={{ marginLeft: 8 }} onClick={this.onChangeExpand}>
-            {this.props.expandText[expanded ? 1 : 0]} <Icon type="up" className={styles.icon} />
+            {this.props.expandText[expanded ? 'retract' : 'expand']} <Icon type="up" className={styles.icon} />
           </a>
         )}
       </div>
@@ -130,7 +136,7 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
           <Select showSearch optionFilterProp="children" {...filter.itemProps}>
             {filter.selectOptions.map(value => (
               <Select.Option key={`${value.value}`} value={value.value || value.title}>
-                {value.title}
+                {value.title || value.value}
               </Select.Option>
             ))}
           </Select>

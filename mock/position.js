@@ -1,19 +1,20 @@
 import { APIPrefix } from './login';
 
 const possibleValues = {
-  sess: ['2018-2019学年 第一学期', '2018-2019学年 第二学期'],
-  depName: ['交通运输学院', '软件学院', '计算机与信息技术学院'],
-  name: [{ text: '中国城市轨道交通协会专家和学术委员会', type: 'preview' }],
-  campus: ['校本部', '东校区'],
-  checkStatus: ['草稿', '待审核', '审核通过', '审核不通过', '无效'],
-  releaseStatus: ['未发布', '已发布'],
-  applyStatus: ['草稿', '待审核', '审核通过', '审核不通过', '无效'],
   action: [
     [{ text: '审核', type: 'audit' }, { text: '删除', type: 'delete' }],
     [{ text: '编辑', type: 'edit' }, { text: '删除', type: 'delete' }],
     [{ text: '申请', type: 'apply' }],
     [{ text: '下载', type: 'download' }],
   ],
+  applyStatus: ['草稿', '待审核', '审核通过', '审核不通过', '无效'],
+  campus: ['校本部', '东校区'],
+  checkStatus: ['草稿', '待审核', '审核通过', '审核不通过', '无效'],
+  depName: ['交通运输学院', '软件学院', '计算机与信息技术学院'],
+  name: [{ text: '中国城市轨道交通协会专家和学术委员会', type: 'preview' }],
+  releaseStatus: ['未发布', '已发布'],
+  sess: ['2018-2019学年 第一学期', '2018-2019学年 第二学期'],
+  way: ['固定', '临时'],
 };
 
 const columns = [
@@ -53,23 +54,84 @@ const columns = [
     dataIndex: 'releaseStatus',
   },
   {
+    width: 95,
+    title: '聘用方式',
+    dataIndex: 'way',
+  },
+  {
+    width: 105,
+    title: '申请状态',
+    dataIndex: 'applyStatus',
+  },
+  {
     width: 150,
     title: '操作',
     dataIndex: 'action',
   },
 ];
 
+const filters = [
+  {
+    id: 'sess',
+    selectOptions: possibleValues.sess.map(value => ({ value })),
+    title: '学期',
+    type: 'Select',
+  },
+  {
+    id: 'depName',
+    selectOptions: possibleValues.depName.map(value => ({ value })),
+    title: '单位',
+    type: 'Select',
+  },
+  {
+    id: 'name',
+    title: '岗位名称',
+    type: 'Input',
+  },
+  {
+    id: 'campus',
+    selectOptions: possibleValues.campus.map(value => ({ value })),
+    title: '校区',
+    type: 'Select',
+  },
+  {
+    id: 'checkStatus',
+    selectOptions: possibleValues.checkStatus.map(value => ({ value })),
+    title: '审核状态',
+    type: 'Select',
+  },
+  {
+    id: 'releaseStatus',
+    selectOptions: possibleValues.releaseStatus.map(value => ({ value })),
+    title: '发布状态',
+    type: 'Select',
+  },
+  {
+    id: 'way',
+    selectOptions: possibleValues.way.map(value => ({ value })),
+    title: '聘用方式',
+    type: 'Select',
+  },
+  {
+    id: 'applyStatus',
+    selectOptions: possibleValues.applyStatus.map(value => ({ value })),
+    title: '申请状态',
+    type: 'Select',
+  },
+];
+
 const source = Array.from({ length: 120 }).map((_, index) => ({
   key: `${index}`,
-  sess: possibleValues.sess[index % 2],
+  action: possibleValues.action[Math.random() > 0.7 ? 0 : 1],
+  applyStatus: possibleValues.applyStatus[index % 5],
+  campus: possibleValues.campus[Math.random() > 0.6 ? 0 : 1],
+  checkStatus: possibleValues.checkStatus[index % 5],
   depName: possibleValues.depName[index % 3],
   name: [{ text: '中国城市轨道交通协会专家和学术委员会', type: 'preview' }],
   needNum: parseInt((Math.random() * 100).toFixed(0), 10),
-  campus: possibleValues.campus[Math.random() > 0.6 ? 0 : 1],
-  checkStatus: possibleValues.checkStatus[index % 5],
   releaseStatus: possibleValues.releaseStatus[index % 2],
-  applyStatus: possibleValues.applyStatus[index % 5],
-  action: possibleValues.action[Math.random() > 0.7 ? 0 : 1],
+  sess: possibleValues.sess[index % 2],
+  way: possibleValues.way[Math.random() > 0.8 ? 0 : 1],
 }));
 
 const positionList = (req, res) => {
@@ -80,21 +142,46 @@ const positionList = (req, res) => {
       errmsg: 'Invalid type of position',
     };
   }
-  const filtersKey = Object.keys(filtersValue);
-  const filteredSource = filtersKey.length
+  /**
+   * `name` use `Input` to search, shouldn't give a simple comparison.
+   */
+  const filtersKey = Object.keys(filtersValue).filter(key => key !== 'name');
+  /**
+   * if `filter` is `{}`, the data will not be filtered
+   */
+  const filteredSource = !Object.keys(filtersValue).length
+    ? source
+    : !filtersValue.name
     ? source.filter(value => !filtersKey.some(key => value[key] !== filtersValue[key]))
-    : source;
+    : source
+        .filter(value => !filtersKey.some(key => value[key] !== filtersValue[key]))
+        .filter(value => value.name[0].text.includes(filtersValue.name));
+  /**
+   * Slice from filtered data
+   */
   const dataSource = filteredSource.slice(offset, offset + limit);
   if (!dataSource.length) {
     dataSource.push(...filteredSource.slice(filteredSource.length - limit));
   }
+  /**
+   * Complete return value
+   */
+  const result = {
+    actionKey: ['action', 'name'],
+    columns: columns.filter(col => !['applyStatus', 'way'].includes(col.dataIndex)),
+    dataSource,
+    filters: filters.filter(col => !['applyStatus', 'way'].includes(col.dataIndex)),
+    selectable: true,
+    total: filteredSource.length,
+  };
+  if (filtersKey.length) {
+    delete result.filters;
+  }
+  if (filtersKey.length || offset) {
+    delete result.selectable;
+  }
   setTimeout(() => {
-    res.send({
-      actionKey: ['action', 'name'],
-      columns,
-      dataSource,
-      total: filteredSource.length,
-    });
+    res.send(result);
   }, 200);
 };
 
