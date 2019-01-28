@@ -1,6 +1,8 @@
 import { connect } from 'dva';
 // import styles from './List.less';
+import Media from 'react-media';
 import QueueAnim from 'rc-queue-anim';
+import { MediaQuery } from '@/global';
 import React, { Component } from 'react';
 import { RadioChangeEvent } from 'antd/es/radio';
 import { FetchListBody } from '@/services/position';
@@ -14,6 +16,7 @@ import StandardTable, {
 } from '@/components/StandardTable';
 
 export interface ListProps extends ConnectProps {
+  isMobile?: boolean;
   loading?: {
     fetchList?: boolean;
     model?: boolean;
@@ -39,7 +42,7 @@ interface ListState {
   },
   position,
 }))
-export default class List extends Component<ListProps, ListState> {
+class List extends Component<ListProps, ListState> {
   state: ListState = {
     size: ListSize.Default,
   };
@@ -62,6 +65,7 @@ export default class List extends Component<ListProps, ListState> {
   constructor(props: ListProps) {
     super(props);
     this.fetchList();
+    if (props.isMobile) this.state.size = ListSize.Small;
   }
 
   fetchList = () => {
@@ -195,3 +199,7 @@ export default class List extends Component<ListProps, ListState> {
     );
   }
 }
+
+export default (props: ListProps) => (
+  <Media query={MediaQuery}>{isMobile => <List {...props} isMobile={isMobile} />}</Media>
+);

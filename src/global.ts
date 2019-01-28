@@ -4,3 +4,5 @@ import { version } from 'antd';
 console.log(`[VersionInfo] Ant Design ${version}`);
 
 export const APIPrefix: string = '/api';
+
+export const MediaQuery: string = '(max-width: 599px)';

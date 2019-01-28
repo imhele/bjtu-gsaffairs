@@ -1,11 +1,12 @@
 import Header from './Header';
 import Footer from './Footer';
 import { connect } from 'dva';
+import { Layout } from 'antd';
 import Media from 'react-media';
 import debounce from 'debounce';
-import { Layout, Spin } from 'antd';
 import memoizeOne from 'memoize-one';
 import QueueAnim from 'rc-queue-anim';
+import { MediaQuery } from '@/global';
 import styles from './BasicLayout.less';
 import React, { Component } from 'react';
 import SiderMenu from '@/components/SiderMenu';
@@ -14,6 +15,7 @@ import Exception403 from '@/pages/Exception/403';
 import DocumentTitle from '@/components/DocumentTitle';
 import { ConnectState, ConnectProps, LoginState } from '@/models/connect';
 import { addWindowEvent, pathnameToArr, pathToScope } from '@/utils/utils';
+
 const { Content } = Layout;
 
 export interface BasicLayoutProps extends ConnectProps {
@@ -125,7 +127,5 @@ export default connect(({ global, login, loading }: ConnectState) => ({
   loading: loading.effects['login/fetchUser'],
   login,
 }))((props: BasicLayoutProps) => (
-  <Media query="(max-width: 599px)">
-    {isMobile => <BasicLayout {...props} isMobile={isMobile} />}
-  </Media>
+  <Media query={MediaQuery}>{isMobile => <BasicLayout {...props} isMobile={isMobile} />}</Media>
 ));
