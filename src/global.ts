@@ -6,3 +6,7 @@ console.log(`[VersionInfo] Ant Design ${version}`);
 export const APIPrefix: string = '/api';
 
 export const MediaQuery: string = '(max-width: 599px)';
+
+export enum AuthorizedId {
+  BasicLayout,
+}

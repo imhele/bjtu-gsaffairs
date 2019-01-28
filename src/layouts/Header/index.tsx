@@ -17,7 +17,7 @@ export interface HeaderProps {
   currentScope?: Scope;
   isMobile?: boolean;
   location: Location;
-  loading?: boolean | undefined;
+  loading?: boolean;
   login: LoginState;
   menuSelectedKeys: string[];
   onLogout?: () => void;

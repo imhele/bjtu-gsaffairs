@@ -2,13 +2,14 @@ import { connect } from 'dva';
 // import styles from './List.less';
 import Media from 'react-media';
 import QueueAnim from 'rc-queue-anim';
-import { MediaQuery } from '@/global';
 import React, { Component } from 'react';
 import { RadioChangeEvent } from 'antd/es/radio';
 import { FetchListBody } from '@/services/position';
+import { AuthorizedId, MediaQuery } from '@/global';
 import { FormattedMessage } from 'umi-plugin-locale';
 import { message, Radio, Skeleton, Spin } from 'antd';
 import StandardFilter from '@/components/StandardFilter';
+import { CheckAuth, getCurrentScope } from '@/components/Authorized';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import StandardTable, {
   PaginationConfig,
@@ -156,14 +157,32 @@ class List extends Component<ListProps, ListState> {
     message.info(`Click on ${type}, selected keys ${selectedRowKeys}`);
   };
 
+  renderOperationVisible = (_: string[] | number[], type: string): boolean => {
+    if (!(getCurrentScope instanceof Map)) return false;
+    const getScope = getCurrentScope.get(AuthorizedId.BasicLayout);
+    if (typeof getScope !== 'function') return false;
+    return CheckAuth([`scope.position.${this.props.type}.${type}`, 'scope.admin'], getScope());
+  };
+
+  getOperationArea = (): StandardTableOperationAreaProps => {
+    const { operationArea } = this.props.position;
+    if (!operationArea) return null;
+    if (!Array.isArray(operationArea.operation)) {
+      operationArea.operation = [operationArea.operation];
+    }
+    operationArea.operation.forEach(item => {
+      item.visible = this.renderOperationVisible;
+    });
+    return {
+      moreText: <FormattedMessage id="words.more" />,
+      onClick: this.onClickOperation,
+      ...operationArea,
+    };
+  };
+
   render() {
     const { loading } = this.props;
     const { actionKey, columns, dataSource, filters, scroll, selectable } = this.props.position;
-    const operationArea: StandardTableOperationAreaProps = {
-      moreText: <FormattedMessage id="words.more" />,
-      onClick: this.onClickOperation,
-      ...this.props.position.operationArea,
-    };
     return (
       <QueueAnim type="left">
         {filters && filters.length ? (
@@ -189,7 +208,7 @@ class List extends Component<ListProps, ListState> {
           loading={loading.model}
           key="StandardTable"
           onClickAction={this.onClickAction}
-          operationArea={operationArea}
+          operationArea={this.getOperationArea()}
           pagination={this.getPagination()}
           scroll={scroll}
           selectable={selectable}

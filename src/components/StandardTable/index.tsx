@@ -247,7 +247,7 @@ export default class StandardTable<T> extends Component<
     const { selectedRowKeys } = this.state;
     const visible =
       typeof item.visible === 'function' ? item.visible(selectedRowKeys, item.type) : item.visible;
-    if (visible !== undefined && !visible) return null;
+    if (typeof visible !== 'undefined' && !visible) return null;
     const disabled =
       typeof item.disabled === 'function'
         ? item.disabled(selectedRowKeys, item.type)

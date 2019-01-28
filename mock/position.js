@@ -181,7 +181,7 @@ const positionList = (req, res) => {
     actionKey: ['action', 'name'],
     columns: columns.filter(col => !['applyStatus', 'way'].includes(col.dataIndex)),
     dataSource,
-    filters: filters.filter(col => !['applyStatus', 'way'].includes(col.dataIndex)),
+    filters: filters.filter(col => !['applyStatus', 'way'].includes(col.id)),
     operationArea,
     selectable: {
       columnWidth: 57,

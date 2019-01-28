@@ -8,7 +8,7 @@ import { FormattedMessage } from 'umi-plugin-locale';
 import { Spin, Avatar, Dropdown, Menu, Icon, Button } from 'antd';
 
 export interface RightContentProps {
-  loading?: boolean | undefined;
+  loading?: boolean;
   login: LoginState;
   onLogout?: () => void;
 }

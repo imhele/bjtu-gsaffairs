@@ -1,3 +1,5 @@
+import React, { Component } from 'react';
+
 export type Scope =
   | Set<string | number>
   | ReadonlySet<string | number>
@@ -6,31 +8,55 @@ export type Scope =
 
 export interface AuthorizedProps {
   exception?: React.ReactNode | null;
+  id?: any;
   scope?: Scope;
   currentScope?: Scope;
 }
 
-export type AuthorizedComponent<P> = (
-  props: P & {
-    children?: React.ReactNode;
-  },
-) => React.ReactNode | null;
+interface AuthorizedState {
+  currentScope: Scope;
+}
+
+export const getCurrentScope: Map<any, () => Scope> = new Map();
+
+export const setCurrentScope: Map<any, (newScope: Scope) => void> = new Map();
 
 export const CheckAuth = (scope: Scope, currentScope: Scope) => {
-  scope = Array.from(scope || []);
-  currentScope = Array.from(currentScope || []);
+  if (scope instanceof Set) scope = Array.from(scope);
+  if (!Array.isArray(scope)) scope = [];
+  if (currentScope instanceof Set) currentScope = Array.from(currentScope);
+  if (!Array.isArray(currentScope)) currentScope = [];
   if (!scope.length) return true;
   return currentScope.some(v => {
     return (scope as Array<string | number>).some(w => w === v);
   });
 };
 
-const Authorized: AuthorizedComponent<AuthorizedProps> = props => {
-  if (CheckAuth(props.scope, props.currentScope)) {
-    return props.children;
-  } else {
-    return props.exception;
-  }
-};
+export default class Authorized extends Component<AuthorizedProps, AuthorizedState> {
+  state: AuthorizedState = {
+    currentScope: [],
+  };
 
-export default Authorized;
+  constructor(props: AuthorizedProps) {
+    super(props);
+    if (typeof props.id !== 'undefined') {
+      getCurrentScope.set(props.id, this.getCurrentScope);
+      setCurrentScope.set(props.id, this.setCurrentScope);
+      this.state.currentScope = props.currentScope || [];
+    }
+  }
+
+  getCurrentScope = (): Scope => this.state.currentScope;
+
+  setCurrentScope = (newScope: Scope) => {
+    this.setState({ currentScope: newScope });
+  };
+
+  render() {
+    if (CheckAuth(this.props.scope, this.props.currentScope || this.state.currentScope)) {
+      return this.props.children;
+    } else {
+      return this.props.exception;
+    }
+  }
+}

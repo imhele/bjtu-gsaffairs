@@ -100,7 +100,7 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
   private initialFieldsValue = {};
 
   onChangeExpand = () => {
-    if (this.props.expanded !== undefined) return;
+    if (typeof this.props.expanded !== 'undefined') return;
     this.setState({
       expanded: !this.state.expanded,
     });

@@ -6,12 +6,12 @@ import Media from 'react-media';
 import debounce from 'debounce';
 import memoizeOne from 'memoize-one';
 import QueueAnim from 'rc-queue-anim';
-import { MediaQuery } from '@/global';
 import styles from './BasicLayout.less';
 import React, { Component } from 'react';
 import SiderMenu from '@/components/SiderMenu';
 import Authorized from '@/components/Authorized';
 import Exception403 from '@/pages/Exception/403';
+import { AuthorizedId, MediaQuery } from '@/global';
 import DocumentTitle from '@/components/DocumentTitle';
 import { ConnectState, ConnectProps, LoginState } from '@/models/connect';
 import { addWindowEvent, pathnameToArr, pathToScope } from '@/utils/utils';
@@ -105,12 +105,14 @@ class BasicLayout extends Component<BasicLayoutProps> {
                 route={route}
               />
               <Content className={styles.content}>
-                {Authorized({
-                  children,
-                  currentScope,
-                  exception: <Exception403 />,
-                  scope: pathToScope(route, location.pathname),
-                })}
+                <Authorized
+                  currentScope={currentScope}
+                  exception={<Exception403 />}
+                  id={AuthorizedId.BasicLayout}
+                  scope={pathToScope(route, location.pathname)}
+                >
+                  {children}
+                </Authorized>
                 <Footer key="Footer" />
               </Content>
             </Layout>
