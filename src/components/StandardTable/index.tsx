@@ -221,7 +221,10 @@ export default class StandardTable<T> extends Component<
           [],
         )
         .forEach(actionColumn => {
-          if (actionColumn && !actionColumn.render) {
+          /**
+           * fix error in mac: `actionColumn` is not an object
+           */
+          if (typeof actionColumn === 'object' && !actionColumn.render) {
             actionColumn.render = this.renderAction;
           }
         });
