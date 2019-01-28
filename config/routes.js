@@ -31,6 +31,12 @@ export default [
             name: 'app.position.manage',
             component: './Position/Manage',
           },
+          {
+            path: '/position/teach',
+            icon: 'book',
+            name: 'app.position.teach',
+            component: './Position/Teach',
+          },
         ],
       },
       // exceptions
