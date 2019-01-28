@@ -157,6 +157,7 @@ export default class List extends Component<ListProps, ListState> {
     const { actionKey, columns, dataSource, filters, scroll, selectable } = this.props.position;
     const operationArea: StandardTableOperationAreaProps = {
       moreText: <FormattedMessage id="words.more" />,
+      onClick: this.onClickOperation,
       ...this.props.position.operationArea,
     };
     return (
