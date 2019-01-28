@@ -13,20 +13,6 @@ import StandardTable, {
   StandardTableOperationAreaProps,
 } from '@/components/StandardTable';
 
-const operationArea: StandardTableOperationAreaProps = {
-  moreText: '更多',
-  onClick: (rowKeys, type) =>
-    message.info(
-      `Click on ${type}, selected key(s): ${rowKeys.length ? rowKeys.join(' ') : 'None'}`,
-    ),
-  operation: [
-    { icon: 'plus', text: '新建', type: 'create' },
-    { icon: 'cloud-download', text: '导出', type: 'export', loading: true },
-    { text: '删除', type: 'delete' },
-    { text: '示例', type: 'exmaple', loading: true },
-  ],
-};
-
 export interface ListProps extends ConnectProps {
   loading?: {
     fetchList?: boolean;
@@ -162,9 +148,17 @@ export default class List extends Component<ListProps, ListState> {
     message.info(`Click on row ${rowKey}, action ${actionType}`);
   };
 
+  onClickOperation = (selectedRowKeys: string[] | number[], type: string) => {
+    message.info(`Click on ${type}, selected keys ${selectedRowKeys}`);
+  };
+
   render() {
     const { loading } = this.props;
     const { actionKey, columns, dataSource, filters, scroll, selectable } = this.props.position;
+    const operationArea: StandardTableOperationAreaProps = {
+      moreText: <FormattedMessage id="words.more" />,
+      ...this.props.position.operationArea,
+    };
     return (
       <QueueAnim type="left">
         {filters && filters.length ? (

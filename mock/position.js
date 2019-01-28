@@ -138,6 +138,13 @@ const source = Array.from({ length: 120 }).map((_, index) => ({
   way: possibleValues.way[Math.random() > 0.8 ? 0 : 1],
 }));
 
+const operationArea = {
+  operation: [
+    { icon: 'plus', text: '新建', type: 'create' },
+    { icon: 'cloud-download', text: '导出', type: 'export' },
+  ],
+};
+
 const positionList = (req, res) => {
   const { filtersValue = {}, limit = 10, offset = 0, type } = req.body;
   if (!['manage', 'teach'].includes(type)) {
@@ -175,6 +182,7 @@ const positionList = (req, res) => {
     columns: columns.filter(col => !['applyStatus', 'way'].includes(col.dataIndex)),
     dataSource,
     filters: filters.filter(col => !['applyStatus', 'way'].includes(col.dataIndex)),
+    operationArea,
     selectable: {
       columnWidth: 57,
     },

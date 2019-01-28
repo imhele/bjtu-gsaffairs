@@ -3,6 +3,7 @@ export default {
   'words.confirm': '确认',
   'words.create': '创建',
   'words.expand': '展开',
+  'words.more': '更多',
   'words.open': '打开',
   'words.query': '查询',
   'words.reset': '重置',
