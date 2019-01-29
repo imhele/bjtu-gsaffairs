@@ -196,7 +196,7 @@ const positionList = (req, res) => {
   }
   setTimeout(() => {
     res.send(result);
-  }, 200);
+  }, 400);
 };
 
 export default {

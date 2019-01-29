@@ -186,18 +186,17 @@ class List extends Component<ListProps, ListState> {
     return (
       <QueueAnim type="left">
         {filters && filters.length ? (
-          <Spin key="StandardFilter" size="large" spinning={loading.fetchList}>
-            <StandardFilter
-              expandText={this.filterExpandText}
-              filters={filters}
-              onSubmit={this.onSubmitFilter}
-              resetText={<FormattedMessage id="words.reset" />}
-              submitText={<FormattedMessage id="words.query" />}
-            />
-          </Spin>
+          <StandardFilter
+            expandText={this.filterExpandText}
+            filters={filters}
+            onSubmit={this.onSubmitFilter}
+            resetText={<FormattedMessage id="words.reset" />}
+            submitLoading={loading.fetchList}
+            submitText={<FormattedMessage id="words.query" />}
+          />
         ) : (
           <div style={{ marginBottom: 24 }}>
-            <Skeleton active />
+            <Skeleton active paragraph={{ rows: 3 }} title={false} />
           </div>
         )}
         <StandardTable
@@ -205,7 +204,7 @@ class List extends Component<ListProps, ListState> {
           columns={columns}
           dataSource={dataSource}
           footer={this.renderTableFooter}
-          loading={loading.model}
+          loading={loading.fetchList}
           key="StandardTable"
           onClickAction={this.onClickAction}
           operationArea={this.getOperationArea()}

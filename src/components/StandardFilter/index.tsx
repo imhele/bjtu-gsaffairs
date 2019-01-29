@@ -55,8 +55,10 @@ export interface StandardFilterProps extends FormComponentProps {
   onReset?: (form: WrappedFormUtils) => void;
   onSubmit?: (fieldsValue: any, form: WrappedFormUtils) => void;
   operationArea?: React.ReactNode | null;
+  resetLoading?: boolean;
   resetText?: string | React.ReactNode;
   rowProps?: RowProps;
+  submitLoading?: boolean;
   submitText?: string | React.ReactNode;
 }
 
@@ -77,10 +79,12 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
     },
     filters: [],
     groupAmount: 3,
+    resetLoading: false,
     resetText: 'Reset',
     rowProps: {
       gutter: { md: 8, lg: 24, xl: 48 },
     },
+    submitLoading: false,
     submitText: 'Confirm',
   };
 
@@ -107,16 +111,17 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
   };
 
   renderOperationArea = (): React.ReactNode => {
-    if (this.props.operationArea || this.props === null) return this.props.operationArea;
+    if (this.props.operationArea || this.props.operationArea === null)
+      return this.props.operationArea;
     const { expanded } = this.state;
-    const { filters, groupAmount } = this.props;
+    const { filters, groupAmount, resetLoading, submitLoading } = this.props;
     const expandVisible: boolean = filters.length >= groupAmount;
     const operationArea = (
       <div className={styles.operationArea}>
-        <Button type="primary" htmlType="submit">
+        <Button htmlType="submit" loading={submitLoading} type="primary">
           {this.props.submitText}
         </Button>
-        <Button style={{ marginLeft: 8 }} onClick={this.onReset}>
+        <Button loading={resetLoading} onClick={this.onReset} style={{ marginLeft: 8 }}>
           {this.props.resetText}
         </Button>
         {expandVisible && (
@@ -207,11 +212,11 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
   };
 
   onReset = () => {
-    const { form, onReset, onSubmit } = this.props;
+    const { form, onReset, onSubmit, submitLoading } = this.props;
     this.initialFieldsValue = {};
     if (typeof onReset === 'function') return onReset(form);
     form.resetFields();
-    if (typeof onSubmit === 'function') onSubmit({}, form);
+    if (typeof onSubmit === 'function' && !submitLoading) onSubmit({}, form);
   };
 
   render() {
