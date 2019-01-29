@@ -5,15 +5,16 @@
     "start": "umi dev",
     "build": "umi build",
     "precommit": "lint-staged",
-    "lint": "yarn lint:es && yarn lint:ts",
+    "deploy:demo": "UMI_ENV=demo umi build",
+    "lint": "npm run lint:es && npm run lint:ts",
     "lint:es": "eslint --ext .js config mock",
     "pull:hg": "cd .. && hg pull && hg update",
     "lint:ts": "tslint \"src/**/*.ts\" \"src/**/*.tsx\"",
-    "start:win": "yarn run cleanCache:win && cls && umi dev",
+    "start:cc": "npm run cleanCache && clear && umi dev",
+    "start:cc:win": "npm run cleanCache:win && cls && umi dev",
     "push:hg": "cd .. && hg add . && hg commit -m \"update\" && hg push",
     "cleanCache": "rm -r src/pages/.umi && rm -r node_modules/.cache",
-    "cleanCache:win": "del /Q /S src\\pages\\.umi && del /Q /S node_modules\\.cache",
-    "deploy": "yarn build && scp dist/index.html imhele:/home/sites/imhele/bjtu-papms/"
+    "cleanCache:win": "del /Q /S src\\pages\\.umi && del /Q /S node_modules\\.cache"
   },
   "dependencies": {
     "antd": "^3.12.1",
@@ -49,7 +50,6 @@
     "tslint-react": "^3.6.0",
     "umi": "^2.4.2",
     "umi-plugin-nprogress": "^1.1.6",
-    "umi-plugin-oss": "^1.1.7",
     "umi-plugin-react": "^1.4.0"
   },
   "lint-staged": {
