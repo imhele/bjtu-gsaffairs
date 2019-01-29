@@ -1,4 +1,3 @@
-import router from 'umi/router';
 import styles from './index.less';
 import classnames from 'classnames';
 import SubMenu from 'antd/es/menu/SubMenu';
@@ -11,25 +10,38 @@ import { Layout, Menu, Icon, Drawer } from 'antd';
 import { FormattedMessage } from 'umi-plugin-locale';
 import { CheckAuth, Scope } from '@/components/Authorized';
 
+export { SelectParam };
+
 export interface SiderMenuProps extends SiderProps, ConnectProps {
-  currentScope: Array<string | number>;
+  currentScope?: Scope;
   drawerTitle?: string;
-  isMobile: boolean;
-  menuSelectedKeys: string[];
-  route: Route;
+  isMobile?: boolean;
+  menuSelectedKeys?: string[];
+  onSelectMenu?: (param: SelectParam) => void;
+  route?: Route;
 }
 
 export default class SiderMenu extends PureComponent<SiderMenuProps> {
+  static defaultProps = {
+    isMobile: false,
+    menuSelectedKeys: [],
+    onSelectMenu: () => {},
+    route: {},
+  };
+
   menuArr: React.ReactNode[] = [];
 
   constructor(props: SiderMenuProps) {
     super(props);
-    this.menuArr = this.routeToMenu(props.route.routes, props.currentScope);
+    if (typeof props.route === 'object' && Array.isArray(props.route.routes))
+      this.menuArr = this.routeToMenu(props.route.routes, props.currentScope);
   }
 
-  handleClickMenu = ({ key }: SelectParam): void => {
-    const { location } = this.props;
-    if (key !== location.pathname) router.push(key);
+  onSelect = (param: SelectParam): void => {
+    const { onSelectMenu } = this.props;
+    if (typeof onSelectMenu === 'function') {
+      onSelectMenu(param);
+    }
   };
 
   routeToMenu = (
@@ -67,23 +79,34 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
   };
 
   render() {
-    const { collapsed, drawerTitle, isMobile, onCollapse } = this.props;
+    const {
+      collapsed,
+      currentScope,
+      drawerTitle,
+      isMobile,
+      menuSelectedKeys,
+      onCollapse,
+      onSelectMenu,
+      route,
+      ...restProps
+    } = this.props;
     const className = classnames(styles.siderMenu, this.props.className || '');
     const Sider = (
       <Layout.Sider
-        width={256}
         collapsible
         className={className}
         collapsed={!isMobile && collapsed}
         onCollapse={onCollapse}
         style={this.props.style}
         theme="light"
+        width={256}
+        {...restProps}
       >
         <Menu
-          defaultOpenKeys={this.props.menuSelectedKeys}
+          defaultOpenKeys={menuSelectedKeys}
           mode="inline"
-          onSelect={this.handleClickMenu}
-          selectedKeys={this.props.menuSelectedKeys}
+          onSelect={this.onSelect}
+          selectedKeys={menuSelectedKeys}
         >
           {this.menuArr}
         </Menu>

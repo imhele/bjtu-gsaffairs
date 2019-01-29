@@ -2,17 +2,18 @@ import Header from './Header';
 import Footer from './Footer';
 import { connect } from 'dva';
 import { Layout } from 'antd';
+import router from 'umi/router';
 import Media from 'react-media';
 import debounce from 'debounce';
 import memoizeOne from 'memoize-one';
 import QueueAnim from 'rc-queue-anim';
 import styles from './BasicLayout.less';
 import React, { Component } from 'react';
-import SiderMenu from '@/components/SiderMenu';
 import Authorized from '@/components/Authorized';
 import Exception403 from '@/pages/Exception/403';
 import { AuthorizedId, MediaQuery } from '@/global';
 import DocumentTitle from '@/components/DocumentTitle';
+import SiderMenu, { SelectParam } from '@/components/SiderMenu';
 import { ConnectState, ConnectProps, LoginState } from '@/models/connect';
 import { addWindowEvent, pathnameToArr, pathToScope } from '@/utils/utils';
 
@@ -35,7 +36,7 @@ class BasicLayout extends Component<BasicLayoutProps> {
       type: 'global/setCollapsed',
       payload: collapsed,
     });
-  }, 30);
+  }, 50);
 
   resize = debounce(() => {
     const { collapsed } = this.props;
@@ -62,6 +63,19 @@ class BasicLayout extends Component<BasicLayoutProps> {
     this.props.dispatch({
       type: 'login/logout',
     });
+  };
+
+  onSelectMenu = ({ key }: SelectParam): void => {
+    const { isMobile, location } = this.props;
+    if (key !== location.pathname) {
+      router.push(key);
+      if (isMobile) {
+        /**
+         * route changes will take about 300ms to render
+         */
+        setTimeout(() => this.onCollapse(true), 240);
+      }
+    }
   };
 
   render() {
@@ -102,6 +116,7 @@ class BasicLayout extends Component<BasicLayoutProps> {
                 location={location}
                 menuSelectedKeys={menuSelectedKeys}
                 onCollapse={this.onCollapse}
+                onSelectMenu={this.onSelectMenu}
                 route={route}
               />
               <Content className={styles.content}>
