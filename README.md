@@ -20,7 +20,7 @@ $ npm start         # or `npm start:win` in Windows CMD
 
 ## Preview
 
-[Click here to preview](https://imhele.com/bjtu-papms/)
+[Click here to preview](https://bjtu-papms.netlify.com)
 
 
 ## License
