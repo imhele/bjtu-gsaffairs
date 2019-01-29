@@ -5,7 +5,6 @@ import { ClickParam } from 'antd/es/menu';
 import { ButtonProps } from 'antd/es/button';
 import { sandwichArray } from '@/utils/utils';
 import { DropDownProps } from 'antd/es/dropdown';
-import QueueAnim, { IProps as QueueAnimProps } from 'rc-queue-anim';
 import { Button, Divider, Dropdown, Icon, Menu, Table } from 'antd';
 import { ColumnProps, PaginationConfig, TableRowSelection, TableSize } from 'antd/es/table';
 
@@ -40,7 +39,6 @@ export interface StandardTableOperation extends StandardTableAction {
 }
 
 export interface StandardTableOperationAreaProps {
-  animationProps?: QueueAnimProps;
   dropdownProps?: DropDownProps;
   maxAmount?: number;
   moreText?: string | React.ReactNode;
@@ -311,7 +309,7 @@ export default class StandardTable<T> extends Component<
       </Menu>
     );
     return (
-      <QueueAnim type="left" {...operationArea.animationProps}>
+      <div>
         {operation
           .slice(0, maxAmount - 1)
           .map(this.renderOperationButtonItem)
@@ -324,7 +322,7 @@ export default class StandardTable<T> extends Component<
               </Dropdown>
             </div>,
           )}
-      </QueueAnim>
+      </div>
     );
   };
 

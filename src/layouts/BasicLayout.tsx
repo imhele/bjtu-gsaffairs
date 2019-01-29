@@ -66,15 +66,15 @@ class BasicLayout extends Component<BasicLayoutProps> {
   };
 
   onSelectMenu = ({ key }: SelectParam): void => {
-    const { isMobile, location } = this.props;
+    const { location } = this.props;
     if (key !== location.pathname) {
       router.push(key);
-      if (isMobile) {
-        /**
-         * route changes will take about 300ms to render
-         */
-        setTimeout(() => this.onCollapse(true), 240);
-      }
+      // if (this.props.isMobile) {
+      //   /**
+      //    * route changes will take about 300ms to render
+      //    */
+      //   setTimeout(() => this.onCollapse(true), 240);
+      // }
     }
   };
 
@@ -90,6 +90,9 @@ class BasicLayout extends Component<BasicLayoutProps> {
       route,
     } = this.props;
     const menuSelectedKeys = this.pathnameToArr(location.pathname);
+    /**
+     * `delay` in `<QueueAnim />` is setted to wait for `onCollapse` in constructor
+     */
     return (
       <DocumentTitle location={location} route={route} defaultTitle="app.name">
         <Layout className={styles.layout}>

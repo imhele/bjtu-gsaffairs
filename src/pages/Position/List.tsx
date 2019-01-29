@@ -1,7 +1,6 @@
 import { connect } from 'dva';
 // import styles from './List.less';
 import Media from 'react-media';
-import QueueAnim from 'rc-queue-anim';
 import React, { Component } from 'react';
 import { RadioChangeEvent } from 'antd/es/radio';
 import { FetchListBody } from '@/services/position';
@@ -184,7 +183,7 @@ class List extends Component<ListProps, ListState> {
     const { loading } = this.props;
     const { actionKey, columns, dataSource, filters, scroll, selectable } = this.props.position;
     return (
-      <QueueAnim type="left">
+      <div>
         {filters && filters.length ? (
           <StandardFilter
             expandText={this.filterExpandText}
@@ -205,7 +204,6 @@ class List extends Component<ListProps, ListState> {
           dataSource={dataSource}
           footer={this.renderTableFooter}
           loading={loading.fetchList}
-          key="StandardTable"
           onClickAction={this.onClickAction}
           operationArea={this.getOperationArea()}
           pagination={this.getPagination()}
@@ -213,7 +211,7 @@ class List extends Component<ListProps, ListState> {
           selectable={selectable}
           size={this.state.size}
         />
-      </QueueAnim>
+      </div>
     );
   }
 }

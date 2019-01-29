@@ -2,7 +2,7 @@
 @import '~antd/es/style/themes/default.less';
 
 .standardFilter {
-  div[class^=ant-col] {
+  div[class^='ant-col'] {
     opacity: 1;
     height: 58px;
     overflow: hidden;
@@ -32,14 +32,19 @@
     white-space: nowrap;
     margin-bottom: 24px;
   }
-  &.animation div[class^=ant-col], &.animation .icon {
-    .transition-easeOutQuart(0.45s);
+  &.animation {
+    .icon {
+      .transition-easeOutQuart(0.45s);
+    }
+    div[class^='ant-col'] {
+      .transition-easeOutQuart(0.45s, 0s, height);
+    }
   }
   &.unexpanded {
     .icon {
       .transform(rotate(-180deg));
     }
-    :global(.ant-row):not(:first-child):not(:last-child) div[class^=ant-col] {
+    :global(.ant-row):not(:first-child):not(:last-child) div[class^='ant-col'] {
       height: 0;
     }
   }
@@ -56,7 +61,7 @@
     margin-right: 8px;
     margin-bottom: 12px;
   }
-  .standardFilter div[class^=ant-col] {
+  .standardFilter div[class^='ant-col'] {
     height: 44px;
   }
 }

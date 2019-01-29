@@ -6,7 +6,7 @@ import MenuItem from 'antd/es/menu/MenuItem';
 import React, { PureComponent } from 'react';
 import { ConnectProps } from '@/models/connect';
 import { SiderProps } from 'antd/es/layout/Sider';
-import { Layout, Menu, Icon, Drawer } from 'antd';
+import { Drawer, Icon, Layout, Menu } from 'antd';
 import { FormattedMessage } from 'umi-plugin-locale';
 import { CheckAuth, Scope } from '@/components/Authorized';
 
