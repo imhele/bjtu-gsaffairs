@@ -103,9 +103,6 @@ export default class StandardTable<T> extends Component<
     loading: false,
     pagination: false,
     rowKey: 'key',
-    scroll: {
-      x: 800,
-    },
     selectable: false,
     size: 'default',
     unSelectableKey: 'unSelectable',

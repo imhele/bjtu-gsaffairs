@@ -28,12 +28,12 @@ const columns = [
     dataIndex: 'sess',
   },
   {
-    width: 185,
+    width: 188,
     title: '单位',
     dataIndex: 'depName',
   },
   {
-    width: 310,
+    width: 255,
     title: '岗位名称',
     dataIndex: 'name',
   },
@@ -68,7 +68,7 @@ const columns = [
     dataIndex: 'applyStatus',
   },
   {
-    width: 140,
+    width: 112,
     title: '操作',
     dataIndex: 'action',
   },

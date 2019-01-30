@@ -25,7 +25,7 @@ const defaultState: PositionState = {
   total: 0,
   filters: [],
   scroll: {
-    x: 1180,
+    x: 1100,
   },
 };
 
