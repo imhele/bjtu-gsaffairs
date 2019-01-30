@@ -1,12 +1,13 @@
 import { connect } from 'dva';
 import Media from 'react-media';
 import styles from './List.less';
+import { PositionType } from './consts';
 import React, { Component } from 'react';
+import { message, Radio, Skeleton } from 'antd';
 import { RadioChangeEvent } from 'antd/es/radio';
 import { FetchListBody } from '@/services/position';
 import { AuthorizedId, MediaQuery } from '@/global';
 import { FormattedMessage } from 'umi-plugin-locale';
-import { message, Radio, Skeleton, Spin } from 'antd';
 import StandardFilter from '@/components/StandardFilter';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
@@ -22,10 +23,10 @@ export interface ListProps extends ConnectProps {
     model?: boolean;
   };
   position?: PositionState;
-  type?: 'manage' | 'teach';
+  type?: PositionType;
 }
 
-enum ListSize {
+const enum ListSize {
   Default = 'default',
   Middle = 'middle',
   Small = 'small',
@@ -69,7 +70,7 @@ class List extends Component<ListProps, ListState> {
   }
 
   fetchList = () => {
-    if (!['manage', 'teach'].includes(this.props.type)) return;
+    if (!Object.values(PositionType).includes(this.props.type)) return;
     this.props.dispatch<FetchListBody>({
       type: 'position/fetchList',
       payload: {
@@ -156,7 +157,8 @@ class List extends Component<ListProps, ListState> {
     message.info(`Click on ${type}, selected keys ${selectedRowKeys}`);
   };
 
-  renderOperationVisible = (_: string[] | number[], type: string): boolean => {
+  renderOperationVisible = (selectedRowKeys: string[] | number[], type: string): boolean => {
+    if (type !== 'create' && !selectedRowKeys.length) return false;
     if (!(getCurrentScope instanceof Map)) return false;
     const getScope = getCurrentScope.get(AuthorizedId.BasicLayout);
     if (typeof getScope !== 'function') return false;
@@ -181,10 +183,17 @@ class List extends Component<ListProps, ListState> {
 
   render() {
     const { loading } = this.props;
-    const { actionKey, columns, dataSource, filters, scroll, selectable } = this.props.position;
+    const {
+      actionKey,
+      columns,
+      dataSource,
+      filters = [],
+      scroll,
+      selectable,
+    } = this.props.position;
     return (
       <React.Fragment>
-        {filters && filters.length ? (
+        {filters.length || !loading.fetchList ? (
           <StandardFilter
             className={styles.filter}
             expandText={this.filterExpandText}

@@ -5,6 +5,7 @@ import { ClickParam } from 'antd/es/menu';
 import { ButtonProps } from 'antd/es/button';
 import { sandwichArray } from '@/utils/utils';
 import { DropDownProps } from 'antd/es/dropdown';
+import QueueAnim, { IProps as QueueAnimProps } from 'rc-queue-anim';
 import { Button, Divider, Dropdown, Icon, Menu, Table } from 'antd';
 import { ColumnProps, PaginationConfig, TableRowSelection, TableSize } from 'antd/es/table';
 
@@ -39,6 +40,7 @@ export interface StandardTableOperation extends StandardTableAction {
 }
 
 export interface StandardTableOperationAreaProps {
+  animationProps?: QueueAnimProps;
   dropdownProps?: DropDownProps;
   maxAmount?: number;
   moreText?: string | React.ReactNode;
@@ -291,7 +293,6 @@ export default class StandardTable<T> extends Component<
 
   renderOperationArea = (): React.ReactNode => {
     const { operationArea } = this.props;
-    if (!operationArea) return null;
     const { maxAmount = 3, moreText = 'More' } = operationArea;
     if (!operationArea.operation) return null;
     const operation = Array.isArray(operationArea.operation)
@@ -333,6 +334,7 @@ export default class StandardTable<T> extends Component<
       dataSource,
       footer,
       loading,
+      operationArea,
       pagination,
       rowKey,
       scroll,
@@ -342,7 +344,15 @@ export default class StandardTable<T> extends Component<
     this.addRenderToActionColumn();
     return (
       <div className={className} style={style}>
-        <div className={styles.operationArea}>{this.renderOperationArea()}</div>
+        {operationArea && (
+          <div className={styles.operationArea}>
+            <QueueAnim
+              type="left"
+              {...operationArea.animationProps}
+              children={this.renderOperationArea()}
+            />
+          </div>
+        )}
         <Table<T>
           columns={columns}
           dataSource={dataSource}

@@ -7,7 +7,7 @@ import { FormComponentProps, FormItemProps } from 'antd/es/form';
 import { GetFieldDecoratorOptions, WrappedFormUtils } from 'antd/es/form/Form';
 import { Button, Col, Form, Icon, Row, Input, InputNumber, Select, DatePicker } from 'antd';
 
-export enum FilterType {
+export const enum FilterType {
   Input = 'Input',
   InputNumber = 'InputNumber',
   DatePicker = 'DatePicker',
