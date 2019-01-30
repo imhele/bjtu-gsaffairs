@@ -20,6 +20,7 @@ export default [
         path: '/position',
         icon: 'cluster',
         name: 'app.position',
+        component: '../layouts/PageHeader',
         routes: [
           {
             path: '/position',
