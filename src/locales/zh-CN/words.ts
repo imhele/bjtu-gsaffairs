@@ -8,4 +8,5 @@ export default {
   'words.query': '查询',
   'words.reset': '重置',
   'words.retract': '收起',
+  'words.unknown-page': '未知页',
 };
