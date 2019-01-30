@@ -309,7 +309,7 @@ export default class StandardTable<T> extends Component<
       </Menu>
     );
     return (
-      <div>
+      <React.Fragment>
         {operation
           .slice(0, maxAmount - 1)
           .map(this.renderOperationButtonItem)
@@ -322,7 +322,7 @@ export default class StandardTable<T> extends Component<
               </Dropdown>
             </div>,
           )}
-      </div>
+      </React.Fragment>
     );
   };
 

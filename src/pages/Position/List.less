@@ -1,2 +1,17 @@
-@import '../../global.less';
+@import '~antd/es/style/themes/default.less';
 
+@media screen and (max-width: @screen-md) {
+  .filter {
+    :global {
+      .ant-row.ant-form-item > .ant-form-item-label {
+        width: 64px;
+        text-align: justify;
+        text-align-last: justify;
+        -moz-text-align-last: justify;
+        label:after {
+          margin: 0;
+        }
+      }
+    }
+  }
+}

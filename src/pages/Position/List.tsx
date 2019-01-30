@@ -1,6 +1,6 @@
 import { connect } from 'dva';
-// import styles from './List.less';
 import Media from 'react-media';
+import styles from './List.less';
 import React, { Component } from 'react';
 import { RadioChangeEvent } from 'antd/es/radio';
 import { FetchListBody } from '@/services/position';
@@ -183,9 +183,10 @@ class List extends Component<ListProps, ListState> {
     const { loading } = this.props;
     const { actionKey, columns, dataSource, filters, scroll, selectable } = this.props.position;
     return (
-      <div>
+      <React.Fragment>
         {filters && filters.length ? (
           <StandardFilter
+            className={styles.filter}
             expandText={this.filterExpandText}
             filters={filters}
             onSubmit={this.onSubmitFilter}
@@ -211,7 +212,7 @@ class List extends Component<ListProps, ListState> {
           selectable={selectable}
           size={this.state.size}
         />
-      </div>
+      </React.Fragment>
     );
   }
 }

@@ -42,6 +42,7 @@ export interface FormCreateOptions {
 
 export interface StandardFilterProps extends FormComponentProps {
   animation?: boolean;
+  className?: string;
   colProps?: ColProps;
   expanded?: boolean;
   expandText?: {
@@ -58,6 +59,7 @@ export interface StandardFilterProps extends FormComponentProps {
   resetLoading?: boolean;
   resetText?: string | React.ReactNode;
   rowProps?: RowProps;
+  style?: React.CSSProperties;
   submitLoading?: boolean;
   submitText?: string | React.ReactNode;
 }
@@ -173,7 +175,7 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
         item = null;
     }
     return (
-      <Form.Item label={filter.title || filter.id} {...this.props.formItemProps}>
+      <Form.Item colon={false} label={filter.title || filter.id} {...this.props.formItemProps}>
         {this.props.form.getFieldDecorator(filter.id, {
           initialValue: this.initialFieldsValue[filter.id],
           ...filter.decoratorOptions,
@@ -220,17 +222,19 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
   };
 
   render() {
-    const { animation, filters } = this.props;
-    if (!Array.isArray(filters) || !filters.length) return <div />;
+    const { animation, className, filters, style } = this.props;
+    if (!Array.isArray(filters) || !filters.length) return null;
     return (
       <Form
-        onSubmit={this.onSubmit}
-        layout="inline"
         className={classnames({
           [styles.standardFilter]: true,
           [styles.animation]: animation,
           [styles.unexpanded]: !this.state.expanded,
+          [className]: true,
         })}
+        layout="inline"
+        onSubmit={this.onSubmit}
+        style={style}
       >
         {this.renderFilters()}
       </Form>

@@ -61,8 +61,13 @@ export const addWindowEvent = (() => {
         );
       }
       window[`on${type}`] = (event: WindowEventMap[T]) => {
-        windowEvents.get(type).forEach(value => {
-          if (typeof value === 'function') value(event);
+        windowEvents.get(type).forEach((value, key, funMap) => {
+          if (typeof value !== 'function') return;
+          try {
+            value(event);
+          } catch {
+            funMap.delete(key);
+          }
         });
       };
     }

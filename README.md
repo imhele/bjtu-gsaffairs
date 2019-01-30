@@ -14,7 +14,7 @@ Postgraduate Assistant Post Management System.
 $ git clone https://github.com/imhele/bjtu-papms.git --depth=1
 $ cd bjtu-papms
 $ npm install
-$ npm start         # or `npm start:win` in Windows CMD
+$ npm start
 ```
 
 
