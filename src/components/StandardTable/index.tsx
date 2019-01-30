@@ -260,12 +260,15 @@ export default class StandardTable<T> extends Component<
   renderOperationButtonItem = (item: StandardTableOperation): React.ReactNode => {
     const itemProps = this.getOperationItemProps(item);
     if (itemProps === null) return null;
+    /**
+     * Add a layer of `<div />` to avoid `transition` contamination from `<Button />`
+     */
     return (
-      <div key={item.type} style={{ display: 'inline-block' }}>
+      <div className={styles.operation} key={item.type} style={{ display: 'inline-block' }}>
         <Button
-          className={styles.operation}
           data-type={item.type}
           icon={item.icon}
+          key={item.type}
           onClick={this.onClickOperationItem}
           {...itemProps}
           {...item.buttonProps}
