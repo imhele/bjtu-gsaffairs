@@ -103,6 +103,7 @@ class List extends Component<ListProps, ListState> {
   };
 
   getPagination = (): PaginationConfig => {
+    const { isMobile } = this.props;
     const { total } = this.props.position;
     return {
       current: parseInt((this.offset / this.limit + 1).toFixed(0), 10),
@@ -110,7 +111,7 @@ class List extends Component<ListProps, ListState> {
       onShowSizeChange: this.onShowSizeChange,
       pageSize: this.limit,
       showSizeChanger: true,
-      size: this.state.size,
+      simple: isMobile,
       total,
     };
   };
@@ -121,7 +122,7 @@ class List extends Component<ListProps, ListState> {
 
   renderTableFooter = (): React.ReactNode => {
     return (
-      <div>
+      <React.Fragment>
         <div style={{ display: 'inline-block', marginRight: 12 }}>
           <FormattedMessage id="position.list.tableSize" />
         </div>
@@ -140,7 +141,7 @@ class List extends Component<ListProps, ListState> {
             <FormattedMessage id={`position.list.tableSize.${ListSize.Small}`} />
           </Radio.Button>
         </Radio.Group>
-      </div>
+      </React.Fragment>
     );
   };
 

@@ -1,3 +1,5 @@
+import pathToRegexp from 'path-to-regexp';
+
 export function pathnameToArr(pathname = ''): string[] {
   const pathnameArr: string[] = pathname.split('/').filter(i => i);
   return pathnameArr.map((_, i) => `/${pathnameArr.slice(0, i + 1).join('/')}`);
@@ -27,7 +29,7 @@ export function pathToScope(
   if (route.path === pathname) return scope;
   if (!Array.isArray(route.routes)) return scope;
   return pathToScope(
-    route.routes.find(v => v.path && pathname.startsWith(v.path)),
+    route.routes.find(v => v.path && pathToRegexp(`${v.path}(.*)`).test(pathname)),
     pathname,
     scope,
   );

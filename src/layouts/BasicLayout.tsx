@@ -131,7 +131,7 @@ class BasicLayout extends Component<BasicLayoutProps> {
                 >
                   {children}
                 </Authorized>
-                <Footer key="Footer" />
+                <Footer />
               </Content>
             </Layout>
           </QueueAnim>

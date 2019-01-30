@@ -12,7 +12,7 @@ interface DocumentTitleStates {
   pathname: string;
 }
 
-const routeToTitle = (
+export const routeToTitle = (
   routes: Route[],
   props: DocumentTitleProps,
   defaultTitle: string,
