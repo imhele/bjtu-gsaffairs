@@ -12,14 +12,17 @@ const mockFiles = {
 };
 
 const aliasFetch = (url, options) => {
+  const query = {};
   try {
     const urlInstance = new URL(url);
     url = urlInstance.pathname;
+    Array.from(urlInstance.searchParams).forEach(([key, value]) => (query[key] = value));
   } catch {
     try {
       if (url[0] === '/') url = url.slice(1);
       const urlInstance = new URL(`http://localhost/${url}`);
       url = urlInstance.pathname;
+      Array.from(urlInstance.searchParams).forEach(([key, value]) => (query[key] = value));
     } catch {}
   }
   if (url[0] === '/') url = url.slice(1);
@@ -40,7 +43,7 @@ const aliasFetch = (url, options) => {
             } catch {}
           }
           mock(
-            { ...options, url },
+            { ...options, query, url },
             { send: response => resolve(new Response(new Blob([JSON.stringify(response)]))) },
           );
         } else {

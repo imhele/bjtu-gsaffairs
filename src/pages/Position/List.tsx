@@ -4,9 +4,9 @@ import styles from './List.less';
 import React, { Component } from 'react';
 import { message, Radio, Skeleton } from 'antd';
 import { RadioChangeEvent } from 'antd/es/radio';
-import { FetchListBody } from '@/services/position';
 import { AuthorizedId, MediaQuery } from '@/global';
 import { FormattedMessage } from 'umi-plugin-locale';
+import { FetchListPayload } from '@/services/position';
 import StandardFilter from '@/components/StandardFilter';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
 import { HideWithouSelection, PositionType, TopbarAction } from './consts';
@@ -72,13 +72,15 @@ class List extends Component<ListProps, ListState> {
   fetchList = () => {
     const { dispatch, type } = this.props;
     if (!Object.values(PositionType).includes(type)) return;
-    dispatch<FetchListBody>({
+    dispatch<FetchListPayload>({
       type: 'position/fetchList',
       payload: {
-        filtersValue: this.filtersValue,
-        limit: this.limit,
-        offset: this.offset,
-        type,
+        body: {
+          filtersValue: this.filtersValue,
+          limit: this.limit,
+          offset: this.offset,
+        },
+        query: { type },
       },
       callback: this.correctOffset,
     });

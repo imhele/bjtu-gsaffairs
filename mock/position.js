@@ -146,12 +146,13 @@ const operationArea = {
 };
 
 const positionList = (req, res) => {
-  const { filtersValue = {}, limit = 10, offset = 0, type } = req.body;
+  const { type } = req.query;
+  const { filtersValue = {}, limit = 10, offset = 0 } = req.body;
   if (!['manage', 'teach'].includes(type)) {
-    return {
+    return res.send({
       errcode: 40001,
       errmsg: 'Invalid type of position',
-    };
+    });
   }
   /**
    * `name` use `Input` to search, shouldn't give a simple comparison.
