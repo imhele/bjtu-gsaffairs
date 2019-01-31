@@ -204,23 +204,16 @@ export default class StandardTable<T> extends Component<
     );
   };
 
-  addRenderToActionColumn = () => {
+  addRenderToActionColumn = (): ColumnProps<T>[] => {
     const { actionKey, columns } = this.props;
     const actionKeyArr = Array.isArray(actionKey) ? actionKey : [actionKey];
-    columns
-      .reduce<ColumnProps<T>[]>(
-        (pre, cur) => (actionKeyArr.includes(cur.dataIndex) ? pre.concat(cur) : pre),
-        [],
-      )
-      .forEach(actionColumn => {
-        /**
-         * fix error in mac: `actionColumn` is not an object
-         * @TODO
-         */
-        if (typeof actionColumn === 'object' && !actionColumn.render) {
-          actionColumn.render = this.renderAction;
-        }
-      });
+    return columns.map(actionColumn => {
+      if (!actionKeyArr.includes(actionColumn.dataIndex)) return actionColumn;
+      return {
+        ...actionColumn,
+        render: this.renderAction,
+      };
+    });
   };
 
   onClickOperationItem = (event: React.MouseEvent | ClickParam): void => {
@@ -321,7 +314,6 @@ export default class StandardTable<T> extends Component<
   render() {
     const {
       className,
-      columns,
       dataSource,
       footer,
       loading,
@@ -332,7 +324,6 @@ export default class StandardTable<T> extends Component<
       size,
       style,
     } = this.props;
-    this.addRenderToActionColumn();
     return (
       <div className={className} style={style}>
         {operationArea && (
@@ -343,7 +334,7 @@ export default class StandardTable<T> extends Component<
           </div>
         )}
         <Table<T>
-          columns={columns}
+          columns={this.addRenderToActionColumn()}
           dataSource={dataSource}
           footer={footer === false ? undefined : this.renderFooter}
           loading={loading}

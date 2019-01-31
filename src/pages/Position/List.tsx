@@ -1,7 +1,6 @@
 import { connect } from 'dva';
 import Media from 'react-media';
 import styles from './List.less';
-import { PositionType } from './consts';
 import React, { Component } from 'react';
 import { message, Radio, Skeleton } from 'antd';
 import { RadioChangeEvent } from 'antd/es/radio';
@@ -10,6 +9,7 @@ import { AuthorizedId, MediaQuery } from '@/global';
 import { FormattedMessage } from 'umi-plugin-locale';
 import StandardFilter from '@/components/StandardFilter';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
+import { HideWithouSelection, PositionType, TopbarAction } from './consts';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import StandardTable, {
   PaginationConfig,
@@ -106,8 +106,10 @@ class List extends Component<ListProps, ListState> {
   };
 
   getPagination = (): PaginationConfig => {
-    const { isMobile, position } = this.props;
-    const { total } = position;
+    const {
+      isMobile,
+      position: { total },
+    } = this.props;
     return {
       current: parseInt((this.offset / this.limit + 1).toFixed(0), 10),
       onChange: this.onChangePage,
@@ -162,9 +164,9 @@ class List extends Component<ListProps, ListState> {
     message.info(`Click on ${type}, selected keys ${selectedRowKeys}`);
   };
 
-  renderOperationVisible = (selectedRowKeys: string[] | number[], type: string): boolean => {
+  renderOperationVisible = (selectedRowKeys: string[] | number[], type: TopbarAction): boolean => {
     const { type: positionType } = this.props;
-    if (type !== 'create' && !selectedRowKeys.length) return false;
+    if (HideWithouSelection.has(type) && !selectedRowKeys.length) return false;
     if (!(getCurrentScope instanceof Map)) return false;
     const getScope = getCurrentScope.get(AuthorizedId.BasicLayout);
     if (typeof getScope !== 'function') return false;
