@@ -23,7 +23,7 @@ interface MenuItemProps {
   onMouseLeave?: (event: string, e: MouseEvent) => void;
 }
 
-interface StandardTableAction {
+export interface StandardTableAction {
   icon?: string;
   text?: string | number | React.ReactNode;
   type: string;

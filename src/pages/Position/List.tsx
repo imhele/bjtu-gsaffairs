@@ -1,15 +1,16 @@
 import { connect } from 'dva';
+import Detail from './Detail';
 import Media from 'react-media';
 import styles from './List.less';
 import React, { Component } from 'react';
 import { message, Radio, Skeleton } from 'antd';
 import { RadioChangeEvent } from 'antd/es/radio';
 import { AuthorizedId, MediaQuery } from '@/global';
-import { FormattedMessage } from 'umi-plugin-locale';
 import { FetchListPayload } from '@/services/position';
 import StandardFilter from '@/components/StandardFilter';
+import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
-import { HideWithouSelection, PositionType, TopbarAction } from './consts';
+import { HideWithouSelection, PositionType, TopbarAction, CellAction } from './consts';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import StandardTable, {
   PaginationConfig,
@@ -33,6 +34,9 @@ const enum ListSize {
 }
 
 interface ListState {
+  currentRow: object;
+  currentRowKey: string;
+  detailVisible: boolean;
   size: ListSize;
 }
 
@@ -45,6 +49,9 @@ interface ListState {
 }))
 class List extends Component<ListProps, ListState> {
   state: ListState = {
+    currentRow: null,
+    currentRowKey: null,
+    detailVisible: false,
     size: ListSize.Default,
   };
   /**
@@ -158,8 +165,29 @@ class List extends Component<ListProps, ListState> {
     this.fetchList();
   };
 
-  onClickAction = (rowKey: string, actionType: string) => {
-    message.info(`Click on row ${rowKey}, action ${actionType}`);
+  onCloseDetail = () => {
+    this.setState({
+      currentRow: null,
+      currentRowKey: null,
+      detailVisible: false,
+    });
+  };
+
+  onClickAction = (currentRowKey: string, actionType: CellAction) => {
+    const {
+      position: { dataSource, rowKey = 'key' },
+    } = this.props;
+    if (!currentRowKey) {
+      return message.error(formatMessage({ id: 'position.error.unknown.click' }));
+    }
+    switch (actionType) {
+      case CellAction.Preview:
+        const currentRow = dataSource.find(row => row[rowKey] === currentRowKey);
+        this.setState({ currentRow, currentRowKey, detailVisible: true });
+        break;
+      default:
+        message.warn(formatMessage({ id: 'position.error.unknown.action' }));
+    }
   };
 
   onClickOperation = (selectedRowKeys: string[] | number[], type: string) => {
@@ -206,10 +234,10 @@ class List extends Component<ListProps, ListState> {
   };
 
   render() {
-    const { size } = this.state;
+    const { currentRow, currentRowKey, detailVisible, size } = this.state;
     const {
       loading,
-      position: { actionKey, columns, dataSource, filters = [], scroll, selectable },
+      position: { actionKey, columns, dataSource, detail, filters = [], scroll, selectable },
     } = this.props;
     return (
       <React.Fragment>
@@ -240,6 +268,13 @@ class List extends Component<ListProps, ListState> {
           scroll={scroll}
           selectable={selectable}
           size={size}
+        />
+        <Detail
+          {...detail}
+          currentRow={currentRow}
+          currentRowKey={currentRowKey}
+          onClose={this.onCloseDetail}
+          visible={detailVisible}
         />
       </React.Fragment>
     );

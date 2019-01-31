@@ -1,0 +1,19 @@
+@import '../../global.less';
+@import '~antd/es/style/themes/default.less';
+
+.modal {
+  min-width: @screen-md;
+  .footerButton {
+    display: inline-block;
+    margin-left: @page-gap-2;
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}
+
+@media screen and (max-width: @screen-lg) {
+  .modal {
+    min-width: 90vw;
+  }
+}

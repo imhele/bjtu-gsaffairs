@@ -1,9 +1,21 @@
 import { Model } from 'dva';
-import { fetchList } from '@/services/position';
 import { Filter } from '@/components/StandardFilter';
+import { fetchDetail, fetchList } from '@/services/position';
 import { StandardTableOperationAreaProps } from '@/components/StandardTable';
 
+export interface PositionDetailProps {
+  columns: Array<{
+    dataIndex: string;
+    title: string;
+  }>;
+  dataSource: object;
+  actionKey: string | string[];
+}
+
 export interface PositionState {
+  /**
+   * Position list
+   */
   columns: object[];
   dataSource: object[];
   total: number;
@@ -17,6 +29,10 @@ export interface PositionState {
   };
   selectable?: boolean;
   unSelectableKey?: string;
+  /**
+   * Position detail
+   */
+  detail: PositionDetailProps;
 }
 
 const defaultState: PositionState = {
@@ -24,8 +40,14 @@ const defaultState: PositionState = {
   dataSource: [],
   total: 0,
   filters: [],
+  rowKey: 'key',
   scroll: {
     x: 1100,
+  },
+  detail: {
+    columns: [],
+    dataSource: {},
+    actionKey: 'action',
   },
 };
 
@@ -45,12 +67,29 @@ const model: PositionModel = {
       });
       if (typeof callback === 'function') callback();
     },
+    *fetchDetail({ payload }, { call, put }) {
+      const response = yield call(fetchDetail, payload);
+      yield put({
+        type: 'setDetail',
+        payload: response,
+      });
+    },
   },
   reducers: {
-    setState(state, { payload }) {
+    setState(state: PositionState, { payload }): PositionState {
       return {
         ...state,
         ...payload,
+        detail: state.detail,
+      };
+    },
+    setDetail(state: PositionState, { payload }): PositionState {
+      return {
+        ...state,
+        detail: {
+          ...state.detail,
+          ...payload,
+        },
       };
     },
     resetState() {
