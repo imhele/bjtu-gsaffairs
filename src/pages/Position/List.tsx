@@ -168,18 +168,30 @@ class List extends Component<ListProps, ListState> {
 
   getOperationArea = (): StandardTableOperationAreaProps => {
     const { operationArea } = this.props.position;
-    if (!operationArea) return null;
+    if (!operationArea || !operationArea.operation) return null;
     if (!Array.isArray(operationArea.operation)) {
-      operationArea.operation = [operationArea.operation];
+      const operation = {
+        ...operationArea.operation,
+        visible: this.renderOperationVisible,
+      };
+      return {
+        moreText: <FormattedMessage id="words.more" />,
+        onClick: this.onClickOperation,
+        ...operationArea,
+        operation,
+      };
+    } else {
+      const operation = operationArea.operation.map(item => ({
+        ...item,
+        visible: this.renderOperationVisible,
+      }));
+      return {
+        moreText: <FormattedMessage id="words.more" />,
+        onClick: this.onClickOperation,
+        ...operationArea,
+        operation,
+      };
     }
-    operationArea.operation.forEach(item => {
-      item.visible = this.renderOperationVisible;
-    });
-    return {
-      moreText: <FormattedMessage id="words.more" />,
-      onClick: this.onClickOperation,
-      ...operationArea,
-    };
   };
 
   render() {
