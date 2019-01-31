@@ -75,7 +75,15 @@ export default class Header extends Component<HeaderProps> {
   };
 
   render() {
-    const { collapsed, isMobile, menuSelectedKeys, onOpenMenu } = this.props;
+    const {
+      collapsed,
+      isMobile,
+      loading,
+      login,
+      menuSelectedKeys,
+      onLogout,
+      onOpenMenu,
+    } = this.props;
     const className = classnames({
       [styles.headerContainer]: true,
       [styles.collapsed]: collapsed || isMobile,
@@ -96,11 +104,7 @@ export default class Header extends Component<HeaderProps> {
               {this.menuArr}
             </Menu>
           )}
-          <RightContent
-            loading={this.props.loading}
-            login={this.props.login}
-            onLogout={this.props.onLogout}
-          />
+          <RightContent loading={loading} login={login} onLogout={onLogout} />
         </div>
       </Layout.Header>
     );

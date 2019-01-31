@@ -53,10 +53,12 @@ export default class Authorized extends Component<AuthorizedProps, AuthorizedSta
   };
 
   render() {
-    if (CheckAuth(this.props.scope, this.props.currentScope || this.state.currentScope)) {
-      return this.props.children;
+    const { currentScope: stateCurrentScope } = this.state;
+    const { children, currentScope, exception, scope } = this.props;
+    if (CheckAuth(scope, currentScope || stateCurrentScope)) {
+      return children;
     } else {
-      return this.props.exception;
+      return exception;
     }
   }
 }

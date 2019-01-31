@@ -32,7 +32,8 @@ class BasicLayout extends Component<BasicLayoutProps> {
   pathnameToArr = memoizeOne(pathnameToArr);
 
   onCollapse = debounce((collapsed: boolean) => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'global/setCollapsed',
       payload: collapsed,
     });
@@ -60,7 +61,8 @@ class BasicLayout extends Component<BasicLayoutProps> {
   }
 
   onLogout = () => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'login/logout',
     });
   };

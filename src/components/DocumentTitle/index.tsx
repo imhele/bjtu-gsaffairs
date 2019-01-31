@@ -61,6 +61,7 @@ export default class DocumentTitle extends Component<DocumentTitleProps, Documen
   };
 
   render() {
-    return this.props.children;
+    const { children } = this.props;
+    return children;
   }
 }

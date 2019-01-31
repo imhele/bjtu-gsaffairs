@@ -126,7 +126,8 @@ export default class StandardTable<T> extends Component<
   };
 
   getSelectedRowKeys = () => {
-    return this.state.selectedRowKeys;
+    const { selectedRowKeys } = this.state;
+    return selectedRowKeys;
   };
 
   setSelectedRowKeys = (rowKeys: string[] | number[]) => {
@@ -134,6 +135,7 @@ export default class StandardTable<T> extends Component<
   };
 
   getRowSelection = (): TableRowSelection<T> | null => {
+    const { selectedRowKeys } = this.state;
     const {
       onChangeSelection = (keys: string[] | number[]) => keys,
       selectable,
@@ -146,10 +148,10 @@ export default class StandardTable<T> extends Component<
         : (record: T) => ({ disabled: record[unSelectableKey] });
     return {
       getCheckboxProps,
-      selectedRowKeys: this.state.selectedRowKeys,
+      selectedRowKeys,
       ...(selectable === true ? {} : selectable),
-      onChange: (selectedRowKeys, selectedRows) => {
-        this.setState({ selectedRowKeys: onChangeSelection(selectedRowKeys, selectedRows) });
+      onChange: (nextSelectedRowKeys, selectedRows) => {
+        this.setState({ selectedRowKeys: onChangeSelection(nextSelectedRowKeys, selectedRows) });
       },
     };
   };
@@ -168,20 +170,18 @@ export default class StandardTable<T> extends Component<
 
   onClickActionItem = (event: React.MouseEvent) => {
     const { onClickAction } = this.props;
-    if (typeof onClickAction !== 'function' || !event) return;
+    if (!onClickAction || !event) return;
     const { currentTarget: { dataset: { key = '', type = '' } = {} } = {} } = event as any;
     return onClickAction(key, type, event);
   };
 
   renderActionItem = (action: StandardTableAction, record: T, index: number): React.ReactNode => {
-    const rowKey =
-      typeof this.props.rowKey === 'function'
-        ? this.props.rowKey(record, index)
-        : this.props.rowKey;
+    const { rowKey } = this.props;
+    const computedRowKey = typeof rowKey === 'function' ? rowKey(record, index) : rowKey;
     const icon = action.icon && <Icon type={action.icon} />;
     return (
       <a
-        data-key={record[rowKey]}
+        data-key={record[computedRowKey]}
         data-type={action.type}
         key={action.type}
         onClick={this.onClickActionItem}
@@ -206,32 +206,27 @@ export default class StandardTable<T> extends Component<
 
   addRenderToActionColumn = () => {
     const { actionKey, columns } = this.props;
-    if (typeof actionKey === 'string') {
-      const actionColumn: ColumnProps<T> = columns.find(column => column.dataIndex === actionKey);
-      if (actionColumn && !actionColumn.render) {
-        actionColumn.render = this.renderAction;
-      }
-    } else if (Array.isArray(actionKey)) {
-      columns
-        .reduce<ColumnProps<T>[]>(
-          (pre, cur) => (actionKey.includes(cur.dataIndex) ? pre.concat(cur) : pre),
-          [],
-        )
-        .forEach(actionColumn => {
-          /**
-           * fix error in mac: `actionColumn` is not an object
-           */
-          if (typeof actionColumn === 'object' && !actionColumn.render) {
-            actionColumn.render = this.renderAction;
-          }
-        });
-    }
+    const actionKeyArr = Array.isArray(actionKey) ? actionKey : [actionKey];
+    columns
+      .reduce<ColumnProps<T>[]>(
+        (pre, cur) => (actionKeyArr.includes(cur.dataIndex) ? pre.concat(cur) : pre),
+        [],
+      )
+      .forEach(actionColumn => {
+        /**
+         * fix error in mac: `actionColumn` is not an object
+         * @TODO
+         */
+        if (typeof actionColumn === 'object' && !actionColumn.render) {
+          actionColumn.render = this.renderAction;
+        }
+      });
   };
 
   onClickOperationItem = (event: React.MouseEvent | ClickParam): void => {
     const { selectedRowKeys } = this.state;
     const { operationArea } = this.props;
-    if (!operationArea || typeof operationArea.onClick !== 'function') return;
+    if (!operationArea || !operationArea.onClick) return;
     if ('currentTarget' in event) {
       const { dataset: { type = '' } = {} } = event.currentTarget as any;
       operationArea.onClick(selectedRowKeys, type, event);
@@ -240,7 +235,7 @@ export default class StandardTable<T> extends Component<
     }
   };
 
-  getOperationItemProps = (item: StandardTableOperation) => {
+  getOperationItemProps = (item: StandardTableOperation): StandardTableOperation => {
     const { selectedRowKeys } = this.state;
     const visible =
       typeof item.visible === 'function' ? item.visible(selectedRowKeys, item.type) : item.visible;
@@ -251,12 +246,14 @@ export default class StandardTable<T> extends Component<
         : item.disabled;
     const loading =
       typeof item.loading === 'function' ? item.loading(selectedRowKeys, item.type) : item.loading;
-    return { disabled, loading };
+    return {
+      ...item,
+      disabled,
+      loading,
+    };
   };
 
-  renderOperationButtonItem = (item: StandardTableOperation): React.ReactNode => {
-    const itemProps = this.getOperationItemProps(item);
-    if (itemProps === null) return null;
+  renderOperationButtonItem = (item: StandardTableOperation, index: number): React.ReactNode => {
     /**
      * Add a layer of `<div />` to avoid `transition` contamination from `<Button />`
      */
@@ -264,10 +261,11 @@ export default class StandardTable<T> extends Component<
       <div className={styles.operation} key={item.type} style={{ display: 'inline-block' }}>
         <Button
           data-type={item.type}
+          disabled={item.disabled as boolean}
           icon={item.icon}
-          key={item.type}
+          loading={item.loading as boolean}
           onClick={this.onClickOperationItem}
-          {...itemProps}
+          type={index ? 'default' : 'primary'}
           {...item.buttonProps}
         >
           {item.text || item.type}
@@ -277,15 +275,13 @@ export default class StandardTable<T> extends Component<
   };
 
   renderOperationMenuItem = (item: StandardTableOperation): React.ReactNode => {
-    const itemProps = this.getOperationItemProps(item);
-    if (itemProps === null) return null;
     return (
       <Menu.Item
         key={item.type}
-        disabled={itemProps.disabled || itemProps.loading}
+        disabled={(item.disabled || item.loading) as boolean}
         {...item.menuProps}
       >
-        {item.loading ? <Icon type="loading" /> : null}
+        {item.loading ? <Icon type="loading" /> : <Icon type={item.icon} />}
         {item.text || item.type}
       </Menu.Item>
     );
@@ -295,36 +291,31 @@ export default class StandardTable<T> extends Component<
     const { operationArea } = this.props;
     const { maxAmount = 3, moreText = 'More' } = operationArea;
     if (!operationArea.operation) return null;
-    const operation = Array.isArray(operationArea.operation)
+    const operation = (Array.isArray(operationArea.operation)
       ? operationArea.operation
-      : [operationArea.operation];
+      : [operationArea.operation]
+    )
+      .map(this.getOperationItemProps)
+      .filter(item => item);
     if (!operation.length) return null;
-    operation[0].buttonProps = {
-      type: 'primary',
-      ...operation[0].buttonProps,
-    };
     if (operation.length <= maxAmount) return operation.map(this.renderOperationButtonItem);
     const overlay = (
       <Menu onClick={this.onClickOperationItem}>
         {operation.slice(maxAmount - 1).map(this.renderOperationMenuItem)}
       </Menu>
     );
-    return (
-      <React.Fragment>
-        {operation
-          .slice(0, maxAmount - 1)
-          .map(this.renderOperationButtonItem)
-          .concat(
-            <div key="Dropdown" style={{ display: 'inline-block' }}>
-              <Dropdown overlay={overlay} {...operationArea.dropdownProps}>
-                <Button className={styles.operation}>
-                  {moreText} <Icon type="down" />
-                </Button>
-              </Dropdown>
-            </div>,
-          )}
-      </React.Fragment>
-    );
+    return operation
+      .slice(0, maxAmount - 1)
+      .map(this.renderOperationButtonItem)
+      .concat(
+        <div key="Dropdown" style={{ display: 'inline-block' }}>
+          <Dropdown overlay={overlay} {...operationArea.dropdownProps}>
+            <Button className={styles.operation}>
+              {moreText} <Icon type="down" />
+            </Button>
+          </Dropdown>
+        </div>,
+      );
   };
 
   render() {
@@ -346,11 +337,9 @@ export default class StandardTable<T> extends Component<
       <div className={className} style={style}>
         {operationArea && (
           <div className={styles.operationArea}>
-            <QueueAnim
-              type="left"
-              {...operationArea.animationProps}
-              children={this.renderOperationArea()}
-            />
+            <QueueAnim type="left" {...operationArea.animationProps}>
+              {this.renderOperationArea()}
+            </QueueAnim>
           </div>
         )}
         <Table<T>

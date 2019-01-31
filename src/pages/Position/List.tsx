@@ -70,21 +70,24 @@ class List extends Component<ListProps, ListState> {
   }
 
   fetchList = () => {
-    if (!Object.values(PositionType).includes(this.props.type)) return;
-    this.props.dispatch<FetchListBody>({
+    const { dispatch, type } = this.props;
+    if (!Object.values(PositionType).includes(type)) return;
+    dispatch<FetchListBody>({
       type: 'position/fetchList',
       payload: {
         filtersValue: this.filtersValue,
         limit: this.limit,
         offset: this.offset,
-        type: this.props.type,
+        type,
       },
       callback: this.correctOffset,
     });
   };
 
   correctOffset = () => {
-    const { dataSource, total } = this.props.position;
+    const {
+      position: { dataSource, total },
+    } = this.props;
     // exception: offset === 0
     if (this.offset && total <= this.offset) {
       this.offset = total - dataSource.length;
@@ -103,8 +106,8 @@ class List extends Component<ListProps, ListState> {
   };
 
   getPagination = (): PaginationConfig => {
-    const { isMobile } = this.props;
-    const { total } = this.props.position;
+    const { isMobile, position } = this.props;
+    const { total } = position;
     return {
       current: parseInt((this.offset / this.limit + 1).toFixed(0), 10),
       onChange: this.onChangePage,
@@ -121,6 +124,7 @@ class List extends Component<ListProps, ListState> {
   };
 
   renderTableFooter = (): React.ReactNode => {
+    const { size } = this.state;
     return (
       <React.Fragment>
         <div style={{ display: 'inline-block', marginRight: 12 }}>
@@ -128,8 +132,8 @@ class List extends Component<ListProps, ListState> {
         </div>
         <Radio.Group
           onChange={this.onChangeListSize}
-          size={this.state.size === ListSize.Small ? 'small' : 'default'}
-          value={this.state.size}
+          size={size === ListSize.Small ? 'small' : 'default'}
+          value={size}
         >
           <Radio.Button value={ListSize.Default}>
             <FormattedMessage id={`position.list.tableSize.${ListSize.Default}`} />
@@ -159,15 +163,18 @@ class List extends Component<ListProps, ListState> {
   };
 
   renderOperationVisible = (selectedRowKeys: string[] | number[], type: string): boolean => {
+    const { type: positionType } = this.props;
     if (type !== 'create' && !selectedRowKeys.length) return false;
     if (!(getCurrentScope instanceof Map)) return false;
     const getScope = getCurrentScope.get(AuthorizedId.BasicLayout);
     if (typeof getScope !== 'function') return false;
-    return CheckAuth([`scope.position.${this.props.type}.${type}`, 'scope.admin'], getScope());
+    return CheckAuth([`scope.position.${positionType}.${type}`, 'scope.admin'], getScope());
   };
 
   getOperationArea = (): StandardTableOperationAreaProps => {
-    const { operationArea } = this.props.position;
+    const {
+      position: { operationArea },
+    } = this.props;
     if (!operationArea || !operationArea.operation) return null;
     if (!Array.isArray(operationArea.operation)) {
       const operation = {
@@ -195,15 +202,11 @@ class List extends Component<ListProps, ListState> {
   };
 
   render() {
-    const { loading } = this.props;
+    const { size } = this.state;
     const {
-      actionKey,
-      columns,
-      dataSource,
-      filters = [],
-      scroll,
-      selectable,
-    } = this.props.position;
+      loading,
+      position: { actionKey, columns, dataSource, filters = [], scroll, selectable },
+    } = this.props;
     return (
       <React.Fragment>
         {filters.length || !loading.fetchList ? (
@@ -232,7 +235,7 @@ class List extends Component<ListProps, ListState> {
           pagination={this.getPagination()}
           scroll={scroll}
           selectable={selectable}
-          size={this.state.size}
+          size={size}
         />
       </React.Fragment>
     );

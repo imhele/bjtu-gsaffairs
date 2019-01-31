@@ -84,7 +84,7 @@ export function sandwichArray<T = any, U = any, V = any>(
   wrap: boolean = false,
   handleJoin: (join: U | U[], value: T, index: number) => U | V | U[] | V[] = v => v,
 ) {
-  if (!Array.isArray) return arr;
+  if (!Array.isArray(arr)) return arr;
   const res: Array<T | U | V> = [];
   arr.forEach((value, index) => {
     if (!(index % interval)) {

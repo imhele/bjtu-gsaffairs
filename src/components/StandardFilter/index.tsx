@@ -81,6 +81,7 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
     },
     filters: [],
     groupAmount: 3,
+    onSubmit: () => {},
     resetLoading: false,
     resetText: 'Reset',
     rowProps: {
@@ -106,39 +107,41 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
   private initialFieldsValue = {};
 
   onChangeExpand = () => {
-    if (typeof this.props.expanded !== 'undefined') return;
+    const { expanded } = this.props;
+    const { expanded: stateExpanded } = this.state;
+    if (typeof expanded !== 'undefined') return;
     this.setState({
-      expanded: !this.state.expanded,
+      expanded: !stateExpanded,
     });
   };
 
   renderOperationArea = (): React.ReactNode => {
-    if (this.props.operationArea || this.props.operationArea === null)
-      return this.props.operationArea;
+    const { expandText, operationArea, resetText, submitText } = this.props;
+    if (operationArea || operationArea === null) return operationArea;
     const { expanded } = this.state;
     const { filters, groupAmount, resetLoading, submitLoading } = this.props;
     const expandVisible: boolean = filters.length >= groupAmount;
-    const operationArea = (
+    const defaultOperationArea = (
       <div className={styles.operationArea}>
         <Button htmlType="submit" loading={submitLoading} type="primary">
-          {this.props.submitText}
+          {submitText}
         </Button>
         <Button loading={resetLoading} onClick={this.onReset} style={{ marginLeft: 8 }}>
-          {this.props.resetText}
+          {resetText}
         </Button>
         {expandVisible && (
           <a style={{ marginLeft: 8 }} onClick={this.onChangeExpand}>
-            {this.props.expandText[expanded ? 'retract' : 'expand']}{' '}
-            <Icon type="up" className={styles.icon} />
+            {expandText[expanded ? 'retract' : 'expand']} <Icon type="up" className={styles.icon} />
           </a>
         )}
       </div>
     );
-    return operationArea;
+    return defaultOperationArea;
   };
 
   renderFormItem = (filter: Filter): React.ReactNode => {
     let item: React.ReactNode;
+    const { form, formItemProps } = this.props;
     switch (filter.type) {
       case FilterType.Select:
         item = (
@@ -175,8 +178,8 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
         item = null;
     }
     return (
-      <Form.Item colon={false} label={filter.title || filter.id} {...this.props.formItemProps}>
-        {this.props.form.getFieldDecorator(filter.id, {
+      <Form.Item colon={false} label={filter.title || filter.id} {...formItemProps}>
+        {form.getFieldDecorator(filter.id, {
           initialValue: this.initialFieldsValue[filter.id],
           ...filter.decoratorOptions,
         })(item)}
@@ -209,19 +212,20 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
     form.validateFieldsAndScroll((err, fieldsValue) => {
       if (err) return;
       this.initialFieldsValue = fieldsValue;
-      if (typeof onSubmit === 'function') onSubmit(fieldsValue, form);
+      onSubmit(fieldsValue, form);
     });
   };
 
   onReset = () => {
     const { form, onReset, onSubmit, submitLoading } = this.props;
     this.initialFieldsValue = {};
-    if (typeof onReset === 'function') return onReset(form);
+    if (onReset) return onReset(form);
     form.resetFields();
-    if (typeof onSubmit === 'function' && !submitLoading) onSubmit({}, form);
+    if (!submitLoading) onSubmit({}, form);
   };
 
   render() {
+    const { expanded } = this.state;
     const { animation, className, filters, style } = this.props;
     if (!Array.isArray(filters) || !filters.length) return null;
     return (
@@ -229,7 +233,7 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
         className={classnames({
           [styles.standardFilter]: true,
           [styles.animation]: animation,
-          [styles.unexpanded]: !this.state.expanded,
+          [styles.unexpanded]: !expanded,
           [className]: true,
         })}
         layout="inline"

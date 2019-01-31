@@ -80,6 +80,7 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
 
   render() {
     const {
+      className,
       collapsed,
       currentScope,
       drawerTitle,
@@ -90,14 +91,13 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
       route,
       ...restProps
     } = this.props;
-    const className = classnames(styles.siderMenu, this.props.className || '');
+    const mixinClassName = classnames(styles.siderMenu, className || '');
     const Sider = (
       <Layout.Sider
         collapsible
-        className={className}
+        className={mixinClassName}
         collapsed={!isMobile && collapsed}
         onCollapse={onCollapse}
-        style={this.props.style}
         theme="light"
         width={256}
         {...restProps}
