@@ -2,12 +2,10 @@ import React from 'react';
 import styles from './Detail.less';
 import QueueAnim from 'rc-queue-anim';
 import { Button, Modal, Skeleton } from 'antd';
-import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi-plugin-locale';
 import { PositionDetailProps } from './models/position';
-import DescriptionList from '@/components/DescriptionList';
 import { StandardTableAction } from '@/components/StandardTable';
-
-const DescriptionListItem = DescriptionList.Item;
+import DescriptionList, { DescriptionProps } from '@/components/DescriptionList';
 
 export interface DetailProps extends PositionDetailProps {
   currentRow?: object;
@@ -64,16 +62,19 @@ const Detail: React.SFC<DetailProps> = props => (
     className={styles.modal}
     footer={renderFooter(props)}
     onCancel={props.onClose}
+    title={<FormattedMessage id="position.detail" />}
     visible={props.visible}
   >
-    <Skeleton active loading={props.loading}>
-      <DescriptionList title={formatMessage({ id: 'position.detail' })}>
-        {props.columns.map(col => (
-          <DescriptionListItem key={col.dataIndex} label={col.title} span={col.span}>
-            {props.dataSource[col.dataIndex]}
-          </DescriptionListItem>
-        ))}
-      </DescriptionList>
+    <Skeleton active paragraph={{ rows: 5 }} loading={props.loading}>
+      <DescriptionList
+        description={props.columns.map(
+          (col): DescriptionProps => ({
+            children: props.dataSource[col.dataIndex],
+            key: col.dataIndex,
+            term: col.title,
+          }),
+        )}
+      />
     </Skeleton>
   </Modal>
 );
