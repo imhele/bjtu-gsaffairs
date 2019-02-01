@@ -1,75 +1,77 @@
-@import '~antd/es/style/mixins/index';
-@import '~antd/es/style/themes/default';
+@import '~antd/lib/style/themes/default.less';
 
-:global {
-  @description-list-prefix-cls: ~'@{ant-prefix}-description-list';
-  .@{description-list-prefix-cls} {
-    &-title {
-      color: @heading-color;
-      font-size: @font-size-lg;
-      line-height: @line-height-base;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
-
-    &-view {
-      width: 100%;
-      border-radius: 4px;
+.descriptionList {
+  // offset the padding-bottom of last row
+  :global {
+    .ant-row {
+      margin-bottom: -16px;
       overflow: hidden;
-      table {
-        width: 100%;
+    }
+  }
+
+  .title {
+    font-size: 14px;
+    color: @heading-color;
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+
+  .term {
+    // Line-height is 22px IE dom height will calculate error
+    line-height: 20px;
+    padding-bottom: 16px;
+    margin-right: 8px;
+    color: @heading-color;
+    white-space: nowrap;
+    display: table-cell;
+
+    &:after {
+      content: ':';
+      margin: 0 8px 0 2px;
+      position: relative;
+      top: -0.5px;
+    }
+  }
+
+  .detail {
+    line-height: 20px;
+    width: 100%;
+    padding-bottom: 16px;
+    color: @text-color;
+    display: table-cell;
+  }
+
+  &.small {
+    // offset the padding-bottom of last row
+    :global {
+      .ant-row {
+        margin-bottom: -8px;
       }
     }
-
-    &-item {
-      > td {
-        padding-bottom: 16px;
-      }
-    }
-
-    &-item-label {
-      font-size: @font-size-base;
-      color: @heading-color;
-      line-height: @line-height-base;
-      width: 1px;
-      &::after {
-        content: ':';
-        margin: 0 8px 0 2px;
-        position: relative;
-        top: -0.5px;
-      }
-    }
-
-    &-item-content {
-      display: table-cell;
-      font-size: @font-size-base;
-      line-height: @line-height-base;
+    .title {
+      margin-bottom: 12px;
       color: @text-color;
     }
+    .term,
+    .detail {
+      padding-bottom: 8px;
+    }
+  }
 
-    &.border {
-      .@{description-list-prefix-cls}-view {
-        border: 1px solid #d8d8d8;
-      }
+  &.large {
+    .title {
+      font-size: 16px;
+    }
+  }
 
-      .@{description-list-prefix-cls}-item {
-        border-bottom: 1px solid #d8d8d8;
-      }
+  &.vertical {
+    .term {
+      padding-bottom: 8px;
+      display: block;
+    }
 
-      .@{description-list-prefix-cls}-item:last-child {
-        border-bottom: none;
-      }
-
-      .@{description-list-prefix-cls}-item-label {
-        background-color: #fafafa;
-        padding: 16px 18px;
-        &::after {
-          display: none;
-        }
-      }
-      .@{description-list-prefix-cls}-item-content {
-        padding: 16px 24px;
-      }
+    .detail {
+      display: block;
     }
   }
 }

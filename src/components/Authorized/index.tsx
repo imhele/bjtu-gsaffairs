@@ -7,7 +7,7 @@ export type Scope =
   | ReadonlyArray<string | number>;
 
 export interface AuthorizedProps {
-  exception?: React.ReactNode | null;
+  exception?: React.ReactNode;
   id?: any;
   scope?: Scope;
   currentScope?: Scope;

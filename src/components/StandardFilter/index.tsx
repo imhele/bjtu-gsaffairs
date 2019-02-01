@@ -25,7 +25,7 @@ export interface Filter<T = any> {
   decoratorOptions?: GetFieldDecoratorOptions;
   extra?: React.ReactNode;
   selectOptions?: Array<{ title?: string; value: string | number }>;
-  title?: string | React.ReactNode;
+  title?: React.ReactNode;
   type: FilterType;
 }
 
@@ -46,8 +46,8 @@ export interface StandardFilterProps extends FormComponentProps {
   colProps?: ColProps;
   expanded?: boolean;
   expandText?: {
-    expand: string | React.ReactNode;
-    retract: string | React.ReactNode;
+    expand: React.ReactNode;
+    retract: React.ReactNode;
   };
   filters?: Filter[];
   formCreateOptions?: FormCreateOptions;
@@ -57,11 +57,11 @@ export interface StandardFilterProps extends FormComponentProps {
   onSubmit?: (fieldsValue: any, form: WrappedFormUtils) => void;
   operationArea?: React.ReactNode | null;
   resetLoading?: boolean;
-  resetText?: string | React.ReactNode;
+  resetText?: React.ReactNode;
   rowProps?: RowProps;
   style?: React.CSSProperties;
   submitLoading?: boolean;
-  submitText?: string | React.ReactNode;
+  submitText?: React.ReactNode;
 }
 
 interface StandardFilterStates {

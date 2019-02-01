@@ -43,7 +43,7 @@ export interface StandardTableOperationAreaProps {
   animationProps?: QueueAnimProps;
   dropdownProps?: DropDownProps;
   maxAmount?: number;
-  moreText?: string | React.ReactNode;
+  moreText?: React.ReactNode;
   onClick?: (
     selectedRowKeys: string[] | number[],
     type: string,

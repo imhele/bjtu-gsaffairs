@@ -67,7 +67,7 @@ const Detail: React.SFC<DetailProps> = props => (
     visible={props.visible}
   >
     <Skeleton active loading={props.loading}>
-      <DescriptionList column={2} title={formatMessage({ id: 'position.detail' })}>
+      <DescriptionList title={formatMessage({ id: 'position.detail' })}>
         {props.columns.map(col => (
           <DescriptionListItem key={col.dataIndex} label={col.title} span={col.span}>
             {props.dataSource[col.dataIndex]}

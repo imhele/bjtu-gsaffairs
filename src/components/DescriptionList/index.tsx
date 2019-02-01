@@ -1,144 +1,68 @@
-import './index.less';
-import * as React from 'react';
+import React from 'react';
+import { Col, Row } from 'antd';
+import styles from './index.less';
 import classNames from 'classnames';
-import { ConfigConsumer, ConfigConsumerProps } from 'antd/es/config-provider';
+import responsive from './responsive';
+import { ColProps } from 'antd/es/grid/col';
 
-export interface DescriptionListItemProps {
-  prefixCls?: string;
-  label: React.ReactNode;
-  children: React.ReactNode;
-  span?: number;
+export interface DescriptionProps extends ColProps {
+  column?: number;
+  style?: React.CSSProperties;
+  term: React.ReactNode;
 }
-
-const DescriptionListItem: React.SFC<DescriptionListItemProps> = props => {
-  const { prefixCls, label, children, span = 1 } = props;
-  return (
-    <React.Fragment>
-      <td className={`${prefixCls}-item-label`} key="label">
-        {label}
-      </td>
-      <td className={`${prefixCls}-item-content`} key="content" colSpan={span * 2 - 1}>
-        {children}
-      </td>
-    </React.Fragment>
-  );
-};
 
 export interface DescriptionListProps {
-  prefixCls?: string;
   className?: string;
+  col?: number;
+  gutter?: number;
+  layout?: 'horizontal' | 'vertical';
+  size?: 'large' | 'small';
   style?: React.CSSProperties;
-  border?: boolean;
-  size?: 'middle' | 'small' | 'default';
-  children?: React.ReactNode;
-  title?: string;
-  column?: number;
+  title: React.ReactNode;
 }
 
-interface DescriptionListClass extends React.SFC<DescriptionListProps> {
-  Item: typeof DescriptionListItem;
-}
-
-const genChildrenArray = (
-  cloneChildren: React.ReactNode,
-  column: number,
-): Array<React.ReactNode[]> => {
-  const childrenArray: Array<React.ReactNode[]> = [];
-  let columnArray: React.ReactNode[] = [];
-  let width = 0;
-  React.Children.forEach(
-    cloneChildren,
-    (children: React.ReactElement<DescriptionListItemProps>) => {
-      columnArray.push(children);
-      if (children.props.span) {
-        width += children.props.span;
-      } else {
-        width += 1;
-      }
-      if (width >= column) {
-        childrenArray.push(columnArray);
-        columnArray = [];
-        width = 0;
-      }
-    },
-  );
-  if (columnArray.length > 0) {
-    childrenArray.push(columnArray);
-    columnArray = [];
-  }
-  return childrenArray;
-};
-
-const renderRow = (
-  child: React.ReactNode[],
-  index: number,
-  { prefixCls, column, isLast }: { prefixCls: string; column: number; isLast: boolean },
-) => {
-  let lastChild = child.pop();
-  if (isLast) {
-    lastChild = React.cloneElement(lastChild as React.ReactElement<any>, {
-      span: column - child.length,
-    });
-  }
-  return (
-    <tr className={`${prefixCls}-item`} key={index}>
-      {child}
-      {lastChild}
-    </tr>
-  );
-};
-
-const DescriptionList: DescriptionListClass = (props: DescriptionListProps) => (
-  <ConfigConsumer>
-    {({ getPrefixCls }: ConfigConsumerProps) => {
-      const {
-        className,
-        prefixCls: customizePrefixCls,
-        column = 3,
-        title,
-        size,
-        children,
-        border,
-      } = props;
-      const prefixCls = getPrefixCls('description-list', customizePrefixCls);
-
-      const cloneChildren = React.Children.map(children, (child: React.ReactElement<any>) => {
-        return React.cloneElement(child, {
-          prefixCls,
-        });
-      });
-      const childrenArray: Array<React.ReactNode[]> = genChildrenArray(cloneChildren, column);
-      return (
-        <div
-          className={classNames(prefixCls, className, {
-            [size as string]: size !== 'default',
-            border,
-          })}
-        >
-          {title && <div className={`${prefixCls}-title`}>{title}</div>}
-          <div className={`${prefixCls}-view`}>
-            <table>
-              <tbody>
-                {childrenArray.map((child, index) =>
-                  renderRow(child, index, {
-                    prefixCls,
-                    column,
-                    isLast: index + 1 === childrenArray.length,
-                  }),
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      );
-    }}
-  </ConfigConsumer>
+const Description: React.SFC<DescriptionProps> = ({ term, column, children, ...restProps }) => (
+  <Col {...responsive[column]} {...restProps}>
+    {term && <div className={styles.term}>{term}</div>}
+    {children !== null && children !== undefined && <div className={styles.detail}>{children}</div>}
+  </Col>
 );
 
-DescriptionList.defaultProps = {
-  size: 'default',
+Description.defaultProps = {
+  term: '',
 };
 
-DescriptionList.Item = DescriptionListItem;
+interface DescriptionListComponent extends React.SFC<DescriptionListProps> {
+  Description: typeof Description;
+}
+
+const DescriptionList: DescriptionListComponent = ({
+  className,
+  title,
+  col = 3,
+  layout = 'horizontal',
+  gutter = 32,
+  children,
+  size,
+  ...restProps
+}) => {
+  const clsString = classNames(styles.descriptionList, styles[layout], className, {
+    [styles.small]: size === 'small',
+    [styles.large]: size === 'large',
+  });
+  const column = col > 4 ? 4 : col;
+  return (
+    <div className={clsString} {...restProps}>
+      {title ? <div className={styles.title}>{title}</div> : null}
+      <Row gutter={gutter}>
+        {React.Children.map(children, child =>
+          child ? React.cloneElement(child, { column }) : child,
+        )}
+      </Row>
+    </div>
+  );
+};
+
+DescriptionList.Description = Description;
 
 export default DescriptionList;

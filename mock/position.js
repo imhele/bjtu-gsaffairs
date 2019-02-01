@@ -169,7 +169,6 @@ const positionDetail = (req, res) => {
     checkStatus: currentPosition.checkStatus,
     releaseStatus: currentPosition.releaseStatus,
   };
-  console.log(dataSource)
   condition.forEach(cond => delete dataSource[cond]);
   const result = {
     columns: detailColumns.filter(col => !condition.includes(col.dataIndex)),
