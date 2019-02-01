@@ -6,6 +6,7 @@ import { StandardTableOperationAreaProps } from '@/components/StandardTable';
 export interface PositionDetailProps {
   columns: Array<{
     dataIndex: string;
+    span?: number;
     title: string;
   }>;
   dataSource: object;

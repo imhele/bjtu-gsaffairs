@@ -1,8 +1,8 @@
 import React from 'react';
 import styles from './Detail.less';
-import { Button, Modal } from 'antd';
 import QueueAnim from 'rc-queue-anim';
-import { FormattedMessage } from 'umi-plugin-locale';
+import { Button, Modal, Skeleton } from 'antd';
+import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { PositionDetailProps } from './models/position';
 import DescriptionList from '@/components/DescriptionList';
 import { StandardTableAction } from '@/components/StandardTable';
@@ -66,19 +66,22 @@ const Detail: React.SFC<DetailProps> = props => (
     onCancel={props.onClose}
     visible={props.visible}
   >
-    <DescriptionList title="User Info">
-      <DescriptionListItem label="UserName">Zhou Maomao</DescriptionListItem>
-      <DescriptionListItem label="Telephone">1810000000</DescriptionListItem>
-      <DescriptionListItem label="Live">Hangzhou, Zhejiang</DescriptionListItem>
-      <DescriptionListItem label="Remark">empty</DescriptionListItem>
-      <DescriptionListItem label="Address">
-        No. 18, Wantang Road, Xihu District, Hangzhou, Zhejiang, China
-      </DescriptionListItem>
-    </DescriptionList>
+    <Skeleton active loading={props.loading}>
+      <DescriptionList column={2} title={formatMessage({ id: 'position.detail' })}>
+        {props.columns.map(col => (
+          <DescriptionListItem key={col.dataIndex} label={col.title} span={col.span}>
+            {props.dataSource[col.dataIndex]}
+          </DescriptionListItem>
+        ))}
+      </DescriptionList>
+    </Skeleton>
   </Modal>
 );
 
 Detail.defaultProps = {
+  actionKey: 'action',
+  columns: [],
+  dataSource: {},
   currentRow: null,
   currentRowKey: null,
   loading: false,

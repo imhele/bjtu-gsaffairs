@@ -158,7 +158,18 @@ const positionDetail = (req, res) => {
     type === 'manage'
       ? ['classTechNo', 'classTech', 'classType', 'classNum', 'classTime']
       : ['adminId', 'adminName'];
-  const dataSource = { ...detailDataSource, ...currentPosition };
+  const dataSource = {
+    ...detailDataSource,
+    sess: currentPosition.sess,
+    depName: currentPosition.depName,
+    name: currentPosition.name[0].text,
+    needNum: currentPosition.needNum,
+    campus: currentPosition.campus,
+    way: currentPosition.way,
+    checkStatus: currentPosition.checkStatus,
+    releaseStatus: currentPosition.releaseStatus,
+  };
+  console.log(dataSource)
   condition.forEach(cond => delete dataSource[cond]);
   const result = {
     columns: detailColumns.filter(col => !condition.includes(col.dataIndex)),
@@ -166,7 +177,7 @@ const positionDetail = (req, res) => {
   };
   setTimeout(() => {
     res.send(result);
-  }, 400);
+  }, 500);
 };
 
 export default {
