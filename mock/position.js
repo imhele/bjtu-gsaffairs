@@ -1,79 +1,9 @@
 import { APIPrefix } from './login';
+import { detailColumns, detailDataSource, possibleValues, tableColumns } from './position.json';
 
-const possibleValues = {
-  action: [
-    [{ text: '审核', type: 'audit' }, { text: '删除', type: 'delete' }],
-    [{ text: '编辑', type: 'edit' }, { text: '删除', type: 'delete' }],
-    [{ text: '申请', type: 'apply' }],
-    [{ text: '下载', type: 'download' }],
-  ],
-  applyStatus: ['草稿', '待审核', '审核通过', '审核不通过', '无效'],
-  campus: ['校本部', '东校区'],
-  checkStatus: ['草稿', '待审核', '审核通过', '审核不通过', '无效'],
-  depName: ['交通运输学院', '软件学院', '计算机与信息技术学院'],
-  name: [
-    [{ text: 'aaaaaaaaaaaaaaa', type: 'preview' }],
-    [{ text: 'bbbbbbbbbbbbbbb', type: 'preview' }],
-    [{ text: 'imheleimheleimhele', type: 'preview' }],
-  ],
-  releaseStatus: ['未发布', '已发布'],
-  sess: ['2018-2019学年 第一学期', '2018-2019学年 第二学期'],
-  way: ['固定', '临时'],
-};
-
-const columns = [
-  {
-    width: 200,
-    title: '学期',
-    dataIndex: 'sess',
-  },
-  {
-    width: 188,
-    title: '单位',
-    dataIndex: 'depName',
-  },
-  {
-    width: 255,
-    title: '岗位名称',
-    dataIndex: 'name',
-  },
-  {
-    width: 64,
-    title: '岗位人数',
-    dataIndex: 'needNum',
-  },
-  {
-    width: 78,
-    title: '校区',
-    dataIndex: 'campus',
-  },
-  {
-    width: 108,
-    title: '审核状态',
-    dataIndex: 'checkStatus',
-  },
-  {
-    width: 95,
-    title: '发布状态',
-    dataIndex: 'releaseStatus',
-  },
-  {
-    width: 95,
-    title: '聘用方式',
-    dataIndex: 'way',
-  },
-  {
-    width: 108,
-    title: '申请状态',
-    dataIndex: 'applyStatus',
-  },
-  {
-    width: 112,
-    title: '操作',
-    dataIndex: 'action',
-  },
-];
-
+/**
+ * Common data
+ */
 const filters = [
   {
     id: 'sess',
@@ -138,6 +68,9 @@ const source = Array.from({ length: 120 }).map((_, index) => ({
   way: possibleValues.way[Math.random() > 0.8 ? 0 : 1],
 }));
 
+/**
+ * Part of `position/list`
+ */
 const operationArea = {
   operation: [
     { icon: 'plus', text: '新建', type: 'create' },
@@ -178,11 +111,12 @@ const positionList = (req, res) => {
   /**
    * Complete return value
    */
+  const condition = ['applyStatus', 'way'];
   const result = {
     actionKey: ['action', 'name'],
-    columns: columns.filter(col => !['applyStatus', 'way'].includes(col.dataIndex)),
+    columns: tableColumns.filter(col => !condition.includes(col.dataIndex)),
     dataSource,
-    filters: filters.filter(col => !['applyStatus', 'way'].includes(col.id)),
+    filters: filters.filter(col => !condition.includes(col.id)),
     operationArea,
     selectable: {
       columnWidth: 57,
@@ -194,7 +128,42 @@ const positionList = (req, res) => {
   }
   if (filtersKey.length || offset) {
     delete result.selectable;
+    delete result.operationArea;
   }
+  setTimeout(() => {
+    res.send(result);
+  }, 400);
+};
+
+/**
+ * Part of `position/detail`
+ */
+const positionDetail = (req, res) => {
+  const { type } = req.query;
+  const { key = '' } = req.body;
+  if (!['manage', 'teach'].includes(type)) {
+    return res.send({
+      errcode: 40001,
+      errmsg: 'Invalid type of position',
+    });
+  }
+  const currentPosition = source.find(row => row.key === key);
+  if (!currentPosition) {
+    return res.send({
+      errcode: 40002,
+      errmsg: 'Invalid key of position',
+    });
+  }
+  const condition =
+    type === 'manage'
+      ? ['classTechNo', 'classTech', 'classType', 'classNum', 'classTime']
+      : ['adminId', 'adminName'];
+  const dataSource = { ...detailDataSource, ...currentPosition };
+  condition.forEach(cond => delete dataSource[cond]);
+  const result = {
+    columns: detailColumns.filter(col => !condition.includes(col.dataIndex)),
+    dataSource,
+  };
   setTimeout(() => {
     res.send(result);
   }, 400);
@@ -202,4 +171,5 @@ const positionList = (req, res) => {
 
 export default {
   [`POST ${APIPrefix}/position/list`]: positionList,
+  [`POST ${APIPrefix}/position/detail`]: positionDetail,
 };

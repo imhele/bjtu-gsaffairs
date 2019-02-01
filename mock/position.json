@@ -1,0 +1,188 @@
+{
+  "possibleValues": {
+    "action": [
+      [{ "text": "审核", "type": "audit" }, { "text": "删除", "type": "delete" }],
+      [{ "text": "编辑", "type": "edit" }, { "text": "删除", "type": "delete" }],
+      [{ "text": "申请", "type": "apply" }],
+      [{ "text": "下载", "type": "download" }]
+    ],
+    "applyStatus": ["草稿", "待审核", "审核通过", "审核不通过", "无效"],
+    "campus": ["校本部", "东校区"],
+    "checkStatus": ["草稿", "待审核", "审核通过", "审核不通过", "无效"],
+    "depName": ["交通运输学院", "软件学院", "计算机与信息技术学院"],
+    "name": [
+      [{ "text": "aaaaaaaaaaaaaaa", "type": "preview" }],
+      [{ "text": "bbbbbbbbbbbbbbb", "type": "preview" }],
+      [{ "text": "imheleimheleimhele", "type": "preview" }]
+    ],
+    "releaseStatus": ["未发布", "已发布"],
+    "sess": ["2018-2019学年 第一学期", "2018-2019学年 第二学期"],
+    "way": ["固定", "临时"]
+  },
+  "tableColumns": [
+    {
+      "width": 200,
+      "title": "学期",
+      "dataIndex": "sess"
+    },
+    {
+      "width": 188,
+      "title": "单位",
+      "dataIndex": "depName"
+    },
+    {
+      "width": 255,
+      "title": "岗位名称",
+      "dataIndex": "name"
+    },
+    {
+      "width": 64,
+      "title": "岗位人数",
+      "dataIndex": "needNum"
+    },
+    {
+      "width": 78,
+      "title": "校区",
+      "dataIndex": "campus"
+    },
+    {
+      "width": 108,
+      "title": "审核状态",
+      "dataIndex": "checkStatus"
+    },
+    {
+      "width": 95,
+      "title": "发布状态",
+      "dataIndex": "releaseStatus"
+    },
+    {
+      "width": 95,
+      "title": "聘用方式",
+      "dataIndex": "way"
+    },
+    {
+      "width": 108,
+      "title": "申请状态",
+      "dataIndex": "applyStatus"
+    },
+    {
+      "width": 112,
+      "title": "操作",
+      "dataIndex": "action"
+    }
+  ],
+  "detailColumns": [
+    {
+      "title": "学期",
+      "dataIndex": "sess"
+    },
+    {
+      "title": "单位",
+      "dataIndex": "depName"
+    },
+    {
+      "title": "岗位名称",
+      "dataIndex": "name"
+    },
+    {
+      "title": "岗位人数",
+      "dataIndex": "needNum"
+    },
+    {
+      "title": "负责人工号",
+      "dataIndex": "adminId"
+    },
+    {
+      "title": "负责人姓名",
+      "dataIndex": "adminName"
+    },
+    {
+      "title": "教师工号",
+      "dataIndex": "classTechNo"
+    },
+    {
+      "title": "教师姓名",
+      "dataIndex": "classTech"
+    },
+    {
+      "title": "教师工号",
+      "dataIndex": "classType"
+    },
+    {
+      "title": "教师姓名",
+      "dataIndex": "classNum"
+    },
+    {
+      "title": "学时数",
+      "dataIndex": "classTime"
+    },
+    {
+      "title": "基本要求",
+      "dataIndex": "need"
+    },
+    {
+      "title": "工作内容",
+      "dataIndex": "content"
+    },
+    {
+      "title": "聘用期",
+      "dataIndex": "timeRange"
+    },
+    {
+      "title": "计划工作量",
+      "dataIndex": "workTimeL"
+    },
+    {
+      "title": "工作时间",
+      "dataIndex": "workTimeD"
+    },
+    {
+      "title": "工作地点",
+      "dataIndex": "address"
+    },
+    {
+      "title": "校区",
+      "dataIndex": "campus"
+    },
+    {
+      "title": "聘用方式",
+      "dataIndex": "way"
+    },
+    {
+      "title": "申请状态",
+      "dataIndex": "remark"
+    },
+    {
+      "title": "审核状态",
+      "dataIndex": "checkStatus"
+    },
+    {
+      "title": "发布状态",
+      "dataIndex": "releaseStatus"
+    }
+  ],
+  "detailDataSource": {
+    "sess": "2018-2019学年 第一学期",
+    "depName": "计算机与信息技术学院",
+    "name": "Example",
+    "needNum": 0,
+    "adminId": 123456,
+    "adminName": "Admin",
+    "classTechNo": 456789,
+    "classTech": "Teacher",
+    "classType": "本科",
+    "classNum": 40,
+    "classTime": "32 学时",
+    "need": "Desc.",
+    "content": "Content.",
+    "timeRange": "2019年01月10日 ~ 2019年06月20日",
+    "workTimeL": "12 小时/周",
+    "workTimeD": "周三",
+    "address": "第九教学楼 xxx",
+    "campus": "主校区",
+    "way": "固定",
+    "remark": "无",
+    "checkStatus": "审核通过",
+    "releaseStatus": "已发布"
+  }
+}

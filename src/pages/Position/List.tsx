@@ -6,10 +6,10 @@ import React, { Component } from 'react';
 import { message, Radio, Skeleton } from 'antd';
 import { RadioChangeEvent } from 'antd/es/radio';
 import { AuthorizedId, MediaQuery } from '@/global';
-import { FetchListPayload } from '@/services/position';
 import StandardFilter from '@/components/StandardFilter';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
+import { FetchListPayload, FetchDetailPayload } from '@/services/position';
 import { HideWithouSelection, PositionType, TopbarAction, CellAction } from './consts';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import StandardTable, {
@@ -21,6 +21,7 @@ export interface ListProps extends ConnectProps {
   isMobile?: boolean;
   loading?: {
     fetchList?: boolean;
+    fetchDetail?: boolean;
     model?: boolean;
   };
   position?: PositionState;
@@ -40,13 +41,16 @@ interface ListState {
   size: ListSize;
 }
 
-@connect(({ loading, position }: ConnectState) => ({
-  loading: {
-    fetchList: loading.effects['position/fetchList'],
-    model: loading.models.position,
-  },
-  position,
-}))
+@connect(
+  ({ loading, position }: ConnectState): ListProps => ({
+    loading: {
+      fetchList: loading.effects['position/fetchList'],
+      fetchDetail: loading.effects['position/fetchDetail'],
+      model: loading.models.position,
+    },
+    position,
+  }),
+)
 class List extends Component<ListProps, ListState> {
   state: ListState = {
     currentRow: null,
@@ -175,7 +179,9 @@ class List extends Component<ListProps, ListState> {
 
   onClickAction = (currentRowKey: string, actionType: CellAction) => {
     const {
+      dispatch,
       position: { dataSource, rowKey = 'key' },
+      type,
     } = this.props;
     if (!currentRowKey) {
       return message.error(formatMessage({ id: 'position.error.unknown.click' }));
@@ -184,6 +190,13 @@ class List extends Component<ListProps, ListState> {
       case CellAction.Preview:
         const currentRow = dataSource.find(row => row[rowKey] === currentRowKey);
         this.setState({ currentRow, currentRowKey, detailVisible: true });
+        dispatch<FetchDetailPayload>({
+          type: 'position/fetchDetail',
+          payload: {
+            body: { key: currentRowKey },
+            query: { type },
+          },
+        });
         break;
       default:
         message.warn(formatMessage({ id: 'position.error.unknown.action' }));
@@ -273,6 +286,7 @@ class List extends Component<ListProps, ListState> {
           {...detail}
           currentRow={currentRow}
           currentRowKey={currentRowKey}
+          loading={loading.fetchDetail}
           onClose={this.onCloseDetail}
           visible={detailVisible}
         />

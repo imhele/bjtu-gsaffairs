@@ -12,6 +12,7 @@ const DescriptionListItem = DescriptionList.Item;
 export interface DetailProps extends PositionDetailProps {
   currentRow?: object;
   currentRowKey?: string;
+  loading?: boolean;
   onClickAction?: (rowKey: string, actionType: string, event: React.MouseEvent) => void;
   onClose?: () => void;
   visible?: boolean;
@@ -19,11 +20,15 @@ export interface DetailProps extends PositionDetailProps {
 
 const renderFooter = (props: DetailProps): React.ReactNode => {
   const actionKey = Array.isArray(props.actionKey) ? props.actionKey : [props.actionKey];
-  let actionArr: StandardTableAction[] = [];
+  const actionArr: StandardTableAction[] = [];
   if (props.currentRow) {
     actionKey.forEach(key => {
       if (props.currentRow[key]) {
-        actionArr = actionArr.concat(props.currentRow[key]);
+        if (Array.isArray(props.currentRow[key])) {
+          actionArr.push(...props.currentRow[key]);
+        } else {
+          actionArr.push(props.currentRow[key]);
+        }
       }
     });
   }
@@ -34,6 +39,7 @@ const renderFooter = (props: DetailProps): React.ReactNode => {
           <div className={styles.footerButton} key={action.type}>
             <Button
               icon={action.icon}
+              loading={props.loading}
               onClick={(event: React.MouseEvent) =>
                 props.onClickAction(props.currentRowKey, action.type, event)
               }
@@ -71,5 +77,14 @@ const Detail: React.SFC<DetailProps> = props => (
     </DescriptionList>
   </Modal>
 );
+
+Detail.defaultProps = {
+  currentRow: null,
+  currentRowKey: null,
+  loading: false,
+  onClickAction: () => {},
+  onClose: () => {},
+  visible: false,
+};
 
 export default Detail;
