@@ -29,9 +29,9 @@ export default [
           {
             path: '/position/:type/list',
             component: './Position/List',
-            dynamic: true,
-            icon: { manage: 'tool', teach: 'book' },
-            name: { manage: 'app.position.manage', teach: 'app.position.teach' },
+            dynamic: [{ type: 'manage' }, { type: 'teach' }],
+            icon: ['tool', 'book'],
+            name: ['app.position.manage', 'app.position.teach'],
           },
         ],
       },

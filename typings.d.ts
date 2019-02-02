@@ -1,9 +1,9 @@
 declare module '*.css';
 declare module '*.png';
 declare module '*.less';
-declare interface Route<T = string | object> {
+declare interface Route<T = string | string[]> {
   component?: string;
-  dynamic?: boolean;
+  dynamic?: boolean | object[];
   hideInMenu?: boolean;
   href?: string;
   icon?: T;

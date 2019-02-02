@@ -100,34 +100,39 @@ export function sandwichArray<T = any, U = any, V = any>(
   return res;
 }
 
-export function formatRouteInfo(info: string | object, key?: string): string {
+export function formatRouteInfo(info: string | object, key?: number): string {
   if (!info) return '';
   if (typeof info === 'string') return info;
   if (key) return info[key];
-  if (typeof info === 'object') {
-    const keys = Object.keys(info);
-    if (keys.length) {
-      return info[key || keys[0]];
-    }
+  if (Array.isArray(info)) {
+    return info[0];
   }
   return '';
 }
 
-export function formatDynamicRoute(route: Route): Route<string> {
+/**
+ * @DEBUG
+ */
+export function formatDynamicRoute(route: Route, key?: number): Route<string> {
   if (!route || !Array.isArray(route.routes) || !route.routes.length) {
     return route as Route<string>;
   }
   const routes: Route<string>[] = [];
-  route.routes.forEach(item => {
-    if (!item.dynamic) routes.push(item as Route<string>);
-    /**
-     * @TODO
-     */
-  });
+  route.routes
+    .filter(item => item)
+    .forEach(item => {
+      if (!item.dynamic) routes.push(item as Route<string>);
+      if (Array.isArray(item.dynamic)) {
+        const toPath = pathToRegexp.compile(item.path);
+        item.dynamic.forEach((val, index) => {
+          routes.push(formatDynamicRoute({ ...item, path: toPath(val) }, index));
+        });
+      }
+    });
   return {
     ...route,
-    icon: formatRouteInfo(route.icon),
-    name: formatRouteInfo(route.name),
+    icon: formatRouteInfo(route.icon, key),
+    name: formatRouteInfo(route.name, key),
     routes,
   };
 }
