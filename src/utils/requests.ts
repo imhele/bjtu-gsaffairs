@@ -1,7 +1,8 @@
+import React from 'react';
 import hash from 'hash.js';
-import { message } from 'antd';
 import router from 'umi/router';
 import { getSign } from './auth';
+import { notification } from 'antd';
 import fetch from 'isomorphic-fetch'; // @issue: https://github.com/dvajs/dva/issues/2000
 
 export interface RequestBody {}
@@ -128,6 +129,9 @@ export default async function request<T>(
       if (status >= 404 && status < 422) return router.push('/exception/404');
     });
   if (typeof formattedResponse !== 'object' || !formattedResponse.errcode) return formattedResponse;
-  message.error(`Errcode ${formattedResponse.errcode}: ${formattedResponse.errmsg}`);
+  notification.error({
+    description: formattedResponse.errmsg,
+    message: `Error code: ${formattedResponse.errcode}`,
+  });
   return null;
 }

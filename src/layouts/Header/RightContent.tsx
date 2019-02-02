@@ -28,8 +28,8 @@ class RightContent extends Component<RightContentProps> {
     const { login, loading = false } = this.props;
     const UserMenu = (
       <Menu onClick={this.onClickMenu} className={styles.userMenu}>
-        <Menu.Item key="/account" className={styles.nickname}>
-          {login.nickname}
+        <Menu.Item key="/account" className={styles.userName}>
+          {login.userName}
         </Menu.Item>
         <Menu.Divider />
         <Menu.Item key="logout">
@@ -46,7 +46,7 @@ class RightContent extends Component<RightContentProps> {
           <Dropdown overlay={UserMenu} placement="bottomRight" trigger={['click', 'hover']}>
             <div className={styles.avatarContainer}>
               {login.avatar ? (
-                <Avatar src={login.avatar} alt={login.nickname} className={styles.avatar} />
+                <Avatar src={login.avatar} alt={login.userName} className={styles.avatar} />
               ) : (
                 <div className={styles.avatar} />
               )}

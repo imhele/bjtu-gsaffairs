@@ -94,9 +94,16 @@ class List extends Component<ListProps, ListState> {
     } = this.props;
     if (params.type !== this.type) {
       this.type = params.type;
+      this.offset = 0;
       if (this.filterFormUtils) {
         const { resetFields } = this.filterFormUtils;
         if (typeof resetFields === 'function') resetFields();
+      }
+      if (this.tableMethods) {
+        const { clearSelectedRowKeys, getSelectedRowKeys } = this.tableMethods;
+        if (typeof getSelectedRowKeys === 'function') {
+          if (getSelectedRowKeys().length) clearSelectedRowKeys();
+        }
       }
       this.fetchList();
     }

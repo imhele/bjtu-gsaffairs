@@ -3,6 +3,8 @@ import router from 'umi/router';
 import { setSign } from '@/utils/auth';
 
 const defaultState = {
+  avatar: <null>null,
+  redirect: '/',
   scope: <null>[
     'scope.position.manage.list',
     'scope.position.manage.create',
@@ -12,8 +14,8 @@ const defaultState = {
     'scope.position.teach.export',
   ], // @DEBUG
   status: false,
-  nickname: 'NULL',
-  avatar: <null>null,
+  token: '',
+  userName: 'NULL',
 };
 
 export type LoginState = Readonly<typeof defaultState> & {
@@ -29,20 +31,26 @@ const model: LoginModel = {
   namespace: 'login',
   state: defaultState,
   effects: {
-    *login({ payload }, { call, put }) {
-      const { scope } = yield call(); // @TODO
-      yield put({
-        type: 'setState',
-        payload: {
-          scope,
-          status: true,
-        },
-      });
+    *login({ payload }, { call, put, select }) {
+      const response = yield call(null, payload); // @TODO
+      if (response && response.token) {
+        yield put({
+          type: 'setState',
+          payload: {
+            ...response,
+            status: true,
+          },
+        });
+        const redirect = yield select(({ login }: any) => login.redirect); // @TODO
+        router.replace(redirect);
+      } else {
+        // @TODO
+      }
     },
     *logout(_, { put }) {
       setSign(null);
       yield put({
-        type: 'resetNamespace',
+        type: 'global/resetNamespace',
       });
       yield router.push('/user/login');
     },
