@@ -113,11 +113,13 @@ export function formatRouteInfo(info: string | object, key?: string): string {
   return '';
 }
 
-export function formatDynamicRoute(route: Route): Route {
-  if (!route || !Array.isArray(route.routes) || !route.routes.length) return route;
-  const routes: Route[] = [];
+export function formatDynamicRoute(route: Route): Route<string> {
+  if (!route || !Array.isArray(route.routes) || !route.routes.length) {
+    return route as Route<string>;
+  }
+  const routes: Route<string>[] = [];
   route.routes.forEach(item => {
-    if (!item.dynamic) routes.push(item);
+    if (!item.dynamic) routes.push(item as Route<string>);
     /**
      * @TODO
      */

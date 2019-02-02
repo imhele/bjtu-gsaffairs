@@ -15,7 +15,7 @@ import { AuthorizedId, MediaQuery } from '@/global';
 import DocumentTitle from '@/components/DocumentTitle';
 import SiderMenu, { SelectParam } from '@/components/SiderMenu';
 import { ConnectState, ConnectProps, LoginState } from '@/models/connect';
-import { addWindowEvent, pathnameToArr, pathToScope } from '@/utils/utils';
+import { addWindowEvent, formatDynamicRoute, pathnameToArr, pathToScope } from '@/utils/utils';
 
 const { Content } = Layout;
 
@@ -29,7 +29,6 @@ export interface BasicLayoutProps extends ConnectProps {
 }
 
 class BasicLayout extends Component<BasicLayoutProps> {
-
   pathnameToArr = memoizeOne(pathnameToArr);
 
   onCollapse = debounce((collapsed: boolean) => {
@@ -53,10 +52,12 @@ class BasicLayout extends Component<BasicLayoutProps> {
       }
     }
   }, 200);
+
   private route: Route<string> = {};
 
   constructor(props: BasicLayoutProps) {
     super(props);
+    this.route = formatDynamicRoute(props.route);
     props.dispatch({ type: 'login/fetchUser' });
     this.onCollapse(props.isMobile);
     addWindowEvent('resize', 'Component: BasicLayout', this.resize);
