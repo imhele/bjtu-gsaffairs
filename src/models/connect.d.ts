@@ -29,9 +29,17 @@ export interface ConnectState {
   position?: PositionState;
 }
 
-export interface ConnectProps extends React.Props<any> {
+export interface ConnectProps<T extends object = null> extends React.Props<any> {
   dispatch?: Dispatch;
   location?: Location;
+  match?: {
+    isExact: boolean;
+    params: {
+      [key in keyof T]: T[key];
+    };
+    path: string;
+    url: string;
+  };
 }
 
 export default ConnectState;

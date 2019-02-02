@@ -29,6 +29,7 @@ export interface BasicLayoutProps extends ConnectProps {
 }
 
 class BasicLayout extends Component<BasicLayoutProps> {
+
   pathnameToArr = memoizeOne(pathnameToArr);
 
   onCollapse = debounce((collapsed: boolean) => {
@@ -52,6 +53,7 @@ class BasicLayout extends Component<BasicLayoutProps> {
       }
     }
   }, 200);
+  private route: Route<string> = {};
 
   constructor(props: BasicLayoutProps) {
     super(props);
@@ -81,16 +83,8 @@ class BasicLayout extends Component<BasicLayoutProps> {
   };
 
   render() {
-    const {
-      children,
-      collapsed,
-      currentScope,
-      isMobile,
-      loading,
-      location,
-      login,
-      route,
-    } = this.props;
+    const { route } = this;
+    const { children, collapsed, currentScope, isMobile, loading, location, login } = this.props;
     const menuSelectedKeys = this.pathnameToArr(location.pathname);
     /**
      * `delay` in `<QueueAnim />` is setted to wait for `onCollapse` in constructor

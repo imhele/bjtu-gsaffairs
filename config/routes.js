@@ -24,19 +24,14 @@ export default [
         routes: [
           {
             path: '/position',
-            redirect: '/position/manage',
+            redirect: '/position/manage/list',
           },
           {
-            path: '/position/manage',
-            icon: 'tool',
-            name: 'app.position.manage',
-            component: './Position/Manage',
-          },
-          {
-            path: '/position/teach',
-            icon: 'book',
-            name: 'app.position.teach',
-            component: './Position/Teach',
+            path: '/position/:type/list',
+            component: './Position/List',
+            dynamic: true,
+            icon: { manage: 'tool', teach: 'book' },
+            name: { manage: 'app.position.manage', teach: 'app.position.teach' },
           },
         ],
       },

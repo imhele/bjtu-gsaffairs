@@ -3,6 +3,7 @@ import Detail from './Detail';
 import Media from 'react-media';
 import styles from './List.less';
 import React, { Component } from 'react';
+import commonStyles from '../common.less';
 import { message, Radio, Skeleton } from 'antd';
 import { RadioChangeEvent } from 'antd/es/radio';
 import { AuthorizedId, MediaQuery } from '@/global';
@@ -17,7 +18,7 @@ import StandardTable, {
   StandardTableOperationAreaProps,
 } from '@/components/StandardTable';
 
-export interface ListProps extends ConnectProps {
+export interface ListProps extends ConnectProps<{ type: PositionType }> {
   isMobile?: boolean;
   loading?: {
     fetchList?: boolean;
@@ -25,7 +26,6 @@ export interface ListProps extends ConnectProps {
     model?: boolean;
   };
   position?: PositionState;
-  type?: PositionType;
 }
 
 const enum ListSize {
@@ -73,16 +73,23 @@ class List extends Component<ListProps, ListState> {
     expand: <FormattedMessage id="words.expand" />,
     retract: <FormattedMessage id="words.retract" />,
   };
+  private type: PositionType = null;
 
   constructor(props: ListProps) {
     super(props);
+    this.type = props.match.params.type;
     this.fetchList();
-    if (props.isMobile) this.state.size = ListSize.Small;
+    if (props.isMobile) {
+      this.state.size = ListSize.Small;
+    }
   }
 
   fetchList = () => {
-    const { dispatch, type } = this.props;
-    if (!Object.values(PositionType).includes(type)) return;
+    const { type } = this;
+    const { dispatch } = this.props;
+    if (!Object.values(PositionType).includes(type)) {
+      return message.error(formatMessage({ id: 'position.error.unknown.type' }));
+    }
     dispatch<FetchListPayload>({
       type: 'position/fetchList',
       payload: {
@@ -178,10 +185,10 @@ class List extends Component<ListProps, ListState> {
   };
 
   onClickAction = (currentRowKey: string, actionType: CellAction) => {
+    const { type } = this;
     const {
       dispatch,
       position: { dataSource, rowKey = 'key' },
-      type,
     } = this.props;
     if (!currentRowKey) {
       return message.error(formatMessage({ id: 'position.error.unknown.click' }));
@@ -208,7 +215,7 @@ class List extends Component<ListProps, ListState> {
   };
 
   renderOperationVisible = (selectedRowKeys: string[] | number[], type: TopbarAction): boolean => {
-    const { type: positionType } = this.props;
+    const { type: positionType } = this;
     if (HideWithouSelection.has(type) && !selectedRowKeys.length) return false;
     if (!(getCurrentScope instanceof Map)) return false;
     const getScope = getCurrentScope.get(AuthorizedId.BasicLayout);
@@ -253,7 +260,7 @@ class List extends Component<ListProps, ListState> {
       position: { actionKey, columns, dataSource, detail, filters = [], scroll, selectable },
     } = this.props;
     return (
-      <React.Fragment>
+      <div className={commonStyles.contentBody}>
         {filters.length || !loading.fetchList ? (
           <StandardFilter
             className={styles.filter}
@@ -290,7 +297,7 @@ class List extends Component<ListProps, ListState> {
           onClose={this.onCloseDetail}
           visible={detailVisible}
         />
-      </React.Fragment>
+      </div>
     );
   }
 }

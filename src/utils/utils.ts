@@ -99,3 +99,33 @@ export function sandwichArray<T = any, U = any, V = any>(
   res.splice(0, 1);
   return res;
 }
+
+export function formatRouteInfo(info: string | object, key?: string): string {
+  if (!info) return '';
+  if (typeof info === 'string') return info;
+  if (key) return info[key];
+  if (typeof info === 'object') {
+    const keys = Object.keys(info);
+    if (keys.length) {
+      return info[key || keys[0]];
+    }
+  }
+  return '';
+}
+
+export function formatDynamicRoute(route: Route): Route {
+  if (!route || !Array.isArray(route.routes) || !route.routes.length) return route;
+  const routes: Route[] = [];
+  route.routes.forEach(item => {
+    if (!item.dynamic) routes.push(item);
+    /**
+     * @TODO
+     */
+  });
+  return {
+    ...route,
+    icon: formatRouteInfo(route.icon),
+    name: formatRouteInfo(route.name),
+    routes,
+  };
+}
