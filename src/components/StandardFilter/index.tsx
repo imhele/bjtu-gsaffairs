@@ -104,7 +104,27 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
     expanded: false,
   };
 
+  private wrappedFormUtils: WrappedFormUtils = null;
+
   private initialFieldsValue = {};
+
+  constructor(props: StandardFilterProps) {
+    super(props);
+    this.wrappedFormUtils = {
+      ...props.form,
+      resetFields: this.resetFields,
+    };
+  }
+
+  resetFields = (names?: string[]) => {
+    const { form } = this.props;
+    if (!Array.isArray(names)) {
+      this.initialFieldsValue = {};
+    } else {
+      names.forEach(key => (this.initialFieldsValue[key] = undefined));
+    }
+    form.resetFields(names);
+  };
 
   onChangeExpand = () => {
     const { expanded } = this.props;
@@ -212,16 +232,15 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
     form.validateFieldsAndScroll((err, fieldsValue) => {
       if (err) return;
       this.initialFieldsValue = fieldsValue;
-      onSubmit(fieldsValue, form);
+      onSubmit(fieldsValue, this.wrappedFormUtils);
     });
   };
 
   onReset = () => {
-    const { form, onReset, onSubmit, submitLoading } = this.props;
-    this.initialFieldsValue = {};
-    if (onReset) return onReset(form);
-    form.resetFields();
-    if (!submitLoading) onSubmit({}, form);
+    const { onReset, onSubmit, submitLoading } = this.props;
+    if (onReset) return onReset(this.wrappedFormUtils);
+    this.resetFields();
+    if (!submitLoading) onSubmit({}, this.wrappedFormUtils);
   };
 
   render() {

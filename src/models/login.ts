@@ -7,6 +7,7 @@ const defaultState = {
     'scope.position.manage.list',
     'scope.position.manage.create',
     'scope.position.manage.export',
+    'scope.position.teach.list',
     'scope.position.teach.create',
     'scope.position.teach.export',
   ], // @DEBUG

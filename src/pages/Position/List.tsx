@@ -7,6 +7,7 @@ import commonStyles from '../common.less';
 import { message, Radio, Skeleton } from 'antd';
 import { RadioChangeEvent } from 'antd/es/radio';
 import { AuthorizedId, MediaQuery } from '@/global';
+import { WrappedFormUtils } from 'antd/es/form/Form';
 import StandardFilter from '@/components/StandardFilter';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
@@ -15,6 +16,7 @@ import { HideWithouSelection, PositionType, TopbarAction, CellAction } from './c
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import StandardTable, {
   PaginationConfig,
+  StandardTableMethods,
   StandardTableOperationAreaProps,
 } from '@/components/StandardTable';
 
@@ -58,6 +60,11 @@ class List extends Component<ListProps, ListState> {
     detailVisible: false,
     size: ListSize.Default,
   };
+  private filterExpandText = {
+    expand: <FormattedMessage id="words.expand" />,
+    retract: <FormattedMessage id="words.retract" />,
+  };
+  private filterFormUtils: WrappedFormUtils = null;
   /**
    * `filter` is not a state, but just data copy from StandardFilter
    */
@@ -69,17 +76,31 @@ class List extends Component<ListProps, ListState> {
    */
   private limit: number = 10;
   private offset: number = 0;
-  private filterExpandText = {
-    expand: <FormattedMessage id="words.expand" />,
-    retract: <FormattedMessage id="words.retract" />,
-  };
+  private tableMethods: StandardTableMethods = null;
+  private type: PositionType = null;
 
   constructor(props: ListProps) {
     super(props);
+    this.type = props.match.params.type;
+    this.fetchList();
     if (props.isMobile) {
       this.state.size = ListSize.Small;
     }
   }
+
+  componentDidUpdate = () => {
+    const {
+      match: { params },
+    } = this.props;
+    if (params.type !== this.type) {
+      this.type = params.type;
+      if (this.filterFormUtils) {
+        const { resetFields } = this.filterFormUtils;
+        if (typeof resetFields === 'function') resetFields();
+      }
+      this.fetchList();
+    }
+  };
 
   fetchList = () => {
     const {
@@ -172,8 +193,9 @@ class List extends Component<ListProps, ListState> {
     );
   };
 
-  onSubmitFilter = (filtersValue: object) => {
+  onSubmitFilter = (filtersValue: object, form: WrappedFormUtils) => {
     this.filtersValue = filtersValue;
+    this.filterFormUtils = form;
     this.fetchList();
   };
 
@@ -260,6 +282,10 @@ class List extends Component<ListProps, ListState> {
     }
   };
 
+  getTableMethods = (tableMethods: StandardTableMethods) => {
+    this.tableMethods = tableMethods;
+  };
+
   render() {
     const { currentRow, currentRowKey, detailVisible, size } = this.state;
     const {
@@ -288,6 +314,7 @@ class List extends Component<ListProps, ListState> {
           columns={columns}
           dataSource={dataSource}
           footer={this.renderTableFooter}
+          getMenthods={this.getTableMethods}
           loading={loading.fetchList}
           onClickAction={this.onClickAction}
           operationArea={this.getOperationArea()}
