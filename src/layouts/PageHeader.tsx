@@ -17,7 +17,7 @@ const PageHeader: React.SFC = props => {
             <Breadcrumb.Item key={path}>
               <Link to={path}>
                 <FormattedMessage
-                  id={`app${path.replace(/\//g, '.')}`}
+                  id={`route${path.replace(/\//g, '.')}`}
                   defaultMessage={unknownMsg}
                 />
               </Link>
@@ -25,7 +25,7 @@ const PageHeader: React.SFC = props => {
           ))}
         </Breadcrumb>
         <div className={styles.title}>
-          <FormattedMessage id={`app${pathname.replace(/\//g, '.')}`} defaultMessage={unknownMsg} />
+          <FormattedMessage id={`route${pathname.replace(/\//g, '.')}`} defaultMessage={unknownMsg} />
         </div>
       </div>
       {props.children}

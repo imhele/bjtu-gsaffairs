@@ -18,7 +18,7 @@ export interface SiderMenuProps extends SiderProps, ConnectProps {
   isMobile?: boolean;
   menuSelectedKeys?: string[];
   onSelectMenu?: (param: SelectParam) => void;
-  route?: Route<string>;
+  route?: Route;
 }
 
 export default class SiderMenu extends PureComponent<SiderMenuProps> {
@@ -45,7 +45,7 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
   };
 
   routeToMenu = (
-    routes: Route<string>[],
+    routes: Route[],
     currentScope: Scope,
     submenu: boolean = false,
   ): React.ReactNode[] => {

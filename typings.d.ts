@@ -1,7 +1,7 @@
 declare module '*.css';
 declare module '*.png';
 declare module '*.less';
-declare interface Route<T = string | string[]> {
+declare interface Route<T = string, U = Array<string | number>> {
   component?: string;
   dynamic?: boolean | object[];
   hideInMenu?: boolean;
@@ -10,7 +10,7 @@ declare interface Route<T = string | string[]> {
   name?: T;
   path?: string;
   redirect?: string;
-  routes?: Route<T>[];
+  routes?: Route<T, U>[];
   Routes?: string[];
-  scope?: Array<string | number>;
+  scope?: U;
 }

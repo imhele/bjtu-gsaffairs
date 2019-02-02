@@ -22,7 +22,7 @@ export interface HeaderProps {
   menuSelectedKeys: string[];
   onLogout?: () => void;
   onOpenMenu: () => void;
-  route: Route<string>;
+  route: Route;
 }
 
 export default class Header extends Component<HeaderProps> {
@@ -51,7 +51,7 @@ export default class Header extends Component<HeaderProps> {
     if (item.props['data-type'] !== 'href' && key !== location.pathname) router.push(key);
   };
 
-  routeToMenu = (routes: Route<string>[], currentScope: Scope): React.ReactNode[] => {
+  routeToMenu = (routes: Route[], currentScope: Scope): React.ReactNode[] => {
     return routes
       .filter(({ hideInMenu, path, href }) => !hideInMenu && (path || href))
       .filter(({ scope }) => CheckAuth(scope, currentScope))

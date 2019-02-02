@@ -25,7 +25,7 @@ export interface BasicLayoutProps extends ConnectProps {
   isMobile?: boolean;
   loading?: boolean;
   login?: LoginState;
-  route?: Route;
+  route?: Route<string | string[], Array<string | number> | Array<string | number>[]>;
 }
 
 class BasicLayout extends Component<BasicLayoutProps> {
@@ -53,7 +53,7 @@ class BasicLayout extends Component<BasicLayoutProps> {
     }
   }, 200);
 
-  private route: Route<string> = {};
+  private route: Route = {};
 
   constructor(props: BasicLayoutProps) {
     super(props);

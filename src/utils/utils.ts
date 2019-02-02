@@ -100,39 +100,42 @@ export function sandwichArray<T = any, U = any, V = any>(
   return res;
 }
 
-export function formatRouteInfo(info: string | object, key?: number): string {
-  if (!info) return '';
+export function formatRouteInfo<T>(info: T | T[], key?: number): T {
+  if (!info) return null;
   if (typeof info === 'string') return info;
   if (key) return info[key];
   if (Array.isArray(info)) {
     return info[0];
   }
-  return '';
+  return null;
 }
 
-/**
- * @DEBUG
- */
-export function formatDynamicRoute(route: Route, key?: number): Route<string> {
-  if (!route || !Array.isArray(route.routes) || !route.routes.length) {
-    return route as Route<string>;
+export function formatDynamicRoute(
+  route: Route<string | string[], Array<string | number> | Array<string | number>[]>,
+  key?: number,
+): Route {
+  if (typeof route !== 'object') return route;
+  let routes: Route[] = [];
+  if (Array.isArray(route.routes) && route.routes.length) {
+    route.routes
+      .filter(item => item)
+      .forEach(item => {
+        if (!item.dynamic) routes.push(formatDynamicRoute(item));
+        if (Array.isArray(item.dynamic)) {
+          const toPath = pathToRegexp.compile(item.path);
+          item.dynamic.forEach((val, index) => {
+            routes.push(formatDynamicRoute({ ...item, path: toPath(val) }, index));
+          });
+        }
+      });
+  } else {
+    routes = route.routes as Route[];
   }
-  const routes: Route<string>[] = [];
-  route.routes
-    .filter(item => item)
-    .forEach(item => {
-      if (!item.dynamic) routes.push(item as Route<string>);
-      if (Array.isArray(item.dynamic)) {
-        const toPath = pathToRegexp.compile(item.path);
-        item.dynamic.forEach((val, index) => {
-          routes.push(formatDynamicRoute({ ...item, path: toPath(val) }, index));
-        });
-      }
-    });
   return {
     ...route,
-    icon: formatRouteInfo(route.icon, key),
-    name: formatRouteInfo(route.name, key),
+    icon: formatRouteInfo<string>(route.icon, key),
+    name: formatRouteInfo<string>(route.name, key),
+    scope: formatRouteInfo<Array<string | number>>(route.scope, key),
     routes,
   };
 }

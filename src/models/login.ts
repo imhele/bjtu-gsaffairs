@@ -3,7 +3,13 @@ import router from 'umi/router';
 import { setSign } from '@/utils/auth';
 
 const defaultState = {
-  scope: <null>['scope.position.manage.create', 'scope.position.manage.export'], // @DEBUG
+  scope: <null>[
+    'scope.position.manage.list',
+    'scope.position.manage.create',
+    'scope.position.manage.export',
+    'scope.position.teach.create',
+    'scope.position.teach.export',
+  ], // @DEBUG
   status: false,
   nickname: 'NULL',
   avatar: <null>null,

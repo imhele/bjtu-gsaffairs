@@ -73,20 +73,21 @@ class List extends Component<ListProps, ListState> {
     expand: <FormattedMessage id="words.expand" />,
     retract: <FormattedMessage id="words.retract" />,
   };
-  private type: PositionType = null;
 
   constructor(props: ListProps) {
     super(props);
-    this.type = props.match.params.type;
-    this.fetchList();
     if (props.isMobile) {
       this.state.size = ListSize.Small;
     }
   }
 
   fetchList = () => {
-    const { type } = this;
-    const { dispatch } = this.props;
+    const {
+      dispatch,
+      match: {
+        params: { type },
+      },
+    } = this.props;
     if (!Object.values(PositionType).includes(type)) {
       return message.error(formatMessage({ id: 'position.error.unknown.type' }));
     }
@@ -185,9 +186,11 @@ class List extends Component<ListProps, ListState> {
   };
 
   onClickAction = (currentRowKey: string, actionType: CellAction) => {
-    const { type } = this;
     const {
       dispatch,
+      match: {
+        params: { type },
+      },
       position: { dataSource, rowKey = 'key' },
     } = this.props;
     if (!currentRowKey) {
@@ -215,7 +218,11 @@ class List extends Component<ListProps, ListState> {
   };
 
   renderOperationVisible = (selectedRowKeys: string[] | number[], type: TopbarAction): boolean => {
-    const { type: positionType } = this;
+    const {
+      match: {
+        params: { type: positionType },
+      },
+    } = this.props;
     if (HideWithouSelection.has(type) && !selectedRowKeys.length) return false;
     if (!(getCurrentScope instanceof Map)) return false;
     const getScope = getCurrentScope.get(AuthorizedId.BasicLayout);
