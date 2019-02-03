@@ -91,7 +91,7 @@ class List extends Component<ListProps, ListState> {
       <FormattedMessage id="position.list.table.selected-alert" values={{ node }} />
     ),
   };
-  private tableMethods: StandardTableMethods = null;
+  private tableMethods: Partial<StandardTableMethods> = {};
   private type: PositionType = null;
 
   constructor(props: ListProps) {
@@ -113,10 +113,8 @@ class List extends Component<ListProps, ListState> {
       if (this.filterFormUtils) {
         safeFun(this.filterFormUtils.resetFields);
       }
-      if (this.tableMethods) {
-        if (safeFun<string[] | number[]>(this.tableMethods.getSelectedRowKeys, []).length) {
-          safeFun(this.tableMethods.clearSelectedRowKeys);
-        }
+      if (safeFun<string[] | number[]>(this.tableMethods.getSelectedRowKeys, []).length) {
+        safeFun(this.tableMethods.clearSelectedRowKeys);
       }
       this.fetchList();
     }
@@ -148,14 +146,17 @@ class List extends Component<ListProps, ListState> {
 
   deleteCallback = (payload: BatchDeletePayload) => {
     payload.body.key.forEach(k => this.deletingRowKeys.delete(k));
+    this.fetchList();
+  };
+
+  cancelSelection = (rowKeys: (string | number)[]) => {
     const selected = safeFun<(string | number)[]>(this.tableMethods.getSelectedRowKeys, []);
     if (selected.length) {
-      const nextSelected = selected.filter(item => !payload.body.key.includes(item));
+      const nextSelected = selected.filter(item => !rowKeys.includes(item));
       if (nextSelected.length !== selected.length) {
         safeFun(this.tableMethods.setSelectedRowKeys, null, nextSelected);
       }
     }
-    this.fetchList();
   };
 
   correctOffset = () => {
@@ -264,6 +265,7 @@ class List extends Component<ListProps, ListState> {
         break;
       case CellAction.Delete:
         this.deletingRowKeys.add(currentRowKey);
+        this.cancelSelection([currentRowKey]);
         dispatch<BatchDeletePayload>({
           type: 'position/batchDelete',
           payload: {
@@ -294,6 +296,7 @@ class List extends Component<ListProps, ListState> {
         params: { type },
       },
     } = this.props;
+    safeFun(this.tableMethods.clearSelectedRowKeys);
     switch (operationType) {
       case TopbarAction.Delete:
         selectedRowKeys.forEach(item => this.deletingRowKeys.add(item));
@@ -353,7 +356,7 @@ class List extends Component<ListProps, ListState> {
   };
 
   getTableMethods = (tableMethods: StandardTableMethods) => {
-    this.tableMethods = tableMethods;
+    this.tableMethods = tableMethods || {};
   };
 
   getSelectableProps = (): TableRowSelection<object> | null => {
