@@ -17,6 +17,7 @@ import { HideWithouSelection, PositionType, TopbarAction, CellAction } from './c
 import { FetchListPayload, FetchDetailPayload, BatchDeletePayload } from '@/services/position';
 import StandardTable, {
   PaginationConfig,
+  StandardTableAction,
   StandardTableAlertProps,
   StandardTableMethods,
   StandardTableOperationAreaProps,
@@ -275,6 +276,15 @@ class List extends Component<ListProps, ListState> {
     }
   };
 
+  renderActionLoading = (action: StandardTableAction, record: object): boolean => {
+    if (action.type !== CellAction.Delete) return action.loading;
+    const {
+      position: { rowKey = 'key' },
+    } = this.props;
+    if (this.deletingRowKeys.has(record[rowKey])) return true;
+    return action.loading;
+  };
+
   onClickOperation = (selectedRowKeys: string[] | number[], type: string) => {
     safeFun(this.tableMethods.clearSelectedRowKeys);
     message.info(`Click on ${type}, selected keys ${selectedRowKeys}`);
@@ -333,6 +343,7 @@ class List extends Component<ListProps, ListState> {
     } = this.props;
     if (!selectable) return null;
     return {
+      ...(selectable === true ? {} : selectable),
       getCheckboxProps: record => ({
         disabled: record[unSelectableKey] || this.deletingRowKeys.has(record[rowKey]),
       }),
@@ -364,6 +375,7 @@ class List extends Component<ListProps, ListState> {
         )}
         <StandardTable
           actionKey={actionKey}
+          actionProps={{ loading: this.renderActionLoading }}
           alert={this.tableAlertProps}
           columns={columns}
           dataSource={dataSource}

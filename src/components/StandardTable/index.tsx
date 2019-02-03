@@ -103,14 +103,13 @@ export type StandardTableAlertProps = {
 export interface StandardTableProps<T> {
   actionKey?: string | string[];
   actionProps?: {
-    disabled?: (type: string, record: T, index: number) => boolean;
+    disabled?: (action: StandardTableAction, record: T, index: number) => boolean;
     buttonProps?: ButtonProps;
     icon?: string;
-    loading?: (type: string, record: T, index: number) => boolean;
+    loading?: (action: StandardTableAction, record: T, index: number) => boolean;
     menuProps?: MenuItemProps;
     text?: string | number | React.ReactNode;
-    type: string;
-    visible?: (type: string, record: T, index: number) => boolean;
+    visible?: (action: StandardTableAction, record: T, index: number) => boolean;
   };
   alert?: boolean | StandardTableAlertProps;
   className?: string;
@@ -142,7 +141,7 @@ interface StandardTableStates {
   selectedRowKeys: string[] | number[];
 }
 
-export default class StandardTable<T> extends Component<
+export default class StandardTable<T = object> extends Component<
   StandardTableProps<T>,
   StandardTableStates
 > {
@@ -235,14 +234,14 @@ export default class StandardTable<T> extends Component<
     const { actionProps } = this.props;
     if (!actionProps) return item;
     const visible = actionProps.visible
-      ? actionProps.visible(item.type, record, index)
+      ? actionProps.visible(item, record, index)
       : item.visible;
     if (typeof visible !== 'undefined' && !visible) return null;
     const disabled = actionProps.disabled
-      ? actionProps.disabled(item.type, record, index)
+      ? actionProps.disabled(item, record, index)
       : item.disabled;
     const loading = actionProps.loading
-      ? actionProps.loading(item.type, record, index)
+      ? actionProps.loading(item, record, index)
       : item.loading;
     return {
       ...actionProps,
