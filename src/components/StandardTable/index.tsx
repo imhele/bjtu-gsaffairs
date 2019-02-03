@@ -25,29 +25,35 @@ interface MenuItemProps {
   onMouseLeave?: (event: string, e: MouseEvent) => void;
 }
 
-export interface StandardTableAction<
-  P = boolean | ((selectedRowKeys: string[] | number[], type: string) => boolean)
-> {
-  disabled?: P;
+export interface StandardTableAction {
+  disabled?: boolean;
   icon?: string;
-  loading?: P;
+  loading?: boolean;
   text?: string | number | React.ReactNode;
   type: string;
-  visible?: P;
+  visible?: boolean;
 }
 
 export { ColumnProps, PaginationConfig, TableRowSelection, TableSize };
 
 export interface StandardTableOperation<
   P = boolean | ((selectedRowKeys: string[] | number[], type: string) => boolean)
-> extends StandardTableAction<P> {
+> {
+  disabled?: P;
   buttonProps?: ButtonProps;
-  menuProps?: MenuItemProps;
+  icon?: string;
+  loading?: P;
+  menuItemProps?: MenuItemProps;
+  text?: string | number | React.ReactNode;
+  type: string;
+  visible?: P;
 }
 
 export interface StandardTableOperationAreaProps {
   animationProps?: QueueAnimProps;
+  disabled?: (selectedRowKeys: string[] | number[], type: string) => boolean;
   dropdownProps?: DropDownProps;
+  loading?: (selectedRowKeys: string[] | number[], type: string) => boolean;
   maxAmount?: number;
   moreText?: React.ReactNode;
   onClick?: (
@@ -56,6 +62,7 @@ export interface StandardTableOperationAreaProps {
     event: React.MouseEvent | ClickParam,
   ) => void;
   operation?: StandardTableOperation | StandardTableOperation[];
+  visible?: (selectedRowKeys: string[] | number[], type: string) => boolean;
 }
 
 export type StandardTableActionProps = StandardTableAction | StandardTableAction[];
@@ -95,6 +102,16 @@ export type StandardTableAlertProps = {
 
 export interface StandardTableProps<T> {
   actionKey?: string | string[];
+  actionProps?: {
+    disabled?: (type: string, record: T, index: number) => boolean;
+    buttonProps?: ButtonProps;
+    icon?: string;
+    loading?: (type: string, record: T, index: number) => boolean;
+    menuProps?: MenuItemProps;
+    text?: string | number | React.ReactNode;
+    type: string;
+    visible?: (type: string, record: T, index: number) => boolean;
+  };
   alert?: boolean | StandardTableAlertProps;
   className?: string;
   columns?: ColumnProps<T>[];
@@ -210,6 +227,32 @@ export default class StandardTable<T> extends Component<
     return onClickAction(key, type, event);
   };
 
+  getActionItemProps = (
+    item: StandardTableAction,
+    record: T,
+    index: number,
+  ): StandardTableAction => {
+    const { actionProps } = this.props;
+    if (!actionProps) return item;
+    const visible = actionProps.visible
+      ? actionProps.visible(item.type, record, index)
+      : item.visible;
+    if (typeof visible !== 'undefined' && !visible) return null;
+    const disabled = actionProps.disabled
+      ? actionProps.disabled(item.type, record, index)
+      : item.disabled;
+    const loading = actionProps.loading
+      ? actionProps.loading(item.type, record, index)
+      : item.loading;
+    return {
+      ...actionProps,
+      ...item,
+      disabled,
+      loading,
+      visible: true,
+    };
+  };
+
   renderActionItem = (action: StandardTableAction, record: T, index: number): React.ReactNode => {
     const { rowKey } = this.props;
     if (action.loading) return <Icon type="loading" />;
@@ -239,7 +282,7 @@ export default class StandardTable<T> extends Component<
     }
     return sandwichArray(
       actions
-        .map(this.getActionItemProps)
+        .map(action => this.getActionItemProps(action, record, index))
         .filter(item => item)
         .map(action => this.renderActionItem(action, record, index)),
       Divider,
@@ -273,8 +316,9 @@ export default class StandardTable<T> extends Component<
     }
   };
 
-  getActionItemProps = (item: StandardTableAction): StandardTableAction<boolean> => {
+  getOperationItemProps = (item: StandardTableOperation): StandardTableOperation<boolean> => {
     const { selectedRowKeys } = this.state;
+    const {} = this.props;
     const visible =
       typeof item.visible === 'function' ? item.visible(selectedRowKeys, item.type) : item.visible;
     if (typeof visible !== 'undefined' && !visible) return null;
@@ -318,7 +362,7 @@ export default class StandardTable<T> extends Component<
 
   renderOperationMenuItem = (item: StandardTableOperation<boolean>): React.ReactNode => {
     return (
-      <Menu.Item key={item.type} disabled={item.disabled || item.loading} {...item.menuProps}>
+      <Menu.Item key={item.type} disabled={item.disabled || item.loading} {...item.menuItemProps}>
         {item.loading ? <Icon type="loading" /> : <Icon type={item.icon} />}
         {item.text || item.type}
       </Menu.Item>
@@ -333,7 +377,7 @@ export default class StandardTable<T> extends Component<
       ? operationArea.operation
       : [operationArea.operation]
     )
-      .map(this.getActionItemProps)
+      .map(this.getOperationItemProps)
       .filter(item => item);
     if (!operation.length) return null;
     if (operation.length <= maxAmount) return operation.map(this.renderOperationButtonItem);
