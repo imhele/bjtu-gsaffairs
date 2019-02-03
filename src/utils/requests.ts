@@ -67,7 +67,7 @@ export default async function request<T>(
     .update(fingerprint)
     .digest('hex');
   const newOptions: RequestOptions<T> = {
-    expirys: 60,
+    expirys: 30,
     credentials: 'omit' as RequestCredentials,
     ...options,
     headers: {

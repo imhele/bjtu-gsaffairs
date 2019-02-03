@@ -1,12 +1,14 @@
 import styles from './index.less';
-import React, { Component } from 'react';
+import classNames from 'classnames';
 import { SpinProps } from 'antd/es/spin';
+import React, { Component } from 'react';
 import { ClickParam } from 'antd/es/menu';
+import { AlertProps } from 'antd/es/alert';
 import { ButtonProps } from 'antd/es/button';
 import { sandwichArray } from '@/utils/utils';
 import { DropDownProps } from 'antd/es/dropdown';
 import QueueAnim, { IProps as QueueAnimProps } from 'rc-queue-anim';
-import { Button, Divider, Dropdown, Icon, Menu, Table } from 'antd';
+import { Alert, Button, Divider, Dropdown, Icon, Menu, Table } from 'antd';
 import { ColumnProps, PaginationConfig, TableRowSelection, TableSize } from 'antd/es/table';
 
 // Ref `antd/es/menu/MenuItem`
@@ -60,8 +62,36 @@ export interface StandardTableMethods {
   setSelectedRowKeys: (rowKeys: string[] | number[]) => void;
 }
 
+export type StandardTableAlertProps = {
+  clearText?: string | React.ReactNode;
+  format?: (
+    selectedRowsNumNode: React.ReactNode,
+    selectedRowKeys: string[] | number[],
+  ) => React.ReactNode;
+  render?: (
+    selectedRowsNum: number,
+    clearSelectedRowKeys: () => void,
+    selectedRowKeys: string[] | number[],
+  ) => React.ReactNode;
+} & {
+  [P in
+    | 'type'
+    | 'closable'
+    | 'closeText'
+    | 'description'
+    | 'onClose'
+    | 'afterClose'
+    | 'showIcon'
+    | 'iconType'
+    | 'style'
+    | 'className'
+    | 'banner'
+    | 'icon']?: AlertProps[P]
+};
+
 export interface StandardTableProps<T> {
   actionKey?: string | string[];
+  alert?: boolean | StandardTableAlertProps;
   className?: string;
   columns?: ColumnProps<T>[];
   dataSource?: T[];
@@ -97,6 +127,7 @@ export default class StandardTable<T> extends Component<
 > {
   static defaultProps = {
     actionKey: 'action',
+    alert: true,
     columns: [],
     dataSource: [],
     footerLocale: (c: number, t: number) => `Current ${c} / Total ${t}`,
@@ -311,8 +342,52 @@ export default class StandardTable<T> extends Component<
       );
   };
 
+  renderAlertMessage = (): React.ReactNode => {
+    const { alert } = this.props;
+    const { selectedRowKeys } = this.state;
+    if (typeof alert === 'object') {
+      if (alert.render) {
+        return alert.render(selectedRowKeys.length, this.clearSelectedRowKeys, selectedRowKeys);
+      }
+      return (
+        <span className={styles.alertMessage}>
+          {(alert.format ||
+            ((node: React.ReactNode) => <span>{node} item(s) have been selected</span>))(
+            <a className={styles.selectedRowsNum}>{selectedRowKeys.length}</a>,
+            selectedRowKeys,
+          )}
+          <a
+            className={classNames({
+              [styles.clear]: true,
+              [styles.hide]: !selectedRowKeys.length,
+            })}
+            onClick={this.clearSelectedRowKeys}
+          >
+            {alert.clearText || 'Clear'}
+          </a>
+        </span>
+      );
+    }
+    return (
+      <span className={styles.alertMessage}>
+        <a className={styles.selectedRowsNum}>{selectedRowKeys.length}</a>
+        <span> item(s) have been selected</span>
+        <a
+          className={classNames({
+            [styles.clear]: true,
+            [styles.hide]: !selectedRowKeys.length,
+          })}
+          onClick={this.clearSelectedRowKeys}
+        >
+          Clear
+        </a>
+      </span>
+    );
+  };
+
   render() {
     const {
+      alert,
       className,
       dataSource,
       footer,
@@ -321,6 +396,7 @@ export default class StandardTable<T> extends Component<
       pagination,
       rowKey,
       scroll,
+      selectable,
       size,
       style,
     } = this.props;
@@ -332,6 +408,15 @@ export default class StandardTable<T> extends Component<
               {this.renderOperationArea()}
             </QueueAnim>
           </div>
+        )}
+        {selectable && alert && (
+          <Alert
+            message={this.renderAlertMessage()}
+            showIcon
+            style={{ marginBottom: 16 }}
+            type="info"
+            {...alert}
+          />
         )}
         <Table<T>
           columns={this.addRenderToActionColumn()}

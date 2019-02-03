@@ -16,6 +16,7 @@ import { HideWithouSelection, PositionType, TopbarAction, CellAction } from './c
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import StandardTable, {
   PaginationConfig,
+  StandardTableAlertProps,
   StandardTableMethods,
   StandardTableOperationAreaProps,
 } from '@/components/StandardTable';
@@ -59,6 +60,13 @@ class List extends Component<ListProps, ListState> {
     currentRowKey: null,
     detailVisible: false,
     size: ListSize.Default,
+  };
+
+  tableAlertProps: StandardTableAlertProps = {
+    clearText: <FormattedMessage id="words.clear" />,
+    format: (node: any) => (
+      <FormattedMessage id="position.list.table.selected-alert" values={{ node }} />
+    ),
   };
   private filterExpandText = {
     expand: <FormattedMessage id="words.expand" />,
@@ -318,6 +326,7 @@ class List extends Component<ListProps, ListState> {
         )}
         <StandardTable
           actionKey={actionKey}
+          alert={this.tableAlertProps}
           columns={columns}
           dataSource={dataSource}
           footer={this.renderTableFooter}

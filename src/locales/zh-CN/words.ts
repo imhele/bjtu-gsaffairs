@@ -1,4 +1,5 @@
 export default {
+  'words.clear': '清空',
   'words.close': '关闭',
   'words.confirm': '确认',
   'words.create': '创建',

@@ -1,5 +1,5 @@
 import styles from './index.less';
-import classnames from 'classnames';
+import classNames from 'classnames';
 import SubMenu from 'antd/es/menu/SubMenu';
 import { SelectParam } from 'antd/es/menu';
 import MenuItem from 'antd/es/menu/MenuItem';
@@ -91,7 +91,7 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
       route,
       ...restProps
     } = this.props;
-    const mixinClassName = classnames(styles.siderMenu, className || '');
+    const mixinClassName = classNames(styles.siderMenu, className || '');
     const Sider = (
       <Layout.Sider
         collapsible

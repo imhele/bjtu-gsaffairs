@@ -1,7 +1,7 @@
 import React from 'react';
 import router from 'umi/router';
 import { Component } from 'react';
-import classnames from 'classnames';
+import classNames from 'classnames';
 import LeftContent from './LeftContent';
 import styles from '../BasicLayout.less';
 import RightContent from './RightContent';
@@ -84,7 +84,7 @@ export default class Header extends Component<HeaderProps> {
       onLogout,
       onOpenMenu,
     } = this.props;
-    const className = classnames({
+    const className = classNames({
       [styles.headerContainer]: true,
       [styles.collapsed]: collapsed || isMobile,
     });

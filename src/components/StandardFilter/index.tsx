@@ -1,5 +1,5 @@
 import styles from './index.less';
-import classnames from 'classnames';
+import classNames from 'classnames';
 import React, { Component } from 'react';
 import { groupByAmount } from '@/utils/utils';
 import { RowProps, ColProps } from 'antd/es/grid';
@@ -249,7 +249,7 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
     if (!Array.isArray(filters) || !filters.length) return null;
     return (
       <Form
-        className={classnames({
+        className={classNames({
           [styles.standardFilter]: true,
           [styles.animation]: animation,
           [styles.unexpanded]: !expanded,
