@@ -36,24 +36,16 @@ export interface StandardTableAction {
 
 export { ColumnProps, PaginationConfig, TableRowSelection, TableSize };
 
-export interface StandardTableOperation<
-  P = boolean | ((selectedRowKeys: string[] | number[], type: string) => boolean)
-> {
-  disabled?: P;
+export interface StandardTableOperation extends StandardTableAction {
   buttonProps?: ButtonProps;
-  icon?: string;
-  loading?: P;
   menuItemProps?: MenuItemProps;
-  text?: string | number | React.ReactNode;
-  type: string;
-  visible?: P;
 }
 
 export interface StandardTableOperationAreaProps {
   animationProps?: QueueAnimProps;
-  disabled?: (selectedRowKeys: string[] | number[], type: string) => boolean;
+  disabled?: (operation: StandardTableOperation, selectedRowKeys: string[] | number[]) => boolean;
   dropdownProps?: DropDownProps;
-  loading?: (selectedRowKeys: string[] | number[], type: string) => boolean;
+  loading?: (operation: StandardTableOperation, selectedRowKeys: string[] | number[]) => boolean;
   maxAmount?: number;
   moreText?: React.ReactNode;
   onClick?: (
@@ -62,7 +54,7 @@ export interface StandardTableOperationAreaProps {
     event: React.MouseEvent | ClickParam,
   ) => void;
   operation?: StandardTableOperation | StandardTableOperation[];
-  visible?: (selectedRowKeys: string[] | number[], type: string) => boolean;
+  visible?: (operation: StandardTableOperation, selectedRowKeys: string[] | number[]) => boolean;
 }
 
 export type StandardTableActionProps = StandardTableAction | StandardTableAction[];
@@ -233,16 +225,12 @@ export default class StandardTable<T = object> extends Component<
   ): StandardTableAction => {
     const { actionProps } = this.props;
     if (!actionProps) return item;
-    const visible = actionProps.visible
-      ? actionProps.visible(item, record, index)
-      : item.visible;
+    const visible = actionProps.visible ? actionProps.visible(item, record, index) : item.visible;
     if (typeof visible !== 'undefined' && !visible) return null;
     const disabled = actionProps.disabled
       ? actionProps.disabled(item, record, index)
       : item.disabled;
-    const loading = actionProps.loading
-      ? actionProps.loading(item, record, index)
-      : item.loading;
+    const loading = actionProps.loading ? actionProps.loading(item, record, index) : item.loading;
     return {
       ...actionProps,
       ...item,
@@ -252,25 +240,25 @@ export default class StandardTable<T = object> extends Component<
     };
   };
 
-  renderActionItem = (action: StandardTableAction, record: T, index: number): React.ReactNode => {
+  renderActionItem = (item: StandardTableAction, record: T, index: number): React.ReactNode => {
     const { rowKey } = this.props;
-    if (action.loading) return <Icon type="loading" />;
-    const icon = action.icon && <Icon type={action.icon} />;
-    if (action.disabled)
+    if (item.loading) return <Icon type="loading" />;
+    const icon = item.icon && <Icon type={item.icon} />;
+    if (item.disabled)
       return (
-        <span className={styles.disabled} key={action.type}>
-          {action.text || icon || action.type}
+        <span className={styles.disabled} key={item.type}>
+          {item.text || icon || item.type}
         </span>
       );
     const computedRowKey = typeof rowKey === 'function' ? rowKey(record, index) : rowKey;
     return (
       <a
         data-key={record[computedRowKey]}
-        data-type={action.type}
-        key={action.type}
+        data-type={item.type}
+        key={item.type}
         onClick={this.onClickActionItem}
       >
-        {action.text || icon || action.type}
+        {item.text || icon || item.type}
       </a>
     );
   };
@@ -281,9 +269,9 @@ export default class StandardTable<T = object> extends Component<
     }
     return sandwichArray(
       actions
-        .map(action => this.getActionItemProps(action, record, index))
+        .map(item => this.getActionItemProps(item, record, index))
         .filter(item => item)
-        .map(action => this.renderActionItem(action, record, index)),
+        .map(item => this.renderActionItem(item, record, index)),
       Divider,
       1,
       false,
@@ -315,18 +303,20 @@ export default class StandardTable<T = object> extends Component<
     }
   };
 
-  getOperationItemProps = (item: StandardTableOperation): StandardTableOperation<boolean> => {
+  getOperationItemProps = (item: StandardTableOperation): StandardTableOperation => {
     const { selectedRowKeys } = this.state;
-    const {} = this.props;
-    const visible =
-      typeof item.visible === 'function' ? item.visible(selectedRowKeys, item.type) : item.visible;
+    const { operationArea } = this.props;
+    if (!operationArea) return item;
+    const visible = operationArea.visible
+      ? operationArea.visible(item, selectedRowKeys)
+      : item.visible;
     if (typeof visible !== 'undefined' && !visible) return null;
-    const disabled =
-      typeof item.disabled === 'function'
-        ? item.disabled(selectedRowKeys, item.type)
-        : item.disabled;
-    const loading =
-      typeof item.loading === 'function' ? item.loading(selectedRowKeys, item.type) : item.loading;
+    const disabled = operationArea.disabled
+      ? operationArea.disabled(item, selectedRowKeys)
+      : item.disabled;
+    const loading = operationArea.loading
+      ? operationArea.loading(item, selectedRowKeys)
+      : item.loading;
     return {
       ...item,
       disabled,
@@ -335,10 +325,7 @@ export default class StandardTable<T = object> extends Component<
     };
   };
 
-  renderOperationButtonItem = (
-    item: StandardTableOperation<boolean>,
-    index: number,
-  ): React.ReactNode => {
+  renderOperationButtonItem = (item: StandardTableOperation, index: number): React.ReactNode => {
     /**
      * Add a layer of `<div />` to avoid `transition` contamination from `<Button />`
      */
@@ -359,7 +346,7 @@ export default class StandardTable<T = object> extends Component<
     );
   };
 
-  renderOperationMenuItem = (item: StandardTableOperation<boolean>): React.ReactNode => {
+  renderOperationMenuItem = (item: StandardTableOperation): React.ReactNode => {
     return (
       <Menu.Item key={item.type} disabled={item.disabled || item.loading} {...item.menuItemProps}>
         {item.loading ? <Icon type="loading" /> : <Icon type={item.icon} />}

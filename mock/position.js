@@ -90,6 +90,7 @@ const operationArea = {
   operation: [
     { icon: 'plus', text: '新建', type: 'create' },
     { icon: 'cloud-download', text: '导出', type: 'export' },
+    { icon: 'delete', text: '删除', type: 'delete' },
   ],
 };
 
@@ -227,7 +228,7 @@ const positionDelete = (req, res) => {
         errmsg: 'Delete successfully',
       });
     }
-  }, 100000); //@DEBUG
+  }, 400);
 };
 
 export default {

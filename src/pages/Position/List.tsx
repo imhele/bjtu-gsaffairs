@@ -20,6 +20,7 @@ import StandardTable, {
   StandardTableAction,
   StandardTableAlertProps,
   StandardTableMethods,
+  StandardTableOperation,
   StandardTableOperationAreaProps,
   TableRowSelection,
 } from '@/components/StandardTable';
@@ -27,6 +28,7 @@ import StandardTable, {
 export interface ListProps extends ConnectProps<{ type: PositionType }> {
   isMobile?: boolean;
   loading?: {
+    batchDelete?: boolean;
     fetchList?: boolean;
     fetchDetail?: boolean;
     model?: boolean;
@@ -50,6 +52,7 @@ interface ListState {
 @connect(
   ({ loading, position }: ConnectState): ListProps => ({
     loading: {
+      batchDelete: loading.effects['position/batchDelete'],
       fetchList: loading.effects['position/fetchList'],
       fetchDetail: loading.effects['position/fetchDetail'],
       model: loading.models.position,
@@ -145,6 +148,13 @@ class List extends Component<ListProps, ListState> {
 
   deleteCallback = (payload: BatchDeletePayload) => {
     payload.body.key.forEach(k => this.deletingRowKeys.delete(k));
+    const selected = safeFun<(string | number)[]>(this.tableMethods.getSelectedRowKeys, []);
+    if (selected.length) {
+      const nextSelected = selected.filter(item => !payload.body.key.includes(item));
+      if (nextSelected.length !== selected.length) {
+        safeFun(this.tableMethods.setSelectedRowKeys, null, nextSelected);
+      }
+    }
     this.fetchList();
   };
 
@@ -254,14 +264,6 @@ class List extends Component<ListProps, ListState> {
         break;
       case CellAction.Delete:
         this.deletingRowKeys.add(currentRowKey);
-        const selected = safeFun<(string | number)[]>(this.tableMethods.getSelectedRowKeys, []);
-        if (selected.length) {
-          const findIndex = selected.findIndex(item => item === currentRowKey);
-          if (findIndex !== -1) {
-            selected.splice(findIndex, 1);
-            safeFun(this.tableMethods.setSelectedRowKeys, null, selected);
-          }
-        }
         dispatch<BatchDeletePayload>({
           type: 'position/batchDelete',
           payload: {
@@ -285,22 +287,55 @@ class List extends Component<ListProps, ListState> {
     return action.loading;
   };
 
-  onClickOperation = (selectedRowKeys: string[] | number[], type: string) => {
-    safeFun(this.tableMethods.clearSelectedRowKeys);
-    message.info(`Click on ${type}, selected keys ${selectedRowKeys}`);
+  onClickOperation = (selectedRowKeys: (string | number)[], operationType: string) => {
+    const {
+      dispatch,
+      match: {
+        params: { type },
+      },
+    } = this.props;
+    switch (operationType) {
+      case TopbarAction.Delete:
+        selectedRowKeys.forEach(item => this.deletingRowKeys.add(item));
+        dispatch<BatchDeletePayload>({
+          type: 'position/batchDelete',
+          payload: {
+            body: { key: selectedRowKeys },
+            query: { type },
+          },
+          callback: this.deleteCallback,
+        });
+        break;
+      default:
+        message.warn(formatMessage({ id: 'position.error.unknown.action' }));
+    }
   };
 
-  renderOperationVisible = (selectedRowKeys: string[] | number[], type: TopbarAction): boolean => {
+  renderOperationLoading = (operation: StandardTableOperation): boolean => {
+    if (operation.type !== TopbarAction.Delete) return operation.loading;
+    const { loading } = this.props;
+    if (loading.batchDelete) return true;
+    return false;
+  };
+
+  renderOperationVisible = (
+    operation: StandardTableOperation,
+    selectedRowKeys: string[] | number[],
+  ): boolean => {
     const {
       match: {
         params: { type: positionType },
       },
     } = this.props;
-    if (HideWithouSelection.has(type) && !selectedRowKeys.length) return false;
+    if (operation.visible === false) return false;
+    if (HideWithouSelection.has(operation.type as any) && !selectedRowKeys.length) return false;
     if (!(getCurrentScope instanceof Map)) return false;
     const getScope = getCurrentScope.get(AuthorizedId.BasicLayout);
     if (typeof getScope !== 'function') return false;
-    return CheckAuth([`scope.position.${positionType}.${type}`, 'scope.admin'], getScope());
+    return CheckAuth(
+      [`scope.position.${positionType}.${operation.type}`, 'scope.admin'],
+      getScope(),
+    );
   };
 
   getOperationArea = (): StandardTableOperationAreaProps => {
@@ -308,29 +343,13 @@ class List extends Component<ListProps, ListState> {
       position: { operationArea },
     } = this.props;
     if (!operationArea || !operationArea.operation) return null;
-    if (!Array.isArray(operationArea.operation)) {
-      const operation = {
-        ...operationArea.operation,
-        visible: this.renderOperationVisible,
-      };
-      return {
-        moreText: <FormattedMessage id="words.more" />,
-        onClick: this.onClickOperation,
-        ...operationArea,
-        operation,
-      };
-    } else {
-      const operation = operationArea.operation.map(item => ({
-        ...item,
-        visible: this.renderOperationVisible,
-      }));
-      return {
-        moreText: <FormattedMessage id="words.more" />,
-        onClick: this.onClickOperation,
-        ...operationArea,
-        operation,
-      };
-    }
+    return {
+      loading: this.renderOperationLoading,
+      moreText: <FormattedMessage id="words.more" />,
+      onClick: this.onClickOperation,
+      visible: this.renderOperationVisible,
+      ...operationArea,
+    };
   };
 
   getTableMethods = (tableMethods: StandardTableMethods) => {

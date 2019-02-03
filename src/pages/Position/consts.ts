@@ -14,6 +14,7 @@ export enum CellAction {
 
 export enum TopbarAction {
   Create = 'create',
+  Delete = 'delete',
   Export = 'export',
 }
 
@@ -21,4 +22,7 @@ export enum TopbarAction {
  * When there is no row in the table is selected,
  * these action buttons will be hidden
  */
-export const HideWithouSelection: Set<TopbarAction | CellAction> = new Set([TopbarAction.Export]);
+export const HideWithouSelection: Set<TopbarAction | CellAction> = new Set([
+  TopbarAction.Export,
+  TopbarAction.Delete,
+]);
