@@ -9,9 +9,9 @@ import DescriptionList, { DescriptionProps } from '@/components/DescriptionList'
 
 export interface DetailProps extends PositionDetailProps {
   currentRow?: object;
-  currentRowKey?: string;
+  currentRowKey?: string | number;
   loading?: boolean;
-  onClickAction?: (rowKey: string, actionType: string, event: React.MouseEvent) => void;
+  onClickAction?: (rowKey: string | number, actionType: string, event: React.MouseEvent) => void;
   onClose?: () => void;
   visible?: boolean;
 }

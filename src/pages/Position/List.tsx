@@ -2,6 +2,7 @@ import { connect } from 'dva';
 import Detail from './Detail';
 import Media from 'react-media';
 import styles from './List.less';
+import { safeFun } from '@/utils/utils';
 import React, { Component } from 'react';
 import commonStyles from '../common.less';
 import { message, Radio, Skeleton } from 'antd';
@@ -11,14 +12,15 @@ import { WrappedFormUtils } from 'antd/es/form/Form';
 import StandardFilter from '@/components/StandardFilter';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
-import { FetchListPayload, FetchDetailPayload } from '@/services/position';
-import { HideWithouSelection, PositionType, TopbarAction, CellAction } from './consts';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
+import { HideWithouSelection, PositionType, TopbarAction, CellAction } from './consts';
+import { FetchListPayload, FetchDetailPayload, BatchDeletePayload } from '@/services/position';
 import StandardTable, {
   PaginationConfig,
   StandardTableAlertProps,
   StandardTableMethods,
   StandardTableOperationAreaProps,
+  TableRowSelection,
 } from '@/components/StandardTable';
 
 export interface ListProps extends ConnectProps<{ type: PositionType }> {
@@ -39,7 +41,7 @@ const enum ListSize {
 
 interface ListState {
   currentRow: object;
-  currentRowKey: string;
+  currentRowKey: string | number;
   detailVisible: boolean;
   size: ListSize;
 }
@@ -62,12 +64,7 @@ class List extends Component<ListProps, ListState> {
     size: ListSize.Default,
   };
 
-  tableAlertProps: StandardTableAlertProps = {
-    clearText: <FormattedMessage id="words.clear" />,
-    format: (node: any) => (
-      <FormattedMessage id="position.list.table.selected-alert" values={{ node }} />
-    ),
-  };
+  private deletingRowKeys: Set<string | number> = new Set();
   private filterExpandText = {
     expand: <FormattedMessage id="words.expand" />,
     retract: <FormattedMessage id="words.retract" />,
@@ -84,6 +81,12 @@ class List extends Component<ListProps, ListState> {
    */
   private limit: number = 10;
   private offset: number = 0;
+  private tableAlertProps: StandardTableAlertProps = {
+    clearText: <FormattedMessage id="words.clear" />,
+    format: (node: any) => (
+      <FormattedMessage id="position.list.table.selected-alert" values={{ node }} />
+    ),
+  };
   private tableMethods: StandardTableMethods = null;
   private type: PositionType = null;
 
@@ -104,13 +107,11 @@ class List extends Component<ListProps, ListState> {
       this.type = params.type;
       this.offset = 0;
       if (this.filterFormUtils) {
-        const { resetFields } = this.filterFormUtils;
-        if (typeof resetFields === 'function') resetFields();
+        safeFun(this.filterFormUtils.resetFields);
       }
       if (this.tableMethods) {
-        const { clearSelectedRowKeys, getSelectedRowKeys } = this.tableMethods;
-        if (typeof getSelectedRowKeys === 'function') {
-          if (getSelectedRowKeys().length) clearSelectedRowKeys();
+        if (safeFun<string[] | number[]>(this.tableMethods.getSelectedRowKeys, []).length) {
+          safeFun(this.tableMethods.clearSelectedRowKeys);
         }
       }
       this.fetchList();
@@ -222,7 +223,7 @@ class List extends Component<ListProps, ListState> {
     });
   };
 
-  onClickAction = (currentRowKey: string, actionType: CellAction) => {
+  onClickAction = (currentRowKey: string | number, actionType: CellAction) => {
     const {
       dispatch,
       match: {
@@ -245,12 +246,32 @@ class List extends Component<ListProps, ListState> {
           },
         });
         break;
+      case CellAction.Delete:
+        this.deletingRowKeys.add(currentRowKey);
+        const selected = safeFun<(string | number)[]>(this.tableMethods.getSelectedRowKeys, []);
+        if (selected.length) {
+          const findIndex = selected.findIndex(item => item === currentRowKey);
+          if (findIndex !== -1) {
+            selected.splice(findIndex, 1);
+            safeFun(this.tableMethods.setSelectedRowKeys, null, selected);
+          }
+        }
+        dispatch<BatchDeletePayload>({
+          type: 'position/batchDelete',
+          payload: {
+            body: { key: [currentRowKey] },
+            query: { type },
+          },
+          callback: this.fetchList, //@TODO
+        });
+        break;
       default:
         message.warn(formatMessage({ id: 'position.error.unknown.action' }));
     }
   };
 
   onClickOperation = (selectedRowKeys: string[] | number[], type: string) => {
+    safeFun(this.tableMethods.clearSelectedRowKeys);
     message.info(`Click on ${type}, selected keys ${selectedRowKeys}`);
   };
 
@@ -301,11 +322,23 @@ class List extends Component<ListProps, ListState> {
     this.tableMethods = tableMethods;
   };
 
+  getSelectableProps = (): TableRowSelection<object> | null => {
+    const {
+      position: { rowKey, selectable, unSelectableKey = 'unSelectable' },
+    } = this.props;
+    if (!selectable) return null;
+    return {
+      getCheckboxProps: record => ({
+        disabled: record[unSelectableKey] || this.deletingRowKeys.has(record[rowKey]),
+      }),
+    };
+  };
+
   render() {
     const { currentRow, currentRowKey, detailVisible, size } = this.state;
     const {
       loading,
-      position: { actionKey, columns, dataSource, detail, filters = [], scroll, selectable },
+      position: { actionKey, columns, dataSource, detail, filters = [], scroll },
     } = this.props;
     return (
       <div className={commonStyles.contentBody}>
@@ -336,7 +369,7 @@ class List extends Component<ListProps, ListState> {
           operationArea={this.getOperationArea()}
           pagination={this.getPagination()}
           scroll={scroll}
-          selectable={selectable}
+          selectable={this.getSelectableProps()}
           size={size}
         />
         <Detail
@@ -344,6 +377,7 @@ class List extends Component<ListProps, ListState> {
           currentRow={currentRow}
           currentRowKey={currentRowKey}
           loading={loading.fetchDetail}
+          onClickAction={this.onClickAction}
           onClose={this.onCloseDetail}
           visible={detailVisible}
         />

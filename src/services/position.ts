@@ -26,7 +26,7 @@ export async function fetchList(payload: FetchListPayload) {
 }
 
 interface FetchDetailBody extends RequestBody {
-  key: string;
+  key: string | number;
 }
 
 export interface FetchDetailPayload {
@@ -36,6 +36,22 @@ export interface FetchDetailPayload {
 
 export async function fetchDetail(payload: FetchDetailPayload) {
   return requests<FetchDetailBody>(`${APIPrefix}/position/detail?${stringify(payload.query)}`, {
+    body: payload.body,
+    method: 'POST',
+  });
+}
+
+interface BatchDeleteBody extends RequestBody {
+  key: (string | number)[];
+}
+
+export interface BatchDeletePayload {
+  body: BatchDeleteBody;
+  query: FetchQuery;
+}
+
+export async function batchDelete(payload: BatchDeletePayload) {
+  return requests<BatchDeleteBody>(`${APIPrefix}/position/delete?${stringify(payload.query)}`, {
     body: payload.body,
     method: 'POST',
   });

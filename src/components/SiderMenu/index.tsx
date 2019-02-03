@@ -39,7 +39,7 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
 
   onSelect = (param: SelectParam): void => {
     const { onSelectMenu } = this.props;
-    if (typeof onSelectMenu === 'function') {
+    if (onSelectMenu) {
       onSelectMenu(param);
     }
   };

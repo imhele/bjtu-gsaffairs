@@ -139,3 +139,12 @@ export function formatDynamicRoute(
     routes,
   };
 }
+
+export function safeFun<T = any>(fn: Function, defaultReturn?: T, ...args: any[]): T {
+  if (typeof fn !== 'function') return defaultReturn;
+  try {
+    return fn(...args);
+  } catch (err) {
+    return defaultReturn || err;
+  }
+}

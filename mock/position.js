@@ -54,19 +54,34 @@ const filters = [
   },
 ];
 
-const source = Array.from({ length: 120 }).map((_, index) => ({
-  key: `${index}`,
-  action: possibleValues.action[Math.random() > 0.7 ? 0 : 1],
-  applyStatus: possibleValues.applyStatus[index % 5],
-  campus: possibleValues.campus[Math.random() > 0.6 ? 0 : 1],
-  checkStatus: possibleValues.checkStatus[index % 5],
-  depName: possibleValues.depName[index % 3],
-  name: possibleValues.name[Math.random() > 0.33 ? (Math.random() > 0.66 ? 0 : 1) : 2],
-  needNum: parseInt((Math.random() * 100).toFixed(0), 10),
-  releaseStatus: possibleValues.releaseStatus[index % 2],
-  sess: possibleValues.sess[index % 2],
-  way: possibleValues.way[Math.random() > 0.8 ? 0 : 1],
-}));
+const source = {
+  manage: Array.from({ length: 120 }).map((_, index) => ({
+    key: `${index}`,
+    action: possibleValues.action[Math.random() > 0.7 ? 0 : 1],
+    applyStatus: possibleValues.applyStatus[index % 5],
+    campus: possibleValues.campus[Math.random() > 0.6 ? 0 : 1],
+    checkStatus: possibleValues.checkStatus[index % 5],
+    depName: possibleValues.depName[index % 3],
+    name: possibleValues.name[Math.random() > 0.33 ? (Math.random() > 0.66 ? 0 : 1) : 2],
+    needNum: parseInt((Math.random() * 100).toFixed(0), 10),
+    releaseStatus: possibleValues.releaseStatus[index % 2],
+    sess: possibleValues.sess[index % 2],
+    way: possibleValues.way[Math.random() > 0.8 ? 0 : 1],
+  })),
+  teach: Array.from({ length: 120 }).map((_, index) => ({
+    key: `${index}`,
+    action: possibleValues.action[Math.random() > 0.7 ? 0 : 1],
+    applyStatus: possibleValues.applyStatus[index % 5],
+    campus: possibleValues.campus[Math.random() > 0.6 ? 0 : 1],
+    checkStatus: possibleValues.checkStatus[index % 5],
+    depName: possibleValues.depName[index % 3],
+    name: possibleValues.name[Math.random() > 0.33 ? (Math.random() > 0.66 ? 0 : 1) : 2],
+    needNum: parseInt((Math.random() * 100).toFixed(0), 10),
+    releaseStatus: possibleValues.releaseStatus[index % 2],
+    sess: possibleValues.sess[index % 2],
+    way: possibleValues.way[Math.random() > 0.8 ? 0 : 1],
+  })),
+};
 
 /**
  * Part of `position/list`
@@ -80,7 +95,7 @@ const operationArea = {
 
 const positionList = (req, res) => {
   const { type } = req.query;
-  const { filtersValue = {}, limit = 10, offset = 0 } = req.body;
+  const { filtersValue = {}, limit = 10, offset = 0 } = req.body || {};
   if (!['manage', 'teach'].includes(type)) {
     return res.send({
       errcode: 40001,
@@ -95,10 +110,10 @@ const positionList = (req, res) => {
    * if `filter` is `{}`, the data will not be filtered
    */
   const filteredSource = !Object.keys(filtersValue).length
-    ? source
+    ? source[type]
     : !filtersValue.name
-    ? source.filter(value => !filtersKey.some(key => value[key] !== filtersValue[key]))
-    : source
+    ? source[type].filter(value => !filtersKey.some(key => value[key] !== filtersValue[key]))
+    : source[type]
         .filter(value => !filtersKey.some(key => value[key] !== filtersValue[key]))
         .filter(value => value.name[0].text.includes(filtersValue.name));
   /**
@@ -140,14 +155,14 @@ const positionList = (req, res) => {
  */
 const positionDetail = (req, res) => {
   const { type } = req.query;
-  const { key = '' } = req.body;
+  const { key = '' } = req.body || {};
   if (!['manage', 'teach'].includes(type)) {
     return res.send({
       errcode: 40001,
       errmsg: 'Invalid type of position',
     });
   }
-  const currentPosition = source.find(row => row.key === key);
+  const currentPosition = source[type].find(row => row.key === key);
   if (!currentPosition) {
     return res.send({
       errcode: 40002,
@@ -179,7 +194,44 @@ const positionDetail = (req, res) => {
   }, 500);
 };
 
+/**
+ * Part of `position/delete`
+ */
+const positionDelete = (req, res) => {
+  const { type } = req.query;
+  const { key = [] } = req.body || {};
+  if (!['manage', 'teach'].includes(type)) {
+    return res.send({
+      errcode: 40001,
+      errmsg: 'Invalid type of position',
+    });
+  }
+  const failed = [];
+  key.forEach(item => {
+    const delIndex = source[type].findIndex(row => row.key === item);
+    if (delIndex === -1) {
+      failed.push(delIndex);
+    } else {
+      source[type].splice(delIndex, 1);
+    }
+  });
+  setTimeout(() => {
+    if (failed.length) {
+      res.send({
+        errcode: 40003,
+        errmsg: `A total of ${failed.length} data deletions failed`,
+      });
+    } else {
+      res.send({
+        errcode: 0,
+        errmsg: 'Delete successfully',
+      });
+    }
+  }, 100000); //@DEBUG
+};
+
 export default {
   [`POST ${APIPrefix}/position/list`]: positionList,
   [`POST ${APIPrefix}/position/detail`]: positionDetail,
+  [`POST ${APIPrefix}/position/delete`]: positionDelete,
 };

@@ -15,7 +15,13 @@ import { AuthorizedId, MediaQuery } from '@/global';
 import DocumentTitle from '@/components/DocumentTitle';
 import SiderMenu, { SelectParam } from '@/components/SiderMenu';
 import { ConnectState, ConnectProps, LoginState } from '@/models/connect';
-import { addWindowEvent, formatDynamicRoute, pathnameToArr, pathToScope } from '@/utils/utils';
+import {
+  addWindowEvent,
+  formatDynamicRoute,
+  pathnameToArr,
+  pathToScope,
+  safeFun,
+} from '@/utils/utils';
 
 const { Content } = Layout;
 
@@ -41,14 +47,13 @@ class BasicLayout extends Component<BasicLayoutProps> {
 
   resize = debounce(() => {
     const { collapsed } = this.props;
-    if (typeof this.onCollapse !== 'function') return;
     if (window.innerWidth <= 999) {
       if (!collapsed) {
-        this.onCollapse(true);
+        safeFun(this.onCollapse, null, true);
       }
     } else {
       if (collapsed) {
-        this.onCollapse(false);
+        safeFun(this.onCollapse, null, false);
       }
     }
   }, 200);

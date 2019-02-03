@@ -1,6 +1,8 @@
 import { Model } from 'dva';
+import { message } from 'antd';
+import { safeFun } from '@/utils/utils';
 import { Filter } from '@/components/StandardFilter';
-import { fetchDetail, fetchList } from '@/services/position';
+import { batchDelete, fetchDetail, fetchList } from '@/services/position';
 import { StandardTableOperationAreaProps } from '@/components/StandardTable';
 
 export interface PositionDetailProps {
@@ -36,6 +38,7 @@ export interface PositionState {
 }
 
 const defaultState: PositionState = {
+  actionKey: 'action',
   columns: [],
   dataSource: [],
   total: 0,
@@ -44,6 +47,7 @@ const defaultState: PositionState = {
   scroll: {
     x: 1100,
   },
+  unSelectableKey: 'unSelectable',
   detail: {
     columns: [],
     dataSource: {},
@@ -65,7 +69,7 @@ const model: PositionModel = {
         type: 'setState',
         payload: response,
       });
-      if (typeof callback === 'function') callback();
+      safeFun(callback, null, payload);
     },
     *fetchDetail({ payload }, { call, put }) {
       const response = yield call(fetchDetail, payload);
@@ -73,6 +77,13 @@ const model: PositionModel = {
         type: 'setDetail',
         payload: response,
       });
+    },
+    *batchDelete({ callback, payload }, { call }) {
+      const response = yield call(batchDelete, payload);
+      if (response && !response.errcode) {
+        message.success(response.errmsg);
+      }
+      safeFun(callback, null, payload);
     },
   },
   reducers: {
