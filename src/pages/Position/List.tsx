@@ -142,6 +142,11 @@ class List extends Component<ListProps, ListState> {
     });
   };
 
+  deleteCallback = (payload: BatchDeletePayload) => {
+    payload.body.key.forEach(k => this.deletingRowKeys.delete(k));
+    this.fetchList();
+  };
+
   correctOffset = () => {
     const {
       position: { dataSource, total },
@@ -262,7 +267,7 @@ class List extends Component<ListProps, ListState> {
             body: { key: [currentRowKey] },
             query: { type },
           },
-          callback: this.fetchList, //@TODO
+          callback: this.deleteCallback,
         });
         break;
       default:

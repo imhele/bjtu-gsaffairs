@@ -4,7 +4,7 @@ import { PositionState } from '@/pages/Position/models/position';
 
 export { GlobalState, LoginState, PositionState };
 
-export type Dispatch = <T = any, U = () => void>(
+export type Dispatch = <T = any, U = (payload: T) => void>(
   action: {
     type: string;
     payload?: T;
