@@ -210,8 +210,8 @@ export default class StandardTable<T = object> extends Component<
     else return footerLocale(currentPageData.length, pagination.total);
   };
 
-  handleSandwichJoin = (Note: typeof Divider, _: any, index: number): React.ReactNode => (
-    <Note key={`Divider-${index}`} type="vertical" />
+  handleSandwichJoin = (Node: typeof Divider, _: any, index: number): React.ReactNode => (
+    <Node key={`Divider-${index}`} type="vertical" />
   );
 
   getActionItemProps = (
@@ -257,11 +257,7 @@ export default class StandardTable<T = object> extends Component<
 
   renderAction = (actions: StandardTableActionProps, record: T, index: number): React.ReactNode => {
     if (!Array.isArray(actions)) {
-      const actionProps = this.getActionItemProps(actions, record, index);
-      if (typeof actionProps.visible === 'undefined' || actionProps.visible) {
-        return this.renderActionItem(actions, record, index);
-      }
-      return null;
+      actions = [actions];
     }
     return sandwichArray(
       actions
