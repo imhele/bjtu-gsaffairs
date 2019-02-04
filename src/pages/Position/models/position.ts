@@ -2,8 +2,8 @@ import { Model } from 'dva';
 import { message } from 'antd';
 import { safeFun } from '@/utils/utils';
 import { Filter } from '@/components/StandardFilter';
-import { batchDelete, fetchDetail, fetchList } from '@/services/position';
 import { StandardTableOperationAreaProps } from '@/components/StandardTable';
+import { deletePosition, fetchDetail, fetchList } from '@/services/position';
 
 export interface PositionDetailProps {
   columns: Array<{
@@ -78,8 +78,8 @@ const model: PositionModel = {
         payload: response,
       });
     },
-    *batchDelete({ callback, payload }, { call }) {
-      const response = yield call(batchDelete, payload);
+    *deletePosition({ callback, payload }, { call }) {
+      const response = yield call(deletePosition, payload);
       if (response && !response.errcode) {
         message.success(response.errmsg);
       }

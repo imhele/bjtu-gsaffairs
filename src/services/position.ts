@@ -41,17 +41,17 @@ export async function fetchDetail(payload: FetchDetailPayload) {
   });
 }
 
-interface BatchDeleteBody extends RequestBody {
-  key: (string | number)[];
+interface DeletePositionBody extends RequestBody {
+  key: string | number;
 }
 
-export interface BatchDeletePayload {
-  body: BatchDeleteBody;
+export interface DeletePositionPayload {
+  body: DeletePositionBody;
   query: FetchQuery;
 }
 
-export async function batchDelete(payload: BatchDeletePayload) {
-  return requests<BatchDeleteBody>(`${APIPrefix}/position/delete?${stringify(payload.query)}`, {
+export async function deletePosition(payload: DeletePositionPayload) {
+  return requests<DeletePositionBody>(`${APIPrefix}/position/delete?${stringify(payload.query)}`, {
     body: payload.body,
     method: 'POST',
   });

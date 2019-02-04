@@ -12,9 +12,9 @@ import { WrappedFormUtils } from 'antd/es/form/Form';
 import StandardFilter from '@/components/StandardFilter';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
+import { HideWithouSelection, PositionType, CellAction } from './consts';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
-import { HideWithouSelection, PositionType, TopbarAction, CellAction } from './consts';
-import { FetchListPayload, FetchDetailPayload, BatchDeletePayload } from '@/services/position';
+import { FetchListPayload, FetchDetailPayload, DeletePositionPayload } from '@/services/position';
 import StandardTable, {
   PaginationConfig,
   StandardTableAction,
@@ -28,7 +28,7 @@ import StandardTable, {
 export interface ListProps extends ConnectProps<{ type: PositionType }> {
   isMobile?: boolean;
   loading?: {
-    batchDelete?: boolean;
+    deletePosition?: boolean;
     fetchList?: boolean;
     fetchDetail?: boolean;
     model?: boolean;
@@ -52,7 +52,7 @@ interface ListState {
 @connect(
   ({ loading, position }: ConnectState): ListProps => ({
     loading: {
-      batchDelete: loading.effects['position/batchDelete'],
+      deletePosition: loading.effects['position/deletePosition'],
       fetchList: loading.effects['position/fetchList'],
       fetchDetail: loading.effects['position/fetchDetail'],
       model: loading.models.position,
@@ -144,17 +144,18 @@ class List extends Component<ListProps, ListState> {
     });
   };
 
-  deleteCallback = (payload: BatchDeletePayload) => {
-    payload.body.key.forEach(k => this.deletingRowKeys.delete(k));
+  deleteCallback = (payload: DeletePositionPayload) => {
+    this.deletingRowKeys.delete(payload.body.key);
     this.fetchList();
   };
 
-  cancelSelection = (rowKeys: (string | number)[]) => {
+  cancelSelection = (rowKey: string | number) => {
     const selected = safeFun<(string | number)[]>(this.tableMethods.getSelectedRowKeys, []);
     if (selected.length) {
-      const nextSelected = selected.filter(item => !rowKeys.includes(item));
-      if (nextSelected.length !== selected.length) {
-        safeFun(this.tableMethods.setSelectedRowKeys, null, nextSelected);
+      const findIndex = selected.findIndex(item => item === rowKey);
+      if (findIndex !== -1) {
+        selected.splice(findIndex, 1);
+        safeFun(this.tableMethods.setSelectedRowKeys, null, selected);
       }
     }
   };
@@ -233,11 +234,14 @@ class List extends Component<ListProps, ListState> {
   };
 
   onCloseDetail = () => {
-    this.setState({
-      currentRow: null,
-      currentRowKey: null,
-      detailVisible: false,
-    });
+    const { detailVisible } = this.state;
+    if (detailVisible) {
+      this.setState({
+        currentRow: null,
+        currentRowKey: null,
+        detailVisible: false,
+      });
+    }
   };
 
   onClickAction = (currentRowKey: string | number, actionType: CellAction) => {
@@ -265,11 +269,11 @@ class List extends Component<ListProps, ListState> {
         break;
       case CellAction.Delete:
         this.deletingRowKeys.add(currentRowKey);
-        this.cancelSelection([currentRowKey]);
-        dispatch<BatchDeletePayload>({
-          type: 'position/batchDelete',
+        this.cancelSelection(currentRowKey);
+        dispatch<DeletePositionPayload>({
+          type: 'position/deletePosition',
           payload: {
-            body: { key: [currentRowKey] },
+            body: { key: currentRowKey },
             query: { type },
           },
           callback: this.deleteCallback,
@@ -290,35 +294,17 @@ class List extends Component<ListProps, ListState> {
   };
 
   onClickOperation = (selectedRowKeys: (string | number)[], operationType: string) => {
-    const {
-      dispatch,
-      match: {
-        params: { type },
-      },
-    } = this.props;
+    // const {
+    //   dispatch,
+    //   match: {
+    //     params: { type },
+    //   },
+    // } = this.props;
     safeFun(this.tableMethods.clearSelectedRowKeys);
     switch (operationType) {
-      case TopbarAction.Delete:
-        selectedRowKeys.forEach(item => this.deletingRowKeys.add(item));
-        dispatch<BatchDeletePayload>({
-          type: 'position/batchDelete',
-          payload: {
-            body: { key: selectedRowKeys },
-            query: { type },
-          },
-          callback: this.deleteCallback,
-        });
-        break;
       default:
         message.warn(formatMessage({ id: 'position.error.unknown.action' }));
     }
-  };
-
-  renderOperationLoading = (operation: StandardTableOperation): boolean => {
-    if (operation.type !== TopbarAction.Delete) return operation.loading;
-    const { loading } = this.props;
-    if (loading.batchDelete) return true;
-    return false;
   };
 
   renderOperationVisible = (
@@ -347,7 +333,6 @@ class List extends Component<ListProps, ListState> {
     } = this.props;
     if (!operationArea || !operationArea.operation) return null;
     return {
-      loading: this.renderOperationLoading,
       moreText: <FormattedMessage id="words.more" />,
       onClick: this.onClickOperation,
       visible: this.renderOperationVisible,

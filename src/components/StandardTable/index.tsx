@@ -242,7 +242,7 @@ export default class StandardTable<T = object> extends Component<
 
   renderActionItem = (item: StandardTableAction, record: T, index: number): React.ReactNode => {
     const { rowKey } = this.props;
-    if (item.loading) return <Icon type="loading" />;
+    if (item.loading) return <Icon key={item.type} type="loading" />;
     const icon = item.icon && <Icon type={item.icon} />;
     if (item.disabled)
       return (

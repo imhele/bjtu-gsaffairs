@@ -90,7 +90,6 @@ const operationArea = {
   operation: [
     { icon: 'plus', text: '新建', type: 'create' },
     { icon: 'cloud-download', text: '导出', type: 'export' },
-    { icon: 'delete', text: '删除', type: 'delete' },
   ],
 };
 
@@ -200,29 +199,22 @@ const positionDetail = (req, res) => {
  */
 const positionDelete = (req, res) => {
   const { type } = req.query;
-  const { key = [] } = req.body || {};
+  const { key = '' } = req.body || {};
   if (!['manage', 'teach'].includes(type)) {
     return res.send({
       errcode: 40001,
       errmsg: 'Invalid type of position',
     });
   }
-  const failed = [];
-  key.forEach(item => {
-    const delIndex = source[type].findIndex(row => row.key === item);
-    if (delIndex === -1) {
-      failed.push(delIndex);
-    } else {
-      source[type].splice(delIndex, 1);
-    }
-  });
   setTimeout(() => {
-    if (failed.length) {
+    const delIndex = source[type].findIndex(row => row.key === key);
+    if (delIndex === -1) {
       res.send({
         errcode: 40003,
-        errmsg: `A total of ${failed.length} data deletions failed`,
+        errmsg: 'Delete failed',
       });
     } else {
+      source[type].splice(delIndex, 1);
       res.send({
         errcode: 0,
         errmsg: 'Delete successfully',
