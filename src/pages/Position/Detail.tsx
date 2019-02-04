@@ -65,7 +65,7 @@ const Detail: React.SFC<DetailProps> = props => (
     title={<FormattedMessage id="position.detail" />}
     visible={props.visible}
   >
-    <Skeleton active loading={!props.loading} paragraph={{ rows: 5 }} title={false}>
+    <Skeleton active loading={props.loading} paragraph={{ rows: 5 }}>
       <DescriptionList
         description={props.columns.map(
           (col): DescriptionProps => ({
