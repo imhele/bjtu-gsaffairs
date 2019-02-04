@@ -1,6 +1,7 @@
 import React from 'react';
 import styles from './Detail.less';
 import QueueAnim from 'rc-queue-anim';
+import { ButtonProps } from 'antd/es/button';
 import { Button, Modal, Skeleton } from 'antd';
 import { FormattedMessage } from 'umi-plugin-locale';
 import { PositionDetailProps } from './models/position';
@@ -13,7 +14,7 @@ export interface DetailProps extends PositionDetailProps {
   loading?: boolean;
   onClickAction?: (rowKey: string | number, actionType: string, event: React.MouseEvent) => void;
   onClose?: () => void;
-  renderFooterLoading?: (action: StandardTableAction, currentRowKey: string | number) => boolean;
+  renderFooterProps?: (action: StandardTableAction, currentRowKey: string | number) => ButtonProps;
   visible?: boolean;
 }
 
@@ -37,12 +38,11 @@ const renderFooter = (props: DetailProps): React.ReactNode => {
         .map(action => (
           <div className={styles.footerButton} key={action.type}>
             <Button
-              disabled={props.loading}
               icon={action.icon}
-              loading={props.renderFooterLoading(action, props.currentRowKey)}
               onClick={(event: React.MouseEvent) =>
                 props.onClickAction(props.currentRowKey, action.type, event)
               }
+              {...props.renderFooterProps(action, props.currentRowKey)}
             >
               {action.text || action.type}
             </Button>
@@ -90,7 +90,7 @@ Detail.defaultProps = {
   loading: false,
   onClickAction: () => {},
   onClose: () => {},
-  renderFooterLoading: () => false,
+  renderFooterProps: () => null,
   visible: false,
 };
 

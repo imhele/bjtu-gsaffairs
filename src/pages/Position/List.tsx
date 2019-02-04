@@ -5,6 +5,7 @@ import styles from './List.less';
 import { safeFun } from '@/utils/utils';
 import React, { Component } from 'react';
 import commonStyles from '../common.less';
+import { ButtonProps } from 'antd/es/button';
 import { message, Radio, Skeleton } from 'antd';
 import { RadioChangeEvent } from 'antd/es/radio';
 import { AuthorizedId, MediaQuery } from '@/global';
@@ -358,20 +359,22 @@ class List extends Component<ListProps, ListState> {
     };
   };
 
-  renderDetailFooterLoading = (
+  renderDetailFooterProps = (
     action: StandardTableAction,
     currentRowKey: string | number,
-  ): boolean => {
+  ): ButtonProps => {
     const { loading } = this.props;
+    const isDeleting = this.deletingRowKeys.has(currentRowKey);
     switch (action.type) {
       case CellAction.Delete:
-        if (loading.deletePosition) {
-          if (this.deletingRowKeys.has(currentRowKey)) {
-            return true;
-          }
-        }
+        return {
+          disabled: loading.fetchDetail || isDeleting,
+          loading: loading.deletePosition && isDeleting,
+        };
       default:
-        return false;
+        return {
+          disabled: loading.fetchDetail || isDeleting,
+        };
     }
   };
 
@@ -421,7 +424,7 @@ class List extends Component<ListProps, ListState> {
           loading={loading.fetchDetail}
           onClickAction={this.onClickAction}
           onClose={this.onCloseDetail}
-          renderFooterLoading={this.renderDetailFooterLoading}
+          renderFooterProps={this.renderDetailFooterProps}
           visible={detailVisible}
         />
       </div>
