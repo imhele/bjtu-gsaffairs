@@ -17,7 +17,7 @@
     "cleanCache:win": "del /Q /S src\\pages\\.umi && del /Q /S node_modules\\.cache"
   },
   "dependencies": {
-    "antd": "~3.13.0",
+    "antd": "3.13.0",
     "classnames": "~2.2.6",
     "debounce": "1.2.0",
     "dva": "~2.5.0-beta.2",

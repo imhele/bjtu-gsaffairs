@@ -1,5 +1,5 @@
-import { connect } from 'dva';
 import Detail from './Detail';
+import { connect } from 'dva';
 import Media from 'react-media';
 import styles from './List.less';
 import { safeFun } from '@/utils/utils';

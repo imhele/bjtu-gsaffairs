@@ -3,7 +3,7 @@ export enum PositionType {
   Teach = 'teach',
 }
 
-export enum CellAction {
+export const enum CellAction {
   Apply = 'apply',
   Audit = 'audit',
   Delete = 'delete',
@@ -12,7 +12,7 @@ export enum CellAction {
   Preview = 'preview',
 }
 
-export enum TopbarAction {
+export const enum TopbarAction {
   Create = 'create',
   Export = 'export',
 }

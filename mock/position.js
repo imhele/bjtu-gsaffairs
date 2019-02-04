@@ -142,6 +142,7 @@ const positionList = (req, res) => {
     delete result.filters;
   }
   if (filtersKey.length || offset) {
+    delete result.actionKey;
     delete result.selectable;
     delete result.operationArea;
   }
