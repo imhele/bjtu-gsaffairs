@@ -13,6 +13,7 @@ export interface DetailProps extends PositionDetailProps {
   loading?: boolean;
   onClickAction?: (rowKey: string | number, actionType: string, event: React.MouseEvent) => void;
   onClose?: () => void;
+  renderFooterLoading?: (action: StandardTableAction, currentRowKey: string | number) => boolean;
   visible?: boolean;
 }
 
@@ -36,8 +37,9 @@ const renderFooter = (props: DetailProps): React.ReactNode => {
         .map(action => (
           <div className={styles.footerButton} key={action.type}>
             <Button
+              disabled={props.loading}
               icon={action.icon}
-              loading={props.loading}
+              loading={props.renderFooterLoading(action, props.currentRowKey)}
               onClick={(event: React.MouseEvent) =>
                 props.onClickAction(props.currentRowKey, action.type, event)
               }
@@ -88,6 +90,7 @@ Detail.defaultProps = {
   loading: false,
   onClickAction: () => {},
   onClose: () => {},
+  renderFooterLoading: () => false,
   visible: false,
 };
 

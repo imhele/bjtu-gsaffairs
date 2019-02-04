@@ -146,6 +146,7 @@ class List extends Component<ListProps, ListState> {
 
   deleteCallback = (payload: DeletePositionPayload) => {
     this.deletingRowKeys.delete(payload.body.key);
+    this.onCloseDetail();
     this.fetchList();
   };
 
@@ -357,6 +358,23 @@ class List extends Component<ListProps, ListState> {
     };
   };
 
+  renderDetailFooterLoading = (
+    action: StandardTableAction,
+    currentRowKey: string | number,
+  ): boolean => {
+    const { loading } = this.props;
+    switch (action.type) {
+      case CellAction.Delete:
+        if (loading.deletePosition) {
+          if (this.deletingRowKeys.has(currentRowKey)) {
+            return true;
+          }
+        }
+      default:
+        return false;
+    }
+  };
+
   render() {
     const { currentRow, currentRowKey, detailVisible, size } = this.state;
     const {
@@ -403,6 +421,7 @@ class List extends Component<ListProps, ListState> {
           loading={loading.fetchDetail}
           onClickAction={this.onClickAction}
           onClose={this.onCloseDetail}
+          renderFooterLoading={this.renderDetailFooterLoading}
           visible={detailVisible}
         />
       </div>
