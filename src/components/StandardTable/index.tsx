@@ -257,7 +257,11 @@ export default class StandardTable<T = object> extends Component<
 
   renderAction = (actions: StandardTableActionProps, record: T, index: number): React.ReactNode => {
     if (!Array.isArray(actions)) {
-      actions = [actions];
+      const actionProps = this.getActionItemProps(actions, record, index);
+      if (typeof actionProps.visible === 'undefined' || actionProps.visible) {
+        return this.renderActionItem(actions, record, index);
+      }
+      return null;
     }
     return sandwichArray(
       actions

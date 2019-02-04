@@ -115,7 +115,7 @@ const positionList = (req, res) => {
     ? source[type].filter(value => !filtersKey.some(key => value[key] !== filtersValue[key]))
     : source[type]
         .filter(value => !filtersKey.some(key => value[key] !== filtersValue[key]))
-        .filter(value => value.name[0].text.includes(filtersValue.name));
+        .filter(value => value.name.text.includes(filtersValue.name));
   /**
    * Slice from filtered data
    */
@@ -177,7 +177,7 @@ const positionDetail = (req, res) => {
     ...detailDataSource,
     sess: currentPosition.sess,
     depName: currentPosition.depName,
-    name: currentPosition.name[0].text,
+    name: currentPosition.name.text,
     needNum: currentPosition.needNum,
     campus: currentPosition.campus,
     way: currentPosition.way,
