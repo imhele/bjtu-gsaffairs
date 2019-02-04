@@ -286,13 +286,20 @@ class List extends Component<ListProps, ListState> {
     }
   };
 
-  renderActionLoading = (action: StandardTableAction, record: object): boolean => {
-    if (action.type !== CellAction.Delete) return action.loading;
+  renderActionProps = (
+    action: StandardTableAction,
+    record: object,
+  ): Partial<StandardTableAction> => {
     const {
       position: { rowKey = 'key' },
     } = this.props;
-    if (this.deletingRowKeys.has(record[rowKey])) return true;
-    return action.loading;
+    if (this.deletingRowKeys.has(record[rowKey])) {
+      if (action.type === CellAction.Delete) {
+        return { loading: true };
+      }
+      return { disabled: true };
+    }
+    return action;
   };
 
   onClickOperation = (selectedRowKeys: (string | number)[], operationType: string) => {
@@ -403,7 +410,7 @@ class List extends Component<ListProps, ListState> {
         )}
         <StandardTable
           actionKey={actionKey}
-          actionProps={{ loading: this.renderActionLoading }}
+          actionProps={this.renderActionProps}
           alert={this.tableAlertProps}
           columns={columns}
           dataSource={dataSource}

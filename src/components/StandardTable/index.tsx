@@ -94,15 +94,13 @@ export type StandardTableAlertProps = {
 
 export interface StandardTableProps<T> {
   actionKey?: string | string[];
-  actionProps?: {
-    disabled?: (action: StandardTableAction, record: T, index: number) => boolean;
-    buttonProps?: ButtonProps;
-    icon?: string;
-    loading?: (action: StandardTableAction, record: T, index: number) => boolean;
-    menuProps?: MenuItemProps;
-    text?: string | number | React.ReactNode;
-    visible?: (action: StandardTableAction, record: T, index: number) => boolean;
-  };
+  actionProps?:
+    | StandardTableAction
+    | ((
+        action: StandardTableAction,
+        record: T,
+        index: number,
+      ) => Partial<StandardTableAction> | null);
   alert?: boolean | StandardTableAlertProps;
   className?: string;
   columns?: ColumnProps<T>[];
@@ -225,19 +223,17 @@ export default class StandardTable<T = object> extends Component<
   ): StandardTableAction => {
     const { actionProps } = this.props;
     if (!actionProps) return item;
-    const visible = actionProps.visible ? actionProps.visible(item, record, index) : item.visible;
-    if (typeof visible !== 'undefined' && !visible) return null;
-    const disabled = actionProps.disabled
-      ? actionProps.disabled(item, record, index)
-      : item.disabled;
-    const loading = actionProps.loading ? actionProps.loading(item, record, index) : item.loading;
-    return {
-      ...actionProps,
-      ...item,
-      disabled,
-      loading,
-      visible: true,
-    };
+    if (typeof actionProps === 'function') {
+      return {
+        ...item,
+        ...actionProps(item, record, index),
+      };
+    } else {
+      return {
+        ...actionProps,
+        ...item,
+      };
+    }
   };
 
   renderActionItem = (item: StandardTableAction, record: T, index: number): React.ReactNode => {
@@ -270,7 +266,7 @@ export default class StandardTable<T = object> extends Component<
     return sandwichArray(
       actions
         .map(item => this.getActionItemProps(item, record, index))
-        .filter(item => item)
+        .filter(item => typeof item.visible === 'undefined' || item.visible)
         .map(item => this.renderActionItem(item, record, index)),
       Divider,
       1,
