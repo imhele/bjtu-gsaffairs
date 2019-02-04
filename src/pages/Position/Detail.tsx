@@ -12,7 +12,12 @@ export interface DetailProps extends PositionDetailProps {
   currentRow?: object;
   currentRowKey?: string | number;
   loading?: boolean;
-  onClickAction?: (rowKey: string | number, actionType: string, event: React.MouseEvent) => void;
+  onClickAction?: (
+    rowKey: string | number,
+    actionType: string,
+    currentRow: object,
+    event: React.MouseEvent,
+  ) => void;
   onClose?: () => void;
   renderFooterProps?: (action: StandardTableAction, currentRowKey: string | number) => ButtonProps;
   visible?: boolean;
@@ -40,7 +45,7 @@ const renderFooter = (props: DetailProps): React.ReactNode => {
             <Button
               icon={action.icon}
               onClick={(event: React.MouseEvent) =>
-                props.onClickAction(props.currentRowKey, action.type, event)
+                props.onClickAction(props.currentRowKey, action.type, props.currentRow, event)
               }
               {...props.renderFooterProps(action, props.currentRowKey)}
             >

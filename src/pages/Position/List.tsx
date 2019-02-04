@@ -246,20 +246,15 @@ class List extends Component<ListProps, ListState> {
     }
   };
 
-  onClickAction = (currentRowKey: string | number, actionType: CellAction) => {
+  onClickAction = (currentRowKey: string | number, actionType: CellAction, currentRow: object) => {
     const {
       dispatch,
       match: {
         params: { type },
       },
-      position: { dataSource, rowKey = 'key' },
     } = this.props;
-    if (!currentRowKey) {
-      return message.error(formatMessage({ id: 'position.error.unknown.click' }));
-    }
     switch (actionType) {
       case CellAction.Preview:
-        const currentRow = dataSource.find(row => row[rowKey] === currentRowKey);
         this.setState({ currentRow, currentRowKey, detailVisible: true });
         dispatch<FetchDetailPayload>({
           type: 'position/fetchDetail',

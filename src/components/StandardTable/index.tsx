@@ -113,7 +113,12 @@ export interface StandardTableProps<T> {
     selectedRowKeys: string[] | number[],
     selectedRows: T[],
   ) => string[] | number[];
-  onClickAction?: (rowKey: string | number, actionType: string, event: React.MouseEvent) => void;
+  onClickAction?: (
+    rowKey: string | number,
+    actionType: string,
+    record: T,
+    event: React.MouseEvent,
+  ) => void;
   operationArea?: StandardTableOperationAreaProps | null;
   pagination?: PaginationConfig | false;
   rowKey?: string | ((record: T, index: number) => string);
@@ -209,13 +214,6 @@ export default class StandardTable<T = object> extends Component<
     <Note key={`Divider-${index}`} type="vertical" />
   );
 
-  onClickActionItem = (event: React.MouseEvent) => {
-    const { onClickAction } = this.props;
-    if (!onClickAction || !event) return;
-    const { currentTarget: { dataset: { key = '', type = '' } = {} } = {} } = event as any;
-    return onClickAction(key, type, event);
-  };
-
   getActionItemProps = (
     item: StandardTableAction,
     record: T,
@@ -237,7 +235,7 @@ export default class StandardTable<T = object> extends Component<
   };
 
   renderActionItem = (item: StandardTableAction, record: T, index: number): React.ReactNode => {
-    const { rowKey } = this.props;
+    const { onClickAction, rowKey } = this.props;
     if (item.loading) return <Icon key={item.type} type="loading" />;
     const icon = item.icon && <Icon type={item.icon} />;
     if (item.disabled)
@@ -249,10 +247,8 @@ export default class StandardTable<T = object> extends Component<
     const computedRowKey = typeof rowKey === 'function' ? rowKey(record, index) : rowKey;
     return (
       <a
-        data-key={record[computedRowKey]}
-        data-type={item.type}
         key={item.type}
-        onClick={this.onClickActionItem}
+        onClick={event => onClickAction(record[computedRowKey], item.type, record, event)}
       >
         {item.text || icon || item.type}
       </a>
