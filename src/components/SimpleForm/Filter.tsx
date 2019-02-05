@@ -117,19 +117,22 @@ class Filter extends Component<FilterProps, FilterStates> {
     const { filters, groupAmount, resetLoading, submitLoading } = this.props;
     const expandVisible: boolean = filters.length >= groupAmount;
     return (
-      <div className={styles.operationArea}>
-        <Button htmlType="submit" loading={submitLoading} type="primary">
-          {submitText}
-        </Button>
-        <Button loading={resetLoading} onClick={this.onReset} style={{ marginLeft: 8 }}>
-          {resetText}
-        </Button>
-        {expandVisible && (
-          <a style={{ marginLeft: 8 }} onClick={this.onChangeExpand}>
-            {expandText[expanded ? 'retract' : 'expand']} <Icon type="up" className={styles.icon} />
-          </a>
-        )}
-      </div>
+      <Col>
+        <div className={styles.operationArea}>
+          <Button htmlType="submit" loading={submitLoading} type="primary">
+            {submitText}
+          </Button>
+          <Button loading={resetLoading} onClick={this.onReset} style={{ marginLeft: 8 }}>
+            {resetText}
+          </Button>
+          {expandVisible && (
+            <a style={{ marginLeft: 8 }} onClick={this.onChangeExpand}>
+              {expandText[expanded ? 'retract' : 'expand']}{' '}
+              <Icon type="up" className={styles.icon} />
+            </a>
+          )}
+        </div>
+      </Col>
     );
   };
 
@@ -147,7 +150,7 @@ class Filter extends Component<FilterProps, FilterStates> {
       ))
       .concat(
         <Row {...rowProps} key="OperationArea">
-          <Col>{this.renderOperationArea()}</Col>
+          {this.renderOperationArea()}
         </Row>,
       );
   };

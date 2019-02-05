@@ -128,7 +128,9 @@ export interface SimpleFormProps<T = any> extends FormComponentProps {
   layout?: FormLayout;
   onReset?: (form: WrappedFormUtils) => void;
   onSubmit?: (fieldsValue: T, form: WrappedFormUtils) => void;
-  renderOperationArea?: null | ((form: WrappedFormUtils) => React.ReactNode);
+  renderOperationArea?:
+    | null
+    | ((form: WrappedFormUtils, submitLoading: boolean, resetLoading: boolean) => React.ReactNode);
   resetLoading?: boolean;
   resetText?: React.ReactNode;
   rowProps?: RowProps;
@@ -139,17 +141,6 @@ export interface SimpleFormProps<T = any> extends FormComponentProps {
 
 class SimpleForm<T = any> extends Component<SimpleFormProps> {
   static defaultProps = {
-    formItemProps: {
-      labelCol: {
-        xs: { span: 24 },
-        sm: { span: 7 },
-      },
-      wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 12 },
-        md: { span: 10 },
-      },
-    },
     groupAmount: 1,
     onSubmit: () => {},
     resetLoading: false,
@@ -169,22 +160,28 @@ class SimpleForm<T = any> extends Component<SimpleFormProps> {
       submitLoading,
       submitText,
     } = this.props;
-    if (renderOperationArea === null) return null;
-    if (renderOperationArea) return renderOperationArea(form);
+    if (renderOperationArea === null) {
+      return null;
+    }
+    if (renderOperationArea) {
+      return renderOperationArea(form, submitLoading, resetLoading);
+    }
     return (
-      <Form.Item
-        wrapperCol={{
-          xs: { span: 24, offset: 0 },
-          sm: { span: 10, offset: 7 },
-        }}
-      >
-        <Button htmlType="submit" loading={submitLoading} type="primary">
-          {submitText}
-        </Button>
-        <Button loading={resetLoading} onClick={this.onReset} style={{ marginLeft: 8 }}>
-          {resetText}
-        </Button>
-      </Form.Item>
+      <Col>
+        <Form.Item
+          wrapperCol={{
+            xs: { span: 24, offset: 0 },
+            sm: { span: 10, offset: 7 },
+          }}
+        >
+          <Button htmlType="submit" loading={submitLoading} type="primary">
+            {submitText}
+          </Button>
+          <Button loading={resetLoading} onClick={this.onReset} style={{ marginLeft: 8 }}>
+            {resetText}
+          </Button>
+        </Form.Item>
+      </Col>
     );
   };
 
@@ -202,7 +199,7 @@ class SimpleForm<T = any> extends Component<SimpleFormProps> {
       ))
       .concat(
         <Row {...rowProps} key="OperationArea">
-          <Col>{this.renderOperationArea()}</Col>
+          {this.renderOperationArea()}
         </Row>,
       );
   };

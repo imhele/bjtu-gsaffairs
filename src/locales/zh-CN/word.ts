@@ -1,4 +1,5 @@
 export default {
+  'word.back': '返回',
   'word.clear': '清空',
   'word.close': '关闭',
   'word.confirm': '确认',
@@ -13,5 +14,6 @@ export default {
   'word.reset': '重置',
   'word.retract': '收起',
   'word.second': '秒',
+  'word.submit': '提交',
   'word.unknown-page': '未知页',
 };
