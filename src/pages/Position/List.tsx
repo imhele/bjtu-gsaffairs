@@ -8,12 +8,12 @@ import commonStyles from '../common.less';
 import { ButtonProps } from 'antd/es/button';
 import { message, Radio, Skeleton } from 'antd';
 import { RadioChangeEvent } from 'antd/es/radio';
-import { AuthorizedId, MediaQuery } from '@/global';
 import { WrappedFormUtils } from 'antd/es/form/Form';
 import MemorableModal from '@/components/MemorableModal';
 import StandardFilter from '@/components/StandardFilter';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
+import { AuthorizedId, MediaQuery, MemorableModalId } from '@/global';
 import { HideWithouSelection, PositionType, CellAction } from './consts';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import { FetchListPayload, FetchDetailPayload, DeletePositionPayload } from '@/services/position';
@@ -72,8 +72,8 @@ class List extends Component<ListProps, ListState> {
 
   private deletingRowKeys: Set<string | number> = new Set();
   private filterExpandText = {
-    expand: <FormattedMessage id="words.expand" />,
-    retract: <FormattedMessage id="words.retract" />,
+    expand: <FormattedMessage id="word.expand" />,
+    retract: <FormattedMessage id="word.retract" />,
   };
   private filterFormUtils: WrappedFormUtils = null;
   /**
@@ -88,7 +88,7 @@ class List extends Component<ListProps, ListState> {
   private limit: number = 10;
   private offset: number = 0;
   private tableAlertProps: StandardTableAlertProps = {
-    clearText: <FormattedMessage id="words.clear" />,
+    clearText: <FormattedMessage id="word.clear" />,
     format: (node: any) => (
       <FormattedMessage id="position.list.table.selected-alert" values={{ node }} />
     ),
@@ -143,6 +143,25 @@ class List extends Component<ListProps, ListState> {
         query: { type },
       },
       callback: this.correctOffset,
+    });
+  };
+
+  deletePosition = (currentRowKey: string | number) => {
+    const {
+      dispatch,
+      match: {
+        params: { type },
+      },
+    } = this.props;
+    this.deletingRowKeys.add(currentRowKey);
+    this.cancelSelection(currentRowKey);
+    dispatch<DeletePositionPayload>({
+      type: 'position/deletePosition',
+      payload: {
+        body: { key: currentRowKey },
+        query: { type },
+      },
+      callback: this.deleteCallback,
     });
   };
 
@@ -266,15 +285,12 @@ class List extends Component<ListProps, ListState> {
         });
         break;
       case CellAction.Delete:
-        this.deletingRowKeys.add(currentRowKey);
-        this.cancelSelection(currentRowKey);
-        dispatch<DeletePositionPayload>({
-          type: 'position/deletePosition',
-          payload: {
-            body: { key: currentRowKey },
-            query: { type },
-          },
-          callback: this.deleteCallback,
+        MemorableModal.confirm({
+          defaultEnable: false,
+          id: MemorableModalId.DeletePostion,
+          onOk: this.deletePosition,
+          payload: currentRowKey,
+          title: formatMessage({ id: 'position.delete.confirm' }),
         });
         break;
       default:
@@ -338,7 +354,7 @@ class List extends Component<ListProps, ListState> {
     } = this.props;
     if (!operationArea || !operationArea.operation) return null;
     return {
-      moreText: <FormattedMessage id="words.more" />,
+      moreText: <FormattedMessage id="word.more" />,
       onClick: this.onClickOperation,
       visible: this.renderOperationVisible,
       ...operationArea,
@@ -395,9 +411,9 @@ class List extends Component<ListProps, ListState> {
             expandText={this.filterExpandText}
             filters={filters}
             onSubmit={this.onSubmitFilter}
-            resetText={<FormattedMessage id="words.reset" />}
+            resetText={<FormattedMessage id="word.reset" />}
             submitLoading={loading.fetchList}
-            submitText={<FormattedMessage id="words.query" />}
+            submitText={<FormattedMessage id="word.query" />}
           />
         ) : (
           <div style={{ marginBottom: 24 }}>

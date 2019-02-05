@@ -10,7 +10,9 @@ export interface MemorableModalProps extends ModalFuncProps {
   defaultEnable?: boolean;
   expiresIn?: number;
   id: string;
+  onOk?: (payload: any, ...args: any[]) => any | PromiseLike<any>;
   optional?: boolean;
+  payload?: any;
   timeUnit?: TimeUnit;
   formatText?: (expiresIn?: number, timeUnit?: TimeUnit) => React.ReactNode;
 }
@@ -28,11 +30,15 @@ interface MemorableModalComponent {
   info: MemorableModalFunc;
   success: MemorableModalFunc;
   warn: MemorableModalFunc;
+  setLocale: (formatText: (expiresIn?: number, timeUnit?: TimeUnit) => React.ReactNode) => void;
 }
 
 const noop = () => {};
 
 const selected: { [key: string]: boolean } = {};
+
+let locale = (e: number, u: TimeUnit): React.ReactNode =>
+  `No more reminders within ${e} ${u}${e === 1 ? '' : 's'}`;
 
 const onChangeSelect = (checked: boolean, event: any) => {
   const { id = null } = event.currentTarget.dataset || {};
@@ -59,21 +65,24 @@ const Memorable = (
   {
     content,
     defaultEnable = true,
-    expiresIn = 30,
+    expiresIn = 1,
     id,
     onOk = noop,
     optional = true,
-    timeUnit = 'second',
-    formatText = (e, u) => `No more reminders within ${e} ${u}${e === 1 ? '' : 's'}`,
+    payload,
+    timeUnit = 'minute',
+    formatText = locale,
     ...modalProps
   }: MemorableModalProps,
   type: MemorableModalFuncType,
 ) => {
-  if (id) {
+  if (typeof id === 'string') {
+    id = `MemorableModal-${type}-${id}`;
     const now = Date.now();
     const preExpiryTime = localStorage.getItem(id);
     if (preExpiryTime && now.toString() < preExpiryTime) {
-      return { destroy: noop, update: noop };
+      onOk!(payload);
+      return { destroy: null, update: null };
     }
     selected[id] = defaultEnable || !optional;
     return Modal[type]({
@@ -102,7 +111,7 @@ const Memorable = (
             : '9';
           localStorage.setItem(id, nextExpiryTime);
         }
-        return onOk(...args);
+        return onOk!(payload, ...args);
       },
     });
   }
@@ -115,6 +124,7 @@ const MemorableModal: MemorableModalComponent = {
   info: props => Memorable(props, 'info'),
   success: props => Memorable(props, 'success'),
   warn: props => Memorable(props, 'warn'),
+  setLocale: formatText => (locale = formatText),
 };
 
 export default MemorableModal;

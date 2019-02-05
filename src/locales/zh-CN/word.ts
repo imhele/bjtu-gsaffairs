@@ -1,0 +1,17 @@
+export default {
+  'word.clear': '清空',
+  'word.close': '关闭',
+  'word.confirm': '确认',
+  'word.create': '创建',
+  'word.day': '天',
+  'word.expand': '展开',
+  'word.hour': '小时',
+  'word.minute': '分钟',
+  'word.more': '更多',
+  'word.open': '打开',
+  'word.query': '查询',
+  'word.reset': '重置',
+  'word.retract': '收起',
+  'word.second': '秒',
+  'word.unknown-page': '未知页',
+};

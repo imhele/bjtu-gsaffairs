@@ -56,7 +56,7 @@ const renderFooter = (props: DetailProps): React.ReactNode => {
         .concat(
           <div className={styles.footerButton} key="Close">
             <Button onClick={props.onClose} type="primary">
-              <FormattedMessage id="words.close" />
+              <FormattedMessage id="word.close" />
             </Button>
           </div>,
         )}

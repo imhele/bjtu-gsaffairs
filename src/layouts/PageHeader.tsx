@@ -8,7 +8,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 const PageHeader: React.SFC = props => {
   const { pathname } = window.location;
   const paths = pathnameToArr(pathname);
-  const unknownMsg = formatMessage({ id: 'words.unknown-page', defaultMessage: 'Unknown page' });
+  const unknownMsg = formatMessage({ id: 'word.unknown-page', defaultMessage: 'Unknown page' });
   return (
     <React.Fragment>
       <div className={styles.pageHeader}>

@@ -1,4 +1,5 @@
 export default {
+  'position.delete.confirm': '你确定要删除这个岗位吗？',
   'position.detail': '岗位详情',
   'position.error.unknown.action': '此功能暂未开发',
   'position.error.unknown.type': '未知的岗位类型',
