@@ -63,7 +63,11 @@ const Create: React.SFC<CreateProps> = ({
           formItems={[
             { id: 'a', type: SimpleFormItemType.Extra, extra: 'HHH' },
             { id: 'test', type: SimpleFormItemType.Input },
-            { id: '负责人工号', type: SimpleFormItemType.InputNumber },
+            {
+              id: '负责人工号',
+              type: SimpleFormItemType.InputNumber,
+              decoratorOptions: { rules: [{ required: true }] },
+            },
           ]}
           groupAmount={2}
           renderOperationArea={renderOperationArea}

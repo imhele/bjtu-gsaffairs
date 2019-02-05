@@ -215,10 +215,9 @@ class SimpleForm<T = any> extends Component<SimpleFormProps> {
   };
 
   onReset = () => {
-    const { form, onReset, onSubmit, submitLoading } = this.props;
+    const { form, onReset } = this.props;
     if (onReset) return onReset(form);
     form.resetFields();
-    if (!submitLoading) onSubmit({}, form);
   };
 
   render() {
