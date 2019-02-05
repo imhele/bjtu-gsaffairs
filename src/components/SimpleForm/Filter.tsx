@@ -121,7 +121,7 @@ class Filter extends Component<FilterProps, FilterStates> {
     const { expanded } = this.state;
     const { filters, groupAmount, resetLoading, submitLoading } = this.props;
     const expandVisible: boolean = filters.length >= groupAmount;
-    const defaultOperationArea = (
+    return (
       <div className={styles.operationArea}>
         <Button htmlType="submit" loading={submitLoading} type="primary">
           {submitText}
@@ -136,7 +136,6 @@ class Filter extends Component<FilterProps, FilterStates> {
         )}
       </div>
     );
-    return defaultOperationArea;
   };
 
   renderFilters = (): React.ReactNode[] => {
