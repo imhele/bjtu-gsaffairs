@@ -7,10 +7,10 @@ import React, { Component } from 'react';
 import commonStyles from '../common.less';
 import { ButtonProps } from 'antd/es/button';
 import { message, Radio, Skeleton } from 'antd';
+import { Filter } from '@/components/SimpleForm';
 import { RadioChangeEvent } from 'antd/es/radio';
 import { WrappedFormUtils } from 'antd/es/form/Form';
 import MemorableModal from '@/components/MemorableModal';
-import StandardFilter from '@/components/StandardFilter';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
 import { AuthorizedId, MediaQuery, MemorableModalId } from '@/global';
@@ -77,7 +77,7 @@ class List extends Component<ListProps, ListState> {
   };
   private filterFormUtils: WrappedFormUtils = null;
   /**
-   * `filter` is not a state, but just data copy from StandardFilter
+   * `filter` is not a state, but just data copy from Filter
    */
   private filtersValue: object = {};
   /**
@@ -406,7 +406,7 @@ class List extends Component<ListProps, ListState> {
     return (
       <div className={commonStyles.contentBody}>
         {filters.length || !loading.fetchList ? (
-          <StandardFilter
+          <Filter
             className={styles.filter}
             expandText={this.filterExpandText}
             filters={filters}

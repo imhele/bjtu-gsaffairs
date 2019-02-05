@@ -1,46 +1,26 @@
-import styles from './index.less';
+import styles from './Filter.less';
 import classNames from 'classnames';
 import React, { Component } from 'react';
 import { groupByAmount } from '@/utils/utils';
 import { RowProps, ColProps } from 'antd/es/grid';
+import { Button, Col, Form, Icon, Row } from 'antd';
+import { WrappedFormUtils } from 'antd/es/form/Form';
 import { FormComponentProps, FormItemProps } from 'antd/es/form';
-import { GetFieldDecoratorOptions, WrappedFormUtils } from 'antd/es/form/Form';
-import { Button, Col, Form, Icon, Row, Input, InputNumber, Select, DatePicker } from 'antd';
+import {
+  SimpleFormItemProps as FilterItemProps,
+  SimpleFormItemType as FilterType,
+  renderFormItem,
+} from './Form';
 
-export const enum FilterType {
-  Input = 'Input',
-  InputNumber = 'InputNumber',
-  DatePicker = 'DatePicker',
-  Extra = 'Extra',
-  MonthPicker = 'MonthPicker',
-  WeekPicker = 'WeekPicker',
-  RangePicker = 'RangePicker',
-  Select = 'Select',
-}
-
-export interface Filter<T = any> {
-  id: string;
-  itemProps?: T;
-  colProps?: ColProps;
-  decoratorOptions?: GetFieldDecoratorOptions;
-  extra?: React.ReactNode;
-  selectOptions?: Array<{ title?: string; value: string | number }>;
-  title?: React.ReactNode;
-  type: FilterType;
-}
+export { FilterItemProps, FilterType };
 
 export interface FormCreateOptions {
-  onFieldsChange?: (
-    props: StandardFilterProps,
-    fields: object,
-    allFields: any,
-    add: string,
-  ) => void;
-  onValuesChange?: (props: StandardFilterProps, changedValues: any, allValues: any) => void;
-  mapPropsToFields?: (props: StandardFilterProps) => void;
+  onFieldsChange?: (props: FilterProps, fields: object, allFields: any, add: string) => void;
+  onValuesChange?: (props: FilterProps, changedValues: any, allValues: any) => void;
+  mapPropsToFields?: (props: FilterProps) => void;
 }
 
-export interface StandardFilterProps extends FormComponentProps {
+export interface FilterProps extends FormComponentProps {
   animation?: boolean;
   className?: string;
   colProps?: ColProps;
@@ -49,7 +29,7 @@ export interface StandardFilterProps extends FormComponentProps {
     expand: React.ReactNode;
     retract: React.ReactNode;
   };
-  filters?: Filter[];
+  filters?: FilterItemProps[];
   formCreateOptions?: FormCreateOptions;
   formItemProps?: FormItemProps;
   groupAmount?: number;
@@ -64,11 +44,11 @@ export interface StandardFilterProps extends FormComponentProps {
   submitText?: React.ReactNode;
 }
 
-interface StandardFilterStates {
+interface FilterStates {
   expanded: boolean;
 }
 
-class StandardFilter extends Component<StandardFilterProps, StandardFilterStates> {
+class Filter extends Component<FilterProps, FilterStates> {
   static defaultProps = {
     animation: true,
     colProps: {
@@ -88,10 +68,10 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
       gutter: { md: 8, lg: 24, xl: 48 },
     },
     submitLoading: false,
-    submitText: 'Confirm',
+    submitText: 'Query',
   };
 
-  static getDerivedStateFromProps(nextProps: StandardFilterProps, prevState: StandardFilterStates) {
+  static getDerivedStateFromProps(nextProps: FilterProps, prevState: FilterStates) {
     if (typeof nextProps.expanded !== 'boolean') return null;
     if (nextProps.expanded === prevState.expanded) return null;
     return {
@@ -106,9 +86,9 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
 
   private wrappedFormUtils: WrappedFormUtils = null;
 
-  private initialFieldsValue = {};
+  private initialFieldsValue: object = {};
 
-  constructor(props: StandardFilterProps) {
+  constructor(props: FilterProps) {
     super(props);
     this.wrappedFormUtils = {
       ...props.form,
@@ -159,62 +139,14 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
     return defaultOperationArea;
   };
 
-  renderFormItem = (filter: Filter): React.ReactNode => {
-    let item: React.ReactNode;
-    const { form, formItemProps } = this.props;
-    switch (filter.type) {
-      case FilterType.Select:
-        item = (
-          <Select allowClear showSearch optionFilterProp="children" {...filter.itemProps}>
-            {filter.selectOptions.map(value => (
-              <Select.Option key={`${value.value}`} value={value.value || value.title}>
-                {value.title || value.value}
-              </Select.Option>
-            ))}
-          </Select>
-        );
-        break;
-      case FilterType.Input:
-        item = <Input {...filter.itemProps} />;
-        break;
-      case FilterType.InputNumber:
-        item = <InputNumber style={{ width: '100%' }} {...filter.itemProps} />;
-        break;
-      case FilterType.Extra:
-        return filter.extra;
-      case FilterType.DatePicker:
-        item = <DatePicker {...filter.itemProps} />;
-        break;
-      case FilterType.MonthPicker:
-        item = <DatePicker.MonthPicker {...filter.itemProps} />;
-        break;
-      case FilterType.RangePicker:
-        item = <DatePicker.RangePicker {...filter.itemProps} />;
-        break;
-      case FilterType.WeekPicker:
-        item = <DatePicker.WeekPicker {...filter.itemProps} />;
-        break;
-      default:
-        item = null;
-    }
-    return (
-      <Form.Item colon={false} label={filter.title || filter.id} {...formItemProps}>
-        {form.getFieldDecorator(filter.id, {
-          initialValue: this.initialFieldsValue[filter.id],
-          ...filter.decoratorOptions,
-        })(item)}
-      </Form.Item>
-    );
-  };
-
   renderFilters = (): React.ReactNode[] => {
-    const { colProps, filters, groupAmount, rowProps } = this.props;
-    return groupByAmount<Filter>(filters, groupAmount)
+    const { colProps, filters, form, formItemProps, groupAmount, rowProps } = this.props;
+    return groupByAmount<FilterItemProps>(filters, groupAmount)
       .map((value, index) => (
         <Row {...rowProps} key={index}>
           {value.map(item => (
             <Col {...colProps} {...item.colProps} key={item.id}>
-              {this.renderFormItem(item)}
+              {renderFormItem(item, form, formItemProps, this.initialFieldsValue)}
             </Col>
           ))}
         </Row>
@@ -250,7 +182,7 @@ class StandardFilter extends Component<StandardFilterProps, StandardFilterStates
     return (
       <Form
         className={classNames({
-          [styles.standardFilter]: true,
+          [styles.filter]: true,
           [styles.animation]: animation,
           [styles.unexpanded]: !expanded,
           [className]: true,
@@ -273,16 +205,16 @@ const defaultFormCreateOptions: FormCreateOptions = {
 
 let formCreateOptions: FormCreateOptions = defaultFormCreateOptions;
 
-const StandardFilterWrapper: React.SFC<StandardFilterProps> = props => {
+const FilterWrapper: React.SFC<FilterProps> = props => {
   formCreateOptions = {
     ...defaultFormCreateOptions,
     ...props.formCreateOptions,
   };
-  return <StandardFilter {...props} />;
+  return <Filter {...props} />;
 };
 
-export default Form.create<StandardFilterProps>({
+export default Form.create<FilterProps>({
   onFieldsChange: (...args) => formCreateOptions.onFieldsChange(...args),
   onValuesChange: (...args) => formCreateOptions.onValuesChange(...args),
   mapPropsToFields: (...args) => formCreateOptions.mapPropsToFields(...args),
-})(StandardFilterWrapper);
+})(FilterWrapper);

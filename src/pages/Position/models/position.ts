@@ -1,7 +1,7 @@
 import { Model } from 'dva';
 import { message } from 'antd';
 import { safeFun } from '@/utils/utils';
-import { Filter } from '@/components/StandardFilter';
+import { FilterItemProps } from '@/components/SimpleForm';
 import { StandardTableOperationAreaProps } from '@/components/StandardTable';
 import { deletePosition, fetchDetail, fetchList } from '@/services/position';
 
@@ -22,7 +22,7 @@ export interface PositionState {
   dataSource: object[];
   total: number;
   actionKey?: string | string[];
-  filters?: Filter[];
+  filters?: FilterItemProps[];
   operationArea?: StandardTableOperationAreaProps;
   rowKey?: string;
   scroll?: {

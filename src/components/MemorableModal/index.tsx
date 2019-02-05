@@ -84,7 +84,7 @@ const Memorable = (
       onOk!(payload);
       return { destroy: null, update: null };
     }
-    selected[id] = defaultEnable || !optional;
+    selected[id] = defaultEnable || !!preExpiryTime || !optional;
     return Modal[type]({
       ...modalProps,
       content: optional ? (
@@ -110,6 +110,8 @@ const Memorable = (
             ? (now + tranformTime(expiresIn, timeUnit)).toString()
             : '9';
           localStorage.setItem(id, nextExpiryTime);
+        } else if (preExpiryTime) {
+          localStorage.removeItem(id);
         }
         return onOk!(payload, ...args);
       },

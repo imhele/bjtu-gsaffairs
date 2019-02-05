@@ -19,7 +19,7 @@ export default [
       {
         path: '/position',
         icon: 'cluster',
-        name: 'route.position-list',
+        name: 'route.position',
         component: '../layouts/PageHeader',
         routes: [
           {
@@ -35,7 +35,7 @@ export default [
             component: './Position/List',
             dynamic: [{ type: 'manage' }, { type: 'teach' }],
             icon: ['tool', 'book'],
-            name: ['route.position.manage', 'route.position.teach'],
+            name: ['route.position.manage.list', 'route.position.teach.list'],
             scope: [['scope.position.manage.list'], ['scope.position.teach.list']],
           },
         ],
