@@ -38,6 +38,14 @@ export default [
             name: ['route.position.manage.list', 'route.position.teach.list'],
             scope: [['scope.position.manage.list'], ['scope.position.teach.list']],
           },
+          {
+            path: '/position/:type/create',
+            component: './Position/Create',
+            hideInMenu: true,
+            dynamic: [{ type: 'manage' }, { type: 'teach' }],
+            name: ['route.position.manage.create', 'route.position.teach.create'],
+            scope: [['scope.position.manage.create'], ['scope.position.teach.create']],
+          },
         ],
       },
       // exceptions

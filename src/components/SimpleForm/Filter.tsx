@@ -7,18 +7,13 @@ import { Button, Col, Form, Icon, Row } from 'antd';
 import { WrappedFormUtils } from 'antd/es/form/Form';
 import { FormComponentProps, FormItemProps } from 'antd/es/form';
 import {
+  FormCreateOptions,
   SimpleFormItemProps as FilterItemProps,
   SimpleFormItemType as FilterType,
   renderFormItem,
 } from './Form';
 
 export { FilterItemProps, FilterType };
-
-export interface FormCreateOptions {
-  onFieldsChange?: (props: FilterProps, fields: object, allFields: any, add: string) => void;
-  onValuesChange?: (props: FilterProps, changedValues: any, allValues: any) => void;
-  mapPropsToFields?: (props: FilterProps) => void;
-}
 
 export interface FilterProps extends FormComponentProps {
   animation?: boolean;

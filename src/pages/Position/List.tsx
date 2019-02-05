@@ -1,6 +1,7 @@
 import Detail from './Detail';
 import { connect } from 'dva';
 import Media from 'react-media';
+import router from 'umi/router';
 import styles from './List.less';
 import { safeFun } from '@/utils/utils';
 import React, { Component } from 'react';
@@ -14,7 +15,7 @@ import MemorableModal from '@/components/MemorableModal';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
 import { AuthorizedId, MediaQuery, MemorableModalId } from '@/global';
-import { HideWithouSelection, PositionType, CellAction } from './consts';
+import { HideWithouSelection, PositionType, CellAction, TopbarAction } from './consts';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import { FetchListPayload, FetchDetailPayload, DeletePositionPayload } from '@/services/position';
 import StandardTable, {
@@ -315,14 +316,17 @@ class List extends Component<ListProps, ListState> {
   };
 
   onClickOperation = (selectedRowKeys: (string | number)[], operationType: string) => {
-    // const {
-    //   dispatch,
-    //   match: {
-    //     params: { type },
-    //   },
-    // } = this.props;
+    const {
+      // dispatch,
+      match: {
+        params: { type },
+      },
+    } = this.props;
     safeFun(this.tableMethods.clearSelectedRowKeys);
     switch (operationType) {
+      case TopbarAction.Create:
+        router.push(`/position/${type}/create`);
+        break;
       default:
         message.warn(formatMessage({ id: 'position.error.unknown.action' }));
     }

@@ -3,7 +3,7 @@ import { groupByAmount } from '@/utils/utils';
 import { RowProps, ColProps } from 'antd/es/grid';
 import { FormComponentProps, FormItemProps } from 'antd/es/form';
 import { FormLayout, GetFieldDecoratorOptions, WrappedFormUtils } from 'antd/es/form/Form';
-import { Button, Col, Form, Icon, Row, Input, InputNumber, Select, DatePicker, Radio } from 'antd';
+import { Button, Col, Form, Row, Input, InputNumber, Select, DatePicker, Radio } from 'antd';
 
 export const enum SimpleFormItemType {
   ButtonRadio = 'ButtonRadio',
@@ -15,6 +15,7 @@ export const enum SimpleFormItemType {
   Radio = 'Radio',
   RangePicker = 'RangePicker',
   Select = 'Select',
+  TextArea = 'TextArea',
   WeekPicker = 'WeekPicker',
 }
 
@@ -34,20 +35,20 @@ export interface SimpleFormItemProps<T = any> {
 }
 
 export const renderFormItem = (
-  filter: SimpleFormItemProps,
+  formItem: SimpleFormItemProps,
   form: WrappedFormUtils,
   formItemProps: FormItemProps,
   initialFieldsValue: object,
 ): React.ReactNode => {
   let item: React.ReactNode;
-  switch (filter.type) {
+  switch (formItem.type) {
     case SimpleFormItemType.Input:
-      item = <Input {...filter.itemProps} />;
+      item = <Input {...formItem.itemProps} />;
       break;
     case SimpleFormItemType.Select:
       item = (
-        <Select allowClear showSearch optionFilterProp="children" {...filter.itemProps}>
-          {filter.selectOptions.map(value => (
+        <Select allowClear showSearch optionFilterProp="children" {...formItem.itemProps}>
+          {formItem.selectOptions.map(value => (
             <Select.Option disabled={value.disabled} key={`${value.value}`} value={value.value}>
               {value.title || value.value}
             </Select.Option>
@@ -56,14 +57,14 @@ export const renderFormItem = (
       );
       break;
     case SimpleFormItemType.InputNumber:
-      item = <InputNumber style={{ width: '100%' }} {...filter.itemProps} />;
+      item = <InputNumber style={{ width: '100%' }} {...formItem.itemProps} />;
       break;
     case SimpleFormItemType.Extra:
-      return filter.extra;
+      return formItem.extra;
     case SimpleFormItemType.ButtonRadio:
       item = (
-        <Radio.Group name={filter.id} buttonStyle="solid" {...filter.itemProps}>
-          {filter.selectOptions.map(value => (
+        <Radio.Group name={formItem.id} buttonStyle="solid" {...formItem.itemProps}>
+          {formItem.selectOptions.map(value => (
             <Radio.Button disabled={value.disabled} key={`${value.value}`} value={value.value}>
               {value.title || value.value}
             </Radio.Button>
@@ -73,8 +74,8 @@ export const renderFormItem = (
       break;
     case SimpleFormItemType.Radio:
       item = (
-        <Radio.Group name={filter.id} {...filter.itemProps}>
-          {filter.selectOptions.map(value => (
+        <Radio.Group name={formItem.id} {...formItem.itemProps}>
+          {formItem.selectOptions.map(value => (
             <Radio disabled={value.disabled} key={`${value.value}`} value={value.value}>
               {value.title || value.value}
             </Radio>
@@ -82,26 +83,29 @@ export const renderFormItem = (
         </Radio.Group>
       );
       break;
+    case SimpleFormItemType.TextArea:
+      item = <Input.TextArea autosize {...formItem.itemProps} />;
+      break;
     case SimpleFormItemType.DatePicker:
-      item = <DatePicker {...filter.itemProps} />;
+      item = <DatePicker {...formItem.itemProps} />;
       break;
     case SimpleFormItemType.MonthPicker:
-      item = <DatePicker.MonthPicker {...filter.itemProps} />;
+      item = <DatePicker.MonthPicker {...formItem.itemProps} />;
       break;
     case SimpleFormItemType.RangePicker:
-      item = <DatePicker.RangePicker {...filter.itemProps} />;
+      item = <DatePicker.RangePicker {...formItem.itemProps} />;
       break;
     case SimpleFormItemType.WeekPicker:
-      item = <DatePicker.WeekPicker {...filter.itemProps} />;
+      item = <DatePicker.WeekPicker {...formItem.itemProps} />;
       break;
     default:
       item = null;
   }
   return (
-    <Form.Item colon={false} label={filter.title || filter.id} {...formItemProps}>
-      {form.getFieldDecorator(filter.id, {
-        initialValue: initialFieldsValue[filter.id],
-        ...filter.decoratorOptions,
+    <Form.Item colon={false} label={formItem.title || formItem.id} {...formItemProps}>
+      {form.getFieldDecorator(formItem.id, {
+        initialValue: initialFieldsValue[formItem.id],
+        ...formItem.decoratorOptions,
       })(item)}
     </Form.Item>
   );
@@ -135,19 +139,23 @@ export interface SimpleFormProps<T = any> extends FormComponentProps {
 
 class SimpleForm<T = any> extends Component<SimpleFormProps> {
   static defaultProps = {
-    colProps: {
-      md: 8,
-      sm: 24,
+    formItemProps: {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 7 },
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 12 },
+        md: { span: 10 },
+      },
     },
     groupAmount: 1,
     onSubmit: () => {},
     resetLoading: false,
     resetText: 'Reset',
-    rowProps: {
-      gutter: { md: 8, lg: 24, xl: 48 },
-    },
     submitLoading: false,
-    submitText: 'Query',
+    submitText: 'Submit',
   };
 
   private initialFieldsValue: object = {};
@@ -164,14 +172,19 @@ class SimpleForm<T = any> extends Component<SimpleFormProps> {
     if (renderOperationArea === null) return null;
     if (renderOperationArea) return renderOperationArea(form);
     return (
-      <React.Fragment>
+      <Form.Item
+        wrapperCol={{
+          xs: { span: 24, offset: 0 },
+          sm: { span: 10, offset: 7 },
+        }}
+      >
         <Button htmlType="submit" loading={submitLoading} type="primary">
           {submitText}
         </Button>
         <Button loading={resetLoading} onClick={this.onReset} style={{ marginLeft: 8 }}>
           {resetText}
         </Button>
-      </React.Fragment>
+      </Form.Item>
     );
   };
 
