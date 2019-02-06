@@ -1,11 +1,12 @@
 import React from 'react';
 import styles from './index.less';
-import { Button, Icon, Steps as AntSteps } from 'antd';
+import { Steps as AntSteps } from 'antd';
 
 export interface StepsItem {
   key?: string | number;
   description?: string;
   icon?: string;
+  status?: 'wait' | 'process' | 'finish' | 'error';
   title?: string;
 }
 
@@ -28,6 +29,7 @@ const Steps: React.SFC<StepsProps> = ({ steps, ...restProps }) => (
         description={<div className={styles.description}>{step.description}</div>}
         icon={step.icon}
         key={step.key || index}
+        status={step.status}
         title={step.title}
       />
     ))}

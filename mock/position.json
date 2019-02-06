@@ -1,19 +1,56 @@
 {
   "possibleValues": {
     "action": [
-      [{ "text": "审核", "type": "audit" }, { "text": "删除", "type": "delete" }],
-      [{ "text": "编辑", "type": "edit" }, { "text": "删除", "type": "delete" }],
-      [{ "text": "申请", "type": "apply" }],
-      [{ "text": "下载", "type": "download" }]
+      [
+        {
+          "text": "审核",
+          "type": "audit"
+        },
+        {
+          "text": "删除",
+          "type": "delete"
+        }
+      ],
+      [
+        {
+          "text": "编辑",
+          "type": "edit"
+        },
+        {
+          "text": "删除",
+          "type": "delete"
+        }
+      ],
+      [
+        {
+          "text": "申请",
+          "type": "apply"
+        }
+      ],
+      [
+        {
+          "text": "下载",
+          "type": "download"
+        }
+      ]
     ],
     "applyStatus": ["草稿", "待审核", "审核通过", "审核不通过", "无效"],
     "campus": ["校本部", "东校区"],
     "checkStatus": ["草稿", "待审核", "审核通过", "审核不通过", "无效"],
     "depName": ["交通运输学院", "软件学院", "计算机与信息技术学院"],
     "name": [
-      { "text": "aaaaaaaaaaaaaaa", "type": "preview" },
-      { "text": "bbbbbbbbbbbbbbb", "type": "preview" },
-      { "text": "imheleimheleimhele", "type": "preview" }
+      {
+        "text": "aaaaaaaaaaaaaaa",
+        "type": "preview"
+      },
+      {
+        "text": "bbbbbbbbbbbbbbb",
+        "type": "preview"
+      },
+      {
+        "text": "imheleimheleimhele",
+        "type": "preview"
+      }
     ],
     "releaseStatus": ["未发布", "已发布"],
     "sess": ["2018-2019学年 第一学期", "2018-2019学年 第二学期"],

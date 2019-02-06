@@ -59,13 +59,32 @@ class SimpleForm extends BaseForm<SimpleFormProps> {
   };
 
   renderFormItems = (): React.ReactNode[] => {
-    const { colProps, formItems, formItemProps, groupAmount, rowProps } = this.props;
+    const {
+      colProps,
+      formItems,
+      formItemProps,
+      groupAmount,
+      resetLoading,
+      rowProps,
+      submitLoading,
+    } = this.props;
     return groupByAmount<SimpleFormItemProps>(formItems, groupAmount)
       .map((value, index) => (
         <Row {...rowProps} key={index}>
           {value.map(item => (
             <Col {...colProps} {...item.colProps} key={item.id}>
-              {renderFormItem(item, this.wrappedFormUtils, formItemProps, this.tempFieldsValue)}
+              {renderFormItem(
+                {
+                  ...item,
+                  itemProps: {
+                    disabled: resetLoading || submitLoading,
+                    ...item.itemProps,
+                  },
+                },
+                this.wrappedFormUtils,
+                formItemProps,
+                this.tempFieldsValue,
+              )}
             </Col>
           ))}
         </Row>

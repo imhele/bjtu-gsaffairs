@@ -5,8 +5,9 @@ import commonStyles from '../common.less';
 import SimpleForm from '@/components/SimpleForm';
 import Exception404 from '@/pages/Exception/404';
 import { PositionType, TopbarAction } from './consts';
-import { Button, Col, message, Skeleton } from 'antd';
 import { FetchFormPayload } from '@/services/position';
+import { CreatePositionPayload } from '@/services/position';
+import { Button, Col, message, Skeleton, Spin } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 
@@ -68,6 +69,22 @@ class Create extends Component<CreateProps> {
     );
   };
 
+  onSubmit = (fieldsValue: object) => {
+    const {
+      dispatch,
+      match: {
+        params: { type },
+      },
+    } = this.props;
+    dispatch<CreatePositionPayload>({
+      type: 'position/createPosition',
+      payload: {
+        body: fieldsValue,
+        query: { type },
+      },
+    });
+  };
+
   render() {
     const {
       loading,
@@ -89,7 +106,7 @@ class Create extends Component<CreateProps> {
             formItems={createForm.formItems}
             groupAmount={createForm.groupAmount}
             initialFieldsValue={createForm.initialFieldsValue}
-            onSubmit={values => console.log(values) /* tslint:disable-line */}
+            onSubmit={this.onSubmit}
             renderOperationArea={this.renderOperationArea}
             rowProps={createForm.rowProps}
             submitLoading={loading.createPosition}

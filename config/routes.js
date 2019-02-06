@@ -52,7 +52,6 @@ export default [
       {
         path: '/result',
         hideInMenu: true,
-        component: '../layouts/PageHeader',
         routes: [
           {
             path: '/result',

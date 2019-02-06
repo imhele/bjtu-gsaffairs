@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { APIPrefix } from './login';
 import {
   createForm,
@@ -253,9 +254,69 @@ const positionForm = (req, res) => {
   }, 400);
 };
 
+/**
+ * Part of `position/create`
+ */
+const positionCreate = (req, res) => {
+  const { type } = req.query;
+  if (!['manage', 'teach'].includes(type)) {
+    return res.send({
+      errcode: 40001,
+      errmsg: 'Invalid type of position',
+    });
+  }
+  if (!req.body) {
+    return res.send({
+      errcode: 40005,
+      errmsg: 'Invalid value(s)',
+    });
+  }
+  source[type].unshift({
+    ...detailDataSource,
+    key: `${Math.random()}`,
+    action: possibleValues.action[Math.random() > 0.7 ? 0 : 1],
+    applyStatus: null,
+    checkStatus: possibleValues.checkStatus[1],
+    releaseStatus: possibleValues.releaseStatus[0],
+    ...req.body,
+    name: { text: req.body.name, type: 'preview' },
+  });
+  const extraData =
+    type === 'manage' ? ['sess', 'name', 'adminName'] : ['sess', 'name', 'classTech'];
+  setTimeout(() => {
+    res.send({
+      errcode: 0,
+      title: '创建成功',
+      description: '你已成功创建一个新岗位，请耐心等待审核结果',
+      extra: {
+        columns: detailColumns.filter(col => extraData.includes(col.dataIndex)),
+        dataSource: {
+          sess: req.body.sess,
+          name: req.body.name,
+          adminName: req.body.adminName,
+          classTech: req.body.classTech,
+        },
+      },
+      stepsProps: {
+        current: 1,
+        steps: [
+          {
+            description: moment().format('YYYY-MM-DD HH:mm'),
+            title: '单位申报',
+          },
+          { title: '人事处审核' },
+          { title: '研工部审核' },
+          { title: '发布岗位' },
+        ],
+      },
+    });
+  }, 400);
+};
+
 export default {
   [`POST ${APIPrefix}/position/list`]: positionList,
   [`POST ${APIPrefix}/position/detail`]: positionDetail,
   [`POST ${APIPrefix}/position/delete`]: positionDelete,
   [`POST ${APIPrefix}/position/form`]: positionForm,
+  [`POST ${APIPrefix}/position/create`]: positionCreate,
 };

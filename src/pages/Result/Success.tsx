@@ -4,6 +4,7 @@ import { connect } from 'dva';
 import router from 'umi/router';
 import Result from '@/components/Result';
 import commonStyles from '../common.less';
+import PageHeader from '@/layouts/PageHeader';
 import Steps, { StepsProps } from '@/components/Steps';
 import { ResultAction, ResultExtra, ResultStore } from '@/models/result';
 import DescriptionList, { DescriptionProps } from '@/components/DescriptionList';
@@ -24,6 +25,7 @@ const renderExtra = (extra: ResultExtra, stepsProps: StepsProps): React.ReactNod
             term: col.title,
           }),
         )}
+        style={{ marginBottom: 16 }}
       />
     )}
     {stepsProps && (
@@ -36,29 +38,31 @@ const renderAction = (
   action: ResultAction,
   dispatch: Dispatch,
   loading: { [key: string]: boolean },
+  index: number,
 ): React.ReactNode => {
   switch (action.type) {
     case 'back':
       return (
-        <Button onClick={router.goBack} {...action.buttonProps}>
+        <Button key={index} onClick={router.goBack} {...action.buttonProps}>
           {action.text}
         </Button>
       );
     case 'push':
       return (
-        <Button onClick={() => router.push(action.path)} {...action.buttonProps}>
+        <Button key={index} onClick={() => router.push(action.path)} {...action.buttonProps}>
           {action.text}
         </Button>
       );
     case 'replace':
       return (
-        <Button onClick={() => router.replace(action.path)} {...action.buttonProps}>
+        <Button key={index} onClick={() => router.replace(action.path)} {...action.buttonProps}>
           {action.text}
         </Button>
       );
     case 'dispatch':
       return (
         <Button
+          key={index}
           loading={loading[action.dispatch.type]}
           onClick={() => dispatch(action.dispatch)}
           {...action.buttonProps}
@@ -68,13 +72,13 @@ const renderAction = (
       );
     case 'onClick':
       return (
-        <Button onClick={action.onClick} {...action.buttonProps}>
+        <Button key={index} onClick={action.onClick} {...action.buttonProps}>
           {action.text}
         </Button>
       );
     case 'href':
       return (
-        <Button href={action.href} {...action.buttonProps}>
+        <Button key={index} href={action.href} {...action.buttonProps}>
           {action.text}
         </Button>
       );
@@ -97,20 +101,25 @@ const Success: React.SFC<SuccessProps> = props => {
   const { actions, description, extra, stepsProps, title } =
     props.id === currentId ? props : ResultStore[currentId] || ({} as ResultState);
   return (
-    <div className={commonStyles.contentBody}>
-      <Result
-        type="success"
-        title={title}
-        description={description}
-        extra={renderExtra(extra, stepsProps)}
-        actions={actions
-          .map((action, index) =>
-            renderAction(addTypeForFirstButton(action, index), dispatch, loading),
-          )
-          .filter(action => action)}
-        style={{ marginTop: 48, marginBottom: 16 }}
-      />
-    </div>
+    <PageHeader defaultMessage={title}>
+      <div className={commonStyles.contentBody}>
+        <Result
+          type="success"
+          title={title}
+          description={description}
+          extra={renderExtra(extra, stepsProps)}
+          actions={
+            actions &&
+            actions
+              .map((action, index) =>
+                renderAction(addTypeForFirstButton(action, index), dispatch, loading, index),
+              )
+              .filter(action => action)
+          }
+          style={{ marginTop: 48, marginBottom: 16 }}
+        />
+      </div>
+    </PageHeader>
   );
 };
 

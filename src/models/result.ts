@@ -36,7 +36,7 @@ export interface ResultState {
   id?: string;
   routerType?: 'replace' | 'push';
   stepsProps?: StepsProps | null;
-  title?: string;
+  title: string;
   type: 'success';
 }
 
@@ -57,6 +57,19 @@ export interface ResultModel extends Model {
 const model: ResultModel = {
   namespace: 'result',
   state: defaultState,
+  effects: {
+    *success({ payload }, { put }) {
+      if (payload) {
+        const id = payload.id || UUID(32, '-');
+        yield router[payload.routerType || 'replace'](`/result/${payload.type}/${id}`);
+        ResultStore[id] = payload;
+        yield put({
+          type: 'newState',
+          payload,
+        });
+      }
+    },
+  },
   reducers: {
     update(state: ResultState, { payload }): ResultState {
       if (payload.id === payload.id || !payload.id) {
@@ -69,10 +82,7 @@ const model: ResultModel = {
         return state;
       }
     },
-    success(_, { payload }) {
-      const id = payload.id || UUID(32, '-');
-      router[payload.routerType || 'replace'](`/result/${payload.type}/${id}`);
-      ResultStore[id] = payload;
+    newState(_, { payload }) {
       return {
         ...defaultState,
         ...payload,

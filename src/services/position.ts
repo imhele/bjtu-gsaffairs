@@ -73,3 +73,19 @@ export async function fetchForm(payload: FetchFormPayload) {
     method: 'POST',
   });
 }
+
+interface CreatePositionBody extends RequestBody {
+  [key: string]: any;
+}
+
+export interface CreatePositionPayload {
+  body: CreatePositionBody;
+  query: FetchQuery;
+}
+
+export async function createPosition(payload: CreatePositionPayload) {
+  return requests<CreatePositionBody>(`${APIPrefix}/position/create?${stringify(payload.query)}`, {
+    body: payload.body,
+    method: 'POST',
+  });
+}

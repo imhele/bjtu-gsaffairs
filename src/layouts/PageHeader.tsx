@@ -5,7 +5,11 @@ import styles from './PageHeader.less';
 import { pathnameToArr } from '@/utils/utils';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 
-const PageHeader: React.SFC = props => {
+export interface PageHeaderProps {
+  defaultMessage?: string | ((path: string) => string);
+}
+
+const PageHeader: React.SFC<PageHeaderProps> = ({ children, defaultMessage }) => {
   const { pathname } = window.location;
   const paths = pathnameToArr(pathname);
   const unknownMsg = formatMessage({ id: 'word.unknown-page', defaultMessage: 'Unknown page' });
@@ -18,17 +22,28 @@ const PageHeader: React.SFC = props => {
               <Link to={path}>
                 <FormattedMessage
                   id={`route${path.replace(/\//g, '.')}`}
-                  defaultMessage={unknownMsg}
+                  defaultMessage={
+                    typeof defaultMessage === 'function'
+                      ? defaultMessage(path)
+                      : defaultMessage || unknownMsg
+                  }
                 />
               </Link>
             </Breadcrumb.Item>
           ))}
         </Breadcrumb>
         <div className={styles.title}>
-          <FormattedMessage id={`route${pathname.replace(/\//g, '.')}-title`} defaultMessage={unknownMsg} />
+          <FormattedMessage
+            id={`route${pathname.replace(/\//g, '.')}-title`}
+            defaultMessage={
+              typeof defaultMessage === 'function'
+                ? defaultMessage(pathname)
+                : defaultMessage || unknownMsg
+            }
+          />
         </div>
       </div>
-      {props.children}
+      {children}
     </React.Fragment>
   );
 };

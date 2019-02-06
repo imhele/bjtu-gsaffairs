@@ -2,10 +2,19 @@ import { Model } from 'dva';
 import { message } from 'antd';
 import { safeFun } from '@/utils/utils';
 import { FormItemProps } from 'antd/es/form';
+import { ResultState } from '@/models/result';
+import { formatMessage } from 'umi-plugin-locale';
 import { ColProps, RowProps } from 'antd/es/grid';
+import { formatMoment, formatMomentInForm } from '@/utils/format';
 import { StandardTableOperationAreaProps } from '@/components/StandardTable';
 import { FilterItemProps, SimpleFormItemProps } from '@/components/SimpleForm';
-import { deletePosition, fetchDetail, fetchForm, fetchList } from '@/services/position';
+import {
+  createPosition,
+  deletePosition,
+  fetchDetail,
+  fetchForm,
+  fetchList,
+} from '@/services/position';
 
 export interface PositionDetailProps {
   columns: Array<{
@@ -123,6 +132,31 @@ const model: PositionModel = {
         type: 'setForm',
         payload: response,
       });
+    },
+    *createPosition({ payload }, { call, put }) {
+      payload.body = formatMomentInForm(payload.body, formatMoment.YMD);
+      const response = yield call(createPosition, payload);
+      if (response) {
+        yield put<{ type: string; payload: ResultState }>({
+          type: 'result/success',
+          payload: {
+            type: 'success',
+            actions: [
+              {
+                text: formatMessage({ id: 'position.create.back-to-list' }),
+                type: 'replace',
+                path: `/position/${payload.query.type}/list`,
+              },
+              {
+                text: formatMessage({ id: 'position.create.continue-create' }),
+                type: 'replace',
+                path: `/position/${payload.query.type}/create`,
+              },
+            ],
+            ...response,
+          },
+        });
+      }
     },
   },
   reducers: {

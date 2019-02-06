@@ -39,8 +39,8 @@ const renderFooter = (props: DetailProps): React.ReactNode => {
   }
   /**
    * `delay` in `<QueueAnim />`:
-   * After click close modal, `actionArr` will turn to `[]`,
-   * and then user will see the buttons disappear immediately
+   * When user clicks to close the modal, `actionArr` will turn to `[]`,
+   * and then he will see the buttons disappear immediately
    * before the modal box closes completely.
    * So give it a `delay` to make it look less strange.
    */
