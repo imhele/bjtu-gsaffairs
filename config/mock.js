@@ -3,7 +3,7 @@ import fetch from 'isomorphic-fetch';
 import position from '../mock/position';
 
 /**
- * Maybe there will be a new package `umi-plugin-mock`
+ * Maybe there will be a new package `umi-plugin-mockin`
  */
 
 const mockFiles = {

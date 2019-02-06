@@ -57,6 +57,7 @@ export const addWindowEvent = (() => {
     if (!(windowEvents.get(type) instanceof Map)) {
       windowEvents.set(type, new Map());
       if (window[`on${type}`] !== null) {
+        // tslint:disable-next-line
         console.warn(
           `[addWindowEvent]`,
           `You seem to be adding event listeners to an existing value.`,
@@ -145,6 +146,6 @@ export function safeFun<T = any>(fn: Function, defaultReturn?: T, ...args: any[]
   try {
     return fn(...args);
   } catch (err) {
-    return defaultReturn || err;
+    return typeof defaultReturn === 'undefined' ? err : defaultReturn;
   }
 }

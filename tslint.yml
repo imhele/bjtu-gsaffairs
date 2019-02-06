@@ -25,6 +25,7 @@ rules:
     - time
     - timeEnd
     - trace
+    - warn
   no-construct: true
   no-debugger: true
   no-duplicate-variable: true

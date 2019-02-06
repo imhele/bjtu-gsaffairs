@@ -1,49 +1,34 @@
+import React from 'react';
 import styles from './Filter.less';
 import classNames from 'classnames';
-import React, { Component } from 'react';
-import { groupByAmount } from '@/utils/utils';
-import { RowProps, ColProps } from 'antd/es/grid';
 import { Button, Col, Form, Icon, Row } from 'antd';
-import { WrappedFormUtils } from 'antd/es/form/Form';
-import { FormComponentProps, FormItemProps } from 'antd/es/form';
-import {
-  FormCreateOptions,
+import { groupByAmount, safeFun } from '@/utils/utils';
+import BaseForm, {
+  BaseFormProps,
+  FormEventStore,
+  renderFormItem,
   SimpleFormItemProps as FilterItemProps,
   SimpleFormItemType as FilterType,
-  renderFormItem,
-} from './Form';
+} from './BaseForm';
 
 export { FilterItemProps, FilterType };
 
-export interface FilterProps extends FormComponentProps {
+export interface FilterProps extends BaseFormProps<FilterProps> {
   animation?: boolean;
-  className?: string;
-  colProps?: ColProps;
   expanded?: boolean;
   expandText?: {
     expand: React.ReactNode;
     retract: React.ReactNode;
   };
   filters?: FilterItemProps[];
-  formCreateOptions?: FormCreateOptions;
-  formItemProps?: FormItemProps;
-  groupAmount?: number;
-  onReset?: (form: WrappedFormUtils) => void;
-  onSubmit?: (fieldsValue: any, form: WrappedFormUtils) => void;
   operationArea?: React.ReactNode | null;
-  resetLoading?: boolean;
-  resetText?: React.ReactNode;
-  rowProps?: RowProps;
-  style?: React.CSSProperties;
-  submitLoading?: boolean;
-  submitText?: React.ReactNode;
 }
 
 interface FilterStates {
   expanded: boolean;
 }
 
-class Filter extends Component<FilterProps, FilterStates> {
+class Filter extends BaseForm<FilterProps, FilterStates> {
   static defaultProps = {
     animation: true,
     colProps: {
@@ -56,7 +41,9 @@ class Filter extends Component<FilterProps, FilterStates> {
     },
     filters: [],
     groupAmount: 3,
+    onFieldsChange: () => {},
     onSubmit: () => {},
+    onValuesChange: () => {},
     resetLoading: false,
     resetText: 'Reset',
     rowProps: {
@@ -77,28 +64,6 @@ class Filter extends Component<FilterProps, FilterStates> {
 
   state = {
     expanded: false,
-  };
-
-  private wrappedFormUtils: WrappedFormUtils = null;
-
-  private initialFieldsValue: object = {};
-
-  constructor(props: FilterProps) {
-    super(props);
-    this.wrappedFormUtils = {
-      ...props.form,
-      resetFields: this.resetFields,
-    };
-  }
-
-  resetFields = (names?: string[]) => {
-    const { form } = this.props;
-    if (!Array.isArray(names)) {
-      this.initialFieldsValue = {};
-    } else {
-      names.forEach(key => (this.initialFieldsValue[key] = undefined));
-    }
-    form.resetFields(names);
   };
 
   onChangeExpand = () => {
@@ -143,7 +108,7 @@ class Filter extends Component<FilterProps, FilterStates> {
         <Row {...rowProps} key={index}>
           {value.map(item => (
             <Col {...colProps} {...item.colProps} key={item.id}>
-              {renderFormItem(item, form, formItemProps, this.initialFieldsValue)}
+              {renderFormItem(item, form, formItemProps, this.tempFieldsValue)}
             </Col>
           ))}
         </Row>
@@ -153,16 +118,6 @@ class Filter extends Component<FilterProps, FilterStates> {
           {this.renderOperationArea()}
         </Row>,
       );
-  };
-
-  onSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    const { form, onSubmit } = this.props;
-    form.validateFieldsAndScroll((err, fieldsValue) => {
-      if (err) return;
-      this.initialFieldsValue = fieldsValue;
-      onSubmit(fieldsValue, this.wrappedFormUtils);
-    });
   };
 
   onReset = () => {
@@ -194,24 +149,19 @@ class Filter extends Component<FilterProps, FilterStates> {
   }
 }
 
-const defaultFormCreateOptions: FormCreateOptions = {
-  onFieldsChange: () => {},
-  onValuesChange: () => {},
-  mapPropsToFields: () => {},
-};
-
-let formCreateOptions: FormCreateOptions = defaultFormCreateOptions;
-
-const FilterWrapper: React.SFC<FilterProps> = props => {
-  formCreateOptions = {
-    ...defaultFormCreateOptions,
-    ...props.formCreateOptions,
-  };
-  return <Filter {...props} />;
-};
-
 export default Form.create<FilterProps>({
-  onFieldsChange: (...args) => formCreateOptions.onFieldsChange(...args),
-  onValuesChange: (...args) => formCreateOptions.onValuesChange(...args),
-  mapPropsToFields: (...args) => formCreateOptions.mapPropsToFields(...args),
-})(FilterWrapper);
+  onFieldsChange: (...args: any[]) => {
+    FormEventStore.onFieldsChange.forEach((fn, index) => {
+      if (safeFun(fn, undefined, ...args) instanceof Error) {
+        FormEventStore.onFieldsChange.splice(index, 1);
+      }
+    });
+  },
+  onValuesChange: (...args: any[]) => {
+    FormEventStore.onValuesChange.forEach((fn, index) => {
+      if (safeFun(fn, undefined, ...args) instanceof Error) {
+        FormEventStore.onValuesChange.splice(index, 1);
+      }
+    });
+  },
+})(Filter);
