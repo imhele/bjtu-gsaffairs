@@ -10,4 +10,7 @@ export default {
   'route.position.teach.list-title': '助教列表',
   'route.position.teach.create': '创建岗位',
   'route.position.teach.create-title': '创建助教岗位',
+  'route.result': '结果页',
+  'route.result.success': '成功页',
+  'route.result.success-title': '成功页',
 };

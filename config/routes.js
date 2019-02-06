@@ -48,6 +48,26 @@ export default [
           },
         ],
       },
+      // result
+      {
+        path: '/result',
+        hideInMenu: true,
+        component: '../layouts/PageHeader',
+        routes: [
+          {
+            path: '/result',
+            redirect: '/exception/404',
+          },
+          {
+            path: '/result/success',
+            redirect: '/exception/404',
+          },
+          {
+            path: '/result/success/:id',
+            component: './Result/Success',
+          },
+        ],
+      },
       // exceptions
       {
         path: '/exception',

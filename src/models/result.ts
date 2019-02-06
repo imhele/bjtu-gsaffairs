@@ -1,7 +1,11 @@
 import React from 'react';
 import { Model } from 'dva';
+import router from 'umi/router';
+import { UUID } from '@/utils/utils';
 import { ButtonProps } from 'antd/es/button';
 import { StepsProps } from '@/components/Steps';
+
+export const ResultStore: { [key: string]: ResultState } = {};
 
 export interface ResultAction<T = any, U = (payload: T) => void> {
   buttonProps?: ButtonProps;
@@ -14,7 +18,7 @@ export interface ResultAction<T = any, U = (payload: T) => void> {
   onClick?: (event: React.MouseEvent) => void;
   path?: string;
   text?: string | React.ReactNode;
-  type: 'href' | 'path' | 'back' | 'onClick' | 'dispatch';
+  type: 'href' | 'push' | 'replace' | 'back' | 'onClick' | 'dispatch';
 }
 
 export interface ResultExtra {
@@ -29,6 +33,8 @@ export interface ResultState {
   actions?: ResultAction[];
   description?: string;
   extra?: ResultExtra | null;
+  id?: string;
+  routerType?: 'replace' | 'push';
   stepsProps?: StepsProps | null;
   title?: string;
   type: 'success';
@@ -38,6 +44,7 @@ const defaultState: ResultState = {
   actions: [],
   description: null,
   extra: null,
+  id: null,
   stepsProps: null,
   title: null,
   type: 'success',
@@ -50,11 +57,24 @@ export interface ResultModel extends Model {
 const model: ResultModel = {
   namespace: 'result',
   state: defaultState,
-  effects: {},
   reducers: {
-    setState(state: ResultState, { payload }): ResultState {
+    update(state: ResultState, { payload }): ResultState {
+      if (payload.id === payload.id || !payload.id) {
+        return {
+          ...state,
+          ...payload,
+        };
+      } else {
+        ResultStore[payload.id] = payload;
+        return state;
+      }
+    },
+    success(_, { payload }) {
+      const id = payload.id || UUID(32, '-');
+      router[payload.routerType || 'replace'](`/result/${payload.type}/${id}`);
+      ResultStore[id] = payload;
       return {
-        ...state,
+        ...defaultState,
         ...payload,
       };
     },
