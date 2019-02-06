@@ -1,6 +1,6 @@
 import { Model } from 'dva';
 
-const resetNamespace: string[] = ['login'];
+const resetNamespace: string[] = ['login', 'result'];
 const defaultState = {
   collapsed: true,
 };

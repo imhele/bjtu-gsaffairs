@@ -1,16 +1,15 @@
 import { GlobalState } from './global';
 import { LoginState } from './login';
+import { ResultState } from './result';
 import { PositionState } from '@/pages/Position/models/position';
 
-export { GlobalState, LoginState, PositionState };
+export { GlobalState, LoginState, PositionState, ResultState };
 
-export type Dispatch = <T = any, U = (payload: T) => void>(
-  action: {
-    type: string;
-    payload?: T;
-    callback?: U;
-  },
-) => any;
+export type Dispatch = <T = any, U = (payload: T) => void>(action: {
+  type: string;
+  payload?: T;
+  callback?: U;
+}) => any;
 
 export interface Loading {
   global: boolean;
@@ -19,6 +18,7 @@ export interface Loading {
     globale?: boolean;
     login?: boolean;
     position?: boolean;
+    result?: boolean;
   };
 }
 
@@ -27,6 +27,7 @@ export interface ConnectState {
   login: LoginState;
   loading: Loading;
   position?: PositionState;
+  result?: ResultState;
 }
 
 export interface ConnectProps<T extends object = null> extends React.Props<any> {
@@ -34,9 +35,7 @@ export interface ConnectProps<T extends object = null> extends React.Props<any> 
   location?: Location;
   match?: {
     isExact: boolean;
-    params: {
-      [key in keyof T]: T[key];
-    };
+    params: { [key in keyof T]: T[key] };
     path: string;
     url: string;
   };

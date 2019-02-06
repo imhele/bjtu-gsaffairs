@@ -1,6 +1,5 @@
 import { connect } from 'dva';
 import router from 'umi/router';
-import styles from './Create.less';
 import React, { Component } from 'react';
 import commonStyles from '../common.less';
 import SimpleForm from '@/components/SimpleForm';
@@ -20,17 +19,18 @@ export interface CreateProps extends ConnectProps<{ type: PositionType }> {
 }
 
 const backToList = () => router.push(window.location.pathname.replace('create', 'list'));
-
-const renderOperationArea = (_: any, submitLoading: boolean) => (
-  <Col>
-    <Button htmlType="submit" loading={submitLoading} type="primary">
-      <FormattedMessage id="word.create" />
-    </Button>
-    <Button onClick={backToList} style={{ marginLeft: 8 }}>
-      <FormattedMessage id="word.back" />
-    </Button>
-  </Col>
-);
+const buttonColProps = [
+  {
+    sm: { span: 24, offset: 0 },
+    md: { span: 12, offset: 6 },
+    style: { paddingLeft: '0.5%' },
+  },
+  {
+    sm: { span: 24, offset: 0 },
+    md: { span: 12, offset: 3 },
+    style: { paddingLeft: '0.5%' },
+  },
+];
 
 class Create extends Component<CreateProps> {
   constructor(props: CreateProps) {
@@ -50,6 +50,24 @@ class Create extends Component<CreateProps> {
     });
   }
 
+  renderOperationArea = (_: any, submitLoading: boolean) => {
+    const {
+      position: {
+        form: { groupAmount },
+      },
+    } = this.props;
+    return (
+      <Col {...(groupAmount === 1 ? buttonColProps[0] : buttonColProps[1])}>
+        <Button htmlType="submit" loading={submitLoading} type="primary">
+          <FormattedMessage id="word.create" />
+        </Button>
+        <Button onClick={backToList} style={{ marginLeft: 8 }}>
+          <FormattedMessage id="word.back" />
+        </Button>
+      </Col>
+    );
+  };
+
   render() {
     const {
       loading,
@@ -66,14 +84,13 @@ class Create extends Component<CreateProps> {
       <div className={commonStyles.contentBody}>
         <Skeleton active loading={loading.fetchForm} paragraph={{ rows: 7 }}>
           <SimpleForm
-            className={styles.form}
             colProps={createForm.colProps}
             formItemProps={createForm.formItemProps}
             formItems={createForm.formItems}
             groupAmount={createForm.groupAmount}
             initialFieldsValue={createForm.initialFieldsValue}
             onSubmit={values => console.log(values) /* tslint:disable-line */}
-            renderOperationArea={renderOperationArea}
+            renderOperationArea={this.renderOperationArea}
             rowProps={createForm.rowProps}
             submitLoading={loading.createPosition}
           />

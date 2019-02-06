@@ -73,11 +73,11 @@ const defaultState: PositionState = {
     formItemProps: {
       labelCol: {
         sm: 24,
-        md: 5,
+        md: 6,
       },
       wrapperCol: {
         sm: 24,
-        md: 19,
+        md: 18,
       },
     },
     colProps: {},
@@ -137,7 +137,7 @@ const model: PositionModel = {
       return {
         ...state,
         detail: {
-          ...state.detail,
+          ...defaultState.detail,
           ...payload,
         },
       };
@@ -146,7 +146,7 @@ const model: PositionModel = {
       return {
         ...state,
         form: {
-          ...state.form,
+          ...defaultState.form,
           ...payload,
         },
       };
