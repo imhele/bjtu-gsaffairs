@@ -15,8 +15,8 @@ import MemorableModal from '@/components/MemorableModal';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
 import { AuthorizedId, MediaQuery, MemorableModalId } from '@/global';
-import { HideWithouSelection, PositionType, CellAction, TopbarAction } from './consts';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
+import { HideWithouSelection, PositionType, CellAction, TopbarAction } from './consts';
 import { FetchListPayload, FetchDetailPayload, DeletePositionPayload } from '@/services/position';
 import StandardTable, {
   PaginationConfig,

@@ -65,6 +65,7 @@ export interface BaseFormProps<P> extends FormComponentProps {
   colProps?: ColProps;
   formItemProps?: FormItemProps;
   groupAmount?: number;
+  initialFieldsValue?: object;
   onFieldsChange?: OnFieldsChange<P>;
   onReset?: (form: WrappedFormUtils) => void;
   onSubmit?: (fieldsValue: any, form: WrappedFormUtils) => void;
@@ -79,7 +80,6 @@ export interface BaseFormProps<P> extends FormComponentProps {
 
 export default class BaseForm<P extends BaseFormProps<P>, S = {}> extends Component<P, S> {
   eventIndex: [number, number] = [null, null];
-  initialFieldsValue: object = {};
   wrappedFormUtils: WrappedFormUtils = null;
   tempFieldsValue: object = {};
 
@@ -93,6 +93,7 @@ export default class BaseForm<P extends BaseFormProps<P>, S = {}> extends Compon
       FormEventStore.onFieldsChange.push(this.onFieldsChange) - 1,
       FormEventStore.onValuesChange.push(this.onValuesChange) - 1,
     ];
+    this.tempFieldsValue = props.initialFieldsValue || {};
   }
 
   componentWillUnmount = () => {
@@ -112,11 +113,11 @@ export default class BaseForm<P extends BaseFormProps<P>, S = {}> extends Compon
   };
 
   resetFields = (names?: string[]) => {
-    const { form } = this.props;
+    const { form, initialFieldsValue = {} } = this.props;
     if (!Array.isArray(names)) {
-      this.tempFieldsValue = this.initialFieldsValue;
+      this.tempFieldsValue = initialFieldsValue;
     } else {
-      names.forEach(key => (this.tempFieldsValue[key] = this.initialFieldsValue[key]));
+      names.forEach(key => (this.tempFieldsValue[key] = initialFieldsValue[key]));
     }
     form.resetFields(names);
   };

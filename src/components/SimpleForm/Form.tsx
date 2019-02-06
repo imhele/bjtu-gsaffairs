@@ -12,7 +12,6 @@ import BaseForm, {
 export interface SimpleFormProps extends BaseFormProps<SimpleFormProps> {
   formItems?: SimpleFormItemProps[];
   hideRequiredMark?: boolean;
-  initialFieldsValue?: object;
   layout?: FormLayout;
   renderOperationArea?:
     | null

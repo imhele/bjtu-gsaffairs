@@ -1,9 +1,11 @@
 import { Model } from 'dva';
 import { message } from 'antd';
 import { safeFun } from '@/utils/utils';
-import { FilterItemProps } from '@/components/SimpleForm';
+import { FormItemProps } from 'antd/es/form';
+import { ColProps, RowProps } from 'antd/es/grid';
 import { StandardTableOperationAreaProps } from '@/components/StandardTable';
-import { deletePosition, fetchDetail, fetchList } from '@/services/position';
+import { FilterItemProps, SimpleFormItemProps } from '@/components/SimpleForm';
+import { deletePosition, fetchDetail, fetchForm, fetchList } from '@/services/position';
 
 export interface PositionDetailProps {
   columns: Array<{
@@ -12,6 +14,15 @@ export interface PositionDetailProps {
   }>;
   dataSource: object;
   actionKey: string | string[];
+}
+
+export interface Form {
+  formItems: SimpleFormItemProps[];
+  formItemProps?: FormItemProps;
+  colProps?: ColProps;
+  groupAmount?: number;
+  initialFieldsValue?: object;
+  rowProps?: RowProps;
 }
 
 export interface PositionState {
@@ -35,6 +46,10 @@ export interface PositionState {
    * Position detail
    */
   detail: PositionDetailProps;
+  /**
+   * Form
+   */
+  form: Form;
 }
 
 const defaultState: PositionState = {
@@ -52,6 +67,23 @@ const defaultState: PositionState = {
     columns: [],
     dataSource: {},
     actionKey: 'action',
+  },
+  form: {
+    formItems: [],
+    formItemProps: {
+      labelCol: {
+        sm: 24,
+        md: 5,
+      },
+      wrapperCol: {
+        sm: 24,
+        md: 19,
+      },
+    },
+    colProps: {},
+    groupAmount: 1,
+    initialFieldsValue: {},
+    rowProps: {},
   },
 };
 
@@ -85,6 +117,13 @@ const model: PositionModel = {
       }
       safeFun(callback, null, payload);
     },
+    *fetchForm({ payload }, { call, put }) {
+      const response = yield call(fetchForm, payload);
+      yield put({
+        type: 'setForm',
+        payload: response,
+      });
+    },
   },
   reducers: {
     setState(state: PositionState, { payload }): PositionState {
@@ -99,6 +138,15 @@ const model: PositionModel = {
         ...state,
         detail: {
           ...state.detail,
+          ...payload,
+        },
+      };
+    },
+    setForm(state: PositionState, { payload }): PositionState {
+      return {
+        ...state,
+        form: {
+          ...state.form,
           ...payload,
         },
       };

@@ -1,7 +1,7 @@
 import { APIPrefix } from '@/global';
 import { stringify } from 'querystring';
-import { PositionType } from '@/pages/Position/consts';
 import requests, { RequestBody } from '@/utils/requests';
+import { CellAction, PositionType, TopbarAction } from '@/pages/Position/consts';
 
 interface FetchQuery {
   type: PositionType;
@@ -52,6 +52,23 @@ export interface DeletePositionPayload {
 
 export async function deletePosition(payload: DeletePositionPayload) {
   return requests<DeletePositionBody>(`${APIPrefix}/position/delete?${stringify(payload.query)}`, {
+    body: payload.body,
+    method: 'POST',
+  });
+}
+
+interface FetchFormBody extends RequestBody {
+  action: CellAction | TopbarAction;
+  key?: string | number;
+}
+
+export interface FetchFormPayload {
+  body: FetchFormBody;
+  query: FetchQuery;
+}
+
+export async function fetchForm(payload: FetchFormPayload) {
+  return requests<FetchFormBody>(`${APIPrefix}/position/form?${stringify(payload.query)}`, {
     body: payload.body,
     method: 'POST',
   });
