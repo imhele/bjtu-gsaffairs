@@ -1,10 +1,15 @@
+@import '~antd/es/style/themes/default.less';
+
 .description {
-  left: 42px;
+  left: 40px;
   font-size: 12px;
   text-align: left;
   position: relative;
   color: rgba(0, 0, 0, 0.45);
   &.active {
     color: rgba(0, 0, 0, 0.65);
+  }
+  @media screen and (max-width: @screen-md) {
+    left: 0;
   }
 }

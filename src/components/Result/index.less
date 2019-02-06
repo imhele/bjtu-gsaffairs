@@ -1,11 +1,13 @@
 @import '~antd/es/style/themes/default.less';
 
 .result {
-  text-align: center;
   width: 72%;
+  text-align: center;
+  min-width: 600px;
   margin: 0 auto;
-  @media screen and (max-width: @screen-xs) {
-    width: 100%;
+  @media screen and (max-width: @screen-md) {
+    width: 90%;
+    min-width: unset;
   }
 
   .icon {

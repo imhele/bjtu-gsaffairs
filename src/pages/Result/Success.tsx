@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from 'antd';
 import { connect } from 'dva';
+import Media from 'react-media';
 import router from 'umi/router';
 import Result from '@/components/Result';
 import commonStyles from '../common.less';
@@ -11,10 +12,15 @@ import DescriptionList, { DescriptionProps } from '@/components/DescriptionList'
 import { ConnectProps, ConnectState, Dispatch, ResultState } from '@/models/connect';
 
 export interface SuccessProps extends ConnectProps<{ id: string }>, ResultState {
-  loading: { [key: string]: boolean };
+  isMobile?: boolean;
+  loading?: { [key: string]: boolean };
 }
 
-const renderExtra = (extra: ResultExtra, stepsProps: StepsProps): React.ReactNode => (
+const renderExtra = (
+  extra: ResultExtra,
+  stepsProps: StepsProps,
+  isMobile: boolean,
+): React.ReactNode => (
   <React.Fragment>
     {extra && (
       <DescriptionList
@@ -29,7 +35,12 @@ const renderExtra = (extra: ResultExtra, stepsProps: StepsProps): React.ReactNod
       />
     )}
     {stepsProps && (
-      <Steps progressDot style={{ marginLeft: -42, width: 'calc(100% + 84px)' }} {...stepsProps} />
+      <Steps
+        direction={isMobile ? 'vertical' : 'horizontal'}
+        progressDot
+        style={isMobile ? {} : { marginLeft: -42, width: 'calc(100% + 84px)' }}
+        {...stepsProps}
+      />
     )}
   </React.Fragment>
 );
@@ -93,6 +104,7 @@ const addTypeForFirstButton = (action: ResultAction, index: number): ResultActio
 const Success: React.SFC<SuccessProps> = props => {
   const {
     dispatch,
+    isMobile,
     loading,
     match: {
       params: { id: currentId },
@@ -107,7 +119,7 @@ const Success: React.SFC<SuccessProps> = props => {
           type="success"
           title={title}
           description={description}
-          extra={renderExtra(extra, stepsProps)}
+          extra={renderExtra(extra, stepsProps, isMobile)}
           actions={
             actions &&
             actions
@@ -126,4 +138,6 @@ const Success: React.SFC<SuccessProps> = props => {
 export default connect(({ loading, result }: ConnectState) => ({
   ...result,
   loading: loading.effects,
-}))(Success);
+}))((props: SuccessProps) => (
+  <Media query="(max-width: 768px)">{isMobile => <Success isMobile={isMobile} {...props} />}</Media>
+));

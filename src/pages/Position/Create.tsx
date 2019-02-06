@@ -5,9 +5,9 @@ import commonStyles from '../common.less';
 import SimpleForm from '@/components/SimpleForm';
 import Exception404 from '@/pages/Exception/404';
 import { PositionType, TopbarAction } from './consts';
+import { Button, Col, message, Skeleton } from 'antd';
 import { FetchFormPayload } from '@/services/position';
 import { CreatePositionPayload } from '@/services/position';
-import { Button, Col, message, Skeleton, Spin } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 
