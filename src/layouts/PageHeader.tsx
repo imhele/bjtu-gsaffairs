@@ -25,7 +25,7 @@ const PageHeader: React.SFC = props => {
           ))}
         </Breadcrumb>
         <div className={styles.title}>
-          <FormattedMessage id={`route${pathname.replace(/\//g, '.')}`} defaultMessage={unknownMsg} />
+          <FormattedMessage id={`route${pathname.replace(/\//g, '.')}-title`} defaultMessage={unknownMsg} />
         </div>
       </div>
       {props.children}

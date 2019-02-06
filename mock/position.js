@@ -1,5 +1,11 @@
 import { APIPrefix } from './login';
-import { detailColumns, detailDataSource, possibleValues, tableColumns } from './position.json';
+import {
+  createForm,
+  detailColumns,
+  detailDataSource,
+  possibleValues,
+  tableColumns,
+} from './position.json';
 
 /**
  * Common data
@@ -224,8 +230,32 @@ const positionDelete = (req, res) => {
   }, 400);
 };
 
+/**
+ * Part of `position/form`
+ */
+const positionForm = (req, res) => {
+  const { type } = req.query;
+  const { action } = req.body || {};
+  if (!['manage', 'teach'].includes(type)) {
+    return res.send({
+      errcode: 40001,
+      errmsg: 'Invalid type of position',
+    });
+  }
+  if (!['create'].includes(action)) {
+    return res.send({
+      errcode: 40004,
+      errmsg: 'Invalid action type for fetching form',
+    });
+  }
+  setTimeout(() => {
+    res.send(createForm[type]);
+  }, 400);
+};
+
 export default {
   [`POST ${APIPrefix}/position/list`]: positionList,
   [`POST ${APIPrefix}/position/detail`]: positionDetail,
   [`POST ${APIPrefix}/position/delete`]: positionDelete,
+  [`POST ${APIPrefix}/position/form`]: positionForm,
 };
