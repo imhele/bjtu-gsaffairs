@@ -74,7 +74,7 @@ export const formatMomentInSimpleFormInitValue = (
 };
 
 export const formatStrOrNumQuery = {
-  parse: (query: string, char: string = '|'): Map<string | number, string | number> => {
+  parse: (query: string, char: string = '~'): Map<string | number, string | number> => {
     const res = new Map();
     if (typeof query !== 'string' || !query) return res;
     if (query[0] === '?') query = query.slice(1);
@@ -101,7 +101,7 @@ export const formatStrOrNumQuery = {
       [key: string]: string | number;
       [key: number]: string | number;
     },
-    char: string = '|',
+    char: string = '~',
   ): string => {
     if (typeof query !== 'object') return '';
     const res = {};
