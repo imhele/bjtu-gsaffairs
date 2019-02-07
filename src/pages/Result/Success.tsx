@@ -6,6 +6,7 @@ import router from 'umi/router';
 import Result from '@/components/Result';
 import commonStyles from '../common.less';
 import PageHeader from '@/layouts/PageHeader';
+import { formatMessage } from 'umi-plugin-locale';
 import Steps, { StepsProps } from '@/components/Steps';
 import { ResultAction, ResultExtra, ResultStore } from '@/models/result';
 import DescriptionList, { DescriptionProps } from '@/components/DescriptionList';
@@ -15,6 +16,14 @@ export interface SuccessProps extends ConnectProps<{ id: string }>, ResultState 
   isMobile?: boolean;
   loading?: { [key: string]: boolean };
 }
+
+const defaultActions: ResultAction[] = [
+  {
+    path: '/',
+    text: formatMessage({ id: 'word.back-to-home' }),
+    type: 'replace',
+  },
+];
 
 const renderExtra = (
   extra: ResultExtra,
@@ -111,7 +120,7 @@ const Success: React.SFC<SuccessProps> = props => {
     },
   } = props;
   const { actions, description, extra, stepsProps, title } =
-    props.id === currentId ? props : ResultStore[currentId] || ({} as ResultState);
+    props.id === currentId ? props : ResultStore[currentId] || props;
   return (
     <PageHeader defaultMessage={title}>
       <div className={commonStyles.contentBody}>
@@ -119,15 +128,12 @@ const Success: React.SFC<SuccessProps> = props => {
           type="success"
           title={title}
           description={description}
-          extra={renderExtra(extra, stepsProps, isMobile)}
-          actions={
-            actions &&
-            actions
-              .map((action, index) =>
-                renderAction(addTypeForFirstButton(action, index), dispatch, loading, index),
-              )
-              .filter(action => action)
-          }
+          extra={(extra || stepsProps) && renderExtra(extra, stepsProps, isMobile)}
+          actions={(actions === null ? null : actions || defaultActions)
+            .map((action, index) =>
+              renderAction(addTypeForFirstButton(action, index), dispatch, loading, index),
+            )
+            .filter(action => action)}
           style={{ marginTop: 48, marginBottom: 16 }}
         />
       </div>

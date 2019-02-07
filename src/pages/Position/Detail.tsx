@@ -4,6 +4,7 @@ import QueueAnim from 'rc-queue-anim';
 import { ButtonProps } from 'antd/es/button';
 import { Button, Modal, Skeleton } from 'antd';
 import { FormattedMessage } from 'umi-plugin-locale';
+import Steps, { StepsProps } from '@/components/Steps';
 import { PositionDetailProps } from './models/position';
 import { StandardTableAction } from '@/components/StandardTable';
 import DescriptionList, { DescriptionProps } from '@/components/DescriptionList';
@@ -20,6 +21,7 @@ export interface DetailProps extends PositionDetailProps {
   ) => void;
   onClose?: () => void;
   renderFooterProps?: (action: StandardTableAction, currentRowKey: string | number) => ButtonProps;
+  stepsProps?: StepsProps;
   visible?: boolean;
 }
 
@@ -79,7 +81,8 @@ const Detail: React.SFC<DetailProps> = props => (
     title={<FormattedMessage id="position.detail" />}
     visible={props.visible}
   >
-    <Skeleton active loading={props.loading} paragraph={{ rows: 5 }}>
+    <Skeleton active loading={props.loading} paragraph={{ rows: 7 }}>
+      {props.stepsProps && <Steps className={styles.steps} {...props.stepsProps} />}
       <DescriptionList
         description={props.columns.map(
           (col): DescriptionProps => ({

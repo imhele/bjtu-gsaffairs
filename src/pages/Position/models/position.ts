@@ -3,6 +3,7 @@ import { message } from 'antd';
 import { safeFun } from '@/utils/utils';
 import { FormItemProps } from 'antd/es/form';
 import { ResultState } from '@/models/result';
+import { StepsProps } from '@/components/Steps';
 import { formatMessage } from 'umi-plugin-locale';
 import { ColProps, RowProps } from 'antd/es/grid';
 import { formatMoment, formatMomentInForm } from '@/utils/format';
@@ -17,12 +18,13 @@ import {
 } from '@/services/position';
 
 export interface PositionDetailProps {
+  actionKey: string | string[];
   columns: Array<{
     dataIndex: string;
     title: string;
   }>;
   dataSource: object;
-  actionKey: string | string[];
+  stepsProps?: StepsProps;
 }
 
 export interface Form {
@@ -73,9 +75,10 @@ const defaultState: PositionState = {
   },
   unSelectableKey: 'unSelectable',
   detail: {
+    actionKey: 'action',
     columns: [],
     dataSource: {},
-    actionKey: 'action',
+    stepsProps: null,
   },
   form: {
     formItems: [],

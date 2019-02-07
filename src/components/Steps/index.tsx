@@ -1,5 +1,4 @@
 import React from 'react';
-import styles from './index.less';
 import { Steps as AntSteps } from 'antd';
 
 export interface StepsItem {
@@ -22,18 +21,13 @@ export interface StepsProps {
   style?: React.CSSProperties;
 }
 
-const Steps: React.SFC<StepsProps> = ({ steps, ...restProps }) => (
-  <AntSteps {...restProps}>
-    {steps.map((step, index) => (
-      <AntSteps.Step
-        description={<div className={styles.description}>{step.description}</div>}
-        icon={step.icon}
-        key={step.key || index}
-        status={step.status}
-        title={step.title}
-      />
-    ))}
-  </AntSteps>
-);
+const Steps: React.SFC<StepsProps> = ({ steps, ...restProps }) =>
+  steps ? (
+    <AntSteps {...restProps}>
+      {steps.map((step, index) => (
+        <AntSteps.Step {...step} key={step.key || index} />
+      ))}
+    </AntSteps>
+  ) : null;
 
 export default Steps;

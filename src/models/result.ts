@@ -41,7 +41,6 @@ export interface ResultState {
 }
 
 const defaultState: ResultState = {
-  actions: [],
   description: null,
   extra: null,
   id: null,
@@ -60,7 +59,7 @@ const model: ResultModel = {
   effects: {
     *success({ payload }, { put }) {
       if (payload) {
-        const id = payload.id || UUID(32, '-');
+        const id = payload.id || UUID(6);
         yield router[payload.routerType || 'replace'](`/result/${payload.type}/${id}`);
         ResultStore[id] = payload;
         yield put({

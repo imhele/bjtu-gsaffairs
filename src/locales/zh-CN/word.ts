@@ -1,5 +1,6 @@
 export default {
   'word.back': '返回',
+  'word.back-to-home': '返回首页',
   'word.clear': '清空',
   'word.close': '关闭',
   'word.confirm': '确认',

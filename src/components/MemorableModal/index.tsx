@@ -31,9 +31,12 @@ interface MemorableModalComponent {
   success: MemorableModalFunc;
   warn: MemorableModalFunc;
   setLocale: (formatText: (expiresIn?: number, timeUnit?: TimeUnit) => React.ReactNode) => void;
+  setStorage: (storage: Storage) => void;
 }
 
 const noop = () => {};
+
+let storage = sessionStorage;
 
 const selected: { [key: string]: boolean } = {};
 
@@ -79,7 +82,7 @@ const Memorable = (
   if (typeof id === 'string') {
     id = `MemorableModal-${type}-${id}`;
     const now = Date.now();
-    const preExpiryTime = localStorage.getItem(id);
+    const preExpiryTime = storage.getItem(id);
     if (preExpiryTime && now.toString() < preExpiryTime) {
       onOk!(payload);
       return { destroy: null, update: null };
@@ -109,9 +112,9 @@ const Memorable = (
           const nextExpiryTime = expiresIn
             ? (now + tranformTime(expiresIn, timeUnit)).toString()
             : '9';
-          localStorage.setItem(id, nextExpiryTime);
+          storage.setItem(id, nextExpiryTime);
         } else if (preExpiryTime) {
-          localStorage.removeItem(id);
+          storage.removeItem(id);
         }
         return onOk!(payload, ...args);
       },
@@ -127,6 +130,7 @@ const MemorableModal: MemorableModalComponent = {
   success: props => Memorable(props, 'success'),
   warn: props => Memorable(props, 'warn'),
   setLocale: formatText => (locale = formatText),
+  setStorage: newStorage => (storage = newStorage),
 };
 
 export default MemorableModal;

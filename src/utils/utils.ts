@@ -86,14 +86,13 @@ export function sandwichArray<T = any, U = any, V = any>(
   handleJoin: (join: U | U[], value: T, index: number) => U | V | U[] | V[] = v => v,
 ) {
   if (!Array.isArray(arr)) return arr;
-  const res: Array<T | U | V> = [];
-  arr.forEach((value, index) => {
-    if (!(index % interval)) {
-      const handled = handleJoin(join, value, index);
-      res.push(...(Array.isArray(handled) ? handled : [handled]));
-    }
-    res.push(value);
-  });
+  const res: Array<T | U | V> = arr.reduce(
+    (preValue, curValue, curIndex) =>
+      curIndex % interval
+        ? preValue.concat(curValue)
+        : preValue.concat(handleJoin(join, curValue, curIndex), curValue),
+    [],
+  );
   if (wrap) {
     return res.concat(handleJoin(join, undefined, undefined));
   }

@@ -193,9 +193,50 @@ const positionDetail = (req, res) => {
     releaseStatus: currentPosition.releaseStatus,
   };
   condition.forEach(cond => delete dataSource[cond]);
+  let current = 0;
+  let status = 'process';
+  switch (dataSource.checkStatus) {
+    case '待审核':
+      current = Math.random() > 0.5 ? 1 : 2;
+      break;
+    case '审核通过':
+      current = type === 'manage' ? 3 : 4;
+      if (dataSource.releaseStatus === '已发布') {
+        status = 'finish';
+      } else {
+        status = 'wait';
+      }
+      break;
+    case '审核不通过':
+      current = Math.random() > 0.5 ? 1 : 2;
+      status = 'error';
+      break;
+    default:
+      break;
+  }
   const result = {
     columns: detailColumns.filter(col => !condition.includes(col.dataIndex)),
     dataSource,
+    stepsProps: {
+      current,
+      status,
+      labelPlacement: 'vertical',
+      steps:
+        type === 'manage'
+          ? [
+              { title: '单位申报' },
+              { title: '人事处审核' },
+              { title: '研工部审核' },
+              { title: '发布岗位' },
+            ]
+          : [
+              { title: '教师申报' },
+              { title: '用人单位审核' },
+              { title: detailDataSource.classType === '本科' ? '教务处审核' : '研究生院审核' },
+              { title: '研工部审核' },
+              { title: '发布岗位' },
+            ],
+    },
   };
   setTimeout(() => {
     res.send(result);
@@ -280,6 +321,7 @@ const positionCreate = (req, res) => {
     releaseStatus: possibleValues.releaseStatus[0],
     ...req.body,
     name: { text: req.body.name, type: 'preview' },
+    timeRange: req.body.timeRange.join(' ~ '),
   });
   const extraData =
     type === 'manage' ? ['sess', 'name', 'adminName'] : ['sess', 'name', 'classTech'];
@@ -291,23 +333,35 @@ const positionCreate = (req, res) => {
       extra: {
         columns: detailColumns.filter(col => extraData.includes(col.dataIndex)),
         dataSource: {
-          sess: req.body.sess,
-          name: req.body.name,
-          adminName: req.body.adminName,
-          classTech: req.body.classTech,
+          sess: source[type][0].sess,
+          name: source[type][0].name.text,
+          adminName: source[type][0].adminName,
+          classTech: source[type][0].classTech,
         },
       },
       stepsProps: {
         current: 1,
-        steps: [
-          {
-            description: moment().format('YYYY-MM-DD HH:mm'),
-            title: '单位申报',
-          },
-          { title: '人事处审核' },
-          { title: '研工部审核' },
-          { title: '发布岗位' },
-        ],
+        steps:
+          type === 'manage'
+            ? [
+                {
+                  description: moment().format('YYYY-MM-DD HH:mm'),
+                  title: '单位申报',
+                },
+                { title: '人事处审核' },
+                { title: '研工部审核' },
+                { title: '发布岗位' },
+              ]
+            : [
+                {
+                  description: moment().format('YYYY-MM-DD HH:mm'),
+                  title: '教师申报',
+                },
+                { title: '用人单位审核' },
+                { title: req.body.classType === '本科' ? '教务处审核' : '研究生院审核' },
+                { title: '研工部审核' },
+                { title: '发布岗位' },
+              ],
       },
     });
   }, 400);
