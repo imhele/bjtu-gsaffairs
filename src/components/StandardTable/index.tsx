@@ -42,7 +42,7 @@ export interface StandardTableOperation extends StandardTableAction {
 }
 
 export interface StandardTableOperationAreaProps {
-  animationProps?: QueueAnimProps;
+  animationProps?: QueueAnimProps<Element>;
   disabled?: (operation: StandardTableOperation, selectedRowKeys: string[] | number[]) => boolean;
   dropdownProps?: DropDownProps;
   loading?: (operation: StandardTableOperation, selectedRowKeys: string[] | number[]) => boolean;

@@ -66,7 +66,7 @@ const source = {
     key: `${index}`,
     action: possibleValues.action[Math.random() > 0.7 ? 0 : 1],
     applyStatus: possibleValues.applyStatus[index % 5],
-    campus: possibleValues.campus[Math.random() > 0.6 ? 0 : 1],
+    campus: possibleValues.campus[Math.random() > 0.4 ? 0 : 1],
     checkStatus: possibleValues.checkStatus[index % 5],
     depName: possibleValues.depName[index % 3],
     name: possibleValues.name[Math.random() > 0.33 ? (Math.random() > 0.66 ? 0 : 1) : 2],
@@ -79,7 +79,7 @@ const source = {
     key: `${index}`,
     action: possibleValues.action[Math.random() > 0.7 ? 0 : 1],
     applyStatus: possibleValues.applyStatus[index % 5],
-    campus: possibleValues.campus[Math.random() > 0.6 ? 0 : 1],
+    campus: possibleValues.campus[Math.random() > 0.4 ? 0 : 1],
     checkStatus: possibleValues.checkStatus[index % 5],
     depName: possibleValues.depName[index % 3],
     name: possibleValues.name[Math.random() > 0.33 ? (Math.random() > 0.66 ? 0 : 1) : 2],
@@ -277,21 +277,37 @@ const positionDelete = (req, res) => {
  */
 const positionForm = (req, res) => {
   const { type } = req.query;
-  const { action } = req.body || {};
+  const { action, key = '' } = req.body || {};
   if (!['manage', 'teach'].includes(type)) {
     return res.send({
       errcode: 40001,
       errmsg: 'Invalid type of position',
     });
   }
-  if (!['create'].includes(action)) {
+  if (!['create', 'edit'].includes(action)) {
     return res.send({
       errcode: 40004,
       errmsg: 'Invalid action type for fetching form',
     });
   }
+  const result = createForm[type];
+  if (action === 'edit') {
+    const currentPosition = source[type].find(row => row.key === key);
+    if (!currentPosition) {
+      return res.send({
+        errcode: 40002,
+        errmsg: 'Invalid key of position',
+      });
+    }
+    result.initialFieldsValue = {
+      ...detailDataSource,
+      ...currentPosition,
+      name: currentPosition.name.text,
+    };
+    result.initialFieldsValue.timeRange = result.initialFieldsValue.timeRange.split(' ~ ');
+  }
   setTimeout(() => {
-    res.send(createForm[type]);
+    res.send(result);
   }, 400);
 };
 
@@ -367,10 +383,48 @@ const positionCreate = (req, res) => {
   }, 400);
 };
 
+/**
+ * Part of `position/edit`
+ */
+const positionEdit = (req, res) => {
+  const { type } = req.query;
+  const { key = '' } = req.body || {};
+  if (!['manage', 'teach'].includes(type)) {
+    return res.send({
+      errcode: 40001,
+      errmsg: 'Invalid type of position',
+    });
+  }
+  if (!req.body) {
+    return res.send({
+      errcode: 40005,
+      errmsg: 'Invalid value(s)',
+    });
+  }
+  const currentIndex = source[type].findIndex(row => row.key === key);
+  if (currentIndex === -1) {
+    return res.send({
+      errcode: 40002,
+      errmsg: 'Invalid key of position',
+    });
+  }
+  source[type][currentIndex] = {
+    ...source[type][currentIndex],
+    ...req.body,
+  };
+  setTimeout(() => {
+    res.send({
+      errcode: 0,
+      errmsg: '提交成功',
+    });
+  }, 400);
+};
+
 export default {
   [`POST ${APIPrefix}/position/list`]: positionList,
   [`POST ${APIPrefix}/position/detail`]: positionDetail,
   [`POST ${APIPrefix}/position/delete`]: positionDelete,
   [`POST ${APIPrefix}/position/form`]: positionForm,
   [`POST ${APIPrefix}/position/create`]: positionCreate,
+  [`POST ${APIPrefix}/position/edit`]: positionEdit,
 };

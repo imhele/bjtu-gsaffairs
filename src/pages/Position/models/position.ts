@@ -6,16 +6,21 @@ import { ResultState } from '@/models/result';
 import { StepsProps } from '@/components/Steps';
 import { formatMessage } from 'umi-plugin-locale';
 import { ColProps, RowProps } from 'antd/es/grid';
-import { formatMoment, formatMomentInForm } from '@/utils/format';
 import { StandardTableOperationAreaProps } from '@/components/StandardTable';
 import { FilterItemProps, SimpleFormItemProps } from '@/components/SimpleForm';
 import {
   createPosition,
   deletePosition,
+  editPosition,
   fetchDetail,
   fetchForm,
   fetchList,
 } from '@/services/position';
+import {
+  formatMoment,
+  formatMomentInFieldsValue,
+  formatMomentInSimpleFormInitValue as formatFormInitValue,
+} from '@/utils/format';
 
 export interface PositionDetailProps {
   actionKey: string | string[];
@@ -131,13 +136,21 @@ const model: PositionModel = {
     },
     *fetchForm({ payload }, { call, put }) {
       const response = yield call(fetchForm, payload);
-      yield put({
-        type: 'setForm',
-        payload: response,
-      });
+      if (response && typeof response === 'object') {
+        response.initialFieldsValue = safeFun(
+          formatFormInitValue,
+          {},
+          response.formItems,
+          response.initialFieldsValue,
+        );
+        yield put({
+          type: 'setForm',
+          payload: response,
+        });
+      }
     },
     *createPosition({ payload }, { call, put }) {
-      payload.body = formatMomentInForm(payload.body, formatMoment.YMD);
+      payload.body = formatMomentInFieldsValue(payload.body, formatMoment.YMD);
       const response = yield call(createPosition, payload);
       if (response) {
         yield put<{ type: string; payload: ResultState }>({
@@ -159,6 +172,13 @@ const model: PositionModel = {
             ...response,
           },
         });
+      }
+    },
+    *editPosition({ payload }, { call, put }) {
+      payload.body = formatMomentInFieldsValue(payload.body, formatMoment.YMD);
+      const response = yield call(editPosition, payload);
+      if (response && !response.errcode) {
+        message.success(response.errmsg);
       }
     },
   },

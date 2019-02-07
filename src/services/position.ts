@@ -89,3 +89,20 @@ export async function createPosition(payload: CreatePositionPayload) {
     method: 'POST',
   });
 }
+
+interface EditPositionBody extends RequestBody {
+  key: string | number;
+  [key: string]: any;
+}
+
+export interface EditPositionPayload {
+  body: EditPositionBody;
+  query: FetchQuery;
+}
+
+export async function editPosition(payload: EditPositionPayload) {
+  return requests<EditPositionBody>(`${APIPrefix}/position/edit?${stringify(payload.query)}`, {
+    body: payload.body,
+    method: 'POST',
+  });
+}
