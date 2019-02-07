@@ -290,7 +290,7 @@ const positionForm = (req, res) => {
       errmsg: 'Invalid action type for fetching form',
     });
   }
-  const result = createForm[type];
+  const result = { ...createForm[type] };
   if (action === 'edit') {
     const currentPosition = source[type].find(row => row.key === key);
     if (!currentPosition) {

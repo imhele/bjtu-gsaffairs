@@ -8,16 +8,16 @@
   .transition-linear(0.2s);
   padding: @page-gap-6 @page-gap-8;
   margin: @page-gap-6 @page-gap-6 0 @page-gap-6;
-}
-
-@media screen and (max-width: @screen-lg) {
-  .contentBody {
-    padding: @page-gap-6;
+  &.verticalSpace {
+    padding: @page-gap-6 * 2 @page-gap-8;
   }
-}
-
-@media screen and (max-width: @screen-mobile) {
-  .contentBody {
+  @media screen and (max-width: @screen-lg) {
+    padding: @page-gap-6;
+    &.verticalSpace {
+      padding: @page-gap-8 @page-gap-6;
+    }
+  }
+  @media screen and (max-width: @screen-mobile) {
     margin: @page-gap-6 0 0 0;
   }
 }

@@ -1,5 +1,7 @@
 import { connect } from 'dva';
 import router from 'umi/router';
+import classNames from 'classnames';
+import QueueAnim from 'rc-queue-anim';
 import React, { Component } from 'react';
 import commonStyles from '../common.less';
 import SimpleForm from '@/components/SimpleForm';
@@ -111,12 +113,13 @@ class Edit extends Component<EditProps> {
       },
       position: { form: editForm },
     } = this.props;
+    const className = classNames(commonStyles.contentBody, commonStyles.verticalSpace);
     if (!Object.values(PositionType).includes(type)) {
       return <Exception404 />;
     }
     return (
-      <div className={commonStyles.contentBody}>
-        <Skeleton active loading={loading.fetchForm} paragraph={{ rows: 7 }}>
+      <QueueAnim type="left" className={className}>
+        <Skeleton active key="Skeleton" loading={loading.fetchForm} paragraph={{ rows: 7 }}>
           <SimpleForm
             colProps={editForm.colProps}
             formItemProps={editForm.formItemProps}
@@ -129,7 +132,7 @@ class Edit extends Component<EditProps> {
             submitLoading={loading.editPosition}
           />
         </Skeleton>
-      </div>
+      </QueueAnim>
     );
   }
 }

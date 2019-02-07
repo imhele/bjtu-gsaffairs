@@ -211,13 +211,13 @@ export const renderFormItem = (
   if (formItem.tip) {
     if (typeof formItem.tip === 'object' && 'title' in formItem.tip) {
       item = (
-        <Tooltip placement="topLeft" {...formItem.tip}>
+        <Tooltip trigger="focus" placement="topLeft" {...formItem.tip}>
           {item}
         </Tooltip>
       );
     } else {
       item = (
-        <Tooltip placement="topLeft" title={formItem.tip}>
+        <Tooltip trigger="focus" placement="topLeft" title={formItem.tip}>
           {item}
         </Tooltip>
       );
