@@ -212,11 +212,11 @@
     "classTime": "32 学时",
     "need": "Desc.",
     "content": "Content.",
-    "timeRange": "2019年01月10日 ~ 2019年06月20日",
+    "timeRange": "2019-01-10 ~ 2019-06-20",
     "workTimeL": "12 小时/周",
     "workTimeD": "周三",
     "address": "第九教学楼 xxx",
-    "campus": "主校区",
+    "campus": "校本部",
     "way": "固定",
     "remark": "无",
     "checkStatus": "审核通过",
@@ -230,7 +230,7 @@
       },
       "groupAmount": 2,
       "initialFieldsValue": {
-        "campus": "主校区",
+        "campus": "校本部",
         "way": "固定"
       },
       "rowProps": {
@@ -439,7 +439,7 @@
           },
           "selectOptions": [
             {
-              "value": "主校区"
+              "value": "校本部"
             },
             {
               "value": "东校区"
@@ -509,7 +509,7 @@
       "groupAmount": 2,
       "initialFieldsValue": {
         "classType": "本科",
-        "campus": "主校区",
+        "campus": "校本部",
         "way": "固定"
       },
       "rowProps": {
@@ -790,7 +790,7 @@
           },
           "selectOptions": [
             {
-              "value": "主校区"
+              "value": "校本部"
             },
             {
               "value": "东校区"

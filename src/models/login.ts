@@ -8,10 +8,12 @@ const defaultState = {
   scope: <null>[
     'scope.position.manage.list',
     'scope.position.manage.create',
+    'scope.position.manage.edit',
     'scope.position.manage.export',
     'scope.position.manage.delete',
     'scope.position.teach.list',
     'scope.position.teach.create',
+    'scope.position.teach.edit',
     'scope.position.teach.export',
   ], // @DEBUG
   status: false,

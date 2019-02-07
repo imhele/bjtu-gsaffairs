@@ -11,6 +11,7 @@ import { message, Radio, Skeleton } from 'antd';
 import { Filter } from '@/components/SimpleForm';
 import { RadioChangeEvent } from 'antd/es/radio';
 import { WrappedFormUtils } from 'antd/es/form/Form';
+import { formatStrOrNumQuery } from '@/utils/format';
 import MemorableModal from '@/components/MemorableModal';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
@@ -294,6 +295,10 @@ class List extends Component<ListProps, ListState> {
           title: formatMessage({ id: 'position.delete.confirm' }),
         });
         break;
+      case CellAction.Edit:
+        const query = formatStrOrNumQuery.stringify({ key: currentRowKey });
+        router.push(`edit?${query}`);
+        break;
       default:
         message.warn(formatMessage({ id: 'position.error.unknown.action' }));
     }
@@ -316,16 +321,10 @@ class List extends Component<ListProps, ListState> {
   };
 
   onClickOperation = (selectedRowKeys: (string | number)[], operationType: string) => {
-    const {
-      // dispatch,
-      match: {
-        params: { type },
-      },
-    } = this.props;
     safeFun(this.tableMethods.clearSelectedRowKeys);
     switch (operationType) {
       case TopbarAction.Create:
-        router.push(`/position/${type}/create`);
+        router.push('create');
         break;
       default:
         message.warn(formatMessage({ id: 'position.error.unknown.action' }));

@@ -33,7 +33,7 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
 
   constructor(props: SiderMenuProps) {
     super(props);
-    if (typeof props.route === 'object' && Array.isArray(props.route.routes))
+    if (props.route && typeof props.route === 'object' && Array.isArray(props.route.routes))
       this.menuArr = this.routeToMenu(props.route.routes, props.currentScope);
   }
 

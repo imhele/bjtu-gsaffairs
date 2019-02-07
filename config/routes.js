@@ -46,6 +46,14 @@ export default [
             name: ['route.position.manage.create', 'route.position.teach.create'],
             scope: [['scope.position.manage.create'], ['scope.position.teach.create']],
           },
+          {
+            path: '/position/:type/edit',
+            component: './Position/Edit',
+            hideInMenu: true,
+            dynamic: [{ type: 'manage' }, { type: 'teach' }],
+            name: ['route.position.manage.edit', 'route.position.teach.edit'],
+            scope: [['scope.position.manage.edit'], ['scope.position.teach.edit']],
+          },
         ],
       },
       // result
