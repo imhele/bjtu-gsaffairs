@@ -66,6 +66,10 @@ class Filter extends BaseForm<FilterProps, FilterStates> {
     expanded: false,
   };
 
+  constructor(props: FilterProps) {
+    super(props);
+  }
+
   onChangeExpand = () => {
     const { expanded } = this.props;
     const { expanded: stateExpanded } = this.state;

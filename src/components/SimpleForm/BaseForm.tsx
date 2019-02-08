@@ -79,11 +79,11 @@ export interface BaseFormProps<P> extends FormComponentProps {
 }
 
 export default class BaseForm<P extends BaseFormProps<P>, S = {}> extends Component<P, S> {
-  eventIndex: [number, number] = [null, null];
-  wrappedFormUtils: WrappedFormUtils = null;
-  tempFieldsValue: object = {};
+  protected eventIndex: [number, number] = [null, null];
+  protected wrappedFormUtils: WrappedFormUtils = null;
+  protected tempFieldsValue: object = {};
 
-  constructor(props: P) {
+  protected constructor(props: P) {
     super(props);
     this.wrappedFormUtils = {
       ...props.form,

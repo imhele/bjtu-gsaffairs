@@ -47,34 +47,54 @@ export function groupByAmount<T = any>(arr: T[], amount: number): T[][] {
   return res;
 }
 
-export const addWindowEvent = (() => {
-  const windowEvents: Map<string, Map<string, Function>> = new Map();
-  return <T extends keyof WindowEventMap>(
-    type: T,
-    id: string,
-    fn: (event: WindowEventMap[T]) => void,
-  ) => {
-    if (!(windowEvents.get(type) instanceof Map)) {
-      windowEvents.set(type, new Map());
-      if (window[`on${type}`] !== null) {
-        // tslint:disable-next-line
-        console.warn(
-          `[addWindowEvent]`,
-          `You seem to be adding event listeners to an existing value.`,
-        );
+export const { addWindowEvent, getWindowEvent, removeWindowEvent } = (() => {
+  const windowEvents: Map<
+    keyof WindowEventMap,
+    Map<string, (event: WindowEventMap[keyof WindowEventMap]) => void>
+  > = new Map();
+  return {
+    addWindowEvent: <T extends keyof WindowEventMap>(
+      type: T,
+      id: string,
+      fn: (event: WindowEventMap[T]) => void,
+    ) => {
+      if (!(windowEvents.get(type) instanceof Map)) {
+        windowEvents.set(type, new Map());
+        if (window[`on${type}`] !== null) {
+          // tslint:disable-next-line
+          console.warn(
+            `[addWindowEvent]`,
+            `You seem to be adding event listeners to an existing value.`,
+          );
+        }
+        window[`on${type}`] = (event: WindowEventMap[T]) => {
+          windowEvents.get(type).forEach((value, key, funMap) => {
+            if (typeof value !== 'function') return;
+            try {
+              value(event);
+            } catch {
+              funMap.delete(key);
+            }
+          });
+        };
       }
-      window[`on${type}`] = (event: WindowEventMap[T]) => {
-        windowEvents.get(type).forEach((value, key, funMap) => {
-          if (typeof value !== 'function') return;
-          try {
-            value(event);
-          } catch {
-            funMap.delete(key);
-          }
-        });
-      };
-    }
-    windowEvents.get(type).set(id, fn);
+      windowEvents.get(type).set(id, fn);
+    },
+    getWindowEvent: <T extends keyof WindowEventMap>(
+      type: T,
+      id: string,
+    ): ((event: WindowEventMap[T]) => void) | undefined => {
+      if (windowEvents.get(type) instanceof Map) {
+        return windowEvents.get(type).get(id);
+      }
+      return undefined;
+    },
+    removeWindowEvent: <T extends keyof WindowEventMap>(type: T, id: string): boolean => {
+      if (windowEvents.get(type) instanceof Map) {
+        return windowEvents.get(type).delete(id);
+      }
+      return false;
+    },
   };
 })();
 

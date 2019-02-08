@@ -31,6 +31,10 @@ class SimpleForm extends BaseForm<SimpleFormProps> {
     submitText: 'Submit',
   };
 
+  constructor(props: SimpleFormProps) {
+    super(props);
+  }
+
   renderOperationArea = (): React.ReactNode => {
     const { renderOperationArea, resetLoading, resetText, submitLoading, submitText } = this.props;
     if (renderOperationArea === null) {
