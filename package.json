@@ -25,8 +25,7 @@
     "path-to-regexp": "3.0.0",
     "rc-queue-anim": "~1.6.11",
     "react": "~16.8.1",
-    "react-dom": "~16.8.1",
-    "react-media": "~1.9.2"
+    "react-dom": "~16.8.1"
   },
   "devDependencies": {
     "@types/classnames": "~2.2.7",

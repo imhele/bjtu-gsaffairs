@@ -1,10 +1,10 @@
 import React from 'react';
 import { Button } from 'antd';
 import { connect } from 'dva';
-import Media from 'react-media';
 import router from 'umi/router';
 import Result from '@/components/Result';
 import commonStyles from '../common.less';
+import useMedia from '@/components/UseMedia';
 import PageHeader from '@/layouts/PageHeader';
 import { formatMessage } from 'umi-plugin-locale';
 import Steps, { StepsProps } from '@/components/Steps';
@@ -13,7 +13,6 @@ import DescriptionList, { DescriptionProps } from '@/components/DescriptionList'
 import { ConnectProps, ConnectState, Dispatch, ResultState } from '@/models/connect';
 
 export interface SuccessProps extends ConnectProps<{ id: string }>, ResultState {
-  isMobile?: boolean;
   loading?: { [key: string]: boolean };
 }
 
@@ -111,9 +110,9 @@ const addTypeForFirstButton = (action: ResultAction, index: number): ResultActio
   index ? action : { ...action, buttonProps: { type: 'primary', ...action.buttonProps } };
 
 const Success: React.SFC<SuccessProps> = props => {
+  const isMobile = useMedia({ query: { maxWidth: 768 } })[0];
   const {
     dispatch,
-    isMobile,
     loading,
     match: {
       params: { id: currentId },
@@ -144,6 +143,4 @@ const Success: React.SFC<SuccessProps> = props => {
 export default connect(({ loading, result }: ConnectState) => ({
   ...result,
   loading: loading.effects,
-}))((props: SuccessProps) => (
-  <Media query="(max-width: 768px)">{isMobile => <Success isMobile={isMobile} {...props} />}</Media>
-));
+}))(Success);

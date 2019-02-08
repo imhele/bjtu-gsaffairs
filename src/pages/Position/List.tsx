@@ -1,8 +1,8 @@
 import Detail from './Detail';
 import { connect } from 'dva';
-import Media from 'react-media';
 import router from 'umi/router';
 import styles from './List.less';
+import { GlobalId } from '@/global';
 import { safeFun } from '@/utils/utils';
 import React, { Component } from 'react';
 import commonStyles from '../common.less';
@@ -10,12 +10,12 @@ import { ButtonProps } from 'antd/es/button';
 import { message, Radio, Skeleton } from 'antd';
 import { Filter } from '@/components/SimpleForm';
 import { RadioChangeEvent } from 'antd/es/radio';
+import { getUseMedia } from '@/components/UseMedia';
 import { WrappedFormUtils } from 'antd/es/form/Form';
 import { formatStrOrNumQuery } from '@/utils/format';
 import MemorableModal from '@/components/MemorableModal';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
-import { AuthorizedId, MediaQuery, MemorableModalId } from '@/global';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import { HideWithouSelection, PositionType, CellAction, TopbarAction } from './consts';
 import { FetchListPayload, FetchDetailPayload, DeletePositionPayload } from '@/services/position';
@@ -289,7 +289,7 @@ class List extends Component<ListProps, ListState> {
       case CellAction.Delete:
         MemorableModal.confirm({
           defaultEnable: false,
-          id: MemorableModalId.DeletePostion,
+          id: GlobalId.DeletePostion,
           onOk: this.deletePosition,
           payload: currentRowKey,
           title: formatMessage({ id: 'position.delete.confirm' }),
@@ -343,7 +343,7 @@ class List extends Component<ListProps, ListState> {
     if (operation.visible === false) return false;
     if (HideWithouSelection.has(operation.type as any) && !selectedRowKeys.length) return false;
     if (!(getCurrentScope instanceof Map)) return false;
-    const getScope = getCurrentScope.get(AuthorizedId.BasicLayout);
+    const getScope = getCurrentScope.get(GlobalId.BasicLayout);
     if (typeof getScope !== 'function') return false;
     return CheckAuth(
       [`scope.position.${positionType}.${operation.type}`, 'scope.admin'],
@@ -455,5 +455,5 @@ class List extends Component<ListProps, ListState> {
 }
 
 export default (props: ListProps) => (
-  <Media query={MediaQuery}>{isMobile => <List {...props} isMobile={isMobile} />}</Media>
+  <List {...props} isMobile={getUseMedia(GlobalId.BasicLayout)[0]} />
 );

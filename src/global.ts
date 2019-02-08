@@ -1,3 +1,4 @@
+import React from 'react';
 import { version } from 'antd';
 import { formatMessage } from 'umi-plugin-locale';
 import MemorableModal from '@/components/MemorableModal';
@@ -7,14 +8,9 @@ console.log(`[VersionInfo] Ant Design ${version}`);
 
 export const APIPrefix: string = '/api';
 
-export const MediaQuery: string = '(max-width: 599px)';
-
-export const enum AuthorizedId {
+export const enum GlobalId {
   BasicLayout,
-}
-
-export const enum MemorableModalId {
-  DeletePostion = '0',
+  DeletePostion,
 }
 
 MemorableModal.setLocale((time, unit) =>

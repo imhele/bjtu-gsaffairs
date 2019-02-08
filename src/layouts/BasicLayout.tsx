@@ -4,15 +4,15 @@ import { connect } from 'dva';
 import { Layout } from 'antd';
 import router from 'umi/router';
 import debounce from 'debounce';
+import { GlobalId } from '@/global';
 import QueueAnim from 'rc-queue-anim';
 import * as Utils from '@/utils/utils';
 import styles from './BasicLayout.less';
 import useMedia from '@/components/UseMedia';
 import Authorized from '@/components/Authorized';
 import Exception403 from '@/pages/Exception/403';
-import { AuthorizedId, MediaQuery } from '@/global';
+import React, { useMemo, useState } from 'react';
 import DocumentTitle from '@/components/DocumentTitle';
-import React, { useEffect, useMemo, useState } from 'react';
 import SiderMenu, { SelectParam } from '@/components/SiderMenu';
 import { ConnectState, ConnectProps, LoginState } from '@/models/connect';
 
@@ -21,7 +21,6 @@ const { Content } = Layout;
 export interface BasicLayoutProps extends ConnectProps {
   collapsed?: boolean;
   currentScope?: Array<string | number>;
-  isMobile?: boolean;
   loading?: boolean;
   login?: LoginState;
   route?: Route<string | string[], Array<string | number> | Array<string | number>[]>;
@@ -32,7 +31,6 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
   collapsed,
   currentScope,
   dispatch,
-  isMobile,
   loading,
   location,
   login,
@@ -42,9 +40,13 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
    * Constructor
    * These functions will be called during the first render only.
    */
-  useState(() => dispatch({ type: 'login/fetchUser' }));
-  useState(() => dispatch({ type: 'global/setCollapsed', payload: isMobile }));
   const route = useState(() => Utils.formatDynamicRoute(restProps.route))[0];
+  const isMobile = useMedia({ id: GlobalId.BasicLayout, query: { maxWidth: 600 } })[0];
+  const onCollapse = useState(() => {
+    dispatch({ type: 'login/fetchUser' });
+    dispatch({ type: 'global/setCollapsed', payload: isMobile });
+    return debounce((payload: boolean) => dispatch({ type: 'global/setCollapsed', payload }), 50);
+  })[0];
   /**
    * Initialization
    */
@@ -52,7 +54,7 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
   const onLogout = () => dispatch({ type: 'login/logout' });
   const menuSelectedKeys = useMemo(() => Utils.pathnameToArr(pathname), [pathname]);
   const onSelectMenu = ({ key }: SelectParam) => key !== pathname && router.push(key);
-  const onCollapse = (payload: boolean) => dispatch({ type: 'global/setCollapsed', payload });
+  useMedia({ query: { maxWidth: 1000 }, onChange: onCollapse });
   /**
    * `delay` in `<QueueAnim />` is setted to wait for `onCollapse` in constructor
    */
@@ -89,7 +91,7 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
               <Authorized
                 currentScope={currentScope}
                 exception={<Exception403 />}
-                id={AuthorizedId.BasicLayout}
+                id={GlobalId.BasicLayout}
                 scope={Utils.pathToScope(route, location.pathname)}
               >
                 {children}
@@ -108,6 +110,4 @@ export default connect(({ global, login, loading }: ConnectState) => ({
   currentScope: login.scope,
   loading: loading.effects['login/fetchUser'],
   login,
-}))((props: BasicLayoutProps) => (
-  <BasicLayout {...props} isMobile={useMedia({ query: MediaQuery })[0]} />
-));
+}))(BasicLayout);

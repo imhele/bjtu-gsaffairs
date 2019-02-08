@@ -5,14 +5,16 @@ import {
   MutableRefObject,
   SetStateAction,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
 
 export interface UseMediaProps {
   defaultMatches?: boolean;
-  query?: string | CSSProperties | CSSProperties[];
+  id?: any;
   onChange?: (matches: boolean) => void | boolean;
+  query?: string | CSSProperties | CSSProperties[];
   targetWindow?: Window;
 }
 
@@ -39,7 +41,9 @@ const usePrevMQListRef = <T>(value: T): T => {
   return ref.current;
 };
 
-export default (initialProps: UseMediaProps = {}): [boolean, SetUseMediaProps] => {
+const useMediaStorage: Map<any, [boolean, SetUseMediaProps]> = new Map();
+
+const useMedia = (initialProps: UseMediaProps = {}): [boolean, SetUseMediaProps] => {
   const pausedRef = useRef<boolean>(true);
   const setPropsRef = useRef<SetUseMediaProps>(null);
   const useMediaPropsRef = useRef<UseMediaProps>(null);
@@ -76,5 +80,11 @@ export default (initialProps: UseMediaProps = {}): [boolean, SetUseMediaProps] =
       mediaQueryListRef.current.removeListener(eventListener);
     };
   }, [mediaQueryListRef.current]);
+  useMemo(() => {
+    useMediaStorage.set(useMediaPropsRef.current.id, [matches, setPropsRef.current]);
+  }, [matches]);
   return [matches, setPropsRef.current];
 };
+
+export default useMedia;
+export const getUseMedia = (id: any) => useMediaStorage.get(id);

@@ -9,7 +9,7 @@ export type TimeUnit = 'day' | 'hour' | 'minute' | 'second';
 export interface MemorableModalProps extends ModalFuncProps {
   defaultEnable?: boolean;
   expiresIn?: number;
-  id: string;
+  id: string | number;
   onOk?: (payload: any, ...args: any[]) => any | PromiseLike<any>;
   optional?: boolean;
   payload?: any;
@@ -45,7 +45,7 @@ let locale = (e: number, u: TimeUnit): React.ReactNode =>
 
 const onChangeSelect = (checked: boolean, event: any) => {
   const { id = null } = event.currentTarget.dataset || {};
-  if (!id) return false;
+  if (!id) return;
   selected[id] = checked;
 };
 
@@ -79,15 +79,15 @@ const Memorable = (
   }: MemorableModalProps,
   type: MemorableModalFuncType,
 ) => {
-  if (typeof id === 'string') {
-    id = `MemorableModal-${type}-${id}`;
+  if (typeof id === 'string' || typeof id === 'number') {
+    const formattedId = `MemorableModal-${type}-${id}`;
     const now = Date.now();
-    const preExpiryTime = storage.getItem(id);
+    const preExpiryTime = storage.getItem(formattedId);
     if (preExpiryTime && now.toString() < preExpiryTime) {
       onOk!(payload);
       return { destroy: null, update: null };
     }
-    selected[id] = defaultEnable || !!preExpiryTime || !optional;
+    selected[formattedId] = defaultEnable || !!preExpiryTime || !optional;
     return Modal[type]({
       ...modalProps,
       content: optional ? (
@@ -95,9 +95,9 @@ const Memorable = (
           {content}
           <div>
             <Switch
-              data-id={id}
-              defaultChecked={selected[id]}
-              onChange={onChangeSelect as any}
+              data-id={formattedId}
+              defaultChecked={selected[formattedId]}
+              onChange={onChangeSelect}
               size="small"
               style={{ marginRight: 8 }}
             />
@@ -108,13 +108,13 @@ const Memorable = (
         content
       ),
       onOk: (...args: any[]) => {
-        if (selected[id]) {
+        if (selected[formattedId]) {
           const nextExpiryTime = expiresIn
             ? (now + tranformTime(expiresIn, timeUnit)).toString()
             : '9';
-          storage.setItem(id, nextExpiryTime);
+          storage.setItem(formattedId, nextExpiryTime);
         } else if (preExpiryTime) {
-          storage.removeItem(id);
+          storage.removeItem(formattedId);
         }
         return onOk!(payload, ...args);
       },
