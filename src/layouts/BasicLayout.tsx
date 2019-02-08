@@ -8,7 +8,7 @@ import { GlobalId } from '@/global';
 import QueueAnim from 'rc-queue-anim';
 import * as Utils from '@/utils/utils';
 import styles from './BasicLayout.less';
-import useMedia from '@/components/UseMedia';
+import useMedia from 'react-media-hook2';
 import Authorized from '@/components/Authorized';
 import Exception403 from '@/pages/Exception/403';
 import React, { useMemo, useState } from 'react';
