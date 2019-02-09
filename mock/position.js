@@ -64,7 +64,7 @@ const filters = [
 const source = {
   manage: Array.from({ length: 120 }).map((_, index) => ({
     key: `${index}`,
-    action: possibleValues.action[Math.random() > 0.7 ? 0 : 1],
+    action: possibleValues.action[index % 4],
     applyStatus: possibleValues.applyStatus[index % 5],
     campus: possibleValues.campus[Math.random() > 0.4 ? 0 : 1],
     checkStatus: possibleValues.checkStatus[index % 5],
@@ -97,6 +97,7 @@ const operationArea = {
   operation: [
     { icon: 'plus', text: '新建', type: 'create' },
     { icon: 'cloud-download', text: '导出', type: 'export' },
+    { icon: 'audit', text: '审核', type: 'audit' },
   ],
 };
 
@@ -153,9 +154,7 @@ const positionList = (req, res) => {
     delete result.selectable;
     delete result.operationArea;
   }
-  setTimeout(() => {
-    res.send(result);
-  }, 400);
+  setTimeout(() => res.send(result), 400);
 };
 
 /**
@@ -306,9 +305,7 @@ const positionForm = (req, res) => {
     };
     result.initialFieldsValue.timeRange = result.initialFieldsValue.timeRange.split(' ~ ');
   }
-  setTimeout(() => {
-    res.send(result);
-  }, 400);
+  setTimeout(() => res.send(result), 400);
 };
 
 /**

@@ -110,7 +110,7 @@ const addTypeForFirstButton = (action: ResultAction, index: number): ResultActio
   index ? action : { ...action, buttonProps: { type: 'primary', ...action.buttonProps } };
 
 const Success: React.SFC<SuccessProps> = props => {
-  const isMobile = useMedia({ query: { maxWidth: 768 } })[0];
+  const isMobile = useMedia({ query: '(max-width: 768px)' })[0];
   const {
     dispatch,
     loading,

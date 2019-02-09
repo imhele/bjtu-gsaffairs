@@ -60,6 +60,10 @@ export interface PositionState {
   selectable?: boolean;
   unSelectableKey?: string;
   /**
+   * Batch audit keys
+   */
+  auditRowKeys?: string[] | number[];
+  /**
    * Position detail
    */
   detail: PositionDetailProps;
@@ -80,6 +84,7 @@ const defaultState: PositionState = {
     x: 1100,
   },
   unSelectableKey: 'unSelectable',
+  auditRowKeys: [],
   detail: {
     actionKey: 'action',
     columns: [],
@@ -182,6 +187,21 @@ const model: PositionModel = {
         message.success(response.errmsg);
         router.replace('list');
       }
+    },
+    *auditPosition({ callback, payload }, { call }) {
+      payload.body = formatMomentInFieldsValue(payload.body, formatMoment.YMD);
+      const response = yield call(editPosition, payload);
+      if (response && !response.errcode) {
+        message.success(response.errmsg);
+        safeFun(callback, null, payload);
+      }
+    },
+    *routeToAudit({ payload = [] }, { put }) {
+      yield put({
+        type: 'setState',
+        payload: { auditRowKeys: payload },
+      });
+      router.push('audit');
     },
   },
   reducers: {

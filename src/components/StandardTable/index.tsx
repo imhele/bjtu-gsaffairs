@@ -21,8 +21,8 @@ interface MenuItemProps {
   className?: string;
   style?: React.CSSProperties;
   onClick?: (param: ClickParam) => void;
-  onMouseEnter?: (event: string, e: MouseEvent) => void;
-  onMouseLeave?: (event: string, e: MouseEvent) => void;
+  onMouseEnter?: (e: { key: string; domEvent: MouseEvent }) => void;
+  onMouseLeave?: (e: { key: string; domEvent: MouseEvent }) => void;
 }
 
 export interface StandardTableAction {
@@ -256,9 +256,8 @@ export default class StandardTable<T = object> extends Component<
   };
 
   renderAction = (actions: StandardTableActionProps, record: T, index: number): React.ReactNode => {
-    if (!Array.isArray(actions)) {
-      actions = [actions];
-    }
+    if (typeof actions === 'string') return actions;
+    if (!Array.isArray(actions)) actions = [actions];
     return sandwichArray(
       actions
         .map(item => this.getActionItemProps(item, record, index))

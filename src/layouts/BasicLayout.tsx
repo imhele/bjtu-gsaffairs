@@ -41,7 +41,7 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
    * These functions will be called during the first render only.
    */
   const route = useState(() => Utils.formatDynamicRoute(restProps.route))[0];
-  const isMobile = useMedia({ id: GlobalId.BasicLayout, query: { maxWidth: 600 } })[0];
+  const isMobile = useMedia({ id: GlobalId.BasicLayout, query: '(max-width: 600px)' })[0];
   const onCollapse = useState(() => {
     dispatch({ type: 'login/fetchUser' });
     dispatch({ type: 'global/setCollapsed', payload: isMobile });
@@ -54,7 +54,7 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
   const onLogout = () => dispatch({ type: 'login/logout' });
   const menuSelectedKeys = useMemo(() => Utils.pathnameToArr(pathname), [pathname]);
   const onSelectMenu = ({ key }: SelectParam) => key !== pathname && router.push(key);
-  useMedia({ query: { maxWidth: 1000 }, onChange: onCollapse });
+  useMedia({ query: '(max-width: 999px)', onChange: onCollapse });
   /**
    * `delay` in `<QueueAnim />` is setted to wait for `onCollapse` in constructor
    */

@@ -6,16 +6,17 @@ import React, { Component } from 'react';
 import commonStyles from '../common.less';
 import SimpleForm from '@/components/SimpleForm';
 import Exception404 from '@/pages/Exception/404';
+import { formatStrOrNumQuery } from '@/utils/format';
 import { Button, Col, message, Skeleton } from 'antd';
 import { FetchFormPayload } from '@/services/position';
-import { CreatePositionPayload } from '@/services/position';
+import { AuditPositionPayload } from '@/services/position';
+import { buttonColProps, CellAction, PositionType } from './consts';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import { buttonColProps, PositionType, TopbarAction } from './consts';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 
-export interface CreateProps extends ConnectProps<{ type: PositionType }> {
+export interface AuditProps extends ConnectProps<{ type: PositionType }> {
   loading?: {
-    createPosition?: boolean;
+    auditPosition?: boolean;
     fetchForm?: boolean;
   };
   position?: PositionState;
@@ -23,11 +24,17 @@ export interface CreateProps extends ConnectProps<{ type: PositionType }> {
 
 const backToList = () => router.push('list');
 
-class Create extends Component<CreateProps> {
-  constructor(props: CreateProps) {
+class Audit extends Component<AuditProps> {
+  /**
+   * key of current position
+   */
+  private key: string | number = null;
+
+  constructor(props: AuditProps) {
     super(props);
     const {
       dispatch,
+      location: { search },
       match: {
         params: { type },
       },
@@ -35,10 +42,14 @@ class Create extends Component<CreateProps> {
     if (!Object.values(PositionType).includes(type)) {
       message.error(formatMessage({ id: 'position.error.unknown.type' }));
     } else {
+      this.key = formatStrOrNumQuery.parse(search).get('key');
       dispatch<FetchFormPayload>({
         type: 'position/fetchForm',
         payload: {
-          body: { action: TopbarAction.Create },
+          body: {
+            action: CellAction.Audit,
+            key: this.key,
+          },
           query: { type },
         },
       });
@@ -54,7 +65,7 @@ class Create extends Component<CreateProps> {
     return (
       <Col {...(groupAmount === 1 ? buttonColProps[0] : buttonColProps[1])}>
         <Button htmlType="submit" loading={submitLoading} type="primary">
-          <FormattedMessage id="word.create" />
+          <FormattedMessage id="word.submit" />
         </Button>
         <Button onClick={backToList} style={{ marginLeft: 8 }}>
           <FormattedMessage id="word.back" />
@@ -70,10 +81,13 @@ class Create extends Component<CreateProps> {
         params: { type },
       },
     } = this.props;
-    dispatch<CreatePositionPayload>({
-      type: 'position/createPosition',
+    dispatch<AuditPositionPayload>({
+      type: 'position/editPosition',
       payload: {
-        body: fieldsValue,
+        body: {
+          ...fieldsValue,
+          key: this.key,
+        },
         query: { type },
       },
     });
@@ -85,7 +99,7 @@ class Create extends Component<CreateProps> {
       match: {
         params: { type },
       },
-      position: { form: createForm },
+      position: { form: auditForm },
     } = this.props;
     const className = classNames(commonStyles.contentBody, commonStyles.verticalSpace);
     if (!Object.values(PositionType).includes(type)) {
@@ -95,15 +109,15 @@ class Create extends Component<CreateProps> {
       <QueueAnim type="left" className={className}>
         <Skeleton active key="Skeleton" loading={loading.fetchForm} paragraph={{ rows: 7 }}>
           <SimpleForm
-            colProps={createForm.colProps}
-            formItemProps={createForm.formItemProps}
-            formItems={createForm.formItems}
-            groupAmount={createForm.groupAmount}
-            initialFieldsValue={createForm.initialFieldsValue}
+            colProps={auditForm.colProps}
+            formItemProps={auditForm.formItemProps}
+            formItems={auditForm.formItems}
+            groupAmount={auditForm.groupAmount}
+            initialFieldsValue={auditForm.initialFieldsValue}
             onSubmit={this.onSubmit}
             renderOperationArea={this.renderOperationArea}
-            rowProps={createForm.rowProps}
-            submitLoading={loading.createPosition}
+            rowProps={auditForm.rowProps}
+            submitLoading={loading.auditPosition}
           />
         </Skeleton>
       </QueueAnim>
@@ -112,11 +126,11 @@ class Create extends Component<CreateProps> {
 }
 
 export default connect(
-  ({ loading, position }: ConnectState): CreateProps => ({
+  ({ loading, position }: ConnectState): AuditProps => ({
     loading: {
-      createPosition: loading.effects['position/createPosition'],
+      auditPosition: loading.effects['position/auditPosition'],
       fetchForm: loading.effects['position/fetchForm'],
     },
     position,
   }),
-)(Create);
+)(Audit);

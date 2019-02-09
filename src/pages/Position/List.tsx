@@ -72,6 +72,8 @@ class List extends Component<ListProps, ListState> {
     size: ListSize.Default,
   };
 
+  private selectedRows: object[] = [];
+  private prevSelectedRowKeys: (string | number)[] = [];
   private deletingRowKeys: Set<string | number> = new Set();
   private filterExpandText = {
     expand: <FormattedMessage id="word.expand" />,
@@ -299,6 +301,12 @@ class List extends Component<ListProps, ListState> {
         const query = formatStrOrNumQuery.stringify({ key: currentRowKey });
         router.push(`edit?${query}`);
         break;
+      case CellAction.Audit:
+        dispatch({
+          type: 'position/routeToAudit',
+          payload: [currentRowKey],
+        });
+        break;
       default:
         message.warn(formatMessage({ id: 'position.error.unknown.action' }));
     }
@@ -320,11 +328,33 @@ class List extends Component<ListProps, ListState> {
     return action;
   };
 
+  onChangeSelection = (
+    selectedRowKeys: string[] | number[],
+    selectedRows: object[],
+  ): string[] | number[] => {
+    const {
+      position: { rowKey },
+    } = this.props;
+    selectedRows = selectedRows.filter(row => {
+      return !this.prevSelectedRowKeys.includes(row[rowKey]);
+    });
+    this.selectedRows.push(...selectedRows);
+    this.prevSelectedRowKeys = selectedRowKeys;
+    return selectedRowKeys;
+  };
+
   onClickOperation = (selectedRowKeys: (string | number)[], operationType: string) => {
+    const { dispatch } = this.props;
     safeFun(this.tableMethods.clearSelectedRowKeys);
     switch (operationType) {
       case TopbarAction.Create:
         router.push('create');
+        break;
+      case TopbarAction.Audit:
+        dispatch({
+          type: 'position/routeToAudit',
+          payload: selectedRowKeys,
+        });
         break;
       default:
         message.warn(formatMessage({ id: 'position.error.unknown.action' }));
@@ -339,9 +369,26 @@ class List extends Component<ListProps, ListState> {
       match: {
         params: { type: positionType },
       },
+      position,
     } = this.props;
+    const actionKey = Array.isArray(position.actionKey) ? position.actionKey : [position.actionKey];
+    // Back-end configuration takes precedence.
     if (operation.visible === false) return false;
+    // If no rows are selected, buttons in `HideWithouSelection` will not be displayed.
     if (HideWithouSelection.has(operation.type as any) && !selectedRowKeys.length) return false;
+    // Audit button.
+    if (operation.type === TopbarAction.Audit) {
+      const hideAudit = this.selectedRows.some(row => {
+        return actionKey.some(key => {
+          if (Array.isArray(row[key]))
+            return !(row[key] as StandardTableAction[]).some(action => {
+              return action.type === CellAction.Audit;
+            });
+          return (row[key] as StandardTableAction).type !== CellAction.Audit;
+        });
+      });
+      if (hideAudit) return false;
+    }
     if (!(getCurrentScope instanceof Map)) return false;
     const getScope = getCurrentScope.get(GlobalId.BasicLayout);
     if (typeof getScope !== 'function') return false;
@@ -404,7 +451,7 @@ class List extends Component<ListProps, ListState> {
     const { currentRow, currentRowKey, detailVisible, size } = this.state;
     const {
       loading,
-      position: { actionKey, columns, dataSource, detail, filters = [], scroll },
+      position: { actionKey, columns, dataSource, detail, filters, rowKey, scroll },
     } = this.props;
     return (
       <div className={commonStyles.contentBody}>
@@ -432,9 +479,11 @@ class List extends Component<ListProps, ListState> {
           footer={this.renderTableFooter}
           getMenthods={this.getTableMethods}
           loading={loading.fetchList}
+          onChangeSelection={this.onChangeSelection}
           onClickAction={this.onClickAction}
           operationArea={this.getOperationArea()}
           pagination={this.getPagination()}
+          rowKey={rowKey}
           scroll={scroll}
           selectable={this.getSelectableProps()}
           size={size}

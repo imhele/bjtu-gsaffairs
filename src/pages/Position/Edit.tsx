@@ -6,12 +6,12 @@ import React, { Component } from 'react';
 import commonStyles from '../common.less';
 import SimpleForm from '@/components/SimpleForm';
 import Exception404 from '@/pages/Exception/404';
-import { PositionType, CellAction } from './consts';
 import { formatStrOrNumQuery } from '@/utils/format';
 import { Button, Col, message, Skeleton } from 'antd';
 import { FetchFormPayload } from '@/services/position';
 import { EditPositionPayload } from '@/services/position';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { buttonColProps, CellAction, PositionType } from './consts';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 
 export interface EditProps extends ConnectProps<{ type: PositionType }> {
@@ -23,18 +23,6 @@ export interface EditProps extends ConnectProps<{ type: PositionType }> {
 }
 
 const backToList = () => router.push('list');
-const buttonColProps = [
-  {
-    sm: { span: 24, offset: 0 },
-    md: { span: 12, offset: 6 },
-    style: { paddingLeft: '0.5%' },
-  },
-  {
-    sm: { span: 24, offset: 0 },
-    md: { span: 12, offset: 3 },
-    style: { paddingLeft: '0.5%' },
-  },
-];
 
 class Edit extends Component<EditProps> {
   /**

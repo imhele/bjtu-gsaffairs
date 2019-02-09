@@ -30,6 +30,7 @@ const renderFooter = (props: DetailProps): React.ReactNode => {
   const actionArr: StandardTableAction[] = [];
   if (props.currentRow) {
     actionKey.forEach(key => {
+      if (typeof props.currentRow[key] === 'string') return;
       if (props.currentRow[key]) {
         if (Array.isArray(props.currentRow[key])) {
           actionArr.push(...props.currentRow[key]);

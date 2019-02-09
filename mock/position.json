@@ -1,11 +1,8 @@
 {
   "possibleValues": {
     "action": [
+      "--",
       [
-        {
-          "text": "审核",
-          "type": "audit"
-        },
         {
           "text": "删除",
           "type": "delete"
@@ -19,6 +16,12 @@
         {
           "text": "删除",
           "type": "delete"
+        }
+      ],
+      [
+        {
+          "text": "审核",
+          "type": "audit"
         }
       ],
       [

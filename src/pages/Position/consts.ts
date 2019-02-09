@@ -13,6 +13,11 @@ export const enum CellAction {
 }
 
 export const enum TopbarAction {
+  /**
+   * `Audit` here means "batch audit", it extends from `CellAction`.
+   * When user selected any row without an audit `CellAction`, the "batch audit" button hides.
+   */
+  Audit = 'audit',
   Create = 'create',
   Export = 'export',
 }
@@ -21,4 +26,20 @@ export const enum TopbarAction {
  * When there is no row in the table is selected,
  * these action buttons will be hidden
  */
-export const HideWithouSelection: Set<TopbarAction | CellAction> = new Set([TopbarAction.Export]);
+export const HideWithouSelection: Set<TopbarAction | CellAction> = new Set([
+  TopbarAction.Audit,
+  TopbarAction.Export,
+]);
+
+export const buttonColProps = [
+  {
+    sm: { span: 24, offset: 0 },
+    md: { span: 12, offset: 6 },
+    style: { paddingLeft: '0.5%' },
+  },
+  {
+    sm: { span: 24, offset: 0 },
+    md: { span: 12, offset: 3 },
+    style: { paddingLeft: '0.5%' },
+  },
+];

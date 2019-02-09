@@ -106,3 +106,20 @@ export async function editPosition(payload: EditPositionPayload) {
     method: 'POST',
   });
 }
+
+interface AuditPositionBody extends RequestBody {
+  key: string | number;
+  [key: string]: any;
+}
+
+export interface AuditPositionPayload {
+  body: AuditPositionBody;
+  query: FetchQuery;
+}
+
+export async function auditPosition(payload: AuditPositionPayload) {
+  return requests<AuditPositionBody>(`${APIPrefix}/position/audit?${stringify(payload.query)}`, {
+    body: payload.body,
+    method: 'POST',
+  });
+}
