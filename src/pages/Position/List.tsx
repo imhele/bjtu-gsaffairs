@@ -72,8 +72,8 @@ class List extends Component<ListProps, ListState> {
     size: ListSize.Default,
   };
 
-  private selectedRows: object[] = [];
-  private prevSelectedRowKeys: (string | number)[] = [];
+  private selectedRows: object = {};
+  private prevSelectedRowKeys: string[] | number[] = [];
   private deletingRowKeys: Set<string | number> = new Set();
   private filterExpandText = {
     expand: <FormattedMessage id="word.expand" />,
@@ -176,9 +176,9 @@ class List extends Component<ListProps, ListState> {
   };
 
   cancelSelection = (rowKey: string | number) => {
-    const selected = safeFun<(string | number)[]>(this.tableMethods.getSelectedRowKeys, []);
+    const selected = safeFun<string[] | number[]>(this.tableMethods.getSelectedRowKeys, []);
     if (selected.length) {
-      const findIndex = selected.findIndex(item => item === rowKey);
+      const findIndex = selected.findIndex((item: string & number) => item === rowKey);
       if (findIndex !== -1) {
         selected.splice(findIndex, 1);
         safeFun(this.tableMethods.setSelectedRowKeys, null, selected);
@@ -335,15 +335,15 @@ class List extends Component<ListProps, ListState> {
     const {
       position: { rowKey },
     } = this.props;
-    selectedRows = selectedRows.filter(row => {
-      return !this.prevSelectedRowKeys.includes(row[rowKey]);
+    this.prevSelectedRowKeys.forEach((prevKey: string & number) => {
+      if (!selectedRowKeys.includes(prevKey)) delete this.selectedRows[prevKey];
     });
-    this.selectedRows.push(...selectedRows);
+    selectedRows.forEach(row => (this.selectedRows[row[rowKey]] = row));
     this.prevSelectedRowKeys = selectedRowKeys;
     return selectedRowKeys;
   };
 
-  onClickOperation = (selectedRowKeys: (string | number)[], operationType: string) => {
+  onClickOperation = (selectedRowKeys: string[] | number[], operationType: string) => {
     const { dispatch } = this.props;
     safeFun(this.tableMethods.clearSelectedRowKeys);
     switch (operationType) {
@@ -378,13 +378,13 @@ class List extends Component<ListProps, ListState> {
     if (HideWithouSelection.has(operation.type as any) && !selectedRowKeys.length) return false;
     // Audit button.
     if (operation.type === TopbarAction.Audit) {
-      const hideAudit = this.selectedRows.some(row => {
-        return actionKey.some(key => {
+      const hideAudit = Object.values(this.selectedRows).some(row => {
+        return !actionKey.some(key => {
           if (Array.isArray(row[key]))
-            return !(row[key] as StandardTableAction[]).some(action => {
+            return (row[key] as StandardTableAction[]).some(action => {
               return action.type === CellAction.Audit;
             });
-          return (row[key] as StandardTableAction).type !== CellAction.Audit;
+          return row[key] && (row[key] as StandardTableAction).type === CellAction.Audit;
         });
       });
       if (hideAudit) return false;

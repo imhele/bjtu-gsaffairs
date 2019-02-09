@@ -92,6 +92,8 @@ const source = {
 
 /**
  * Part of `position/list`
+ * If the table data exceeds 1000 rows or the table operation is jammed,
+ * `audit` function can be turned off to increase rendering speed on equipment with poor performance.
  */
 const operationArea = {
   operation: [
