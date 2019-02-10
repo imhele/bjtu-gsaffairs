@@ -77,7 +77,7 @@ const source = {
   })),
   teach: Array.from({ length: 120 }).map((_, index) => ({
     key: `${index}`,
-    action: possibleValues.action[Math.random() > 0.7 ? 0 : 1],
+    action: possibleValues.action[index % 4],
     applyStatus: possibleValues.applyStatus[index % 5],
     campus: possibleValues.campus[Math.random() > 0.4 ? 0 : 1],
     checkStatus: possibleValues.checkStatus[index % 5],
@@ -285,14 +285,14 @@ const positionForm = (req, res) => {
       errmsg: 'Invalid type of position',
     });
   }
-  if (!['create', 'edit'].includes(action)) {
+  if (!['create', 'edit', 'audit'].includes(action)) {
     return res.send({
       errcode: 40004,
       errmsg: 'Invalid action type for fetching form',
     });
   }
   const result = { ...createForm[type] };
-  if (action === 'edit') {
+  if (action !== 'create') {
     const currentPosition = source[type].find(row => row.key === key);
     if (!currentPosition) {
       return res.send({
@@ -306,6 +306,36 @@ const positionForm = (req, res) => {
       name: currentPosition.name.text,
     };
     result.initialFieldsValue.timeRange = result.initialFieldsValue.timeRange.split(' ~ ');
+    if (action === 'audit') {
+      result.formItems = result.formItems.map(item => ({
+        id: item.id,
+        title: item.title,
+        type: 'Extra',
+        extra: result.initialFieldsValue[item.id],
+      }));
+      result.initialFieldsValue = {};
+      if (result.formItems.length % 2) {
+        // Hold a place
+        result.formItems.push({ type: 'Extra', extra: '' });
+      }
+      result.formItems.push({
+        id: 'checkStatus',
+        title: '审核结果',
+        type: 'ButtonRadio',
+        decoratorOptions: { rules: [{ required: true, message: '必填项' }] },
+        selectOptions: [{ value: '审核通过' }, { value: '审核不通过' }, { value: '退回' }],
+      });
+      result.formItems.push({
+        id: 'opinion',
+        title: '审核意见',
+        type: 'Select',
+        itemProps: {
+          mode: 'tags',
+          placeholder: '在这里填写审核意见，不超过 500 字',
+        },
+        selectOptions: [{ value: '信息填写不准确' }, { value: '岗位人数过多' }],
+      });
+    }
   }
   setTimeout(() => res.send(result), 400);
 };

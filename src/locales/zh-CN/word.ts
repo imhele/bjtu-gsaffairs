@@ -1,6 +1,9 @@
 export default {
+  'word.audit': '审核',
+  'word.audit-P': '审核',
   'word.back': '返回',
   'word.back-to-home': '返回首页',
+  'word.back-to-list': '返回列表',
   'word.clear': '清空',
   'word.close': '关闭',
   'word.confirm': '确认',
@@ -11,6 +14,7 @@ export default {
   'word.minute': '分钟',
   'word.more': '更多',
   'word.open': '打开',
+  'word.position': '岗位',
   'word.query': '查询',
   'word.reset': '重置',
   'word.retract': '收起',

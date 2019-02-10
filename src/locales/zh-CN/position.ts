@@ -1,5 +1,4 @@
 export default {
-  'position.create.back-to-list': '返回列表',
   'position.create.continue-create': '继续创建',
   'position.delete.confirm': '你确定要删除这个岗位吗？',
   'position.detail': '岗位详情',

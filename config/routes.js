@@ -54,6 +54,14 @@ export default [
             name: ['route.position.manage.edit', 'route.position.teach.edit'],
             scope: [['scope.position.manage.edit'], ['scope.position.teach.edit']],
           },
+          {
+            path: '/position/:type/audit',
+            component: './Position/Audit',
+            hideInMenu: true,
+            dynamic: [{ type: 'manage' }, { type: 'teach' }],
+            name: ['route.position.manage.audit', 'route.position.teach.audit'],
+            scope: [['scope.position.manage.audit'], ['scope.position.teach.audit']],
+          },
         ],
       },
       // result

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Col, Form, Row } from 'antd';
+import { Button, Col, Empty, Form, Row } from 'antd';
 import { groupByAmount, safeFun } from '@/utils/utils';
 import { FormLayout, WrappedFormUtils } from 'antd/es/form/Form';
 import BaseForm, {
@@ -10,6 +10,7 @@ import BaseForm, {
 } from './BaseForm';
 
 export interface SimpleFormProps extends BaseFormProps<SimpleFormProps> {
+  empty?: React.ReactNode;
   formItems?: SimpleFormItemProps[];
   hideRequiredMark?: boolean;
   layout?: FormLayout;
@@ -107,8 +108,10 @@ class SimpleForm extends BaseForm<SimpleFormProps> {
   };
 
   render() {
-    const { className, formItems, hideRequiredMark, layout, style } = this.props;
-    if (!Array.isArray(formItems) || !formItems.length) return null;
+    const { className, empty, formItems, hideRequiredMark, layout, style } = this.props;
+    if (!Array.isArray(formItems) || !formItems.length) {
+      return typeof empty === 'undefined' ? <Empty /> : empty;
+    }
     return (
       <Form
         className={className}

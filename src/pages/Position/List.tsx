@@ -2,7 +2,6 @@ import Detail from './Detail';
 import { connect } from 'dva';
 import router from 'umi/router';
 import styles from './List.less';
-import { GlobalId } from '@/global';
 import { safeFun } from '@/utils/utils';
 import React, { Component } from 'react';
 import commonStyles from '../common.less';
@@ -16,6 +15,7 @@ import { formatStrOrNumQuery } from '@/utils/format';
 import MemorableModal from '@/components/MemorableModal';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
+import { GlobalId, SessionStorageId, TypeSpaceChar } from '@/global';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import { HideWithouSelection, PositionType, CellAction, TopbarAction } from './consts';
 import { FetchListPayload, FetchDetailPayload, DeletePositionPayload } from '@/services/position';
@@ -302,10 +302,12 @@ class List extends Component<ListProps, ListState> {
         router.push(`edit?${query}`);
         break;
       case CellAction.Audit:
-        dispatch({
-          type: 'position/routeToAudit',
-          payload: [currentRowKey],
-        });
+        currentRowKey = `${typeof currentRowKey}${TypeSpaceChar}${currentRowKey}`;
+        sessionStorage.setItem(
+          SessionStorageId.PositionAuditRowKes,
+          JSON.stringify([currentRowKey]),
+        );
+        router.push('audit');
         break;
       default:
         message.warn(formatMessage({ id: 'position.error.unknown.action' }));
@@ -344,17 +346,20 @@ class List extends Component<ListProps, ListState> {
   };
 
   onClickOperation = (selectedRowKeys: string[] | number[], operationType: string) => {
-    const { dispatch } = this.props;
     safeFun(this.tableMethods.clearSelectedRowKeys);
     switch (operationType) {
       case TopbarAction.Create:
         router.push('create');
         break;
       case TopbarAction.Audit:
-        dispatch({
-          type: 'position/routeToAudit',
-          payload: selectedRowKeys,
+        selectedRowKeys = (selectedRowKeys as (string | number)[]).map(key => {
+          return `${typeof key}${TypeSpaceChar}${key}`;
         });
+        sessionStorage.setItem(
+          SessionStorageId.PositionAuditRowKes,
+          JSON.stringify(selectedRowKeys),
+        );
+        router.push('audit');
         break;
       default:
         message.warn(formatMessage({ id: 'position.error.unknown.action' }));

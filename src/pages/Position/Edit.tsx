@@ -7,9 +7,9 @@ import commonStyles from '../common.less';
 import SimpleForm from '@/components/SimpleForm';
 import Exception404 from '@/pages/Exception/404';
 import { formatStrOrNumQuery } from '@/utils/format';
-import { Button, Col, message, Skeleton } from 'antd';
 import { FetchFormPayload } from '@/services/position';
 import { EditPositionPayload } from '@/services/position';
+import { Button, Col, Empty, message, Skeleton } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { buttonColProps, CellAction, PositionType } from './consts';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
@@ -25,6 +25,14 @@ export interface EditProps extends ConnectProps<{ type: PositionType }> {
 const backToList = () => router.push('list');
 
 class Edit extends Component<EditProps> {
+  static Empty = (
+    <Empty>
+      <Button onClick={backToList} type="primary">
+        {formatMessage({ id: 'word.back-to-list' })}
+      </Button>
+    </Empty>
+  );
+
   /**
    * key of current position
    */
@@ -41,19 +49,20 @@ class Edit extends Component<EditProps> {
     } = props;
     if (!Object.values(PositionType).includes(type)) {
       message.error(formatMessage({ id: 'position.error.unknown.type' }));
-    } else {
-      this.key = formatStrOrNumQuery.parse(search).get('key');
-      dispatch<FetchFormPayload>({
-        type: 'position/fetchForm',
-        payload: {
-          body: {
-            action: CellAction.Edit,
-            key: this.key,
-          },
-          query: { type },
-        },
-      });
+      return this;
     }
+    this.key = formatStrOrNumQuery.parse(search).get('key');
+    if (!this.key) return this;
+    dispatch<FetchFormPayload>({
+      type: 'position/fetchForm',
+      payload: {
+        body: {
+          action: CellAction.Edit,
+          key: this.key,
+        },
+        query: { type },
+      },
+    });
   }
 
   renderOperationArea = (_: any, submitLoading: boolean) => {
@@ -101,7 +110,11 @@ class Edit extends Component<EditProps> {
       },
       position: { form: editForm },
     } = this.props;
-    const className = classNames(commonStyles.contentBody, commonStyles.verticalSpace);
+    const className = classNames(
+      commonStyles.contentBody,
+      commonStyles.verticalSpace,
+      commonStyles.compactFormItem,
+    );
     if (!Object.values(PositionType).includes(type)) {
       return <Exception404 />;
     }
@@ -110,6 +123,7 @@ class Edit extends Component<EditProps> {
         <Skeleton active key="Skeleton" loading={loading.fetchForm} paragraph={{ rows: 7 }}>
           <SimpleForm
             colProps={editForm.colProps}
+            empty={Edit.Empty}
             formItemProps={editForm.formItemProps}
             formItems={editForm.formItems}
             groupAmount={editForm.groupAmount}

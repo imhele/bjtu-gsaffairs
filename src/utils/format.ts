@@ -1,5 +1,6 @@
 import moment from 'moment';
 import qs from 'querystring';
+import { TypeSpaceChar } from '@/global';
 import { SimpleFormItemProps, SimpleFormItemType } from '@/components/SimpleForm';
 
 export const formatMoment = {
@@ -74,7 +75,7 @@ export const formatMomentInSimpleFormInitValue = (
 };
 
 export const formatStrOrNumQuery = {
-  parse: (query: string, char: string = '~'): Map<string | number, string | number> => {
+  parse: (query: string, char: string = TypeSpaceChar): Map<string | number, string | number> => {
     const res = new Map();
     if (typeof query !== 'string' || !query) return res;
     if (query[0] === '?') query = query.slice(1);
@@ -82,13 +83,13 @@ export const formatStrOrNumQuery = {
       if (Array.isArray(v)) return;
       const t = k.split(char);
       const u = v.split(char);
-      if (t[0] === 'num') {
-        if (u[0] === 'num') res.set(parseInt(t[1], 10), parseInt(u[1], 10));
-        else if (u[0] === 'str') res.set(parseInt(t[1], 10), u[1]);
+      if (t[0] === 'number') {
+        if (u[0] === 'number') res.set(parseInt(t[1], 10), parseInt(u[1], 10));
+        else if (u[0] === 'string') res.set(parseInt(t[1], 10), u[1]);
         else res.set(parseInt(t[1], 10), v);
-      } else if (t[0] === 'str') {
-        if (u[0] === 'num') res.set(t[1], parseInt(u[1], 10));
-        else if (u[0] === 'str') res.set(t[1], u[1]);
+      } else if (t[0] === 'string') {
+        if (u[0] === 'number') res.set(t[1], parseInt(u[1], 10));
+        else if (u[0] === 'string') res.set(t[1], u[1]);
         else res.set(t[1], v);
       } else {
         res.set(k, v);
@@ -101,17 +102,17 @@ export const formatStrOrNumQuery = {
       [key: string]: string | number;
       [key: number]: string | number;
     },
-    char: string = '~',
+    char: string = TypeSpaceChar,
   ): string => {
     if (typeof query !== 'object') return '';
     const res = {};
     Object.entries(query).forEach(([k, v]) => {
       if (typeof k === 'number') {
-        if (typeof v === 'number') res[`num${char}${k}`] = `num${char}${v}`;
-        else res[`num${char}${k}`] = `str${char}${v}`;
+        if (typeof v === 'number') res[`number${char}${k}`] = `number${char}${v}`;
+        else res[`number${char}${k}`] = `string${char}${v}`;
       } else {
-        if (typeof v === 'number') res[`str${char}${k}`] = `num${char}${v}`;
-        else res[`str${char}${k}`] = `str${char}${v}`;
+        if (typeof v === 'number') res[`string${char}${k}`] = `number${char}${v}`;
+        else res[`string${char}${k}`] = `string${char}${v}`;
       }
     });
     return qs.stringify(res);

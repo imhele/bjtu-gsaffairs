@@ -11,6 +11,11 @@
   &.verticalSpace {
     padding: @page-gap-6 * 2 @page-gap-8;
   }
+  &.compactFormItem {
+    :global(.ant-form-item) {
+      margin-bottom: @page-gap-4;
+    }
+  }
   @media screen and (max-width: @screen-lg) {
     padding: @page-gap-6;
     &.verticalSpace {

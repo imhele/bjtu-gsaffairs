@@ -34,15 +34,15 @@ class Create extends Component<CreateProps> {
     } = props;
     if (!Object.values(PositionType).includes(type)) {
       message.error(formatMessage({ id: 'position.error.unknown.type' }));
-    } else {
-      dispatch<FetchFormPayload>({
-        type: 'position/fetchForm',
-        payload: {
-          body: { action: TopbarAction.Create },
-          query: { type },
-        },
-      });
+      return this;
     }
+    dispatch<FetchFormPayload>({
+      type: 'position/fetchForm',
+      payload: {
+        body: { action: TopbarAction.Create },
+        query: { type },
+      },
+    });
   }
 
   renderOperationArea = (_: any, submitLoading: boolean) => {
@@ -87,7 +87,11 @@ class Create extends Component<CreateProps> {
       },
       position: { form: createForm },
     } = this.props;
-    const className = classNames(commonStyles.contentBody, commonStyles.verticalSpace);
+    const className = classNames(
+      commonStyles.contentBody,
+      commonStyles.verticalSpace,
+      commonStyles.compactFormItem,
+    );
     if (!Object.values(PositionType).includes(type)) {
       return <Exception404 />;
     }

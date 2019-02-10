@@ -208,6 +208,7 @@
     "needNum": 0,
     "adminId": 123456,
     "adminName": "Admin",
+    "adminPhone": 12345678901,
     "classTechNo": 456789,
     "classTech": "Teacher",
     "classType": "本科",

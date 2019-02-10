@@ -8,14 +8,21 @@ console.log(`[VersionInfo] Ant Design ${version}`);
 
 export const APIPrefix: string = '/api';
 
+export const TypeSpaceChar: string = '~';
+
 export const enum GlobalId {
   BasicLayout,
   DeletePostion,
+  PromptAuditAllDone,
+}
+
+export const enum SessionStorageId {
+  PositionAuditRowKes = '0',
 }
 
 MemorableModal.setLocale((time, unit) =>
   formatMessage(
-    { id: 'tip.no-more-tip-in' },
+    { id: 'tip.no-more-tip-in-time' },
     { time, unit: formatMessage({ id: `word.${unit}` }) },
   ),
 );
