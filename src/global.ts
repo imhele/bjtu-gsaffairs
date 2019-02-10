@@ -10,14 +10,28 @@ export const APIPrefix: string = '/api';
 
 export const TypeSpaceChar: string = '~';
 
+/**
+ * Global id for components
+ */
 export const enum GlobalId {
   BasicLayout,
   DeletePostion,
   PromptAuditAllDone,
 }
 
+/**
+ * Id for storage items.
+ * `NT`: Novice tutorial
+ */
 export const enum StorageId {
-  PositionAuditRowKes = '0',
+  /**
+   * sessionStorage
+   */
+  PARowKes = 'Position/Audit-0',
+  /**
+   * localStorage
+   */
+  NTPLSelectAll = 'NT-Position/List-0',
 }
 
 MemorableModal.setLocale((time, unit) =>

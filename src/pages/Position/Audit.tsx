@@ -39,7 +39,6 @@ interface AuditState {
 }
 
 class Audit extends Component<AuditProps, AuditState> {
-
   state: AuditState = {
     hoverProgress: false,
   };
@@ -63,7 +62,7 @@ class Audit extends Component<AuditProps, AuditState> {
       message.error(formatMessage({ id: 'position.error.unknown.type' }));
       return this;
     }
-    const keyStr = sessionStorage.getItem(StorageId.PositionAuditRowKes);
+    const keyStr = sessionStorage.getItem(StorageId.PARowKes);
     if (keyStr) {
       try {
         this.keyQueue = JSON.parse(keyStr);
@@ -113,7 +112,7 @@ class Audit extends Component<AuditProps, AuditState> {
 
   backToList = () => {
     router.push('list');
-    sessionStorage.removeItem(StorageId.PositionAuditRowKes);
+    sessionStorage.removeItem(StorageId.PARowKes);
   };
 
   promptNoMorePosition = () => {
@@ -156,7 +155,7 @@ class Audit extends Component<AuditProps, AuditState> {
     const auditRowKeys = (this.keyQueue as (string | number)[]).map(key => {
       return `${typeof key}${TypeSpaceChar}${key}`;
     });
-    sessionStorage.setItem(StorageId.PositionAuditRowKes, JSON.stringify(auditRowKeys));
+    sessionStorage.setItem(StorageId.PARowKes, JSON.stringify(auditRowKeys));
   };
 
   renderOperationArea = (_: any, submitLoading: boolean) => {

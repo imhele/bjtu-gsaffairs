@@ -13,11 +13,11 @@ import { RadioChangeEvent } from 'antd/es/radio';
 import { WrappedFormUtils } from 'antd/es/form/Form';
 import { formatStrOrNumQuery } from '@/utils/format';
 import MemorableModal from '@/components/MemorableModal';
+import { GlobalId, StorageId, TypeSpaceChar } from '@/global';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
-import { GlobalId, StorageId, TypeSpaceChar } from '@/global';
-import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
-import { HideWithouSelection, PositionType, CellAction, TopbarAction } from './consts';
+import { ConnectProps, ConnectState, NTType, PositionState } from '@/models/connect';
+import { CellAction, HideWithouSelection, PositionType, TopbarAction } from './consts';
 import { FetchListPayload, FetchDetailPayload, DeletePositionPayload } from '@/services/position';
 import StandardTable, {
   PaginationConfig,
@@ -37,6 +37,7 @@ export interface ListProps extends ConnectProps<{ type: PositionType }> {
     fetchDetail?: boolean;
     model?: boolean;
   };
+  NT?: NTType;
   position?: PositionState;
 }
 
@@ -54,7 +55,8 @@ interface ListState {
 }
 
 @connect(
-  ({ loading, position }: ConnectState): ListProps => ({
+  ({ global, loading, position }: ConnectState): ListProps => ({
+    NT: global.NT,
     loading: {
       deletePosition: loading.effects['position/deletePosition'],
       fetchList: loading.effects['position/fetchList'],
@@ -303,10 +305,7 @@ class List extends Component<ListProps, ListState> {
         break;
       case CellAction.Audit:
         currentRowKey = `${typeof currentRowKey}${TypeSpaceChar}${currentRowKey}`;
-        sessionStorage.setItem(
-          StorageId.PositionAuditRowKes,
-          JSON.stringify([currentRowKey]),
-        );
+        sessionStorage.setItem(StorageId.PARowKes, JSON.stringify([currentRowKey]));
         router.push('audit');
         break;
       default:
@@ -330,19 +329,12 @@ class List extends Component<ListProps, ListState> {
     return action;
   };
 
-  onChangeSelection = (
-    selectedRowKeys: string[] | number[],
-    selectedRows: object[],
-  ): string[] | number[] => {
+  onSelect = (record: object, selected: boolean) => {
     const {
       position: { rowKey },
     } = this.props;
-    this.prevSelectedRowKeys.forEach((prevKey: string & number) => {
-      if (!selectedRowKeys.includes(prevKey)) delete this.selectedRows[prevKey];
-    });
-    selectedRows.forEach(row => (this.selectedRows[row[rowKey]] = row));
-    this.prevSelectedRowKeys = selectedRowKeys;
-    return selectedRowKeys;
+    if (selected) this.selectedRows[record[rowKey]] = record;
+    else delete this.selectedRows[record[rowKey]];
   };
 
   onClickOperation = (selectedRowKeys: string[] | number[], operationType: string) => {
@@ -355,10 +347,7 @@ class List extends Component<ListProps, ListState> {
         selectedRowKeys = (selectedRowKeys as (string | number)[]).map(key => {
           return `${typeof key}${TypeSpaceChar}${key}`;
         });
-        sessionStorage.setItem(
-          StorageId.PositionAuditRowKes,
-          JSON.stringify(selectedRowKeys),
-        );
+        sessionStorage.setItem(StorageId.PARowKes, JSON.stringify(selectedRowKeys));
         router.push('audit');
         break;
       default:
@@ -422,6 +411,7 @@ class List extends Component<ListProps, ListState> {
 
   getSelectableProps = (): TableRowSelection<object> | null => {
     const {
+      dispatch,
       position: { rowKey, selectable, unSelectableKey = 'unSelectable' },
     } = this.props;
     if (!selectable) return null;
@@ -430,6 +420,14 @@ class List extends Component<ListProps, ListState> {
       getCheckboxProps: record => ({
         disabled: record[unSelectableKey] || this.deletingRowKeys.has(record[rowKey]),
       }),
+      onSelect: this.onSelect,
+      onSelectAll: (selected, _, changeRows) => {
+        changeRows.map(record => this.onSelect(record, selected));
+        dispatch({
+          type: 'global/triggerNT',
+          payload: StorageId.NTPLSelectAll,
+        });
+      },
     };
   };
 
@@ -484,7 +482,6 @@ class List extends Component<ListProps, ListState> {
           footer={this.renderTableFooter}
           getMenthods={this.getTableMethods}
           loading={loading.fetchList}
-          onChangeSelection={this.onChangeSelection}
           onClickAction={this.onClickAction}
           operationArea={this.getOperationArea()}
           pagination={this.getPagination()}

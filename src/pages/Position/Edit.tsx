@@ -26,7 +26,7 @@ const backToList = () => router.push('list');
 
 class Edit extends Component<EditProps> {
   static Empty = (
-    <Empty style={{ margin: '48px 0' }}>
+    <Empty style={{ margin: '48px 0 64px' }}>
       <Button onClick={backToList} type="primary">
         {formatMessage({ id: 'word.back-to-list' })}
       </Button>
