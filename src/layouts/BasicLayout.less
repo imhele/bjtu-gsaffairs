@@ -20,12 +20,17 @@
   line-height: @headerHeight;
   .centerContent() {
     flex: 1;
-    height: @headerHeight;
     -webkit-flex: 1;
-    line-height: @headerHeight;
     position: relative;
+    height: @headerHeight;
+    line-height: @headerHeight;
   }
-  .centerContent {
+  .centerContentMobile {
+    color: #fff;
+    font-size: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
     .centerContent();
   }
   :global(.ant-menu) {
@@ -41,6 +46,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+    .user-select(none);
     .transition-linear(0.2s, 0s);
     margin: @page-gap-4 @page-gap-8;
     color: rgba(255, 255, 255, 0.9);
@@ -92,6 +98,15 @@
       width: 72px;
       color: transparent;
       margin: @page-gap-4 @page-gap-1;
+    }
+  }
+  @media screen and (max-width: @screen-mobile) {
+    .leftContent {
+      cursor: pointer;
+    }
+    .rightContent {
+      width: 100px;
+      padding-left: 0;
     }
   }
 }

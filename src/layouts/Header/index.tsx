@@ -93,7 +93,9 @@ export default class Header extends Component<HeaderProps> {
         <div className={className}>
           <LeftContent onOpenMenu={onOpenMenu} isMobile={isMobile} />
           {isMobile ? (
-            <div className={styles.centerContent} />
+            <div className={styles.centerContentMobile}>
+              <FormattedMessage id="app.name" />
+            </div>
           ) : (
             <Menu
               theme="dark"
