@@ -1,4 +1,5 @@
 export default {
+  'position.audit.submit-and-next': '提交并进入下一个',
   'position.create.continue-create': '继续创建',
   'position.delete.confirm': '你确定要删除这个岗位吗？',
   'position.detail': '岗位详情',

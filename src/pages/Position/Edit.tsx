@@ -65,6 +65,11 @@ class Edit extends Component<EditProps> {
     });
   }
 
+  componentWillUnmount = () => {
+    const { dispatch } = this.props;
+    dispatch({ type: 'position/resetForm' });
+  };
+
   renderOperationArea = (_: any, submitLoading: boolean) => {
     const {
       position: {

@@ -45,6 +45,11 @@ class Create extends Component<CreateProps> {
     });
   }
 
+  componentWillUnmount = () => {
+    const { dispatch } = this.props;
+    dispatch({ type: 'position/resetForm' });
+  };
+
   renderOperationArea = (_: any, submitLoading: boolean) => {
     const {
       position: {

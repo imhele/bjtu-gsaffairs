@@ -315,8 +315,20 @@ const positionForm = (req, res) => {
       }));
       result.initialFieldsValue = {};
       if (result.formItems.length % 2) {
-        // Hold a place
-        result.formItems.push({ type: 'Extra', extra: '' });
+        // Hold a place, DO NOT FORGET ADD A UNIQUE ID
+        result.formItems.push({
+          id: 'HOLD-A-PLACE',
+          extra: '',
+          type: 'Extra',
+          /**
+           * Both `title: ' '` and `withoutWrap: true` work.
+           * `withoutWrap` will not wrap a layer of form component outside for this item,
+           * in order to prevent `id` from being used as a substitute for `title`.
+           * But when you set `colon: true`(this is also the default value),
+           * even if you set `title: ' '`, there will still display a colon comes from wrapper.
+           */
+          withoutWrap: true,
+        });
       }
       result.formItems.push({
         id: 'checkStatus',
@@ -327,11 +339,12 @@ const positionForm = (req, res) => {
       });
       result.formItems.push({
         id: 'opinion',
+        tip: '回车进行多选，可以输入自定义文案',
         title: '审核意见',
         type: 'Select',
         itemProps: {
           mode: 'tags',
-          placeholder: '在这里填写审核意见，不超过 500 字',
+          placeholder: '键入文字查询常用语',
         },
         selectOptions: [{ value: '信息填写不准确' }, { value: '岗位人数过多' }],
       });
@@ -451,6 +464,45 @@ const positionEdit = (req, res) => {
   }, 400);
 };
 
+/**
+ * Part of `position/audit`
+ */
+const positionAudit = (req, res) => {
+  const { type } = req.query;
+  const { key = '' } = req.body || {};
+  if (!['manage', 'teach'].includes(type)) {
+    return res.send({
+      errcode: 40001,
+      errmsg: 'Invalid type of position',
+    });
+  }
+  if (!req.body) {
+    return res.send({
+      errcode: 40005,
+      errmsg: 'Invalid value(s)',
+    });
+  }
+  const currentIndex = source[type].findIndex(row => row.key === key);
+  if (currentIndex === -1) {
+    return res.send({
+      errcode: 40002,
+      errmsg: 'Invalid key of position',
+    });
+  }
+  source[type][currentIndex] = {
+    ...source[type][currentIndex],
+    ...req.body,
+    // tips: `，` => Chinese comma is better
+    opinion: (req.body.opinion || ['无']).join('，'),
+  };
+  setTimeout(() => {
+    res.send({
+      errcode: 0,
+      errmsg: '审核成功',
+    });
+  }, 400);
+};
+
 export default {
   [`POST ${APIPrefix}/position/list`]: positionList,
   [`POST ${APIPrefix}/position/detail`]: positionDetail,
@@ -458,4 +510,5 @@ export default {
   [`POST ${APIPrefix}/position/form`]: positionForm,
   [`POST ${APIPrefix}/position/create`]: positionCreate,
   [`POST ${APIPrefix}/position/edit`]: positionEdit,
+  [`POST ${APIPrefix}/position/audit`]: positionAudit,
 };

@@ -12,8 +12,8 @@ import { AuditPositionPayload } from '@/services/position';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { buttonColProps, CellAction, PositionType } from './consts';
 import { GlobalId, SessionStorageId, TypeSpaceChar } from '@/global';
-import { Button, Col, Empty, message, notification, Skeleton } from 'antd';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
+import { Button, Col, Dropdown, Icon, message, Menu, notification, Skeleton } from 'antd';
 
 export interface AuditProps extends ConnectProps<{ type: PositionType }> {
   loading?: {
@@ -23,14 +23,20 @@ export interface AuditProps extends ConnectProps<{ type: PositionType }> {
   position?: PositionState;
 }
 
-const backToList = () => router.push('list');
-
 class Audit extends Component<AuditProps> {
   /**
    * key of current position
    */
   private key: string | number = null;
   private keyQueue: string[] | number[] = [];
+  private Skip = (
+    <Menu onClick={this.nextPosition}>
+      <Menu.Item>
+        <Icon type="forward" />
+        <FormattedMessage id="word.skip-this-item" />
+      </Menu.Item>
+    </Menu>
+  );
 
   constructor(props: AuditProps) {
     super(props);
@@ -49,7 +55,7 @@ class Audit extends Component<AuditProps> {
       try {
         this.keyQueue = JSON.parse(keyStr);
         this.keyQueue = JSON.parse(keyStr).map((key: string) => {
-          const keyArr = key.split(TypeSpaceChar, 1);
+          const keyArr = key.split(TypeSpaceChar, 2);
           if (keyArr[0] === 'number') return parseInt(keyArr[1], 10);
           if (keyArr[0] === 'string') return keyArr[1];
           return key;
@@ -76,7 +82,18 @@ class Audit extends Component<AuditProps> {
   }
 
   componentWillUnmount = () => {
+    const { dispatch } = this.props;
+    dispatch({ type: 'position/resetForm' });
+    const auditRowKeys = (this.keyQueue as (string | number)[]).map(key => {
+      return `${typeof key}${TypeSpaceChar}${key}`;
+    });
+    sessionStorage.setItem(SessionStorageId.PositionAuditRowKes, JSON.stringify(auditRowKeys));
     notification.close(`${GlobalId.PromptAuditAllDone}`);
+  };
+
+  backToList = () => {
+    this.keyQueue = [];
+    router.push('list');
   };
 
   promptNoMorePosition = () => {
@@ -85,10 +102,11 @@ class Audit extends Component<AuditProps> {
     const title = formatMessage({ id: 'tip.no-more-thing-to-be-done' }, { done, thing });
     notification.info({
       btn: (
-        <Button type="primary" onClick={backToList}>
-          {formatMessage({ id: 'word.back-to-list' })}
+        <Button type="primary" onClick={this.backToList}>
+          {formatMessage({ id: 'tip.go-to-position-list' })}
         </Button>
       ),
+      description: formatMessage({ id: 'tip.position.audit.batch', defaultMessage: ' ' }),
       duration: 9,
       key: `${GlobalId.PromptAuditAllDone}`,
       message: title,
@@ -125,12 +143,18 @@ class Audit extends Component<AuditProps> {
     } = this.props;
     return (
       <Col {...(groupAmount === 1 ? buttonColProps[0] : buttonColProps[1])}>
-        <Button htmlType="submit" loading={submitLoading} type="primary">
+        <Button htmlType="submit" loading={submitLoading} style={{ marginRight: 8 }} type="primary">
           <FormattedMessage id="word.submit" />
         </Button>
-        <Button onClick={backToList} style={{ marginLeft: 8 }}>
-          <FormattedMessage id="word.back" />
-        </Button>
+        {this.keyQueue.length > 1 ? (
+          <Dropdown.Button onClick={this.backToList} overlay={this.Skip}>
+            <FormattedMessage id="word.quit" />
+          </Dropdown.Button>
+        ) : (
+          <Button onClick={this.backToList}>
+            <FormattedMessage id="word.quit" />
+          </Button>
+        )}
       </Col>
     );
   };
@@ -142,8 +166,9 @@ class Audit extends Component<AuditProps> {
         params: { type },
       },
     } = this.props;
+    const callback = this.keyQueue.length > 1 ? this.nextPosition : this.backToList;
     dispatch<AuditPositionPayload>({
-      type: 'position/editPosition',
+      type: 'position/auditPosition',
       payload: {
         body: {
           ...fieldsValue,
@@ -151,6 +176,7 @@ class Audit extends Component<AuditProps> {
         },
         query: { type },
       },
+      callback,
     });
   };
 

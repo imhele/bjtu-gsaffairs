@@ -10,6 +10,7 @@ import { ColProps, RowProps } from 'antd/es/grid';
 import { StandardTableOperationAreaProps } from '@/components/StandardTable';
 import { FilterItemProps, SimpleFormItemProps } from '@/components/SimpleForm';
 import {
+  auditPosition,
   createPosition,
   deletePosition,
   editPosition,
@@ -148,11 +149,6 @@ const model: PositionModel = {
           type: 'setForm',
           payload: response,
         });
-      } else {
-        yield put({
-          type: 'setForm',
-          payload: defaultState.form,
-        });
       }
     },
     *createPosition({ payload }, { call, put }) {
@@ -189,8 +185,8 @@ const model: PositionModel = {
       }
     },
     *auditPosition({ callback, payload }, { call }) {
-      payload.body = formatMomentInFieldsValue(payload.body, formatMoment.YMD);
-      const response = yield call(editPosition, payload);
+      payload.body = formatMomentInFieldsValue(payload.body, formatMoment.YMDHms);
+      const response = yield call(auditPosition, payload);
       if (response && !response.errcode) {
         message.success(response.errmsg);
         safeFun(callback, null, payload);
@@ -220,6 +216,14 @@ const model: PositionModel = {
         form: {
           ...defaultState.form,
           ...payload,
+        },
+      };
+    },
+    resetForm(state: PositionState): PositionState {
+      return {
+        ...state,
+        form: {
+          ...defaultState.form,
         },
       };
     },
