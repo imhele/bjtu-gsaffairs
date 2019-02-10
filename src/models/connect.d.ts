@@ -1,9 +1,10 @@
-import { GlobalState, NTType } from './global';
+import { GlobalState } from './global';
 import { LoginState } from './login';
 import { ResultState } from './result';
 import { PositionState } from '@/pages/Position/models/position';
 
-export { GlobalState, LoginState, NTType, PositionState, ResultState };
+export { NTKeys, NTType } from './global';
+export { GlobalState, LoginState, PositionState, ResultState };
 
 export type Dispatch = <T = any, U = (payload: T) => void>(action: {
   type: string;

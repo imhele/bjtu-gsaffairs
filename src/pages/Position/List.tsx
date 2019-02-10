@@ -7,17 +7,17 @@ import React, { Component } from 'react';
 import commonStyles from '../common.less';
 import { ButtonProps } from 'antd/es/button';
 import { getUseMedia } from 'react-media-hook2';
-import { message, Radio, Skeleton } from 'antd';
 import { Filter } from '@/components/SimpleForm';
 import { RadioChangeEvent } from 'antd/es/radio';
 import { WrappedFormUtils } from 'antd/es/form/Form';
 import { formatStrOrNumQuery } from '@/utils/format';
 import MemorableModal from '@/components/MemorableModal';
+import { message, Popover, Radio, Skeleton } from 'antd';
 import { GlobalId, StorageId, TypeSpaceChar } from '@/global';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
-import { ConnectProps, ConnectState, NTType, PositionState } from '@/models/connect';
 import { CellAction, HideWithouSelection, PositionType, TopbarAction } from './consts';
+import { ConnectProps, ConnectState, NTKeys, NTType, PositionState } from '@/models/connect';
 import { FetchListPayload, FetchDetailPayload, DeletePositionPayload } from '@/services/position';
 import StandardTable, {
   PaginationConfig,
@@ -423,10 +423,7 @@ class List extends Component<ListProps, ListState> {
       onSelect: this.onSelect,
       onSelectAll: (selected, _, changeRows) => {
         changeRows.map(record => this.onSelect(record, selected));
-        dispatch({
-          type: 'global/triggerNT',
-          payload: StorageId.NTPLSelectAll,
-        });
+        dispatch<NTKeys>({ type: 'global/triggerNT', payload: 'NTPLSelectAll' });
       },
     };
   };
@@ -454,6 +451,7 @@ class List extends Component<ListProps, ListState> {
     const { currentRow, currentRowKey, detailVisible, size } = this.state;
     const {
       loading,
+      NT,
       position: { actionKey, columns, dataSource, detail, filters, rowKey, scroll },
     } = this.props;
     return (
@@ -473,6 +471,9 @@ class List extends Component<ListProps, ListState> {
             <Skeleton active paragraph={{ rows: 3 }} title={false} />
           </div>
         )}
+        <Popover placement='leftTop' visible={NT.NTPLSelectAll} title={'test'}>
+          <div className={commonStyles.NTPLSelectAll} />
+        </Popover>
         <StandardTable
           actionKey={actionKey}
           actionProps={this.renderActionProps}

@@ -23,7 +23,7 @@ export const enum GlobalId {
  * Id for storage items.
  * `NT`: Novice tutorial
  */
-export const enum StorageId {
+export enum StorageId {
   /**
    * sessionStorage
    */

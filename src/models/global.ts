@@ -1,15 +1,20 @@
 import { Model } from 'dva';
+import { StorageId } from '@/global';
+
+export type NTKeys = 'NTPLSelectAll';
+export type NTType = { [key in NTKeys]: boolean };
+export interface GlobalState {
+  collapsed: boolean;
+  NT: NTType;
+}
 
 const resetNamespace: string[] = ['login', 'result'];
-const defaultState = {
+const defaultState: GlobalState = {
   collapsed: true,
   NT: {
-    PLSelectAll: false,
+    NTPLSelectAll: false,
   },
 };
-
-export type GlobalState = Readonly<typeof defaultState>;
-export type NTType = Readonly<typeof defaultState.NT>;
 
 export interface GlobalModel extends Model {
   state: GlobalState;
@@ -30,7 +35,7 @@ const model: GlobalModel = {
       }
     },
     *triggerNT({ payload }, { put }) {
-      if (!localStorage.getItem(payload)) {
+      if (!localStorage.getItem(StorageId[payload])) {
         yield put({
           type: 'setNT',
           payload: { [payload]: true },
@@ -38,7 +43,7 @@ const model: GlobalModel = {
       }
     },
     *closeNT({ payload }, { put }) {
-      localStorage.removeItem(payload);
+      localStorage.removeItem(StorageId[payload]);
       yield put({
         type: 'setNT',
         payload: { [payload]: false },

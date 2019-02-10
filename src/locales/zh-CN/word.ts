@@ -14,6 +14,7 @@ export default {
   'word.hour': '小时',
   'word.minute': '分钟',
   'word.more': '更多',
+  'word.NT': '新手教程',
   'word.open': '打开',
   'word.position': '岗位',
   'word.query': '查询',
