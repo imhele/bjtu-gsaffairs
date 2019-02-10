@@ -1,16 +1,8 @@
-@page-gap-1: 4px;
-@page-gap-2: 8px;
-@page-gap-3: 12px;
-@page-gap-4: 16px;
-@page-gap-5: 20px;
-@page-gap-6: 24px;
-@page-gap-7: 28px;
-@page-gap-8: 32px;
-@page-gap-9: 36px;
+@import '~antd/es/style/themes/default.less';
 
-@screen-mobile: 599px;
-
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
 }
 
@@ -19,32 +11,11 @@ body {
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
-}
-
-.transform(@property) {
-  transform: @property;
-  -o-transform: @property;
-  -moz-transform: @property;
-  -webkit-transform: @property;
-}
-
-.transition-linear(@duration, @delay: 0s, @property: all) {
-  transition: @property @duration linear @delay;
-  -o-transition: @property @duration linear @delay;
-  -moz-transition: @property @duration linear @delay;
-  -webkit-transition: @property @duration linear @delay;
-}
-
-.transition-easeOutQuart(@duration, @delay: 0s, @property: all) {
-  transition: @property @duration cubic-bezier(0.165, 0.84, 0.44, 1) @delay;
-  -o-transition: @property @duration cubic-bezier(0.165, 0.84, 0.44, 1) @delay;
-  -moz-transition: @property @duration cubic-bezier(0.165, 0.84, 0.44, 1) @delay;
-  -webkit-transition: @property @duration cubic-bezier(0.165, 0.84, 0.44, 1) @delay;
-}
-
-.transition-easeInOut(@duration, @delay: 0s, @property: all) {
-  transition: @property @duration ease-in-out @delay;
-  -o-transition: @property @duration ease-in-out @delay;
-  -moz-transition: @property @duration ease-in-out @delay;
-  -webkit-transition: @property @duration ease-in-out @delay;
+  @media screen and (max-width: @screen-xs) {
+    :global {
+      .ant-notification {
+        margin-right: 16px;
+      }
+    }
+  }
 }
