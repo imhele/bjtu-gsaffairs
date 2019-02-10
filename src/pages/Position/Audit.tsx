@@ -50,14 +50,6 @@ class Audit extends Component<AuditProps, AuditState> {
   private keyQueue: string[] | number[] = [];
   private progressBase: number = 0;
   private showProgress: boolean = false;
-  private Skip = (
-    <Menu onClick={this.nextPosition}>
-      <Menu.Item>
-        <Icon type="forward" />
-        <FormattedMessage id="word.skip-this-item" />
-      </Menu.Item>
-    </Menu>
-  );
 
   constructor(props: AuditProps) {
     super(props);
@@ -263,6 +255,14 @@ class Audit extends Component<AuditProps, AuditState> {
       </QueueAnim>
     );
   }
+  private Skip = () => (
+    <Menu onClick={this.nextPosition}>
+      <Menu.Item>
+        <Icon type="forward" />
+        <FormattedMessage id="word.skip-this-item" />
+      </Menu.Item>
+    </Menu>
+  );
 }
 
 export default connect(
