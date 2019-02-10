@@ -15,7 +15,7 @@ import { formatStrOrNumQuery } from '@/utils/format';
 import MemorableModal from '@/components/MemorableModal';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
-import { GlobalId, SessionStorageId, TypeSpaceChar } from '@/global';
+import { GlobalId, StorageId, TypeSpaceChar } from '@/global';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import { HideWithouSelection, PositionType, CellAction, TopbarAction } from './consts';
 import { FetchListPayload, FetchDetailPayload, DeletePositionPayload } from '@/services/position';
@@ -304,7 +304,7 @@ class List extends Component<ListProps, ListState> {
       case CellAction.Audit:
         currentRowKey = `${typeof currentRowKey}${TypeSpaceChar}${currentRowKey}`;
         sessionStorage.setItem(
-          SessionStorageId.PositionAuditRowKes,
+          StorageId.PositionAuditRowKes,
           JSON.stringify([currentRowKey]),
         );
         router.push('audit');
@@ -356,7 +356,7 @@ class List extends Component<ListProps, ListState> {
           return `${typeof key}${TypeSpaceChar}${key}`;
         });
         sessionStorage.setItem(
-          SessionStorageId.PositionAuditRowKes,
+          StorageId.PositionAuditRowKes,
           JSON.stringify(selectedRowKeys),
         );
         router.push('audit');

@@ -26,3 +26,21 @@
     margin: @page-gap-6 0 0 0;
   }
 }
+
+.topProgressBar {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 16px;
+  line-height: 0;
+  cursor: pointer;
+  position: absolute;
+  :global {
+    .ant-progress {
+      line-height: 0;
+    }
+    .ant-progress-success-bg, .ant-progress-bg {
+      .transition-easeInOut(0.24s, 0s, height);
+    }
+  }
+}

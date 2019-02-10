@@ -16,7 +16,7 @@ export const enum GlobalId {
   PromptAuditAllDone,
 }
 
-export const enum SessionStorageId {
+export const enum StorageId {
   PositionAuditRowKes = '0',
 }
 

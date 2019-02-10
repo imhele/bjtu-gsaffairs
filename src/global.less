@@ -41,3 +41,10 @@ body {
   -moz-transition: @property @duration cubic-bezier(0.165, 0.84, 0.44, 1) @delay;
   -webkit-transition: @property @duration cubic-bezier(0.165, 0.84, 0.44, 1) @delay;
 }
+
+.transition-easeInOut(@duration, @delay: 0s, @property: all) {
+  transition: @property @duration ease-in-out @delay;
+  -o-transition: @property @duration ease-in-out @delay;
+  -moz-transition: @property @duration ease-in-out @delay;
+  -webkit-transition: @property @duration ease-in-out @delay;
+}

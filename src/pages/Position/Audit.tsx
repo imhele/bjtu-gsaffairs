@@ -11,9 +11,20 @@ import { FetchFormPayload } from '@/services/position';
 import { AuditPositionPayload } from '@/services/position';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { buttonColProps, CellAction, PositionType } from './consts';
-import { GlobalId, SessionStorageId, TypeSpaceChar } from '@/global';
+import { GlobalId, StorageId, TypeSpaceChar } from '@/global';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
-import { Button, Col, Dropdown, Icon, message, Menu, notification, Skeleton } from 'antd';
+import {
+  Button,
+  Col,
+  Dropdown,
+  Icon,
+  message,
+  Menu,
+  notification,
+  Progress,
+  Skeleton,
+  Tooltip,
+} from 'antd';
 
 export interface AuditProps extends ConnectProps<{ type: PositionType }> {
   loading?: {
@@ -23,12 +34,22 @@ export interface AuditProps extends ConnectProps<{ type: PositionType }> {
   position?: PositionState;
 }
 
-class Audit extends Component<AuditProps> {
+interface AuditState {
+  hoverProgress: boolean;
+}
+
+class Audit extends Component<AuditProps, AuditState> {
+
+  state: AuditState = {
+    hoverProgress: false,
+  };
   /**
    * key of current position
    */
   private key: string | number = null;
   private keyQueue: string[] | number[] = [];
+  private progressBase: number = 0;
+  private showProgress: boolean = false;
   private Skip = (
     <Menu onClick={this.nextPosition}>
       <Menu.Item>
@@ -50,7 +71,7 @@ class Audit extends Component<AuditProps> {
       message.error(formatMessage({ id: 'position.error.unknown.type' }));
       return this;
     }
-    const keyStr = sessionStorage.getItem(SessionStorageId.PositionAuditRowKes);
+    const keyStr = sessionStorage.getItem(StorageId.PositionAuditRowKes);
     if (keyStr) {
       try {
         this.keyQueue = JSON.parse(keyStr);
@@ -68,6 +89,8 @@ class Audit extends Component<AuditProps> {
       this.promptNoMorePosition();
       return this;
     }
+    this.progressBase = this.keyQueue.length;
+    this.showProgress = this.progressBase > 1;
     this.key = this.keyQueue[0];
     dispatch<FetchFormPayload>({
       type: 'position/fetchForm',
@@ -84,10 +107,6 @@ class Audit extends Component<AuditProps> {
   componentWillUnmount = () => {
     const { dispatch } = this.props;
     dispatch({ type: 'position/resetForm' });
-    const auditRowKeys = (this.keyQueue as (string | number)[]).map(key => {
-      return `${typeof key}${TypeSpaceChar}${key}`;
-    });
-    sessionStorage.setItem(SessionStorageId.PositionAuditRowKes, JSON.stringify(auditRowKeys));
     notification.close(`${GlobalId.PromptAuditAllDone}`);
   };
 
@@ -133,6 +152,10 @@ class Audit extends Component<AuditProps> {
         query: { type },
       },
     });
+    const auditRowKeys = (this.keyQueue as (string | number)[]).map(key => {
+      return `${typeof key}${TypeSpaceChar}${key}`;
+    });
+    sessionStorage.setItem(StorageId.PositionAuditRowKes, JSON.stringify(auditRowKeys));
   };
 
   renderOperationArea = (_: any, submitLoading: boolean) => {
@@ -193,12 +216,37 @@ class Audit extends Component<AuditProps> {
       commonStyles.verticalSpace,
       commonStyles.compactFormItem,
     );
+    const { hoverProgress } = this.state;
+    const progressTipText = {
+      done: this.progressBase - this.keyQueue.length,
+      left: this.keyQueue.length,
+    };
+    // Related pull request: https://github.com/ant-design/ant-design/pull/14769
+    const successPercent = `${(progressTipText.done * 100) / this.progressBase}` as any;
     if (!Object.values(PositionType).includes(type)) {
       return <Exception404 />;
     }
     return (
-      <QueueAnim type="left" className={className}>
-        <Skeleton active key="Skeleton" loading={loading.fetchForm} paragraph={{ rows: 7 }}>
+      <QueueAnim type="left" className={className} style={{ position: 'relative' }}>
+        {this.showProgress && (
+          <Tooltip title={formatMessage({ id: 'position.audit.progress' }, progressTipText)}>
+            <div
+              className={commonStyles.topProgressBar}
+              onMouseEnter={() => this.setState({ hoverProgress: true })}
+              onMouseLeave={() => this.setState({ hoverProgress: false })}
+            >
+              <Progress
+                percent={100}
+                showInfo={false}
+                status="normal"
+                strokeLinecap="square"
+                strokeWidth={hoverProgress ? 8 : 4}
+                successPercent={successPercent}
+              />
+            </div>
+          </Tooltip>
+        )}
+        <Skeleton active key="Skeleton" loading={loading.fetchForm} paragraph={{ rows: 16 }}>
           <SimpleForm
             colProps={auditForm.colProps}
             empty={Edit.Empty}

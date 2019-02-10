@@ -1,3 +1,5 @@
+import { ColProps } from 'antd/es/grid';
+
 export enum PositionType {
   Manage = 'manage',
   Teach = 'teach',
@@ -31,15 +33,15 @@ export const HideWithouSelection: Set<TopbarAction | CellAction> = new Set([
   TopbarAction.Export,
 ]);
 
-export const buttonColProps = [
+export const buttonColProps: ColProps[] = [
   {
     sm: { span: 24, offset: 0 },
     md: { span: 12, offset: 6 },
-    style: { paddingLeft: '0.5%' },
+    style: { marginTop: 8, paddingLeft: '0.5%' },
   },
   {
     sm: { span: 24, offset: 0 },
     md: { span: 12, offset: 3 },
-    style: { paddingLeft: '0.5%' },
+    style: { marginTop: 8, paddingLeft: '0.5%' },
   },
 ];
