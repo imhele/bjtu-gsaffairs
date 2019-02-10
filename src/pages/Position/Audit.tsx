@@ -112,8 +112,8 @@ class Audit extends Component<AuditProps, AuditState> {
   };
 
   backToList = () => {
-    this.keyQueue = [];
     router.push('list');
+    sessionStorage.removeItem(StorageId.PositionAuditRowKes);
   };
 
   promptNoMorePosition = () => {
