@@ -96,6 +96,15 @@ class Audit extends Component<AuditProps, AuditState> {
     });
   }
 
+  Skip = () => (
+    <Menu onClick={this.nextPosition}>
+      <Menu.Item>
+        <Icon type="forward" />
+        <FormattedMessage id="word.skip-this-item" />
+      </Menu.Item>
+    </Menu>
+  );
+
   componentWillUnmount = () => {
     const { dispatch } = this.props;
     dispatch({ type: 'position/resetForm' });
@@ -255,14 +264,6 @@ class Audit extends Component<AuditProps, AuditState> {
       </QueueAnim>
     );
   }
-  private Skip = () => (
-    <Menu onClick={this.nextPosition}>
-      <Menu.Item>
-        <Icon type="forward" />
-        <FormattedMessage id="word.skip-this-item" />
-      </Menu.Item>
-    </Menu>
-  );
 }
 
 export default connect(
