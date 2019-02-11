@@ -337,6 +337,10 @@ class List extends Component<ListProps, ListState> {
     else delete this.selectedRows[record[rowKey]];
   };
 
+  onSelectAll = (selected: boolean, _: object[], changeRows: object[]) => {
+    changeRows.map(record => this.onSelect(record, selected));
+  };
+
   onClickOperation = (selectedRowKeys: string[] | number[], operationType: string) => {
     safeFun(this.tableMethods.clearSelectedRowKeys);
     switch (operationType) {
@@ -421,10 +425,7 @@ class List extends Component<ListProps, ListState> {
         disabled: record[unSelectableKey] || this.deletingRowKeys.has(record[rowKey]),
       }),
       onSelect: this.onSelect,
-      onSelectAll: (selected, _, changeRows) => {
-        changeRows.map(record => this.onSelect(record, selected));
-        dispatch<NTKeys>({ type: 'global/triggerNT', payload: 'NTPLSelectAll' });
-      },
+      onSelectAll: this.onSelectAll,
     };
   };
 
@@ -471,7 +472,7 @@ class List extends Component<ListProps, ListState> {
             <Skeleton active paragraph={{ rows: 3 }} title={false} />
           </div>
         )}
-        <Popover placement='leftTop' visible={NT.NTPLSelectAll} title={'test'}>
+        <Popover placement="leftTop" visible={NT.NTPLSelectAll} title={'test'}>
           <div className={commonStyles.NTPLSelectAll} />
         </Popover>
         <StandardTable
