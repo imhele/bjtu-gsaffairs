@@ -469,7 +469,6 @@ class List extends Component<ListProps, ListState> {
             <Skeleton active paragraph={{ rows: 3 }} title={false} />
           </div>
         )}
-        <div id={StorageId.NTPLSelectAll}>Click me</div>
         <StandardTable
           actionKey={actionKey}
           actionProps={this.renderActionProps}

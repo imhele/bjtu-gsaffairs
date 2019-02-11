@@ -5,9 +5,21 @@
 
 Postgraduate Assistant Post Management System.
 
+
 ## Slogan
 
 🎈 Use technology for user experience to make society a little better.
+
+
+## Tags
+
+- [React](https://github.com/facebook/react)
+- [UmiJS](https://github.com/umijs/umi)
+- [Ant Design](https://github.com/ant-design/ant-design)
+- [TypeScript](https://github.com/Microsoft/TypeScript)
+- [React Hooks](https://reactjs.org/docs/hooks-intro.html)
+- [Less](https://github.com/less/less.js)
+
 
 ## Usage
 
