@@ -2,6 +2,7 @@ import React from 'react';
 import { version } from 'antd';
 import { formatMessage } from 'umi-plugin-locale';
 import MemorableModal from '@/components/MemorableModal';
+import { NoviceTutorialElementProps } from '@/components/NoviceTutorial';
 
 // tslint:disable-next-line
 console.log(`[VersionInfo] Ant Design ${version}`);
@@ -33,6 +34,10 @@ export enum StorageId {
    */
   NTPLSelectAll = 'NT-Position/List-0',
 }
+
+export const NTElement: NoviceTutorialElementProps<StorageId>[] = [
+  { content: 'test', id: StorageId.NTPLSelectAll, title: 'test' },
+];
 
 MemorableModal.setLocale((time, unit) =>
   formatMessage(

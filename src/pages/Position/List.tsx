@@ -469,9 +469,7 @@ class List extends Component<ListProps, ListState> {
             <Skeleton active paragraph={{ rows: 3 }} title={false} />
           </div>
         )}
-        <Popover placement="leftTop" visible={false} title={'test'}>
-          <div className={commonStyles.NTPLSelectAll} />
-        </Popover>
+        <div id={StorageId.NTPLSelectAll}>Click me</div>
         <StandardTable
           actionKey={actionKey}
           actionProps={this.renderActionProps}

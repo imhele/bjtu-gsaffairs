@@ -4,11 +4,11 @@ import { connect } from 'dva';
 import { Layout } from 'antd';
 import router from 'umi/router';
 import debounce from 'debounce';
-import { GlobalId } from '@/global';
 import QueueAnim from 'rc-queue-anim';
 import * as Utils from '@/utils/utils';
 import styles from './BasicLayout.less';
 import useMedia from 'react-media-hook2';
+import { GlobalId, NTElement } from '@/global';
 import Authorized from '@/components/Authorized';
 import Exception403 from '@/pages/Exception/403';
 import DocumentTitle from '@/components/DocumentTitle';
@@ -62,8 +62,8 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
    */
   return (
     <DocumentTitle location={location} route={route} defaultTitle="app.name">
-      <NoviceTutorial getTrigger={trigger => (NTTrigger.current = trigger)}>
-        <Layout className={styles.layout} onClick={NTTrigger.current} id='aaa'>
+      <NoviceTutorial element={NTElement} getTrigger={trigger => (NTTrigger.current = trigger)}>
+        <Layout className={styles.layout} onClick={NTTrigger.current} id="aaa">
           <QueueAnim type="left" delay={200}>
             <Header
               collapsed={collapsed}

@@ -4,7 +4,7 @@ export interface GlobalState {
   collapsed: boolean;
 }
 
-const resetNamespace: string[] = ['login', 'result'];
+const resetNamespace: string[] = ['login', 'result', 'position'];
 const defaultState: GlobalState = {
   collapsed: true,
 };
