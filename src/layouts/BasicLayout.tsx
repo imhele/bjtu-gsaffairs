@@ -11,8 +11,9 @@ import styles from './BasicLayout.less';
 import useMedia from 'react-media-hook2';
 import Authorized from '@/components/Authorized';
 import Exception403 from '@/pages/Exception/403';
-import React, { useMemo, useState } from 'react';
 import DocumentTitle from '@/components/DocumentTitle';
+import NoviceTutorial from '@/components/NoviceTutorial';
+import React, { useMemo, useRef, useState } from 'react';
 import SiderMenu, { SelectParam } from '@/components/SiderMenu';
 import { ConnectState, ConnectProps, LoginState } from '@/models/connect';
 
@@ -40,6 +41,7 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
    * Constructor
    * These functions will be called during the first render only.
    */
+  const NTTrigger = useRef<(e: any) => [boolean, any]>(() => void 0);
   const route = useState(() => Utils.formatDynamicRoute(restProps.route))[0];
   const isMobile = useMedia({ id: GlobalId.BasicLayout, query: '(max-width: 600px)' })[0];
   const onCollapse = useState(() => {
@@ -60,47 +62,49 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
    */
   return (
     <DocumentTitle location={location} route={route} defaultTitle="app.name">
-      <Layout className={styles.layout}>
-        <QueueAnim type="left" delay={200}>
-          <Header
-            collapsed={collapsed}
-            currentScope={currentScope}
-            isMobile={isMobile}
-            key="Header"
-            loading={loading}
-            location={location}
-            login={login}
-            menuSelectedKeys={menuSelectedKeys}
-            onLogout={onLogout}
-            onOpenMenu={() => onCollapse(false)}
-            route={route}
-          />
-          <Layout key="Layout">
-            <SiderMenu
+      <NoviceTutorial getTrigger={trigger => (NTTrigger.current = trigger)}>
+        <Layout className={styles.layout} onClick={NTTrigger.current} id='aaa'>
+          <QueueAnim type="left" delay={200}>
+            <Header
               collapsed={collapsed}
               currentScope={currentScope}
-              drawerTitle="app.name"
               isMobile={isMobile}
+              key="Header"
+              loading={loading}
               location={location}
+              login={login}
               menuSelectedKeys={menuSelectedKeys}
-              onCollapse={onCollapse}
-              onSelectMenu={onSelectMenu}
+              onLogout={onLogout}
+              onOpenMenu={() => onCollapse(false)}
               route={route}
             />
-            <Content className={styles.content}>
-              <Authorized
+            <Layout key="Layout">
+              <SiderMenu
+                collapsed={collapsed}
                 currentScope={currentScope}
-                exception={<Exception403 />}
-                id={GlobalId.BasicLayout}
-                scope={Utils.pathToScope(route, location.pathname)}
-              >
-                {children}
-              </Authorized>
-              <Footer />
-            </Content>
-          </Layout>
-        </QueueAnim>
-      </Layout>
+                drawerTitle="app.name"
+                isMobile={isMobile}
+                location={location}
+                menuSelectedKeys={menuSelectedKeys}
+                onCollapse={onCollapse}
+                onSelectMenu={onSelectMenu}
+                route={route}
+              />
+              <Content className={styles.content}>
+                <Authorized
+                  currentScope={currentScope}
+                  exception={<Exception403 />}
+                  id={GlobalId.BasicLayout}
+                  scope={Utils.pathToScope(route, location.pathname)}
+                >
+                  {children}
+                </Authorized>
+                <Footer />
+              </Content>
+            </Layout>
+          </QueueAnim>
+        </Layout>
+      </NoviceTutorial>
     </DocumentTitle>
   );
 };

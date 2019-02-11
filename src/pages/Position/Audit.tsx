@@ -1,6 +1,7 @@
 import Edit from './Edit';
 import { connect } from 'dva';
 import router from 'umi/router';
+import debounce from 'debounce';
 import classNames from 'classnames';
 import QueueAnim from 'rc-queue-anim';
 import React, { Component } from 'react';
@@ -42,6 +43,10 @@ class Audit extends Component<AuditProps, AuditState> {
   state: AuditState = {
     hoverProgress: false,
   };
+
+  handleHoverProgress = debounce((hoverProgress: boolean) => {
+    this.setState({hoverProgress});
+  }, 50)
   /**
    * key of current position
    */
@@ -232,8 +237,8 @@ class Audit extends Component<AuditProps, AuditState> {
           <Tooltip title={formatMessage({ id: 'position.audit.progress' }, progressTipText)}>
             <div
               className={commonStyles.topProgressBar}
-              onMouseEnter={() => this.setState({ hoverProgress: true })}
-              onMouseLeave={() => this.setState({ hoverProgress: false })}
+              onMouseEnter={() => this.handleHoverProgress(true)}
+              onMouseLeave={() => this.handleHoverProgress(false)}
             >
               <Progress
                 percent={100}

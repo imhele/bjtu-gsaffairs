@@ -16,8 +16,8 @@ import { message, Popover, Radio, Skeleton } from 'antd';
 import { GlobalId, StorageId, TypeSpaceChar } from '@/global';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
+import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import { CellAction, HideWithouSelection, PositionType, TopbarAction } from './consts';
-import { ConnectProps, ConnectState, NTKeys, NTType, PositionState } from '@/models/connect';
 import { FetchListPayload, FetchDetailPayload, DeletePositionPayload } from '@/services/position';
 import StandardTable, {
   PaginationConfig,
@@ -37,7 +37,6 @@ export interface ListProps extends ConnectProps<{ type: PositionType }> {
     fetchDetail?: boolean;
     model?: boolean;
   };
-  NT?: NTType;
   position?: PositionState;
 }
 
@@ -55,8 +54,7 @@ interface ListState {
 }
 
 @connect(
-  ({ global, loading, position }: ConnectState): ListProps => ({
-    NT: global.NT,
+  ({ loading, position }: ConnectState): ListProps => ({
     loading: {
       deletePosition: loading.effects['position/deletePosition'],
       fetchList: loading.effects['position/fetchList'],
@@ -452,7 +450,6 @@ class List extends Component<ListProps, ListState> {
     const { currentRow, currentRowKey, detailVisible, size } = this.state;
     const {
       loading,
-      NT,
       position: { actionKey, columns, dataSource, detail, filters, rowKey, scroll },
     } = this.props;
     return (
@@ -472,7 +469,7 @@ class List extends Component<ListProps, ListState> {
             <Skeleton active paragraph={{ rows: 3 }} title={false} />
           </div>
         )}
-        <Popover placement="leftTop" visible={NT.NTPLSelectAll} title={'test'}>
+        <Popover placement="leftTop" visible={false} title={'test'}>
           <div className={commonStyles.NTPLSelectAll} />
         </Popover>
         <StandardTable
