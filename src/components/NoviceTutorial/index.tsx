@@ -7,7 +7,7 @@ import React, { BaseSyntheticEvent, Component, ComponentClass, ReactNode } from 
 
 export interface NoviceTutorialElementProps<T extends string> extends AbstractTooltipProps {
   closeText?: ReactNode;
-  content?: ReactNode;
+  content?: ReactNode | (() => ReactNode);
   hideOnUIEvent?: boolean;
   id: T;
   space?: {
@@ -59,10 +59,11 @@ export interface NoviceTutorialProps<T extends string, E extends BaseSyntheticEv
     y?: number;
   };
   storage?: Storage;
+  title?: ReactNode;
 }
 
 interface NoviceTutorialState<T extends string, E extends BaseSyntheticEvent> {
-  NTVaules?: NoviceTutorialValues<T, E>;
+  NTValues?: NoviceTutorialValues<T, E>;
 }
 
 const noop = () => null;
@@ -97,11 +98,13 @@ const formatNTElementProps = <T extends string>(
     ...popoverProps
   }: NoviceTutorialElementProps<T>,
   defaultCloseText: ReactNode,
+  defaultTitle: ReactNode,
 ) => {
+  popoverProps.title = popoverProps.title || defaultTitle;
   const wrappedContent = (
     <React.Fragment>
-      {content}
-      <Button size="small" style={{ display: 'block', marginTop: 8 }} type="primary">
+      {typeof content === 'function' ? content() : content}
+      <Button size="small" style={{ display: 'block', marginTop: 16 }} type="primary">
         {closeText || defaultCloseText || 'Close'}
       </Button>
     </React.Fragment>
@@ -114,13 +117,14 @@ export const NoviceTutorialElement = <T extends string>(
 ) => (
   <NTContext.Consumer>
     {context => {
-      const { content, id, popoverProps } = formatNTElementProps<T>(props, context.props.closeText);
+      const { closeText, title } = context.props;
+      const { content, id, popoverProps } = formatNTElementProps<T>(props, closeText, title);
       return (
         <Popover
           {...popoverProps}
           content={content}
           key={id}
-          visible={context.values[id] ? true : false}
+          visible={context.values[id] && context.values[id][0] ? true : false}
         >
           {props.children}
         </Popover>
@@ -144,29 +148,31 @@ export default class NoviceTutorial<
   public Context: React.Context<NoviceTutorialContext<T, E>> = NTContext;
   public NTQueues: { [key in T]?: [number, E][] } = {};
   public state: NoviceTutorialState<T, E> = {
-    NTVaules: {},
+    NTValues: {},
   };
   public NTMethods: NoviceTutorialMethods<T, E> = {
     getNTQueues: () => this.NTQueues,
     getNTQueuesById: id => this.NTQueues[id],
-    getNTValues: () => this.state.NTVaules,
+    getNTValues: () => this.state.NTValues,
     getTrigger: () => this.trigger,
     setNTValues: (updateValues: NoviceTutorialValues<T, E>) => {
-      const { NTVaules } = this.state;
-      this.setState({ NTVaules: { ...NTVaules, ...updateValues } });
+      const { NTValues } = this.state;
+      this.setState({ NTValues: { ...NTValues, ...updateValues } });
     },
   };
 
   onUIEvent = debounce(() => {
     const now = Date.now() - 100;
     const updateValues: NoviceTutorialValues<T, E> = {};
-    const { element } = this.props;
-    const { NTVaules } = this.state;
+    const { NTValues } = this.state;
+    const { element, storage } = this.props;
     element.forEach(ele => {
       if (!ele.hideOnUIEvent) return;
-      if (!NTVaules[ele.id]) return;
-      if (NTVaules[ele.id][0] > now) return;
-      updateValues[ele.id] = false;
+      if (!NTValues[ele.id]) return;
+      if (NTValues[ele.id][0] > now) return;
+      if (NTValues[ele.id][0] === 0) updateValues[ele.id] = false;
+      else updateValues[ele.id] = [0, NTValues[ele.id][1]];
+      storage.setItem(ele.id, `${now}`);
     });
     if (!Object.keys(updateValues).length) return;
     this.NTMethods.setNTValues(updateValues);
@@ -174,11 +180,11 @@ export default class NoviceTutorial<
 
   constructor(props: NoviceTutorialProps<T, E>) {
     super(props);
-    this.state.NTVaules = props.defaultValues || this.state.NTVaules;
+    this.state.NTValues = props.defaultValues || this.state.NTValues;
     this.Context = React.createContext<NoviceTutorialContext<T, E>>({
       methods: this.NTMethods,
       props,
-      values: this.state.NTVaules,
+      values: this.state.NTValues,
     });
     if (props.getMethods) props.getMethods(this.NTMethods);
     window.addEventListener('resize', this.onUIEvent);
@@ -186,14 +192,16 @@ export default class NoviceTutorial<
   }
 
   componentDidMount = () => {
-    const { element } = this.props;
-    this.enable = element.some(ele => (localStorage.getItem(ele.id) ? false : true));
+    const { element, storage } = this.props;
+    this.enable = element.some(ele => (storage.getItem(ele.id) ? false : true));
   };
 
   componentDidUpdate = () => {
     const now = Date.now();
     Object.keys(this.NTQueues).forEach((key: T) => {
-      this.NTQueues[key] = this.NTQueues[key].filter(e => e[0] < now);
+      this.NTQueues[key] = this.NTQueues[key]
+        .filter(e => e[0] > now || !e[0])
+        .map(e => [1, e[1]] as [number, E]);
     });
   };
 
@@ -211,12 +219,12 @@ export default class NoviceTutorial<
     event = { ...event };
     // Initialize variables.
     const now = Date.now();
-    const { NTVaules } = this.state;
+    const { NTValues } = this.state;
     const { element, onTrigger, storage } = this.props;
     const { className = '', dataset = {}, id } = event.target as HTMLBaseElement;
     // Filter out elements that do not meet the screening criteria.
     const rest = element.filter(({ id: eleId, triggerCondition: t }) => {
-      if (!eleId || NTVaules[eleId]) return false;
+      if (!eleId || NTValues[eleId]) return false;
       // Without extra conditions.
       if (!t) return eleId === id || eleId === dataset.id;
       // If there is no id, it will enter other screening links.
@@ -233,7 +241,7 @@ export default class NoviceTutorial<
       }
     });
     if (!rest.length) return false;
-    if (onTrigger) return onTrigger(NTVaules, rest, event, this.NTMethods.setNTValues);
+    if (onTrigger) return onTrigger(NTValues, rest, event, this.NTMethods.setNTValues);
     const updateValues: { [key in T]?: [number, E] } = {};
     rest.forEach(ele => (updateValues[ele.id] = [now, event]));
     this.NTMethods.setNTValues(updateValues);
@@ -241,13 +249,13 @@ export default class NoviceTutorial<
   };
 
   renderElemnt = (): ReactNode => {
-    const { NTVaules } = this.state;
-    const { closeText, element, space: defaultSpace } = this.props;
+    const { NTValues } = this.state;
+    const { closeText, element, space: defaultSpace, title } = this.props;
     return element
-      .filter(ele => NTVaules[ele.id])
-      .map(ele => formatNTElementProps(ele, closeText))
+      .filter(ele => NTValues[ele.id])
+      .map(ele => formatNTElementProps(ele, closeText, title))
       .map(({ content, id, popoverProps, space }) => {
-        const { nativeEvent: e = {}, target: t = {} } = NTVaules[id][1];
+        const { nativeEvent: e = {}, target: t = {} } = NTValues[id][1];
         const spaceX = (typeof space.x === 'undefined' ? defaultSpace.x : space.x) || 8;
         const spaceY = (typeof space.y === 'undefined' ? defaultSpace.y : space.y) || 8;
         let left = (t as HTMLBaseElement).offsetLeft || (e as MouseEvent).clientX;
@@ -261,7 +269,12 @@ export default class NoviceTutorial<
             left += ((t as HTMLBaseElement).offsetHeight || 0) + spaceY * 2;
         }
         return (
-          <Popover {...popoverProps} content={content} key={id} visible>
+          <Popover
+            {...popoverProps}
+            content={content}
+            key={id}
+            visible={NTValues[id][0] ? true : false}
+          >
             <div className={styles.NTPopoverTarget} key={id} style={{ left, top }} />
           </Popover>
         );
@@ -269,10 +282,10 @@ export default class NoviceTutorial<
   };
 
   render() {
-    const { NTVaules } = this.state;
+    const { NTValues } = this.state;
     const { children } = this.props;
     return (
-      <NTContext.Provider value={{ methods: this.NTMethods, props: this.props, values: NTVaules }}>
+      <NTContext.Provider value={{ methods: this.NTMethods, props: this.props, values: NTValues }}>
         {this.renderElemnt()}
         {children}
       </NTContext.Provider>

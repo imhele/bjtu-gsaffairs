@@ -340,7 +340,7 @@ class List extends Component<ListProps, ListState> {
   onSelectAll = (selected: boolean, _: object[], changeRows: object[]) => {
     const { context } = this.props;
     changeRows.map(record => this.onSelect(record, selected));
-    if (!context) return;
+    if (!context || !selected) return;
     setTimeout(() => {
       const queue = context.methods.getNTQueuesById(StorageId.NTPLSelectAll) || [];
       if (!queue || !queue.length) return;

@@ -10,6 +10,7 @@ export default {
   'word.create': '创建',
   'word.day': '天',
   'word.expand': '展开',
+  'word.got-it': '知道了',
   'word.go-to-list': '前往列表',
   'word.hour': '小时',
   'word.minute': '分钟',

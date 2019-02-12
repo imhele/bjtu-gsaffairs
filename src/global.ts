@@ -36,11 +36,10 @@ export enum StorageId {
 
 export const NTElement: NoviceTutorialElementProps<StorageId>[] = [
   {
-    content: 'test',
+    content: () => formatMessage({ id: 'tip.NTPLSelectAll' }),
     hideOnUIEvent: true,
     id: StorageId.NTPLSelectAll,
     space: { x: -2, y: 8 },
-    title: 'test',
     triggerCondition: {
       className: 'ant-checkbox-input',
       eventType: 'click',

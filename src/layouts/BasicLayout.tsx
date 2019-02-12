@@ -10,6 +10,7 @@ import styles from './BasicLayout.less';
 import useMedia from 'react-media-hook2';
 import Authorized from '@/components/Authorized';
 import Exception403 from '@/pages/Exception/403';
+import { formatMessage } from 'umi-plugin-locale';
 import DocumentTitle from '@/components/DocumentTitle';
 import { GlobalId, NTElement, StorageId } from '@/global';
 import SiderMenu, { SelectParam } from '@/components/SiderMenu';
@@ -65,8 +66,10 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
   return (
     <DocumentTitle location={location} route={route} defaultTitle="app.name">
       <NoviceTutorial<StorageId, MouseEvent>
+        closeText={formatMessage({ id: 'word.got-it' })}
         element={NTElement}
         getMethods={methods => (NTMethods.current = methods)}
+        title={formatMessage({ id: 'word.NT' })}
       >
         <Layout className={styles.layout} onClick={NTMethods.current.getTrigger()}>
           <QueueAnim type="left" delay={200}>
