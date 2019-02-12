@@ -2,6 +2,12 @@ import moment from 'moment';
 import qs from 'querystring';
 import { TypeSpaceChar } from '@/global';
 import { SimpleFormItemProps, SimpleFormItemType } from '@/components/SimpleForm';
+import {
+  DatePickerProps,
+  MonthPickerProps,
+  WeekPickerProps,
+  RangePickerProps,
+} from 'antd/es/date-picker/interface';
 
 export const formatMoment = {
   Y: 'YYYY',
@@ -42,31 +48,75 @@ export const formatMomentInFieldsValue = (values: object, format: string): objec
 };
 
 export const formatMomentInSimpleFormInitValue = (
-  formItems: SimpleFormItemProps[],
+  formItems: (SimpleFormItemProps & { enabledTimeRange: moment.Moment[] })[],
   init?: object,
 ) => {
-  if (typeof init !== 'object') return {};
+  if (typeof init !== 'object') init = {};
   const res = {};
   formItems.forEach(item => {
-    if (!init[item.id]) return;
     try {
       switch (item.type) {
         case SimpleFormItemType.DatePicker:
-          res[item.id] = moment(init[item.id]);
+          if (init[item.id]) res[item.id] = moment(init[item.id]);
+          if (Array.isArray(item.enabledTimeRange)) {
+            // string => Moment
+            item.enabledTimeRange[0] = moment(item.enabledTimeRange[0]);
+            item.enabledTimeRange[1] = moment(item.enabledTimeRange[1]);
+            item.itemProps = {
+              ...item.itemProps,
+              disabledDate: current =>
+                !current ||
+                item.enabledTimeRange[0] > current ||
+                current > item.enabledTimeRange[1],
+            } as DatePickerProps;
+          }
           break;
         case SimpleFormItemType.MonthPicker:
-          res[item.id] = moment(init[item.id]);
+          if (init[item.id]) res[item.id] = moment(init[item.id]);
+          if (Array.isArray(item.enabledTimeRange)) {
+            item.enabledTimeRange[0] = moment(item.enabledTimeRange[0]);
+            item.enabledTimeRange[1] = moment(item.enabledTimeRange[1]);
+            item.itemProps = {
+              ...item.itemProps,
+              disabledDate: current =>
+                !current ||
+                item.enabledTimeRange[0] > current ||
+                current > item.enabledTimeRange[1],
+            } as MonthPickerProps;
+          }
           break;
         case SimpleFormItemType.WeekPicker:
-          res[item.id] = moment(init[item.id]);
+          if (init[item.id]) res[item.id] = moment(init[item.id]);
+          if (Array.isArray(item.enabledTimeRange)) {
+            item.enabledTimeRange[0] = moment(item.enabledTimeRange[0]);
+            item.enabledTimeRange[1] = moment(item.enabledTimeRange[1]);
+            item.itemProps = {
+              ...item.itemProps,
+              disabledDate: current =>
+                !current ||
+                item.enabledTimeRange[0] > current ||
+                current > item.enabledTimeRange[1],
+            } as WeekPickerProps;
+          }
           break;
         case SimpleFormItemType.RangePicker:
           if (Array.isArray(init[item.id])) {
             res[item.id] = [moment(init[item.id][0]), moment(init[item.id][1])];
           }
+          if (Array.isArray(item.enabledTimeRange)) {
+            item.enabledTimeRange[0] = moment(item.enabledTimeRange[0]);
+            item.enabledTimeRange[1] = moment(item.enabledTimeRange[1]);
+            item.itemProps = {
+              ...item.itemProps,
+              disabledDate: current =>
+                !current ||
+                item.enabledTimeRange[0] > current ||
+                current > item.enabledTimeRange[1],
+            } as RangePickerProps;
+          }
           break;
         default:
-          res[item.id] = init[item.id];
+          if (init[item.id]) res[item.id] = init[item.id];
           break;
       }
     } catch {}

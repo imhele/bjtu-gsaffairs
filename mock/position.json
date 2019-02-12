@@ -475,6 +475,7 @@
           "id": "timeRange",
           "title": "聘用时间",
           "type": "RangePicker",
+          "enabledTimeRange": ["2019-02-13", "2019-06-24"],
           "decoratorOptions": {
             "rules": [
               {
