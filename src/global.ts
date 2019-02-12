@@ -1,4 +1,3 @@
-import React from 'react';
 import { version } from 'antd';
 import { formatMessage } from 'umi-plugin-locale';
 import MemorableModal from '@/components/MemorableModal';
@@ -36,7 +35,20 @@ export enum StorageId {
 }
 
 export const NTElement: NoviceTutorialElementProps<StorageId>[] = [
-  { content: 'test', id: StorageId.NTPLSelectAll, title: 'test' },
+  {
+    content: 'test',
+    hideOnUIEvent: true,
+    id: StorageId.NTPLSelectAll,
+    space: { x: -2, y: 8 },
+    title: 'test',
+    triggerCondition: {
+      className: 'ant-checkbox-input',
+      eventType: 'click',
+      pathname: /^\/position\/([^\/]+?)\/list(?:\/)?$/i,
+      queue: true,
+      wait: 500,
+    },
+  },
 ];
 
 MemorableModal.setLocale((time, unit) =>

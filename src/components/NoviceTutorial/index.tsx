@@ -2,19 +2,19 @@ import debounce from 'debounce';
 import styles from './index.less';
 import { strOrReg } from './utils';
 import { Button, Popover } from 'antd';
-import React, { BaseSyntheticEvent } from 'react';
 import { AbstractTooltipProps } from 'antd/es/tooltip';
+import React, { BaseSyntheticEvent, Component, ComponentClass, ReactNode } from 'react';
 
 export interface NoviceTutorialElementProps<T extends string> extends AbstractTooltipProps {
-  closeText?: React.ReactNode;
-  content?: React.ReactNode;
-  hideOnResize?: boolean;
+  closeText?: ReactNode;
+  content?: ReactNode;
+  hideOnUIEvent?: boolean;
   id: T;
   space?: {
     x?: number;
     y?: number;
   };
-  title?: React.ReactNode;
+  title?: ReactNode;
   triggerCondition?: {
     className?: string | RegExp;
     eventType?: string | RegExp;
@@ -25,13 +25,14 @@ export interface NoviceTutorialElementProps<T extends string> extends AbstractTo
 }
 
 export type NoviceTutorialValues<T extends string, E extends BaseSyntheticEvent> = {
-  [key in T]?: E | false
+  [key in T]?: [number, E] | false
 };
 
 export interface NoviceTutorialMethods<T extends string, E extends BaseSyntheticEvent> {
   getNTQueues?: () => { [key in T]?: [number, E][] };
+  getNTQueuesById?: (id: T) => [number, E][];
   getNTValues?: () => NoviceTutorialValues<T, E>;
-  getTrigger?: () => (event: E) => E | false;
+  getTrigger?: () => (event: E) => [number, E] | false;
   setNTValues?: (updateValue: NoviceTutorialValues<T, E>) => void;
 }
 
@@ -42,7 +43,7 @@ export interface NoviceTutorialContext<T extends string, E extends BaseSynthetic
 }
 
 export interface NoviceTutorialProps<T extends string, E extends BaseSyntheticEvent> {
-  closeText?: React.ReactNode;
+  closeText?: ReactNode;
   defaultValues?: NoviceTutorialValues<T, E>;
   element?: NoviceTutorialElementProps<T>[];
   getContext?: (context: React.Context<NoviceTutorialContext<T, E>>) => void;
@@ -52,7 +53,7 @@ export interface NoviceTutorialProps<T extends string, E extends BaseSyntheticEv
     filteredElement: NoviceTutorialElementProps<T>[],
     event: E,
     setNTValues: (updateValue: NoviceTutorialValues<T, E>) => void,
-  ) => E | false;
+  ) => [number, E] | false;
   space?: {
     x?: number;
     y?: number;
@@ -67,16 +68,22 @@ interface NoviceTutorialState<T extends string, E extends BaseSyntheticEvent> {
 const noop = () => null;
 
 export const NTContext = React.createContext<NoviceTutorialContext<any, any>>({
-  methods: { getNTQueues: noop, getNTValues: noop, getTrigger: noop, setNTValues: noop },
+  methods: {
+    getNTQueues: noop,
+    getNTQueuesById: noop,
+    getNTValues: noop,
+    getTrigger: noop,
+    setNTValues: noop,
+  },
   props: {},
   values: {},
 });
 
-export const NoviceTutorialWrapper = <P, S>(WrappedComponent: React.ComponentClass<P, S>) => {
+export const NoviceTutorialWrapper = <P, S>(
+  Wrapped: ComponentClass<P, S> | React.SFC<P>,
+): React.SFC<P> => {
   return (props: P) => (
-    <NTContext.Consumer>
-      {context => <WrappedComponent {...props} context={context} />}
-    </NTContext.Consumer>
+    <NTContext.Consumer>{context => <Wrapped {...props} context={context} />}</NTContext.Consumer>
   );
 };
 
@@ -89,7 +96,7 @@ const formatNTElementProps = <T extends string>(
     triggerCondition,
     ...popoverProps
   }: NoviceTutorialElementProps<T>,
-  defaultCloseText: React.ReactNode,
+  defaultCloseText: ReactNode,
 ) => {
   const wrappedContent = (
     <React.Fragment>
@@ -103,13 +110,18 @@ const formatNTElementProps = <T extends string>(
 };
 
 export const NoviceTutorialElement = <T extends string>(
-  props: NoviceTutorialElementProps<T> & { children?: React.ReactNode },
+  props: NoviceTutorialElementProps<T> & { children?: ReactNode },
 ) => (
   <NTContext.Consumer>
     {context => {
       const { content, id, popoverProps } = formatNTElementProps<T>(props, context.props.closeText);
       return (
-        <Popover {...popoverProps} content={content} key={id} visible={context.values[id]}>
+        <Popover
+          {...popoverProps}
+          content={content}
+          key={id}
+          visible={context.values[id] ? true : false}
+        >
           {props.children}
         </Popover>
       );
@@ -120,7 +132,7 @@ export const NoviceTutorialElement = <T extends string>(
 export default class NoviceTutorial<
   T extends string,
   E extends BaseSyntheticEvent
-> extends React.Component<NoviceTutorialProps<T, E>, NoviceTutorialState<T, E>> {
+> extends Component<NoviceTutorialProps<T, E>, NoviceTutorialState<T, E>> {
   static defaultProps = {
     defaultValue: {},
     element: [],
@@ -136,6 +148,7 @@ export default class NoviceTutorial<
   };
   public NTMethods: NoviceTutorialMethods<T, E> = {
     getNTQueues: () => this.NTQueues,
+    getNTQueuesById: id => this.NTQueues[id],
     getNTValues: () => this.state.NTVaules,
     getTrigger: () => this.trigger,
     setNTValues: (updateValues: NoviceTutorialValues<T, E>) => {
@@ -144,15 +157,19 @@ export default class NoviceTutorial<
     },
   };
 
-  onResize = debounce(() => {
+  onUIEvent = debounce(() => {
+    const now = Date.now() - 100;
     const updateValues: NoviceTutorialValues<T, E> = {};
     const { element } = this.props;
     const { NTVaules } = this.state;
     element.forEach(ele => {
-      if (!ele.hideOnResize) return;
+      if (!ele.hideOnUIEvent) return;
       if (!NTVaules[ele.id]) return;
+      if (NTVaules[ele.id][0] > now) return;
       updateValues[ele.id] = false;
     });
+    if (!Object.keys(updateValues).length) return;
+    this.NTMethods.setNTValues(updateValues);
   }, 50);
 
   constructor(props: NoviceTutorialProps<T, E>) {
@@ -164,6 +181,8 @@ export default class NoviceTutorial<
       values: this.state.NTVaules,
     });
     if (props.getMethods) props.getMethods(this.NTMethods);
+    window.addEventListener('resize', this.onUIEvent);
+    window.addEventListener('click', this.onUIEvent);
   }
 
   componentDidMount = () => {
@@ -178,7 +197,12 @@ export default class NoviceTutorial<
     });
   };
 
-  trigger = (event: E): E | false => {
+  componentWillUnmount = () => {
+    window.removeEventListener('resize', this.onUIEvent);
+    window.removeEventListener('click', this.onUIEvent);
+  };
+
+  trigger = (event: E): [number, E] | false => {
     // If the novice tutorial has been read, turn off event handler.
     if (!this.enable) return;
     // Depends on target.
@@ -186,12 +210,13 @@ export default class NoviceTutorial<
     // Recreate event object to prevent reference invalidation.
     event = { ...event };
     // Initialize variables.
+    const now = Date.now();
     const { NTVaules } = this.state;
     const { element, onTrigger, storage } = this.props;
     const { className = '', dataset = {}, id } = event.target as HTMLBaseElement;
     // Filter out elements that do not meet the screening criteria.
     const rest = element.filter(({ id: eleId, triggerCondition: t }) => {
-      if (!eleId || !NTVaules[eleId]) return false;
+      if (!eleId || NTVaules[eleId]) return false;
       // Without extra conditions.
       if (!t) return eleId === id || eleId === dataset.id;
       // If there is no id, it will enter other screening links.
@@ -203,30 +228,30 @@ export default class NoviceTutorial<
       // When active triggering is turned on, events will be queued.
       if (t.queue) {
         if (!this.NTQueues[eleId!]) this.NTQueues[eleId!] = [];
-        this.NTQueues[eleId!].push([Date.now() + (t.wait || 0), event]);
+        this.NTQueues[eleId!].push([now + (t.wait || 0), event]);
         return false;
       }
     });
     if (!rest.length) return false;
     if (onTrigger) return onTrigger(NTVaules, rest, event, this.NTMethods.setNTValues);
-    const updateValues: { [key in T]?: E } = {};
-    rest.forEach(ele => (updateValues[ele.id] = event));
+    const updateValues: { [key in T]?: [number, E] } = {};
+    rest.forEach(ele => (updateValues[ele.id] = [now, event]));
     this.NTMethods.setNTValues(updateValues);
-    return event;
+    return [now, event];
   };
 
-  renderElemnt = (): React.ReactNode => {
+  renderElemnt = (): ReactNode => {
     const { NTVaules } = this.state;
     const { closeText, element, space: defaultSpace } = this.props;
     return element
       .filter(ele => NTVaules[ele.id])
       .map(ele => formatNTElementProps(ele, closeText))
       .map(({ content, id, popoverProps, space }) => {
-        const { nativeEvent: e = {}, target: t = {} } = NTVaules[id] as E;
+        const { nativeEvent: e = {}, target: t = {} } = NTVaules[id][1];
         const spaceX = (typeof space.x === 'undefined' ? defaultSpace.x : space.x) || 8;
         const spaceY = (typeof space.y === 'undefined' ? defaultSpace.y : space.y) || 8;
-        let left = (e as MouseEvent).x || (t as HTMLBaseElement).offsetLeft;
-        let top = (e as MouseEvent).y || (t as HTMLBaseElement).offsetTop;
+        let left = (t as HTMLBaseElement).offsetLeft || (e as MouseEvent).clientX;
+        let top = (t as HTMLBaseElement).offsetTop || (e as MouseEvent).clientY;
         left -= spaceX;
         top -= spaceY;
         if (popoverProps.placement) {

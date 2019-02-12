@@ -7,17 +7,18 @@ import React, { Component } from 'react';
 import commonStyles from '../common.less';
 import { ButtonProps } from 'antd/es/button';
 import { getUseMedia } from 'react-media-hook2';
+import { message, Radio, Skeleton } from 'antd';
 import { Filter } from '@/components/SimpleForm';
 import { RadioChangeEvent } from 'antd/es/radio';
 import { WrappedFormUtils } from 'antd/es/form/Form';
 import { formatStrOrNumQuery } from '@/utils/format';
 import MemorableModal from '@/components/MemorableModal';
-import { message, Popover, Radio, Skeleton } from 'antd';
 import { GlobalId, StorageId, TypeSpaceChar } from '@/global';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { CheckAuth, getCurrentScope } from '@/components/Authorized';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import { CellAction, HideWithouSelection, PositionType, TopbarAction } from './consts';
+import { NoviceTutorialWrapper, NoviceTutorialContext } from '@/components/NoviceTutorial';
 import { FetchListPayload, FetchDetailPayload, DeletePositionPayload } from '@/services/position';
 import StandardTable, {
   PaginationConfig,
@@ -30,6 +31,7 @@ import StandardTable, {
 } from '@/components/StandardTable';
 
 export interface ListProps extends ConnectProps<{ type: PositionType }> {
+  context?: NoviceTutorialContext<StorageId, React.MouseEvent>;
   isMobile?: boolean;
   loading?: {
     deletePosition?: boolean;
@@ -336,7 +338,14 @@ class List extends Component<ListProps, ListState> {
   };
 
   onSelectAll = (selected: boolean, _: object[], changeRows: object[]) => {
+    const { context } = this.props;
     changeRows.map(record => this.onSelect(record, selected));
+    if (!context) return;
+    setTimeout(() => {
+      const queue = context.methods.getNTQueuesById(StorageId.NTPLSelectAll) || [];
+      if (!queue || !queue.length) return;
+      context.methods.setNTValues({ [StorageId.NTPLSelectAll]: queue[queue.length - 1] });
+    }, 50);
   };
 
   onClickOperation = (selectedRowKeys: string[] | number[], operationType: string) => {
@@ -500,6 +509,6 @@ class List extends Component<ListProps, ListState> {
   }
 }
 
-export default (props: ListProps) => (
+export default NoviceTutorialWrapper<ListProps, null>((props: ListProps) => (
   <List {...props} isMobile={getUseMedia(GlobalId.BasicLayout)[0]} />
-);
+));
