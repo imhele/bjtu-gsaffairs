@@ -1,3 +1,4 @@
+import debounce from 'debounce';
 import styles from './index.less';
 import { strOrReg } from './utils';
 import { Button, Popover } from 'antd';
@@ -7,6 +8,7 @@ import { AbstractTooltipProps } from 'antd/es/tooltip';
 export interface NoviceTutorialElementProps<T extends string> extends AbstractTooltipProps {
   closeText?: React.ReactNode;
   content?: React.ReactNode;
+  hideOnResize?: boolean;
   id: T;
   space?: {
     x?: number;
@@ -23,13 +25,13 @@ export interface NoviceTutorialElementProps<T extends string> extends AbstractTo
 }
 
 export type NoviceTutorialValues<T extends string, E extends BaseSyntheticEvent> = {
-  [key in T]?: [boolean, E?]
+  [key in T]?: E | false
 };
 
 export interface NoviceTutorialMethods<T extends string, E extends BaseSyntheticEvent> {
   getNTQueues?: () => { [key in T]?: [number, E][] };
   getNTValues?: () => NoviceTutorialValues<T, E>;
-  getTrigger?: () => (event: E) => [boolean, E];
+  getTrigger?: () => (event: E) => E | false;
   setNTValues?: (updateValue: NoviceTutorialValues<T, E>) => void;
 }
 
@@ -50,7 +52,7 @@ export interface NoviceTutorialProps<T extends string, E extends BaseSyntheticEv
     filteredElement: NoviceTutorialElementProps<T>[],
     event: E,
     setNTValues: (updateValue: NoviceTutorialValues<T, E>) => void,
-  ) => [boolean, E];
+  ) => E | false;
   space?: {
     x?: number;
     y?: number;
@@ -59,7 +61,7 @@ export interface NoviceTutorialProps<T extends string, E extends BaseSyntheticEv
 }
 
 interface NoviceTutorialState<T extends string, E extends BaseSyntheticEvent> {
-  NTVaules?: { [key in T]?: [boolean, E?] };
+  NTVaules?: NoviceTutorialValues<T, E>;
 }
 
 const noop = () => null;
@@ -107,12 +109,7 @@ export const NoviceTutorialElement = <T extends string>(
     {context => {
       const { content, id, popoverProps } = formatNTElementProps<T>(props, context.props.closeText);
       return (
-        <Popover
-          {...popoverProps}
-          content={content}
-          key={id}
-          visible={(context.values[id] || [])[0]}
-        >
+        <Popover {...popoverProps} content={content} key={id} visible={context.values[id]}>
           {props.children}
         </Popover>
       );
@@ -141,11 +138,22 @@ export default class NoviceTutorial<
     getNTQueues: () => this.NTQueues,
     getNTValues: () => this.state.NTVaules,
     getTrigger: () => this.trigger,
-    setNTValues: (updateValues: { [key in T]?: [boolean, E?] }) => {
+    setNTValues: (updateValues: NoviceTutorialValues<T, E>) => {
       const { NTVaules } = this.state;
       this.setState({ NTVaules: { ...NTVaules, ...updateValues } });
     },
   };
+
+  onResize = debounce(() => {
+    const updateValues: NoviceTutorialValues<T, E> = {};
+    const { element } = this.props;
+    const { NTVaules } = this.state;
+    element.forEach(ele => {
+      if (!ele.hideOnResize) return;
+      if (!NTVaules[ele.id]) return;
+      updateValues[ele.id] = false;
+    });
+  }, 50);
 
   constructor(props: NoviceTutorialProps<T, E>) {
     super(props);
@@ -170,7 +178,7 @@ export default class NoviceTutorial<
     });
   };
 
-  trigger = (event: E): [boolean, E] => {
+  trigger = (event: E): E | false => {
     // If the novice tutorial has been read, turn off event handler.
     if (!this.enable) return;
     // Depends on target.
@@ -183,7 +191,7 @@ export default class NoviceTutorial<
     const { className = '', dataset = {}, id } = event.target as HTMLBaseElement;
     // Filter out elements that do not meet the screening criteria.
     const rest = element.filter(({ id: eleId, triggerCondition: t }) => {
-      if (!eleId || (NTVaules[eleId] || [])[0]) return false;
+      if (!eleId || !NTVaules[eleId]) return false;
       // Without extra conditions.
       if (!t) return eleId === id || eleId === dataset.id;
       // If there is no id, it will enter other screening links.
@@ -199,22 +207,22 @@ export default class NoviceTutorial<
         return false;
       }
     });
-    if (!rest.length) return [false, event];
-    if (onTrigger) return onTrigger(this.state.NTVaules, rest, event, this.NTMethods.setNTValues);
-    const updateValues: { [key in T]?: [boolean, E?] } = {};
-    rest.forEach(ele => (updateValues[ele.id] = [true, event]));
+    if (!rest.length) return false;
+    if (onTrigger) return onTrigger(NTVaules, rest, event, this.NTMethods.setNTValues);
+    const updateValues: { [key in T]?: E } = {};
+    rest.forEach(ele => (updateValues[ele.id] = event));
     this.NTMethods.setNTValues(updateValues);
-    return [true, event];
+    return event;
   };
 
   renderElemnt = (): React.ReactNode => {
     const { NTVaules } = this.state;
     const { closeText, element, space: defaultSpace } = this.props;
     return element
-      .filter(ele => (NTVaules[ele.id] || [])[0])
+      .filter(ele => NTVaules[ele.id])
       .map(ele => formatNTElementProps(ele, closeText))
       .map(({ content, id, popoverProps, space }) => {
-        const { nativeEvent: e = {}, target: t = {} } = NTVaules[id][1];
+        const { nativeEvent: e = {}, target: t = {} } = NTVaules[id] as E;
         const spaceX = (typeof space.x === 'undefined' ? defaultSpace.x : space.x) || 8;
         const spaceY = (typeof space.y === 'undefined' ? defaultSpace.y : space.y) || 8;
         let left = (e as MouseEvent).x || (t as HTMLBaseElement).offsetLeft;
