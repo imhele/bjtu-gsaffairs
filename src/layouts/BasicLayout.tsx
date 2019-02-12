@@ -12,10 +12,10 @@ import { GlobalId, NTElement } from '@/global';
 import Authorized from '@/components/Authorized';
 import Exception403 from '@/pages/Exception/403';
 import DocumentTitle from '@/components/DocumentTitle';
-import NoviceTutorial from '@/components/NoviceTutorial';
-import React, { useMemo, useRef, useState } from 'react';
 import SiderMenu, { SelectParam } from '@/components/SiderMenu';
+import React, { MouseEvent, useMemo, useRef, useState } from 'react';
 import { ConnectState, ConnectProps, LoginState } from '@/models/connect';
+import NoviceTutorial, { NoviceTutorialMethods } from '@/components/NoviceTutorial';
 
 const { Content } = Layout;
 
@@ -41,9 +41,11 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
    * Constructor
    * These functions will be called during the first render only.
    */
-  const NTTrigger = useRef<(e: any) => [boolean, any]>(() => void 0);
   const route = useState(() => Utils.formatDynamicRoute(restProps.route))[0];
   const isMobile = useMedia({ id: GlobalId.BasicLayout, query: '(max-width: 600px)' })[0];
+  const NTMethods = useRef<NoviceTutorialMethods<any, MouseEvent>>({
+    getTrigger: () => void 0,
+  });
   const onCollapse = useState(() => {
     dispatch({ type: 'login/fetchUser' });
     dispatch({ type: 'global/setCollapsed', payload: isMobile });
@@ -62,8 +64,11 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
    */
   return (
     <DocumentTitle location={location} route={route} defaultTitle="app.name">
-      <NoviceTutorial element={NTElement} getTrigger={trigger => (NTTrigger.current = trigger)}>
-        <Layout className={styles.layout} onClick={NTTrigger.current} id="aaa">
+      <NoviceTutorial<any, MouseEvent>
+        element={NTElement}
+        getMethods={methods => (NTMethods.current = methods)}
+      >
+        <Layout className={styles.layout} onClick={NTMethods.current.getTrigger()}>
           <QueueAnim type="left" delay={200}>
             <Header
               collapsed={collapsed}

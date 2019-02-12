@@ -41,6 +41,7 @@ export interface NoviceTutorialProps<T extends string, E extends BaseSyntheticEv
   closeText?: React.ReactNode;
   defaultValues?: NoviceTutorialValues<T, E>;
   element?: NoviceTutorialElementProps<T>[];
+  getContext?: (context: React.Context<NoviceTutorialContext<T, E>>) => void;
   getMethods?: (methods: NoviceTutorialMethods<T, E>) => void;
   onTrigger?: (
     NTValues: NoviceTutorialValues<T, E>,
