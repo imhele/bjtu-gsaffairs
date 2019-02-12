@@ -413,7 +413,6 @@ class List extends Component<ListProps, ListState> {
 
   getSelectableProps = (): TableRowSelection<object> | null => {
     const {
-      dispatch,
       position: { rowKey, selectable, unSelectableKey = 'unSelectable' },
     } = this.props;
     if (!selectable) return null;

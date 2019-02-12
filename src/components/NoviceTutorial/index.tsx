@@ -30,10 +30,12 @@ export interface NoviceTutorialMethods<T extends string, E extends BaseSynthetic
   getNTQueues?: () => { [key in T]?: [number, E][] };
   getNTValues?: () => NoviceTutorialValues<T, E>;
   getTrigger?: () => (event: E) => [boolean, E];
+  setNTValues?: (updateValue: NoviceTutorialValues<T, E>) => void;
 }
 
 export interface NoviceTutorialContext<T extends string, E extends BaseSyntheticEvent> {
   methods?: NoviceTutorialMethods<T, E>;
+  props?: NoviceTutorialProps<T, E>;
   values?: NoviceTutorialValues<T, E>;
 }
 
@@ -60,7 +62,63 @@ interface NoviceTutorialState<T extends string, E extends BaseSyntheticEvent> {
   NTVaules?: { [key in T]?: [boolean, E?] };
 }
 
-export const NTContext: React.Context<NoviceTutorialContext<string, any>> = React.createContext({});
+const noop = () => null;
+
+export const NTContext = React.createContext<NoviceTutorialContext<any, any>>({
+  methods: { getNTQueues: noop, getNTValues: noop, getTrigger: noop, setNTValues: noop },
+  props: {},
+  values: {},
+});
+
+export const NoviceTutorialWrapper = <P, S>(WrappedComponent: React.ComponentClass<P, S>) => {
+  return (props: P) => (
+    <NTContext.Consumer>
+      {context => <WrappedComponent {...props} context={context} />}
+    </NTContext.Consumer>
+  );
+};
+
+const formatNTElementProps = <T extends string>(
+  {
+    closeText,
+    content,
+    id,
+    space = {},
+    triggerCondition,
+    ...popoverProps
+  }: NoviceTutorialElementProps<T>,
+  defaultCloseText: React.ReactNode,
+) => {
+  const wrappedContent = (
+    <React.Fragment>
+      {content}
+      <Button size="small" style={{ display: 'block', marginTop: 8 }} type="primary">
+        {closeText || defaultCloseText || 'Close'}
+      </Button>
+    </React.Fragment>
+  );
+  return { content: wrappedContent, id, popoverProps, space };
+};
+
+export const NoviceTutorialElement = <T extends string>(
+  props: NoviceTutorialElementProps<T> & { children?: React.ReactNode },
+) => (
+  <NTContext.Consumer>
+    {context => {
+      const { content, id, popoverProps } = formatNTElementProps<T>(props, context.props.closeText);
+      return (
+        <Popover
+          {...popoverProps}
+          content={content}
+          key={id}
+          visible={(context.values[id] || [])[0]}
+        >
+          {props.children}
+        </Popover>
+      );
+    }}
+  </NTContext.Consumer>
+);
 
 export default class NoviceTutorial<
   T extends string,
@@ -83,6 +141,7 @@ export default class NoviceTutorial<
     getNTQueues: () => this.NTQueues,
     getNTValues: () => this.state.NTVaules,
     getTrigger: () => this.trigger,
+    setNTValues: this.setNTValues,
   };
 
   constructor(props: NoviceTutorialProps<T, E>) {
@@ -90,10 +149,15 @@ export default class NoviceTutorial<
     this.state.NTVaules = props.defaultValues || this.state.NTVaules;
     this.Context = React.createContext<NoviceTutorialContext<T, E>>({
       methods: this.NTMethods,
+      props,
       values: this.state.NTVaules,
     });
     if (props.getMethods) props.getMethods(this.NTMethods);
   }
+  public setNTValues = (updateValues: { [key in T]?: [boolean, E?] }) => {
+    const { NTVaules } = this.state;
+    this.setState({ NTVaules: { ...NTVaules, ...updateValues } });
+  };
 
   componentDidMount = () => {
     const { element } = this.props;
@@ -105,11 +169,6 @@ export default class NoviceTutorial<
     Object.keys(this.NTQueues).forEach((key: T) => {
       this.NTQueues[key] = this.NTQueues[key].filter(e => e[0] < now);
     });
-  };
-
-  setNTValues = (updateValues: { [key in T]?: [boolean, E?] }) => {
-    const { NTVaules } = this.state;
-    this.setState({ NTVaules: { ...NTVaules, ...updateValues } });
   };
 
   trigger = (event: E): [boolean, E] => {
@@ -151,18 +210,11 @@ export default class NoviceTutorial<
 
   renderElemnt = (): React.ReactNode => {
     const { NTVaules } = this.state;
-    const { closeText: defaultCloseText, element, space: defaultSpace } = this.props;
+    const { closeText, element, space: defaultSpace } = this.props;
     return element
       .filter(ele => (NTVaules[ele.id] || [])[0])
-      .map(({ closeText, content, id, space = {}, triggerCondition, ...popoverProps }) => {
-        const wrappedContent = (
-          <React.Fragment>
-            {content}
-            <Button size="small" style={{ display: 'block', marginTop: 8 }} type="primary">
-              {closeText || defaultCloseText || 'Close'}
-            </Button>
-          </React.Fragment>
-        );
+      .map(ele => formatNTElementProps(ele, closeText))
+      .map(({ content, id, popoverProps, space }) => {
         const { nativeEvent: e = {}, target: t = {} } = NTVaules[id][1];
         const spaceX = (typeof space.x === 'undefined' ? defaultSpace.x : space.x) || 8;
         const spaceY = (typeof space.y === 'undefined' ? defaultSpace.y : space.y) || 8;
@@ -176,20 +228,19 @@ export default class NoviceTutorial<
           if (popoverProps.placement.includes('ottom'))
             left += ((t as HTMLBaseElement).offsetHeight || 0) + spaceY * 2;
         }
-        return { content: wrappedContent, id, left, popoverProps, top };
-      })
-      .map(({ content, id, left, top, popoverProps }) => (
-        <Popover {...popoverProps} content={content} key={id} visible>
-          <div className={styles.NTPopoverTarget} key={id} style={{ left, top }} />
-        </Popover>
-      ));
+        return (
+          <Popover {...popoverProps} content={content} key={id} visible>
+            <div className={styles.NTPopoverTarget} key={id} style={{ left, top }} />
+          </Popover>
+        );
+      });
   };
 
   render() {
     const { NTVaules } = this.state;
     const { children } = this.props;
     return (
-      <NTContext.Provider value={{ methods: this.NTMethods, values: NTVaules }}>
+      <NTContext.Provider value={{ methods: this.NTMethods, props: this.props, values: NTVaules }}>
         {this.renderElemnt()}
         {children}
       </NTContext.Provider>
