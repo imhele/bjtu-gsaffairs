@@ -141,7 +141,10 @@ export default class NoviceTutorial<
     getNTQueues: () => this.NTQueues,
     getNTValues: () => this.state.NTVaules,
     getTrigger: () => this.trigger,
-    setNTValues: this.setNTValues,
+    setNTValues: (updateValues: { [key in T]?: [boolean, E?] }) => {
+      const { NTVaules } = this.state;
+      this.setState({ NTVaules: { ...NTVaules, ...updateValues } });
+    },
   };
 
   constructor(props: NoviceTutorialProps<T, E>) {
@@ -154,10 +157,6 @@ export default class NoviceTutorial<
     });
     if (props.getMethods) props.getMethods(this.NTMethods);
   }
-  public setNTValues = (updateValues: { [key in T]?: [boolean, E?] }) => {
-    const { NTVaules } = this.state;
-    this.setState({ NTVaules: { ...NTVaules, ...updateValues } });
-  };
 
   componentDidMount = () => {
     const { element } = this.props;
@@ -201,10 +200,10 @@ export default class NoviceTutorial<
       }
     });
     if (!rest.length) return [false, event];
-    if (onTrigger) return onTrigger(this.state.NTVaules, rest, event, this.setNTValues);
+    if (onTrigger) return onTrigger(this.state.NTVaules, rest, event, this.NTMethods.setNTValues);
     const updateValues: { [key in T]?: [boolean, E?] } = {};
     rest.forEach(ele => (updateValues[ele.id] = [true, event]));
-    this.setNTValues(updateValues);
+    this.NTMethods.setNTValues(updateValues);
     return [true, event];
   };
 
