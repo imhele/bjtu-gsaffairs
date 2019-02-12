@@ -1,7 +1,7 @@
-import React from 'react';
 import styles from './index.less';
 import { strOrReg } from './utils';
 import { Button, Popover } from 'antd';
+import React, { BaseSyntheticEvent } from 'react';
 import { AbstractTooltipProps } from 'antd/es/tooltip';
 
 export interface NoviceTutorialElementProps<T extends string> extends AbstractTooltipProps {
@@ -22,17 +22,31 @@ export interface NoviceTutorialElementProps<T extends string> extends AbstractTo
   };
 }
 
-export interface NoviceTutorialProps<T extends string, E extends React.BaseSyntheticEvent> {
+export type NoviceTutorialValues<T extends string, E extends BaseSyntheticEvent> = {
+  [key in T]?: [boolean, E?]
+};
+
+export interface NoviceTutorialMethods<T extends string, E extends BaseSyntheticEvent> {
+  getNTQueues?: () => { [key in T]?: [number, E][] };
+  getNTValues?: () => NoviceTutorialValues<T, E>;
+  getTrigger?: () => (event: E) => [boolean, E];
+}
+
+export interface NoviceTutorialContext<T extends string, E extends BaseSyntheticEvent> {
+  methods?: NoviceTutorialMethods<T, E>;
+  values?: NoviceTutorialValues<T, E>;
+}
+
+export interface NoviceTutorialProps<T extends string, E extends BaseSyntheticEvent> {
   closeText?: React.ReactNode;
-  defaultValue?: { [key in T]?: [boolean, E?] };
+  defaultValues?: NoviceTutorialValues<T, E>;
   element?: NoviceTutorialElementProps<T>[];
-  getContext?: (context: React.Context<{ [key in T]?: [boolean, E?] }>) => void;
-  getTrigger?: (trigger: (event: E) => [boolean, E]) => void;
+  getMethods?: (methods: NoviceTutorialMethods<T, E>) => void;
   onTrigger?: (
-    contextValue: { [key in T]?: [boolean, E?] },
+    NTValues: NoviceTutorialValues<T, E>,
     filteredElement: NoviceTutorialElementProps<T>[],
     event: E,
-    setContext: (updateValue: { [key in T]?: [boolean, E?] }) => void,
+    setNTValues: (updateValue: NoviceTutorialValues<T, E>) => void,
   ) => [boolean, E];
   space?: {
     x?: number;
@@ -41,13 +55,13 @@ export interface NoviceTutorialProps<T extends string, E extends React.BaseSynth
   storage?: Storage;
 }
 
-interface NoviceTutorialState<T extends string, E extends React.BaseSyntheticEvent> {
-  contextVaule?: { [key in T]?: [boolean, E?] };
+interface NoviceTutorialState<T extends string, E extends BaseSyntheticEvent> {
+  NTVaules?: { [key in T]?: [boolean, E?] };
 }
 
 export default class NoviceTutorial<
   T extends string,
-  E extends React.BaseSyntheticEvent
+  E extends BaseSyntheticEvent
 > extends React.Component<NoviceTutorialProps<T, E>, NoviceTutorialState<T, E>> {
   static defaultProps = {
     defaultValue: {},
@@ -57,18 +71,25 @@ export default class NoviceTutorial<
   };
 
   public enable: boolean = false;
-  public Context: React.Context<{ [key in T]?: [boolean, E?] }>;
-  public NTQueue: { [key in T]?: [number, E][] } = {};
+  public Context: React.Context<NoviceTutorialContext<T, E>>;
+  public NTQueues: { [key in T]?: [number, E][] } = {};
   public state: NoviceTutorialState<T, E> = {
-    contextVaule: {},
+    NTVaules: {},
+  };
+  public NTMethods: NoviceTutorialMethods<T, E> = {
+    getNTQueues: () => this.NTQueues,
+    getNTValues: () => this.state.NTVaules,
+    getTrigger: () => this.trigger,
   };
 
   constructor(props: NoviceTutorialProps<T, E>) {
     super(props);
-    this.state.contextVaule = props.defaultValue || this.state.contextVaule;
-    this.Context = React.createContext<{ [key in T]?: [boolean, E?] }>(props.defaultValue);
-    if (props.getContext) props.getContext(this.Context);
-    if (props.getTrigger) props.getTrigger(this.trigger);
+    this.state.NTVaules = props.defaultValues || this.state.NTVaules;
+    this.Context = React.createContext<NoviceTutorialContext<T, E>>({
+      methods: this.NTMethods,
+      values: this.state.NTVaules,
+    });
+    if (props.getMethods) props.getMethods(this.NTMethods);
   }
 
   componentDidMount = () => {
@@ -78,49 +99,58 @@ export default class NoviceTutorial<
 
   componentDidUpdate = () => {
     const now = Date.now();
-    Object.keys(this.NTQueue).forEach((key: T) => {
-      this.NTQueue[key] = this.NTQueue[key].filter(e => e[0] < now);
+    Object.keys(this.NTQueues).forEach((key: T) => {
+      this.NTQueues[key] = this.NTQueues[key].filter(e => e[0] < now);
     });
   };
 
-  setContext = (updateValue: { [key in T]?: [boolean, E?] }) => {
-    const { contextVaule } = this.state;
-    this.setState({ contextVaule: { ...contextVaule, ...updateValue } });
+  setNTValues = (updateValues: { [key in T]?: [boolean, E?] }) => {
+    const { NTVaules } = this.state;
+    this.setState({ NTVaules: { ...NTVaules, ...updateValues } });
   };
 
   trigger = (event: E): [boolean, E] => {
+    // If the novice tutorial has been read, turn off event handler.
     if (!this.enable) return;
+    // Depends on target.
     if (!event.target) return;
+    // Recreate event object to prevent reference invalidation.
     event = { ...event };
-    const { contextVaule } = this.state;
+    // Initialize variables.
+    const { NTVaules } = this.state;
     const { element, onTrigger, storage } = this.props;
     const { className = '', dataset = {}, id } = event.target as HTMLBaseElement;
+    // Filter out elements that do not meet the screening criteria.
     const rest = element.filter(({ id: eleId, triggerCondition: t }) => {
-      if ((contextVaule[eleId] || [])[0]) return false;
+      if (!eleId || (NTVaules[eleId] || [])[0]) return false;
+      // Without extra conditions.
       if (!t) return eleId === id || eleId === dataset.id;
+      // If there is no id, it will enter other screening links.
+      if (id && eleId !== id && eleId !== dataset.id) return false;
       if (t.eventType && !strOrReg(t.eventType, event.type)) return false;
       if (t.pathname && !strOrReg(t.pathname, location.pathname)) return false;
       if (t.className && !strOrReg(t.className, className)) return false;
       if (storage.getItem(eleId)) return false;
+      // When active triggering is turned on, events will be queued.
       if (t.queue) {
-        if (!this.NTQueue[eleId!]) this.NTQueue[eleId!] = [];
-        this.NTQueue[eleId!].push([Date.now() + (t.wait || 0), event]);
+        if (!this.NTQueues[eleId!]) this.NTQueues[eleId!] = [];
+        this.NTQueues[eleId!].push([Date.now() + (t.wait || 0), event]);
         return false;
       }
     });
     if (!rest.length) return [false, event];
-    if (onTrigger) return onTrigger(this.state.contextVaule, rest, event, this.setContext);
-    const updateValue: { [key in T]?: [boolean, E?] } = {};
-    rest.forEach(ele => (updateValue[ele.id] = [true, event]));
-    this.setContext(updateValue);
+    if (onTrigger) return onTrigger(this.state.NTVaules, rest, event, this.setNTValues);
+    const updateValues: { [key in T]?: [boolean, E?] } = {};
+    rest.forEach(ele => (updateValues[ele.id] = [true, event]));
+    this.setNTValues(updateValues);
     return [true, event];
   };
 
   renderElemnt = (): React.ReactNode => {
-    const { contextVaule } = this.state;
+    const { NTVaules } = this.state;
     const { closeText: defaultCloseText, element, space: defaultSpace } = this.props;
     return element
-      .filter(ele => (contextVaule[ele.id] || [])[0])
+      .filter(ele => (NTVaules[ele.id] || [])[0])
       .map(({ closeText, content, id, space = {}, triggerCondition, ...popoverProps }) => {
         const wrappedContent = (
           <React.Fragment>
@@ -130,7 +160,7 @@ export default class NoviceTutorial<
             </Button>
           </React.Fragment>
         );
-        const { nativeEvent: e = {}, target: t = {} } = contextVaule[id][1];
+        const { nativeEvent: e = {}, target: t = {} } = NTVaules[id][1];
         const spaceX = (typeof space.x === 'undefined' ? defaultSpace.x : space.x) || 8;
         const spaceY = (typeof space.y === 'undefined' ? defaultSpace.y : space.y) || 8;
         let left = (e as MouseEvent).x || (t as HTMLBaseElement).offsetLeft;
@@ -153,9 +183,10 @@ export default class NoviceTutorial<
   };
 
   render() {
+    const { NTVaules } = this.state;
     const { children } = this.props;
     return (
-      <this.Context.Provider value={this.state.contextVaule}>
+      <this.Context.Provider value={{ methods: this.NTMethods, values: NTVaules }}>
         {this.renderElemnt()}
         {children}
       </this.Context.Provider>
