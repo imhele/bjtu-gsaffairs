@@ -60,6 +60,8 @@ interface NoviceTutorialState<T extends string, E extends BaseSyntheticEvent> {
   NTVaules?: { [key in T]?: [boolean, E?] };
 }
 
+export const NTContext: React.Context<NoviceTutorialContext<string, any>> = React.createContext({});
+
 export default class NoviceTutorial<
   T extends string,
   E extends BaseSyntheticEvent
@@ -72,7 +74,7 @@ export default class NoviceTutorial<
   };
 
   public enable: boolean = false;
-  public Context: React.Context<NoviceTutorialContext<T, E>>;
+  public Context: React.Context<NoviceTutorialContext<T, E>> = NTContext;
   public NTQueues: { [key in T]?: [number, E][] } = {};
   public state: NoviceTutorialState<T, E> = {
     NTVaules: {},
@@ -187,10 +189,10 @@ export default class NoviceTutorial<
     const { NTVaules } = this.state;
     const { children } = this.props;
     return (
-      <this.Context.Provider value={{ methods: this.NTMethods, values: NTVaules }}>
+      <NTContext.Provider value={{ methods: this.NTMethods, values: NTVaules }}>
         {this.renderElemnt()}
         {children}
-      </this.Context.Provider>
+      </NTContext.Provider>
     );
   }
 }

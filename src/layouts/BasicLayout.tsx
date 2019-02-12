@@ -8,10 +8,10 @@ import QueueAnim from 'rc-queue-anim';
 import * as Utils from '@/utils/utils';
 import styles from './BasicLayout.less';
 import useMedia from 'react-media-hook2';
-import { GlobalId, NTElement } from '@/global';
 import Authorized from '@/components/Authorized';
 import Exception403 from '@/pages/Exception/403';
 import DocumentTitle from '@/components/DocumentTitle';
+import { GlobalId, NTElement, StorageId } from '@/global';
 import SiderMenu, { SelectParam } from '@/components/SiderMenu';
 import React, { MouseEvent, useMemo, useRef, useState } from 'react';
 import { ConnectState, ConnectProps, LoginState } from '@/models/connect';
@@ -43,7 +43,7 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
    */
   const route = useState(() => Utils.formatDynamicRoute(restProps.route))[0];
   const isMobile = useMedia({ id: GlobalId.BasicLayout, query: '(max-width: 600px)' })[0];
-  const NTMethods = useRef<NoviceTutorialMethods<any, MouseEvent>>({
+  const NTMethods = useRef<NoviceTutorialMethods<StorageId, MouseEvent>>({
     getTrigger: () => void 0,
   });
   const onCollapse = useState(() => {
@@ -64,7 +64,7 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
    */
   return (
     <DocumentTitle location={location} route={route} defaultTitle="app.name">
-      <NoviceTutorial<any, MouseEvent>
+      <NoviceTutorial<StorageId, MouseEvent>
         element={NTElement}
         getMethods={methods => (NTMethods.current = methods)}
       >
