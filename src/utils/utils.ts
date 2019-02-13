@@ -33,7 +33,10 @@ export function pathToScope(
     pathname,
     scope,
   );
-  // redirect path will not appear in props.route of Component in Routes[].
+  /**
+   * redirect path will not appear in props.route of Component in Routes[].
+   * Ref: https://umijs.org/config/#disableredirecthoist
+   */
 }
 
 export function groupByAmount<T = any>(arr: T[], amount: number): T[][] {
@@ -124,9 +127,7 @@ export function formatRouteInfo<T>(info: T | T[], key?: number): T {
   if (!info) return null;
   if (typeof info === 'string') return info;
   if (key) return info[key];
-  if (Array.isArray(info)) {
-    return info[0];
-  }
+  if (Array.isArray(info)) return info[0];
   return null;
 }
 
@@ -153,9 +154,11 @@ export function formatDynamicRoute(
   }
   return {
     ...route,
-    icon: formatRouteInfo<string>(route.icon, key),
-    name: formatRouteInfo<string>(route.name, key),
-    scope: formatRouteInfo<Array<string | number>>(route.scope, key),
+    icon: route.dynamic ? formatRouteInfo<string>(route.icon, key) : (route.icon as string),
+    name: route.dynamic ? formatRouteInfo<string>(route.name, key) : (route.name as string),
+    scope: route.dynamic
+      ? formatRouteInfo<Array<string | number>>(route.scope, key)
+      : (route.scope as Array<string | number>),
     routes,
   };
 }
@@ -168,3 +171,11 @@ export function safeFun<T = any>(fn: Function, defaultReturn?: T, ...args: any[]
     return typeof defaultReturn === 'undefined' ? err : defaultReturn;
   }
 }
+
+export const scrollToTop = () => {
+  try {
+    return window.scrollTo(null, 0);
+  } catch {
+    return;
+  }
+};

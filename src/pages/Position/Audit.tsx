@@ -6,13 +6,14 @@ import classNames from 'classnames';
 import QueueAnim from 'rc-queue-anim';
 import React, { Component } from 'react';
 import commonStyles from '../common.less';
+import { scrollToTop } from '@/utils/utils';
 import SimpleForm from '@/components/SimpleForm';
 import Exception404 from '@/pages/Exception/404';
 import { FetchFormPayload } from '@/services/position';
 import { AuditPositionPayload } from '@/services/position';
+import { GlobalId, StorageId, TypeSpaceChar } from '@/global';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { buttonColProps, CellAction, PositionType } from './consts';
-import { GlobalId, StorageId, TypeSpaceChar } from '@/global';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import {
   Button,
@@ -45,8 +46,8 @@ class Audit extends Component<AuditProps, AuditState> {
   };
 
   handleHoverProgress = debounce((hoverProgress: boolean) => {
-    this.setState({hoverProgress});
-  }, 50)
+    this.setState({ hoverProgress });
+  }, 50);
   /**
    * key of current position
    */
@@ -144,6 +145,7 @@ class Audit extends Component<AuditProps, AuditState> {
         params: { type },
       },
     } = this.props;
+    scrollToTop();
     this.keyQueue = this.keyQueue.slice(1);
     if (!this.keyQueue.length) return this.promptNoMorePosition();
     this.key = this.keyQueue[0];

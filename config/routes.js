@@ -29,6 +29,7 @@ export default [
         icon: 'cluster',
         name: 'route.position',
         component: '../layouts/PageHeader',
+        scope: ['scope.admin'],
         routes: [
           {
             path: '/position',

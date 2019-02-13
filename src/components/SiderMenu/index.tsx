@@ -48,10 +48,11 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
     routes: Route[],
     currentScope: Scope,
     submenu: boolean = false,
+    parentScope: (string | number)[] = [],
   ): React.ReactNode[] => {
     return routes
       .filter(({ hideInMenu, path }) => !hideInMenu && path)
-      .filter(({ scope }) => CheckAuth(scope, currentScope))
+      .filter(({ scope }) => CheckAuth(parentScope.concat(scope || []), currentScope))
       .map(route =>
         submenu || !Array.isArray(route.routes) || !route.routes.length ? (
           route.name && (
@@ -72,7 +73,7 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
               )
             }
           >
-            {this.routeToMenu(route.routes, currentScope, true)}
+            {this.routeToMenu(route.routes, currentScope, true, route.scope || [])}
           </SubMenu>
         ),
       );
