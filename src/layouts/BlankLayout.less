@@ -1,4 +1,12 @@
+@import '../default.less';
+
 .container {
   width: 100vw;
-  height: 100vh;
+  max-width: 100%;
+  .content {
+    margin: 0;
+  }
+  :global(.ant-layout-footer) {
+    padding: @page-gap-8 @page-gap-8 * 2;
+  }
 }

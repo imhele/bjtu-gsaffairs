@@ -2,8 +2,16 @@ export default [
   // user
   {
     path: '/user',
+    name: 'route.user',
     component: '../layouts/BlankLayout',
-    routes: [{ path: '/user', redirect: '/user/login' }],
+    routes: [
+      { path: '/user', redirect: '/user/login' },
+      {
+        path: '/user/login',
+        name: 'route.user.login',
+        component: './User/Login',
+      },
+    ],
   },
   // app
   {

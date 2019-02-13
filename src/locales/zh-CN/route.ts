@@ -21,4 +21,6 @@ export default {
   'route.result': '结果页',
   'route.result.success': '成功页',
   'route.result.success-title': '成功页',
+  'route.user': '研究生三助系统',
+  'route.user.login': '登录页',
 };

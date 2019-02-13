@@ -13,6 +13,7 @@ export default {
   'word.got-it': '知道了',
   'word.go-to-list': '前往列表',
   'word.hour': '小时',
+  'word.login': '登录',
   'word.minute': '分钟',
   'word.more': '更多',
   'word.NT': '新手教程',

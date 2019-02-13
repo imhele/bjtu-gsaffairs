@@ -1,6 +1,6 @@
 import React from 'react';
-import styles from './BasicLayout.less';
 import { Layout, Tooltip } from 'antd';
+import styles from './BasicLayout.less';
 import { FormattedMessage } from 'umi-plugin-locale';
 
 export default () => (
