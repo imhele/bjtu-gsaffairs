@@ -1,4 +1,3 @@
-import React from 'react';
 import hash from 'hash.js';
 import router from 'umi/router';
 import { getSign } from './auth';
@@ -10,6 +9,7 @@ export interface RequestBody {}
 export type RequestOptions<T extends RequestBody> = {
   body?: T | string;
   expirys?: number;
+  ignoreErrcode?: boolean;
 } & {
   [P in
     | 'cache'
@@ -124,9 +124,10 @@ export default async function request<T>(
       if (status >= 404 && status < 422) return router.push('/exception/404');
     });
   if (typeof formattedResponse !== 'object' || !formattedResponse.errcode) return formattedResponse;
-  notification.error({
-    description: formattedResponse.errmsg,
-    message: `Error code: ${formattedResponse.errcode}`,
-  });
+  if (!newOptions.ignoreErrcode)
+    notification.error({
+      description: formattedResponse.errmsg,
+      message: `Error code: ${formattedResponse.errcode}`,
+    });
   return null;
 }

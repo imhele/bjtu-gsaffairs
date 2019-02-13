@@ -1,33 +1,26 @@
 import { Model } from 'dva';
 import { message } from 'antd';
 import router from 'umi/router';
-import { setSign } from '@/utils/auth';
+import { LoginSignExpiresIn } from '@/global';
+import { Scope } from '@/components/Authorized';
 import { formatMessage } from 'umi-plugin-locale';
-import { fetchScope, FetchScopePayload } from '@/services/login';
+import { hmacSha256, setSign } from '@/utils/auth';
+import { fetchScope, login } from '@/services/login';
 
-const defaultState = {
-  avatar: <null>null,
+export interface LoginState {
+  avatar?: string;
+  redirect?: string;
+  scope?: Scope;
+  status?: boolean;
+  userName?: string;
+}
+
+const defaultState: LoginState = {
+  avatar: null,
   redirect: '/',
-  scope: <null>[
-    'scope.position.manage.list',
-    'scope.position.manage.create',
-    'scope.position.manage.edit',
-    'scope.position.manage.export',
-    'scope.position.manage.audit',
-    'scope.position.teach.list',
-    'scope.position.teach.create',
-    'scope.position.teach.edit',
-    'scope.position.teach.export',
-    'scope.position.teach.audit',
-  ], // @DEBUG
+  scope: null,
   status: false,
-  token: '',
   userName: 'NULL',
-};
-
-export type LoginState = Readonly<typeof defaultState> & {
-  avatar: string;
-  scope: Array<string | number>;
 };
 
 export interface LoginModel extends Model {
@@ -39,16 +32,16 @@ const model: LoginModel = {
   state: defaultState,
   effects: {
     *login({ payload }, { call, put, select }) {
-      const response = yield call(fetchScope, payload);
+      payload.timestamp = (Date.now() / 1000).toFixed(0) + LoginSignExpiresIn;
+      payload.psw = hmacSha256(`${payload.timestamp}${payload.account}`, payload.psw);
+      const response = yield call(login, payload);
       if (response && response.token) {
         yield put({
           type: 'setState',
           payload: { ...response, status: true },
         });
-        const redirect = yield select(({ login }: any) => login.redirect);
+        const redirect = yield select((state: any) => state.login.redirect);
         router.replace(redirect);
-      } else {
-        message.error(formatMessage({ id: 'login.failed' }));
       }
     },
     *logout(_, { put }) {
@@ -56,21 +49,24 @@ const model: LoginModel = {
       yield put({ type: 'global/resetNamespace' });
       yield router.push('/user/login');
     },
-    *fetchUser(_, { call, put }) {
-      const response = yield call(fetchScope, { method: 'token' } as FetchScopePayload);
-      if (response && response.token) {
+    *fetchScope(_, { call, put }) {
+      const response = yield call(fetchScope, true);
+      if (response && response.scope) {
         yield put({
           type: 'setState',
           payload: { ...response, status: true },
         });
       } else {
-        message.error(formatMessage({ id: 'login.failed' }));
+        router.push('/user/login');
       }
     },
   },
   reducers: {
     setState(state, { payload }) {
-      if (payload.token) setSign(payload.token);
+      if (payload.token) {
+        setSign(payload.token);
+        delete payload.token;
+      }
       return {
         ...state,
         ...payload,

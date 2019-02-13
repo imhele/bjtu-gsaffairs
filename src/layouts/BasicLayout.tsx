@@ -48,7 +48,7 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
     getTrigger: () => void 0,
   });
   const onCollapse = useState(() => {
-    dispatch({ type: 'login/fetchUser' });
+    dispatch({ type: 'login/fetchScope' });
     dispatch({ type: 'global/setCollapsed', payload: isMobile });
     return debounce((payload: boolean) => dispatch({ type: 'global/setCollapsed', payload }), 50);
   })[0];
@@ -120,6 +120,6 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
 export default connect(({ global, login, loading }: ConnectState) => ({
   collapsed: global.collapsed,
   currentScope: login.scope,
-  loading: loading.effects['login/fetchUser'],
+  loading: loading.effects['login/fetchScope'],
   login,
 }))(BasicLayout);

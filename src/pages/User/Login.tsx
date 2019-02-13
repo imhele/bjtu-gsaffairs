@@ -1,8 +1,11 @@
 import React from 'react';
+import { connect } from 'dva';
 import styles from './Login.less';
+import { LoginPayload } from '@/services/login';
 import { FormComponentProps } from 'antd/es/form';
 import { FormattedMessage } from 'umi-plugin-locale';
 import { Button, Card, Form, Icon, Input } from 'antd';
+import ConnectState, { ConnectProps } from '@/models/connect';
 
 export interface LoginFormProps extends FormComponentProps {
   className?: string;
@@ -44,11 +47,32 @@ const UnwrappedLoginForm: React.SFC<LoginFormProps> = ({
 
 export const LoginForm = Form.create()(UnwrappedLoginForm);
 
-export default () => (
+export interface LoginProps extends ConnectProps {
+  loading?: boolean;
+}
+
+const Login: React.SFC<LoginProps> = ({ dispatch, loading }) => (
   <Card className={styles.card}>
     <div className={styles.image} />
-    <div className={styles.title}><FormattedMessage id='app.name' /></div>
-    <div className={styles.description}><FormattedMessage id='app.developer' /></div>
-    <LoginForm className={styles.form} />
+    <div className={styles.title}>
+      <FormattedMessage id="app.name" />
+    </div>
+    <div className={styles.description}>
+      <FormattedMessage id="app.developer" />
+    </div>
+    <LoginForm
+      className={styles.form}
+      loading={loading}
+      onLogin={(account, psw) =>
+        dispatch<LoginPayload>({
+          type: 'login/login',
+          payload: { account, method: 'psw', psw },
+        })
+      }
+    />
   </Card>
 );
+
+export default connect(({ loading }: ConnectState) => ({
+  loading: loading.effects['login/login'],
+}))(Login);
