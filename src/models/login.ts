@@ -1,6 +1,9 @@
 import { Model } from 'dva';
+import { message } from 'antd';
 import router from 'umi/router';
 import { setSign } from '@/utils/auth';
+import { formatMessage } from 'umi-plugin-locale';
+import { fetchScope, FetchScopePayload } from '@/services/login';
 
 const defaultState = {
   avatar: <null>null,
@@ -36,31 +39,38 @@ const model: LoginModel = {
   state: defaultState,
   effects: {
     *login({ payload }, { call, put, select }) {
-      const response = yield call(null, payload); // @TODO
+      const response = yield call(fetchScope, payload);
       if (response && response.token) {
         yield put({
           type: 'setState',
-          payload: {
-            ...response,
-            status: true,
-          },
+          payload: { ...response, status: true },
         });
-        const redirect = yield select(({ login }: any) => login.redirect); // @TODO
+        const redirect = yield select(({ login }: any) => login.redirect);
         router.replace(redirect);
       } else {
-        // @TODO
+        message.error(formatMessage({ id: 'login.failed' }));
       }
     },
     *logout(_, { put }) {
       setSign(null);
-      yield put({
-        type: 'global/resetNamespace',
-      });
+      yield put({ type: 'global/resetNamespace' });
       yield router.push('/user/login');
+    },
+    *fetchUser(_, { call, put }) {
+      const response = yield call(fetchScope, { method: 'token' } as FetchScopePayload);
+      if (response && response.token) {
+        yield put({
+          type: 'setState',
+          payload: { ...response, status: true },
+        });
+      } else {
+        message.error(formatMessage({ id: 'login.failed' }));
+      }
     },
   },
   reducers: {
     setState(state, { payload }) {
+      if (payload.token) setSign(payload.token);
       return {
         ...state,
         ...payload,

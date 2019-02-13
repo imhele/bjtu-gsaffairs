@@ -118,12 +118,7 @@ export default async function request<T>(
     })
     .catch(e => {
       const status = e.name;
-      if (status === 401) {
-        (window as any).g_app._store.dispatch({
-          type: 'login/logout',
-        });
-        return;
-      }
+      if (status === 401) return (window as any).g_app._store.dispatch({ type: 'login/logout' });
       if (status === 403) return router.push('/exception/403');
       // if (status <= 504 && status >= 500) return router.push('/exception/500');
       if (status >= 404 && status < 422) return router.push('/exception/404');
