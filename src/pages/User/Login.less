@@ -4,8 +4,20 @@
   height: 424.8px;
   max-width: 380px;
   background: #fff;
+  min-height: 424.8px;
   border-radius: @page-gap-1;
   margin: calc(50vh - 56.4px - 212.4px) auto;
+  @media screen and (max-height: 112.8px + 424.8px + @page-gap-6) {
+    margin: @page-gap-6 auto;
+  }
+  @media screen and (max-width: @screen-mobile) {
+    margin: 0;
+    width: 100vw;
+    max-width: 100%;
+    border-radius: 0;
+    height: calc(100vh - 112.8px);
+    padding: calc(50vh - 56.4px - 212.4px) 0;
+  }
   .image {
     width: 80px;
     height: 80px;
