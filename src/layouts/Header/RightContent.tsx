@@ -28,9 +28,7 @@ class RightContent extends Component<RightContentProps> {
     const { login, loading = false } = this.props;
     const UserMenu = (
       <Menu onClick={this.onClickMenu} className={styles.userMenu}>
-        <Menu.Item key="/account" className={styles.userName}>
-          {login.userName}
-        </Menu.Item>
+        <div className={styles.userName}>{login.userName}</div>
         <Menu.Divider />
         <Menu.Item key="logout">
           <Icon type="logout" />
