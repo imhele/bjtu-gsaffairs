@@ -5,7 +5,6 @@
     "start": "umi dev",
     "build": "umi build",
     "precommit": "lint-staged",
-    "deploy:demo": "UMI_ENV=demo umi build",
     "lint": "npm run lint:es && npm run lint:ts",
     "lint:es": "eslint --ext .js config mock",
     "pull:hg": "cd .. && hg pull && hg update",
@@ -24,8 +23,8 @@
     "memoize-one": "5.0.0",
     "path-to-regexp": "3.0.0",
     "rc-queue-anim": "~1.6.11",
-    "react": "~16.8.1",
-    "react-dom": "~16.8.1",
+    "react": "~16.8.2",
+    "react-dom": "~16.8.2",
     "react-media-hook2": "^1.0.0"
   },
   "devDependencies": {
@@ -33,8 +32,8 @@
     "@types/debounce": "1.2.0",
     "@types/jest": "^23.3.12",
     "@types/memoize-one": "~4.1.0",
-    "@types/react": "~16.8.2",
-    "@types/react-dom": "~16.8.0",
+    "@types/react": "~16.8.3",
+    "@types/react-dom": "~16.8.1",
     "@types/react-test-renderer": "^16.0.3",
     "babel-eslint": "^9.0.0",
     "eslint": "^5.4.0",
@@ -49,9 +48,10 @@
     "tslint": "^5.12.0",
     "tslint-eslint-rules": "^5.4.0",
     "tslint-react": "^3.6.0",
-    "umi": "^2.4.2",
+    "umi": "~2.5.0",
     "umi-plugin-nprogress": "^1.1.6",
-    "umi-plugin-react": "^1.4.0"
+    "umi-plugin-react": "^1.4.0",
+    "umi-serve": "^1.0.0"
   },
   "lint-staged": {
     "*.{js,jsx}": [

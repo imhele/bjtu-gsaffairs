@@ -141,3 +141,14 @@ export const scrollToTop = () => {
     return;
   }
 };
+
+export const inheritScope = (route: Route, parentScope: (string | number)[] = []): Route => {
+  const scope = route.scope ? parentScope.concat(route.scope) : [];
+  return {
+    ...route,
+    scope,
+    routes: Array.isArray(route.routes)
+      ? route.routes.map(item => inheritScope(item, scope))
+      : route.routes,
+  };
+};
