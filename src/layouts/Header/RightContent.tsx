@@ -21,14 +21,16 @@ class RightContent extends Component<RightContentProps> {
 
   onClickMenu = ({ key }: ClickParam): void => {
     if (key === 'logout') this.onLogout();
-    else if (key) router.push(key);
+    else if (key !== 'none') router.push(key);
   };
 
   render() {
     const { login, loading = false } = this.props;
     const UserMenu = (
       <Menu onClick={this.onClickMenu} className={styles.userMenu}>
-        <div className={styles.userName}>{login.userName}</div>
+        <Menu.Item key="none" className={styles.userName}>
+          {login.userName}
+        </Menu.Item>
         <Menu.Divider />
         <Menu.Item key="logout">
           <Icon type="logout" />

@@ -1,12 +1,12 @@
 import Header from './Header';
 import Footer from './Footer';
 import { connect } from 'dva';
-import { Layout } from 'antd';
 import router from 'umi/router';
 import debounce from 'debounce';
 import QueueAnim from 'rc-queue-anim';
 import * as Utils from '@/utils/utils';
 import styles from './BasicLayout.less';
+import { Layout, Skeleton } from 'antd';
 import useMedia from 'react-media-hook2';
 import Authorized from '@/components/Authorized';
 import Exception403 from '@/pages/Exception/403';
@@ -59,7 +59,7 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
   const onLogout = () => dispatch({ type: 'login/logout' });
   const menuSelectedKeys = useMemo(() => Utils.pathnameToArr(pathname), [pathname]);
   const onSelectMenu = ({ key }: SelectParam) => key !== pathname && router.push(key);
-  useMedia({ query: '(max-width: 999px)', onChange: onCollapse });
+  useMedia({ query: '(max-width: 1300px)', onChange: onCollapse });
   /**
    * `delay` in `<QueueAnim />` is setted to wait for `onCollapse` in constructor
    */
@@ -97,14 +97,16 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
                 route={route}
               />
               <Content className={styles.content}>
-                <Authorized
-                  currentScope={currentScope}
-                  exception={<Exception403 />}
-                  id={GlobalId.BasicLayout}
-                  scope={Utils.pathToScope(route, location.pathname)}
-                >
-                  {children}
-                </Authorized>
+                <Skeleton loading={loading}>
+                  <Authorized
+                    currentScope={currentScope}
+                    exception={<Exception403 />}
+                    id={GlobalId.BasicLayout}
+                    scope={Utils.pathToScope(route, location.pathname)}
+                  >
+                    {children}
+                  </Authorized>
+                </Skeleton>
                 <Footer />
               </Content>
             </Layout>
