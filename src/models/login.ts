@@ -1,9 +1,7 @@
 import { Model } from 'dva';
-import { message } from 'antd';
 import router from 'umi/router';
 import { LoginSignExpiresIn } from '@/global';
 import { Scope } from '@/components/Authorized';
-import { formatMessage } from 'umi-plugin-locale';
 import { hmacSha256, setSign } from '@/utils/auth';
 import { fetchScope, login } from '@/services/login';
 

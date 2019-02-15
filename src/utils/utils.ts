@@ -1,4 +1,6 @@
 import pathToRegexp from 'path-to-regexp';
+import { formatDynamicRoute } from './format';
+import { CheckAuth } from '@/components/Authorized';
 
 export * from './format';
 
@@ -24,10 +26,10 @@ export function UUID(length = 32, join = ''): string {
 export function pathToScope(
   route: Route,
   pathname: string,
-  scope: Set<string | number> = new Set(),
-): Set<string | number> {
+  scope: (string | number)[] = [],
+): (string | number)[] {
   if (!!!route || !!!pathname) return scope;
-  if (Array.isArray(route.scope)) route.scope.forEach(v => scope.add(v));
+  if (Array.isArray(route.scope)) scope = route.scope;
   if (route.path === pathname) return scope;
   if (!Array.isArray(route.routes)) return scope;
   return pathToScope(
@@ -92,7 +94,7 @@ export const { addWindowEvent, getWindowEvent, removeWindowEvent } = (() => {
       if (windowEvents.get(type) instanceof Map) {
         return windowEvents.get(type).get(id);
       }
-      return undefined;
+      return void 0;
     },
     removeWindowEvent: <T extends keyof WindowEventMap>(type: T, id: string): boolean => {
       if (windowEvents.get(type) instanceof Map) {
@@ -119,7 +121,7 @@ export function sandwichArray<T = any, U = any, V = any>(
     [],
   );
   if (wrap) {
-    return res.concat(handleJoin(join, undefined, undefined));
+    return res.concat(handleJoin(join, void 0, void 0));
   }
   res.splice(0, 1);
   return res;
@@ -143,12 +145,37 @@ export const scrollToTop = () => {
 };
 
 export const inheritScope = (route: Route, parentScope: (string | number)[] = []): Route => {
-  const scope = route.scope ? parentScope.concat(route.scope) : [];
+  if (route.scope) {
+    const scope = parentScope.concat(route.scope);
+    return {
+      ...route,
+      scope,
+      routes: Array.isArray(route.routes)
+        ? route.routes.filter(item => item.path).map(item => inheritScope(item, scope))
+        : route.routes,
+    };
+  }
   return {
     ...route,
-    scope,
     routes: Array.isArray(route.routes)
-      ? route.routes.map(item => inheritScope(item, scope))
+      ? route.routes.filter(item => item.path).map(item => inheritScope(item, parentScope))
       : route.routes,
   };
 };
+
+const filterScopeRouteItem = (route: Route, currentScope: (string | number)[] = []): Route => {
+  if (!Array.isArray(route.routes)) return { ...route, routes: void 0 };
+  const routes = route.routes
+    .filter(child => CheckAuth(child.scope, currentScope))
+    .map(child => filterScopeRouteItem(child, currentScope));
+  if (!routes.length) return { ...route, routes: route.component ? void 0 : null };
+  return { ...route, routes };
+};
+
+export const filterScopeRoute = (
+  route: Route<string | string[], Array<string | number> | Array<string | number>[]>,
+  currentScope: (string | number)[] = [],
+): Route =>
+  Array.isArray(currentScope)
+    ? filterScopeRouteItem(inheritScope(formatDynamicRoute(route)), currentScope)
+    : inheritScope(formatDynamicRoute(route));

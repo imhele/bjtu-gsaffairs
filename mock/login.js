@@ -43,7 +43,7 @@ const login = (req, res) => {
 };
 
 const scope = (req, res) => {
-  const { Authorization = '' } = req.headers || {};
+  const Authorization = req.headers.authorization || req.headers.Authorization;
   const result = {
     scope: [],
     userName: 'User',

@@ -17,6 +17,7 @@ export default [
   {
     path: '/',
     component: '../layouts/BasicLayout',
+    scope: ['scope.admin'],
     routes: [
       // default route
       {
@@ -28,8 +29,7 @@ export default [
         path: '/position',
         icon: 'cluster',
         name: 'route.position',
-        component: '../layouts/PageHeader',
-        scope: ['scope.admin'],
+        Routes: ['./src/layouts/PageHeader'],
         routes: [
           {
             path: '/position',

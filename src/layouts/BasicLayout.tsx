@@ -42,7 +42,7 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
    * Constructor
    * These functions will be called during the first render only.
    */
-  const route = useState(() => Utils.formatDynamicRoute(restProps.route))[0];
+  const route = useState(() => Utils.filterScopeRoute(restProps.route, currentScope))[0];
   const isMobile = useMedia({ id: GlobalId.BasicLayout, query: '(max-width: 600px)' })[0];
   const NTMethods = useRef<NoviceTutorialMethods<StorageId, MouseEvent>>({
     getTrigger: () => void 0,
@@ -75,7 +75,6 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
           <QueueAnim type="left" delay={200}>
             <Header
               collapsed={collapsed}
-              currentScope={currentScope}
               isMobile={isMobile}
               key="Header"
               loading={loading}
@@ -89,7 +88,6 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
             <Layout key="Layout">
               <SiderMenu
                 collapsed={collapsed}
-                currentScope={currentScope}
                 drawerTitle="app.name"
                 isMobile={isMobile}
                 location={location}

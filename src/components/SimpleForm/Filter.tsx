@@ -156,14 +156,14 @@ class Filter extends BaseForm<FilterProps, FilterStates> {
 export default Form.create<FilterProps>({
   onFieldsChange: (...args: any[]) => {
     FormEventStore.onFieldsChange.forEach((fn, index) => {
-      if (safeFun(fn, undefined, ...args) instanceof Error) {
+      if (safeFun(fn, void 0, ...args) instanceof Error) {
         FormEventStore.onFieldsChange.splice(index, 1);
       }
     });
   },
   onValuesChange: (...args: any[]) => {
     FormEventStore.onValuesChange.forEach((fn, index) => {
-      if (safeFun(fn, undefined, ...args) instanceof Error) {
+      if (safeFun(fn, void 0, ...args) instanceof Error) {
         FormEventStore.onValuesChange.splice(index, 1);
       }
     });

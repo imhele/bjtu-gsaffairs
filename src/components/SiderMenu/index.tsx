@@ -8,12 +8,10 @@ import { ConnectProps } from '@/models/connect';
 import { SiderProps } from 'antd/es/layout/Sider';
 import { Drawer, Icon, Layout, Menu } from 'antd';
 import { FormattedMessage } from 'umi-plugin-locale';
-import { CheckAuth, Scope } from '@/components/Authorized';
 
 export { SelectParam };
 
 export interface SiderMenuProps extends SiderProps, ConnectProps {
-  currentScope?: Scope;
   drawerTitle?: string;
   isMobile?: boolean;
   menuSelectedKeys?: string[];
@@ -34,7 +32,7 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
   constructor(props: SiderMenuProps) {
     super(props);
     if (props.route && typeof props.route === 'object' && Array.isArray(props.route.routes))
-      this.menuArr = this.routeToMenu(props.route.routes, props.currentScope);
+      this.menuArr = this.routeToMenu(props.route.routes);
   }
 
   onSelect = (param: SelectParam): void => {
@@ -44,19 +42,9 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
     }
   };
 
-  routeToMenu = (
-    routes: Route[],
-    currentScope: Scope,
-    submenu: boolean = false,
-    parentScope: (string | number)[] = [],
-  ): React.ReactNode[] => {
-    /**
-     * @TODO
-     */
+  routeToMenu = (routes: Route[], submenu: boolean = false): React.ReactNode[] => {
     return routes
-      .filter(({ hideInMenu, path }) => !hideInMenu && path)
-      .map(route => ({ ...route, scope: route.scope && parentScope.concat(route.scope) }))
-      .filter(({ scope }) => !submenu || CheckAuth(scope, currentScope))
+      .filter(route => !route.hideInMenu && route.path && route.routes !== null)
       .map(route =>
         submenu || !Array.isArray(route.routes) || !route.routes.length ? (
           route.name && (
@@ -77,7 +65,7 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
               )
             }
           >
-            {this.routeToMenu(route.routes, currentScope, true, route.scope)}
+            {this.routeToMenu(route.routes, true)}
           </SubMenu>
         ),
       );
@@ -87,7 +75,6 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
     const {
       className,
       collapsed,
-      currentScope,
       drawerTitle,
       isMobile,
       menuSelectedKeys,
