@@ -1,1 +1,1 @@
-yarn run umi-serve
+yarn run serve

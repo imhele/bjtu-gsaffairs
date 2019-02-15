@@ -1,6 +1,6 @@
 import hash from 'hash.js';
 
-export const APIPrefix = '/api';
+export const APIPrefix = process.env.SERVE ? '/bjtu-papms/api' : '/api';
 
 const sha = (content, secret) => {
   return hash
