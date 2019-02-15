@@ -23,8 +23,6 @@
     "memoize-one": "5.0.0",
     "path-to-regexp": "3.0.0",
     "rc-queue-anim": "~1.6.11",
-    "react": "~16.8.2",
-    "react-dom": "~16.8.2",
     "react-media-hook2": "^1.0.0"
   },
   "devDependencies": {
