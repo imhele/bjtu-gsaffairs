@@ -3,7 +3,6 @@ import { LoginState } from './login';
 import { ResultState } from './result';
 import { PositionState } from '@/pages/Position/models/position';
 
-export { NTKeys, NTType } from './global';
 export { GlobalState, LoginState, PositionState, ResultState };
 
 export type Dispatch = <T = any, U = (payload: T) => void>(action: {
@@ -31,7 +30,7 @@ export interface ConnectState {
   result?: ResultState;
 }
 
-export interface ConnectProps<T extends object = null> extends React.Props<any> {
+export interface ConnectProps<T extends object = {}> extends React.Props<any> {
   dispatch?: Dispatch;
   location?: Location;
   match?: {

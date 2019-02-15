@@ -1,7 +1,7 @@
 import { Model } from 'dva';
 import { message } from 'antd';
 import router from 'umi/router';
-import { safeFun } from '@/utils/utils';
+import * as Utils from '@/utils/utils';
 import { FormItemProps } from 'antd/es/form';
 import { ResultState } from '@/models/result';
 import { StepsProps } from '@/components/Steps';
@@ -18,11 +18,6 @@ import {
   fetchForm,
   fetchList,
 } from '@/services/position';
-import {
-  formatMoment,
-  formatMomentInFieldsValue,
-  formatMomentInSimpleFormInitValue as formatFormInitValue,
-} from '@/utils/format';
 
 export interface PositionDetailProps {
   actionKey: string | string[];
@@ -120,7 +115,7 @@ const model: PositionModel = {
         type: 'setState',
         payload: response,
       });
-      safeFun(callback, null, payload);
+      Utils.safeFun(callback, null, payload);
     },
     *fetchDetail({ payload }, { call, put }) {
       const response = yield call(fetchDetail, payload);
@@ -134,13 +129,13 @@ const model: PositionModel = {
       if (response && !response.errcode) {
         message.success(response.errmsg);
       }
-      safeFun(callback, null, payload);
+      Utils.safeFun(callback, null, payload);
     },
     *fetchForm({ payload }, { call, put }) {
       const response = yield call(fetchForm, payload);
       if (response && typeof response === 'object') {
-        response.initialFieldsValue = safeFun(
-          formatFormInitValue,
+        response.initialFieldsValue = Utils.safeFun(
+          Utils.formatMomentInSimpleFormInitValue,
           {},
           response.formItems,
           response.initialFieldsValue,
@@ -152,7 +147,7 @@ const model: PositionModel = {
       }
     },
     *createPosition({ payload }, { call, put }) {
-      payload.body = formatMomentInFieldsValue(payload.body, formatMoment.YMD);
+      payload.body = Utils.formatMomentInFieldsValue(payload.body, Utils.formatMoment.YMD);
       const response = yield call(createPosition, payload);
       if (response) {
         yield put<{ type: string; payload: ResultState }>({
@@ -177,7 +172,7 @@ const model: PositionModel = {
       }
     },
     *editPosition({ payload }, { call }) {
-      payload.body = formatMomentInFieldsValue(payload.body, formatMoment.YMD);
+      payload.body = Utils.formatMomentInFieldsValue(payload.body, Utils.formatMoment.YMD);
       const response = yield call(editPosition, payload);
       if (response && !response.errcode) {
         message.success(response.errmsg);
@@ -185,11 +180,11 @@ const model: PositionModel = {
       }
     },
     *auditPosition({ callback, payload }, { call }) {
-      payload.body = formatMomentInFieldsValue(payload.body, formatMoment.YMDHms);
+      payload.body = Utils.formatMomentInFieldsValue(payload.body, Utils.formatMoment.YMDHms);
       const response = yield call(auditPosition, payload);
       if (response && !response.errcode) {
         message.success(response.errmsg);
-        safeFun(callback, null, payload);
+        Utils.safeFun(callback, null, payload);
       }
     },
   },

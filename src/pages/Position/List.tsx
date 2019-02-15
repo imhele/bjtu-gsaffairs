@@ -75,7 +75,6 @@ class List extends Component<ListProps, ListState> {
   };
 
   private selectedRows: object = {};
-  private prevSelectedRowKeys: string[] | number[] = [];
   private deletingRowKeys: Set<string | number> = new Set();
   private filterExpandText = {
     expand: <FormattedMessage id="word.expand" />,

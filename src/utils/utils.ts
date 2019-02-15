@@ -1,5 +1,7 @@
 import pathToRegexp from 'path-to-regexp';
 
+export * from './format';
+
 export function pathnameToArr(pathname = ''): string[] {
   const pathnameArr: string[] = pathname.split('/').filter(i => i);
   return pathnameArr.map((_, i) => `/${pathnameArr.slice(0, i + 1).join('/')}`);
@@ -121,46 +123,6 @@ export function sandwichArray<T = any, U = any, V = any>(
   }
   res.splice(0, 1);
   return res;
-}
-
-export function formatRouteInfo<T>(info: T | T[], key?: number): T {
-  if (!info) return null;
-  if (typeof info === 'string') return info;
-  if (key) return info[key];
-  if (Array.isArray(info)) return info[0];
-  return null;
-}
-
-export function formatDynamicRoute(
-  route: Route<string | string[], Array<string | number> | Array<string | number>[]>,
-  key?: number,
-): Route {
-  if (typeof route !== 'object') return route;
-  let routes: Route[] = [];
-  if (Array.isArray(route.routes) && route.routes.length) {
-    route.routes
-      .filter(item => item)
-      .forEach(item => {
-        if (!item.dynamic) routes.push(formatDynamicRoute(item));
-        if (Array.isArray(item.dynamic)) {
-          const toPath = pathToRegexp.compile(item.path);
-          item.dynamic.forEach((val, index) => {
-            routes.push(formatDynamicRoute({ ...item, path: toPath(val) }, index));
-          });
-        }
-      });
-  } else {
-    routes = route.routes as Route[];
-  }
-  return {
-    ...route,
-    icon: route.dynamic ? formatRouteInfo<string>(route.icon, key) : (route.icon as string),
-    name: route.dynamic ? formatRouteInfo<string>(route.name, key) : (route.name as string),
-    scope: route.dynamic
-      ? formatRouteInfo<Array<string | number>>(route.scope, key)
-      : (route.scope as Array<string | number>),
-    routes,
-  };
 }
 
 export function safeFun<T = any>(fn: Function, defaultReturn?: T, ...args: any[]): T {
