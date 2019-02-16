@@ -17,3 +17,7 @@
 .umi
 .umi-production
 *.local.js
+
+# python
+__pycache__
+env
