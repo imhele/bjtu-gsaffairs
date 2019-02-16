@@ -1,14 +1,16 @@
 import { Model } from 'dva';
 import router from 'umi/router';
 import { LoginSignExpiresIn } from '@/global';
-import { Scope } from '@/components/Authorized';
 import { hmacSha256, setSign } from '@/utils/auth';
 import { fetchScope, login } from '@/services/login';
 
 export interface LoginState {
   avatar?: string;
   redirect?: string;
-  scope?: Scope;
+  scope?: {
+    include?: Array<string | number>;
+    exclude?: Array<string | number>;
+  };
   status?: boolean;
   userName?: string;
 }
@@ -16,7 +18,10 @@ export interface LoginState {
 const defaultState: LoginState = {
   avatar: null,
   redirect: '/',
-  scope: null,
+  scope: {
+    include: [],
+    exclude: [],
+  },
   status: false,
   userName: 'NULL',
 };

@@ -45,7 +45,10 @@ const login = (req, res) => {
 const scope = (req, res) => {
   const Authorization = req.headers.authorization || req.headers.Authorization;
   const result = {
-    scope: [],
+    scope: {
+      include: [],
+      exclude: [],
+    },
     userName: 'User',
   };
   if (!['admin', 'teacher', 'department'].includes(Authorization))
@@ -56,11 +59,12 @@ const scope = (req, res) => {
   switch (Authorization) {
     case 'admin':
       result.userName = 'Admin';
-      result.scope = ['scope.admin'];
+      result.scope.include = ['scope.admin'];
+      result.scope.exclude = ['scope.position.manage.list']
       break;
     case 'teacher':
       result.userName = 'Teacher';
-      result.scope = [
+      result.scope.include = [
         'scope.position.manage.list',
         'scope.position.manage.create',
         'scope.position.manage.edit',
@@ -71,7 +75,7 @@ const scope = (req, res) => {
       break;
     case 'department':
       result.userName = 'Department';
-      result.scope = [
+      result.scope.include = [
         'scope.position.manage.list',
         'scope.position.manage.create',
         'scope.position.manage.edit',
@@ -87,7 +91,7 @@ const scope = (req, res) => {
     default:
       return res.send({ errcode: 40013, errmsg: '令牌已过期，请重新登录' });
   }
-  res.send(result);
+  setTimeout(() => res.send(result), 400);
 };
 
 export default {

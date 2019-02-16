@@ -393,12 +393,10 @@ class List extends Component<ListProps, ListState> {
       });
       if (hideAudit) return false;
     }
-    if (!(getCurrentScope instanceof Map)) return false;
-    const getScope = getCurrentScope.get(GlobalId.BasicLayout);
-    if (typeof getScope !== 'function') return false;
     return CheckAuth(
       [`scope.position.${positionType}.${operation.type}`, 'scope.admin'],
-      getScope(),
+      null,
+      GlobalId.BasicLayout,
     );
   };
 

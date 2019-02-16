@@ -36,20 +36,13 @@ export default class Header extends Component<HeaderProps> {
     route: {},
   };
 
-  menuArr: React.ReactNode[] = [];
-
-  constructor(props: HeaderProps) {
-    super(props);
-    this.menuArr = this.routeToMenu(props.route.routes);
-  }
-
   handleClickMenu = ({ key, item }: ClickParam): void => {
     const { location } = this.props;
     if (item.props['data-type'] !== 'href' && key !== location.pathname) router.push(key);
   };
 
-  routeToMenu = (routes: Route[]): React.ReactNode[] => {
-    return routes
+  routeToMenu = (routes: Route[]): React.ReactNode[] =>
+    routes
       .filter(route => !route.hideInMenu && (route.path || route.href) && route.routes !== null)
       .map(route =>
         route.href
@@ -68,7 +61,6 @@ export default class Header extends Component<HeaderProps> {
               </MenuItem>
             ),
       );
-  };
 
   render() {
     const {
@@ -79,6 +71,7 @@ export default class Header extends Component<HeaderProps> {
       menuSelectedKeys,
       onLogout,
       onOpenMenu,
+      route = {},
     } = this.props;
     const className = classNames({
       [styles.headerContainer]: true,
@@ -99,7 +92,7 @@ export default class Header extends Component<HeaderProps> {
               onClick={this.handleClickMenu}
               selectedKeys={menuSelectedKeys}
             >
-              {this.menuArr}
+              {this.routeToMenu(route.routes || [])}
             </Menu>
           )}
           <RightContent loading={loading} login={login} onLogout={onLogout} />

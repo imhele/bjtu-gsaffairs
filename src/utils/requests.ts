@@ -6,6 +6,12 @@ import fetch from 'isomorphic-fetch'; // @issue: https://github.com/dvajs/dva/is
 
 export interface RequestBody {}
 
+export interface ResponseBody {
+  errcode?: number;
+  errmsg?: string;
+  [key: string]: any
+}
+
 export type RequestOptions<T extends RequestBody> = {
   body?: T | string;
   expirys?: number;
@@ -26,7 +32,7 @@ export type RequestOptions<T extends RequestBody> = {
     | 'window']?: RequestInit[P]
 };
 
-const cachedSave = (response: Response, hashcode: string) => {
+const cachedSave = (response: Response, hashcode: string): Response => {
   /**
    * Clone a response data and store it in sessionStorage
    * Does not support data other than json, Cache only json
@@ -55,7 +61,7 @@ const cachedSave = (response: Response, hashcode: string) => {
 export default async function request<T>(
   url: string,
   options: RequestOptions<T> = {},
-): Promise<any> {
+): Promise<ResponseBody | string | null | void> {
   /**
    * Produce fingerprints based on url and parameters
    * Maybe url has the same parameters
@@ -110,24 +116,25 @@ export default async function request<T>(
   }
   const formattedResponse = await fetch(url, newOptions)
     .then(response => cachedSave(response, hashcode))
-    .then(response => {
+    .then<ResponseBody | string>(response => {
       if (newOptions.method === 'DELETE' || response.status === 204) {
         return response.text();
       }
       return response.json();
     })
-    .catch(e => {
+    .catch<void>(e => {
       const status = e.name;
       if (status === 401) return (window as any).g_app._store.dispatch({ type: 'login/logout' });
       if (status === 403) return router.push('/exception/403');
       // if (status <= 504 && status >= 500) return router.push('/exception/500');
       if (status >= 404 && status < 422) return router.push('/exception/404');
     });
-  if (typeof formattedResponse !== 'object' || !formattedResponse.errcode) return formattedResponse;
+  if (typeof formattedResponse !== 'object' || !formattedResponse || !formattedResponse.errcode)
+    return new Promise(resolve => resolve(formattedResponse));
   if (!newOptions.ignoreErrcode)
     notification.error({
       description: formattedResponse.errmsg,
       message: `Error code: ${formattedResponse.errcode}`,
     });
-  return null;
+  return new Promise(resolve => resolve(null));
 }

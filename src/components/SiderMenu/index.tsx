@@ -27,14 +27,6 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
     route: {},
   };
 
-  menuArr: React.ReactNode[] = [];
-
-  constructor(props: SiderMenuProps) {
-    super(props);
-    if (props.route && typeof props.route === 'object' && Array.isArray(props.route.routes))
-      this.menuArr = this.routeToMenu(props.route.routes);
-  }
-
   onSelect = (param: SelectParam): void => {
     const { onSelectMenu } = this.props;
     if (onSelectMenu) {
@@ -42,8 +34,7 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
     }
   };
 
-  routeToMenu = (routes: Route[], submenu: boolean = false): React.ReactNode[] => {
-    return routes
+  routeToMenu = (routes: Route[], submenu: boolean = false): React.ReactNode[] => routes
       .filter(route => !route.hideInMenu && route.path && route.routes !== null)
       .map(route =>
         submenu || !Array.isArray(route.routes) || !route.routes.length ? (
@@ -69,7 +60,6 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
           </SubMenu>
         ),
       );
-  };
 
   render() {
     const {
@@ -80,7 +70,7 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
       menuSelectedKeys,
       onCollapse,
       onSelectMenu,
-      route,
+      route = {},
       ...restProps
     } = this.props;
     const mixinClassName = classNames(styles.siderMenu, className || '');
@@ -100,7 +90,7 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
           onSelect={this.onSelect}
           selectedKeys={menuSelectedKeys}
         >
-          {this.menuArr}
+          {this.routeToMenu(route.routes || [])}
         </Menu>
       </Layout.Sider>
     );

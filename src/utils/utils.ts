@@ -1,6 +1,6 @@
 import pathToRegexp from 'path-to-regexp';
 import { formatDynamicRoute } from './format';
-import { CheckAuth } from '@/components/Authorized';
+import { CheckAuth, CurrentScope } from '@/components/Authorized';
 
 export * from './format';
 
@@ -29,8 +29,7 @@ export function pathToScope(
   scope: (string | number)[] = [],
 ): (string | number)[] {
   if (!!!route || !!!pathname) return scope;
-  if (Array.isArray(route.scope)) scope = route.scope;
-  if (route.path === pathname) return scope;
+  if (route.path === pathname) return route.scope || scope;
   if (!Array.isArray(route.routes)) return scope;
   return pathToScope(
     route.routes.find(v => v.path && pathToRegexp(`${v.path}(.*)`).test(pathname)),
@@ -163,7 +162,7 @@ export const inheritScope = (route: Route, parentScope: (string | number)[] = []
   };
 };
 
-const filterScopeRouteItem = (route: Route, currentScope: (string | number)[] = []): Route => {
+const filterScopeRouteItem = (route: Route, currentScope: CurrentScope = []): Route => {
   if (!Array.isArray(route.routes)) return { ...route, routes: void 0 };
   const routes = route.routes
     .filter(child => CheckAuth(child.scope, currentScope))
@@ -174,8 +173,5 @@ const filterScopeRouteItem = (route: Route, currentScope: (string | number)[] = 
 
 export const filterScopeRoute = (
   route: Route<string | string[], Array<string | number> | Array<string | number>[]>,
-  currentScope: (string | number)[] = [],
-): Route =>
-  Array.isArray(currentScope)
-    ? filterScopeRouteItem(inheritScope(formatDynamicRoute(route)), currentScope)
-    : inheritScope(formatDynamicRoute(route));
+  currentScope: CurrentScope = [],
+): Route => filterScopeRouteItem(inheritScope(formatDynamicRoute(route)), currentScope);
