@@ -110,7 +110,7 @@ class SimpleForm extends BaseForm<SimpleFormProps> {
   render() {
     const { className, empty, formItems, hideRequiredMark, layout, style } = this.props;
     if (!Array.isArray(formItems) || !formItems.length) {
-      return typeof empty === 'undefined' ? <Empty /> : empty;
+      return empty === void 0 ? <Empty /> : empty;
     }
     return (
       <Form

@@ -132,7 +132,7 @@ export function safeFun<T = any>(fn: Function, defaultReturn?: T, ...args: any[]
   try {
     return fn(...args);
   } catch (err) {
-    return typeof defaultReturn === 'undefined' ? err : defaultReturn;
+    return defaultReturn === void 0 ? err : defaultReturn;
   }
 }
 

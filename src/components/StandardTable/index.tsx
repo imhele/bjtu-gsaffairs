@@ -261,7 +261,7 @@ export default class StandardTable<T = object> extends Component<
     return sandwichArray(
       actions
         .map(item => this.getActionItemProps(item, record, index))
-        .filter(item => typeof item.visible === 'undefined' || item.visible)
+        .filter(item => item.visible === void 0 || item.visible)
         .map(item => this.renderActionItem(item, record, index)),
       Divider,
       1,

@@ -1,7 +1,8 @@
 import debounce from 'debounce';
+import ReactDOM from 'react-dom';
 import styles from './index.less';
-import { strOrReg } from './utils';
 import { Button, Popover } from 'antd';
+import { formatCSSUnit, strOrReg } from './utils';
 import { AbstractTooltipProps } from 'antd/es/tooltip';
 import React, { BaseSyntheticEvent, Component, ComponentClass, ReactNode } from 'react';
 
@@ -11,9 +12,10 @@ export interface NoviceTutorialElementProps<T extends string> extends AbstractTo
   hideOnUIEvent?: boolean;
   id: T;
   space?: {
-    x?: number;
-    y?: number;
+    x?: number | string;
+    y?: number | string;
   };
+  targetPosition?: false | string;
   title?: ReactNode;
   triggerCondition?: {
     className?: string | RegExp;
@@ -55,8 +57,8 @@ export interface NoviceTutorialProps<T extends string, E extends BaseSyntheticEv
     setNTValues: (updateValue: NoviceTutorialValues<T, E>) => void,
   ) => [number, E] | false;
   space?: {
-    x?: number;
-    y?: number;
+    x?: number | string;
+    y?: number | string;
   };
   storage?: Storage;
   title?: ReactNode;
@@ -67,6 +69,8 @@ interface NoviceTutorialState<T extends string, E extends BaseSyntheticEvent> {
 }
 
 const noop = () => null;
+
+export const InvalidTagName = ['input'];
 
 export const NTContext = React.createContext<NoviceTutorialContext<any, any>>({
   methods: {
@@ -94,6 +98,7 @@ const formatNTElementProps = <T extends string>(
     content,
     id,
     space = {},
+    targetPosition,
     triggerCondition,
     ...popoverProps
   }: NoviceTutorialElementProps<T>,
@@ -109,7 +114,7 @@ const formatNTElementProps = <T extends string>(
       </Button>
     </React.Fragment>
   );
-  return { content: wrappedContent, id, popoverProps, space };
+  return { content: wrappedContent, id, popoverProps, space, targetPosition };
 };
 
 export const NoviceTutorialElement = <T extends string>(
@@ -248,36 +253,67 @@ export default class NoviceTutorial<
     return [now, event];
   };
 
-  renderElemnt = (): ReactNode => {
+  renderElemnt = () => {
     const { NTValues } = this.state;
     const { closeText, element, space: defaultSpace, title } = this.props;
     return element
       .filter(ele => NTValues[ele.id])
       .map(ele => formatNTElementProps(ele, closeText, title))
-      .map(({ content, id, popoverProps, space }) => {
-        const { nativeEvent: e = {}, target: t = {} } = NTValues[id][1];
-        const spaceX = (typeof space.x === 'undefined' ? defaultSpace.x : space.x) || 8;
-        const spaceY = (typeof space.y === 'undefined' ? defaultSpace.y : space.y) || 8;
-        let left = (t as HTMLBaseElement).offsetLeft || (e as MouseEvent).clientX;
-        let top = (t as HTMLBaseElement).offsetTop || (e as MouseEvent).clientY;
-        left -= spaceX;
-        top -= spaceY;
-        if (popoverProps.placement) {
-          if (popoverProps.placement.includes('ight'))
-            left += ((t as HTMLBaseElement).offsetWidth || 0) + spaceX * 2;
-          if (popoverProps.placement.includes('ottom'))
-            left += ((t as HTMLBaseElement).offsetHeight || 0) + spaceY * 2;
+      .map(({ content, id, popoverProps, space, targetPosition }) => {
+        let { target } = NTValues[id][1] as { target: HTMLElement };
+        while (!target.tagName || InvalidTagName.includes(target.tagName.toLowerCase())) {
+          if (!target.parentElement) break;
+          target = target.parentElement;
         }
-        return (
+        if (targetPosition !== false)
+          target.style.position = target.style.position || targetPosition || 'relative';
+        let popoverTarget: HTMLDivElement;
+        if (target.children.length)
+          popoverTarget = Array.from(target.children).find(child => {
+            return child.id === `POPOVER-${id}`;
+          }) as HTMLDivElement;
+        if (!popoverTarget) {
+          const spaceX = formatCSSUnit(space.x, defaultSpace.x, 8);
+          const spaceY = formatCSSUnit(space.y, defaultSpace.y, 8);
+          popoverTarget = document.createElement('div');
+          popoverTarget.id = `POPOVER-${id}`;
+          popoverTarget.className = styles.NTPopoverTarget;
+          popoverTarget.style.width = `calc(${target.offsetWidth || '100%'}${spaceX})`;
+          popoverTarget.style.height = `calc(${target.offsetHeight || '100%'}${spaceY})`;
+          target.appendChild(popoverTarget);
+        }
+        return ReactDOM.createPortal(
           <Popover
             {...popoverProps}
             content={content}
             key={id}
             visible={NTValues[id][0] ? true : false}
           >
-            <div className={styles.NTPopoverTarget} key={id} style={{ left, top }} />
-          </Popover>
+            <div className={styles.NTPopoverChild} />
+          </Popover>,
+          popoverTarget,
         );
+        // return;
+        // let left = (t as HTMLBaseElement).offsetLeft || (e as MouseEvent).clientX;
+        // let top = (t as HTMLBaseElement).offsetTop || (e as MouseEvent).clientY;
+        // left -= spaceX;
+        // top -= spaceY;
+        // if (popoverProps.placement) {
+        //   if (popoverProps.placement.includes('ight'))
+        //     left += ((t as HTMLBaseElement).offsetWidth || 0) + spaceX * 2;
+        //   if (popoverProps.placement.includes('ottom'))
+        //     left += ((t as HTMLBaseElement).offsetHeight || 0) + spaceY * 2;
+        // }
+        // return (
+        //   <Popover
+        //     {...popoverProps}
+        //     content={content}
+        //     key={id}
+        //     visible={NTValues[id][0] ? true : false}
+        //   >
+        //     <div className={styles.NTPopoverTarget} key={id} style={{ left, top }} />
+        //   </Popover>
+        // );
       });
   };
 

@@ -154,7 +154,7 @@ const positionList = (req, res) => {
     delete result.selectable;
     delete result.operationArea;
   }
-  setTimeout(() => res.send(result), 400);
+  res.send(result);
 };
 
 /**
@@ -237,9 +237,7 @@ const positionDetail = (req, res) => {
             ],
     },
   };
-  setTimeout(() => {
-    res.send(result);
-  }, 500);
+  res.send(result);
 };
 
 /**
@@ -254,21 +252,19 @@ const positionDelete = (req, res) => {
       errmsg: 'Invalid type of position',
     });
   }
-  setTimeout(() => {
-    const delIndex = source[type].findIndex(row => row.key === key);
-    if (delIndex === -1) {
-      res.send({
-        errcode: 40003,
-        errmsg: 'Delete failed',
-      });
-    } else {
-      source[type].splice(delIndex, 1);
-      res.send({
-        errcode: 0,
-        errmsg: 'Delete successfully',
-      });
-    }
-  }, 400);
+  const delIndex = source[type].findIndex(row => row.key === key);
+  if (delIndex === -1) {
+    res.send({
+      errcode: 40003,
+      errmsg: 'Delete failed',
+    });
+  } else {
+    source[type].splice(delIndex, 1);
+    res.send({
+      errcode: 0,
+      errmsg: 'Delete successfully',
+    });
+  }
 };
 
 /**
@@ -348,7 +344,7 @@ const positionForm = (req, res) => {
       });
     }
   }
-  setTimeout(() => res.send(result), 400);
+  res.send(result);
 };
 
 /**
@@ -381,46 +377,44 @@ const positionCreate = (req, res) => {
   });
   const extraData =
     type === 'manage' ? ['sess', 'name', 'adminName'] : ['sess', 'name', 'classTech'];
-  setTimeout(() => {
-    res.send({
-      errcode: 0,
-      title: '创建成功',
-      description: '你已成功创建一个新岗位，请耐心等待审核结果',
-      extra: {
-        columns: detailColumns.filter(col => extraData.includes(col.dataIndex)),
-        dataSource: {
-          sess: source[type][0].sess,
-          name: source[type][0].name.text,
-          adminName: source[type][0].adminName,
-          classTech: source[type][0].classTech,
-        },
+  res.send({
+    errcode: 0,
+    title: '创建成功',
+    description: '你已成功创建一个新岗位，请耐心等待审核结果',
+    extra: {
+      columns: detailColumns.filter(col => extraData.includes(col.dataIndex)),
+      dataSource: {
+        sess: source[type][0].sess,
+        name: source[type][0].name.text,
+        adminName: source[type][0].adminName,
+        classTech: source[type][0].classTech,
       },
-      stepsProps: {
-        current: 1,
-        steps:
-          type === 'manage'
-            ? [
-                {
-                  description: moment().format('YYYY-MM-DD HH:mm'),
-                  title: '单位申报',
-                },
-                { title: '人事处审核' },
-                { title: '研工部审核' },
-                { title: '发布岗位' },
-              ]
-            : [
-                {
-                  description: moment().format('YYYY-MM-DD HH:mm'),
-                  title: '教师申报',
-                },
-                { title: '用人单位审核' },
-                { title: req.body.classType === '本科' ? '教务处审核' : '研究生院审核' },
-                { title: '研工部审核' },
-                { title: '发布岗位' },
-              ],
-      },
-    });
-  }, 400);
+    },
+    stepsProps: {
+      current: 1,
+      steps:
+        type === 'manage'
+          ? [
+              {
+                description: moment().format('YYYY-MM-DD HH:mm'),
+                title: '单位申报',
+              },
+              { title: '人事处审核' },
+              { title: '研工部审核' },
+              { title: '发布岗位' },
+            ]
+          : [
+              {
+                description: moment().format('YYYY-MM-DD HH:mm'),
+                title: '教师申报',
+              },
+              { title: '用人单位审核' },
+              { title: req.body.classType === '本科' ? '教务处审核' : '研究生院审核' },
+              { title: '研工部审核' },
+              { title: '发布岗位' },
+            ],
+    },
+  });
 };
 
 /**
@@ -454,12 +448,10 @@ const positionEdit = (req, res) => {
     name: { text: req.body.name, type: 'preview' },
     timeRange: req.body.timeRange.join(' ~ '),
   };
-  setTimeout(() => {
-    res.send({
-      errcode: 0,
-      errmsg: '提交成功',
-    });
-  }, 400);
+  res.send({
+    errcode: 0,
+    errmsg: '提交成功',
+  });
 };
 
 /**
@@ -493,12 +485,10 @@ const positionAudit = (req, res) => {
     // tips: `，` => Chinese comma is better
     opinion: (req.body.opinion || ['无']).join('，'),
   };
-  setTimeout(() => {
-    res.send({
-      errcode: 0,
-      errmsg: '审核成功',
-    });
-  }, 400);
+  res.send({
+    errcode: 0,
+    errmsg: '审核成功',
+  });
 };
 
 export default {
