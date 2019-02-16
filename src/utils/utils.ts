@@ -23,18 +23,13 @@ export function UUID(length = 32, join = ''): string {
     .slice(0, length);
 }
 
-export function pathToScope(
-  route: Route,
-  pathname: string,
-  scope: (string | number)[] = [],
-): (string | number)[] {
-  if (!!!route || !!!pathname) return scope;
-  if (route.path === pathname) return route.scope || scope;
-  if (!Array.isArray(route.routes)) return scope;
+export function pathToScope(route: Route, pathname: string): (string | number)[] {
+  if (!!!route || !!!pathname) return ['DENY'];
+  if (route.path === pathname) return route.scope;
+  if (!Array.isArray(route.routes)) return ['DENY'];
   return pathToScope(
     route.routes.find(v => v.path && pathToRegexp(`${v.path}(.*)`).test(pathname)),
     pathname,
-    scope,
   );
   /**
    * redirect path will not appear in props.route of Component in Routes[].

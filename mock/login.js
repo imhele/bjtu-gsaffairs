@@ -60,7 +60,6 @@ const scope = (req, res) => {
     case 'admin':
       result.userName = 'Admin';
       result.scope.include = ['scope.admin'];
-      result.scope.exclude = ['scope.position.manage.list']
       break;
     case 'teacher':
       result.userName = 'Teacher';
