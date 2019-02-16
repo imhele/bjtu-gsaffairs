@@ -1,5 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 from .auth import *
 from .common import *
 from .middleware import *
-from .util import *

@@ -8,6 +8,7 @@ verify_ssl = true
 [packages]
 pymysql = "*"
 uwsgi = ">2.0"
+xmltodict = "*"
 
 [requires]
 python_version = "3"

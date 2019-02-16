@@ -1,7 +1,2 @@
-# -*- coding: utf8 -*-
-from .auth import *
-from .database import *
-from .response import *
-
-
-CODING = 'utf8'
+# -*- coding: utf-8 -*-
+CODING = 'utf-8'

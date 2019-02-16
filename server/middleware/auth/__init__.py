@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 """
 ActAuth Beta
 """
@@ -7,9 +7,6 @@ from ..middleware import Response
 
 
 class TokenAuth(MiddleWare):
-    def __init__(self, *arg):
-        pass
-
     def request(self, req):
         return req
 
