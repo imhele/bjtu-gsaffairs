@@ -1,5 +1,4 @@
 import { APIPrefix } from '@/global';
-import { stringify } from 'querystring';
 import requests, { RequestBody } from '@/utils/requests';
 import { CellAction, PositionType, TopbarAction } from '@/pages/Position/consts';
 
@@ -19,7 +18,7 @@ export interface FetchListPayload {
 }
 
 export async function fetchList(payload: FetchListPayload) {
-  return requests<FetchListBody>(`${APIPrefix}/position/list?${stringify(payload.query)}`, {
+  return requests<FetchListBody>(`${APIPrefix}/position/${payload.query.type}/list`, {
     body: payload.body,
     method: 'POST',
   });
@@ -35,7 +34,7 @@ export interface FetchDetailPayload {
 }
 
 export async function fetchDetail(payload: FetchDetailPayload) {
-  return requests<FetchDetailBody>(`${APIPrefix}/position/detail?${stringify(payload.query)}`, {
+  return requests<FetchDetailBody>(`${APIPrefix}/position/${payload.query.type}/detail`, {
     body: payload.body,
     method: 'POST',
   });
@@ -51,7 +50,7 @@ export interface DeletePositionPayload {
 }
 
 export async function deletePosition(payload: DeletePositionPayload) {
-  return requests<DeletePositionBody>(`${APIPrefix}/position/delete?${stringify(payload.query)}`, {
+  return requests<DeletePositionBody>(`${APIPrefix}/position/${payload.query.type}/delete`, {
     body: payload.body,
     method: 'POST',
   });
@@ -68,7 +67,7 @@ export interface FetchFormPayload {
 }
 
 export async function fetchForm(payload: FetchFormPayload) {
-  return requests<FetchFormBody>(`${APIPrefix}/position/form?${stringify(payload.query)}`, {
+  return requests<FetchFormBody>(`${APIPrefix}/position/${payload.query.type}/form`, {
     body: payload.body,
     method: 'POST',
   });
@@ -84,7 +83,7 @@ export interface CreatePositionPayload {
 }
 
 export async function createPosition(payload: CreatePositionPayload) {
-  return requests<CreatePositionBody>(`${APIPrefix}/position/create?${stringify(payload.query)}`, {
+  return requests<CreatePositionBody>(`${APIPrefix}/position/${payload.query.type}/create`, {
     body: payload.body,
     method: 'POST',
   });
@@ -101,7 +100,7 @@ export interface EditPositionPayload {
 }
 
 export async function editPosition(payload: EditPositionPayload) {
-  return requests<EditPositionBody>(`${APIPrefix}/position/edit?${stringify(payload.query)}`, {
+  return requests<EditPositionBody>(`${APIPrefix}/position/${payload.query.type}/edit`, {
     body: payload.body,
     method: 'POST',
   });
@@ -118,7 +117,7 @@ export interface AuditPositionPayload {
 }
 
 export async function auditPosition(payload: AuditPositionPayload) {
-  return requests<AuditPositionBody>(`${APIPrefix}/position/audit?${stringify(payload.query)}`, {
+  return requests<AuditPositionBody>(`${APIPrefix}/position/${payload.query.type}/audit`, {
     body: payload.body,
     method: 'POST',
   });

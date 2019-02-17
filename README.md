@@ -20,6 +20,8 @@ Postgraduate Assistant Post Management System.
 - [TypeScript](https://github.com/Microsoft/TypeScript)
 - [React Hooks](https://reactjs.org/docs/hooks-intro.html)
 - [Less](https://github.com/less/less.js)
+- [Python](https://www.python.org/)
+- [uWSGI](https://github.com/unbit/uwsgi)
 
 
 ## Usage

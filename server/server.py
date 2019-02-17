@@ -29,9 +29,3 @@ def application(env, start_resp):
         pre_product = Response(error_body, {'Content-type': 'text/html'}, 500)
     start_resp(pre_product.status, pre_product.headers.list())
     return [pre_product.body]
-
-
-if __name__ == '__main__':
-    from middleware import Request
-    
-    print(Request({'TODO': 'test'}).json())

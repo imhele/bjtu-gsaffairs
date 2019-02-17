@@ -101,8 +101,7 @@ const operationArea = {
   ],
 };
 
-const positionList = (req, res) => {
-  const { type } = req.query;
+const positionList = (req, res, type) => {
   const { filtersValue = {}, limit = 10, offset = 0 } = req.body || {};
   if (!['manage', 'teach'].includes(type)) {
     return res.send({
@@ -160,8 +159,7 @@ const positionList = (req, res) => {
 /**
  * Part of `position/detail`
  */
-const positionDetail = (req, res) => {
-  const { type } = req.query;
+const positionDetail = (req, res, type) => {
   const { key = '' } = req.body || {};
   if (!['manage', 'teach'].includes(type)) {
     return res.send({
@@ -243,8 +241,7 @@ const positionDetail = (req, res) => {
 /**
  * Part of `position/delete`
  */
-const positionDelete = (req, res) => {
-  const { type } = req.query;
+const positionDelete = (req, res, type) => {
   const { key = '' } = req.body || {};
   if (!['manage', 'teach'].includes(type)) {
     return res.send({
@@ -270,8 +267,7 @@ const positionDelete = (req, res) => {
 /**
  * Part of `position/form`
  */
-const positionForm = (req, res) => {
-  const { type } = req.query;
+const positionForm = (req, res, type) => {
   const { action, key = '' } = req.body || {};
   if (!['manage', 'teach'].includes(type)) {
     return res.send({
@@ -350,8 +346,7 @@ const positionForm = (req, res) => {
 /**
  * Part of `position/create`
  */
-const positionCreate = (req, res) => {
-  const { type } = req.query;
+const positionCreate = (req, res, type) => {
   if (!['manage', 'teach'].includes(type)) {
     return res.send({
       errcode: 40001,
@@ -420,8 +415,7 @@ const positionCreate = (req, res) => {
 /**
  * Part of `position/edit`
  */
-const positionEdit = (req, res) => {
-  const { type } = req.query;
+const positionEdit = (req, res, type) => {
   const { key = '' } = req.body || {};
   if (!['manage', 'teach'].includes(type)) {
     return res.send({
@@ -457,8 +451,7 @@ const positionEdit = (req, res) => {
 /**
  * Part of `position/audit`
  */
-const positionAudit = (req, res) => {
-  const { type } = req.query;
+const positionAudit = (req, res, type) => {
   const { key = '' } = req.body || {};
   if (!['manage', 'teach'].includes(type)) {
     return res.send({
@@ -492,11 +485,18 @@ const positionAudit = (req, res) => {
 };
 
 export default {
-  [`POST ${APIPrefix}/position/list`]: positionList,
-  [`POST ${APIPrefix}/position/detail`]: positionDetail,
-  [`POST ${APIPrefix}/position/delete`]: positionDelete,
-  [`POST ${APIPrefix}/position/form`]: positionForm,
-  [`POST ${APIPrefix}/position/create`]: positionCreate,
-  [`POST ${APIPrefix}/position/edit`]: positionEdit,
-  [`POST ${APIPrefix}/position/audit`]: positionAudit,
+  [`POST ${APIPrefix}/position/manage/list`]: (req, res) => positionList(req, res, 'manage'),
+  [`POST ${APIPrefix}/position/teach/list`]: (req, res) => positionList(req, res, 'teach'),
+  [`POST ${APIPrefix}/position/manage/detail`]: (req, res) => positionDetail(req, res, 'manage'),
+  [`POST ${APIPrefix}/position/teach/detail`]: (req, res) => positionDetail(req, res, 'teach'),
+  [`POST ${APIPrefix}/position/manage/delete`]: (req, res) => positionDelete(req, res, 'manage'),
+  [`POST ${APIPrefix}/position/teach/delete`]: (req, res) => positionDelete(req, res, 'teach'),
+  [`POST ${APIPrefix}/position/manage/form`]: (req, res) => positionForm(req, res, 'manage'),
+  [`POST ${APIPrefix}/position/teach/form`]: (req, res) => positionForm(req, res, 'teach'),
+  [`POST ${APIPrefix}/position/manage/create`]: (req, res) => positionCreate(req, res, 'manage'),
+  [`POST ${APIPrefix}/position/teach/create`]: (req, res) => positionCreate(req, res, 'teach'),
+  [`POST ${APIPrefix}/position/manage/edit`]: (req, res) => positionEdit(req, res, 'manage'),
+  [`POST ${APIPrefix}/position/teach/edit`]: (req, res) => positionEdit(req, res, 'teach'),
+  [`POST ${APIPrefix}/position/manage/audit`]: (req, res) => positionAudit(req, res, 'manage'),
+  [`POST ${APIPrefix}/position/teach/audit`]: (req, res) => positionAudit(req, res, 'teach'),
 };
