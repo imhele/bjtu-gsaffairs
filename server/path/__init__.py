@@ -1,11 +1,25 @@
 # -*- coding: utf-8 -*-
-from .path import HTTPMethod
+from .path import BasicPath, HTTPMethod
+from .exceptions import PathMatchError
 from middleware import Request, Response
 
 
-def main(req):
+class Root(BasicPath):
+    path = '/'
+    name = 'RootPath'
+    children = None
+
+
+def main(request) -> Response:
     """
-    :param Request req:
+    :param Request request:
     :return:
     """
-    return Response('hello', status=200)
+    match, path_handler = Root().match(request)
+    if match is None:
+        raise PathMatchError()
+    # noinspection PyBroadException
+    try:
+        return path_handler.main(request, match)
+    except BaseException:
+        return path_handler.catch(request, match)

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+from .http import HTTPError
 
 
-class HeaderError(Exception):
+class HeaderError(HTTPError):
     def __init__(self, source=(), detail=''):
         """
         :param tuple[str] source: Error source
@@ -14,7 +15,7 @@ class HeaderError(Exception):
         return '\nSource:{}\n\nDetail:{}\n'.format(' '.join(self.source), self.detail)
 
 
-class HeaderValueError(HeaderError):
+class HeaderValueError(HeaderError, TypeError):
     def __int__(self, source='', detail=''):
         """
         :param tuple[str] source: Error source

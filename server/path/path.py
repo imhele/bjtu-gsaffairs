@@ -32,17 +32,26 @@ class BasicPath(object):
     """
     path: str = ''
     name: str = ''
-    method: str or list or None = ''
+    method: str or list or None = None
     children: list or None = ()
     __path_pattern = None
     
-    def __init__(self):
-        self.__path_pattern = re.compile(self.path)
+    def __init__(self, path=None, name=None, method=None, children=()):
+        """
+        :param str path:
+        :param str name:
+        :param str or list[str] method: one of HTTP methods
+        :param list[BasicPath] children:
+        """
+        self.path = path or self.path
+        self.name = name or self.name
+        self.method = method or self.method
+        self.children = children or self.children
     
     def __setattr__(self, key, value):
         if key == 'path':
-            self.__path_pattern = re.compile(value)
-        setattr(self, key, value)
+            self.__dict__['__path_pattern'] = re.compile(value)
+        self.__dict__[key] = value
     
     def match(self, request):
         """
@@ -81,7 +90,7 @@ class BasicPath(object):
         body = '{} {} {}'.format(request.method, request.path, self.name)
         return Response(body)
     
-    def catch(self, request) -> Response:
+    def catch(self, request, match) -> Response:
         error_body = '<h1>Server Error</h1>' \
                      '<h2>{}</h2>' \
                      '<h2>path: {}</h2>'.format(self.name, request.path)
