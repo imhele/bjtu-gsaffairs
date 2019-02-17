@@ -21,7 +21,9 @@ def application(env, start_resp):
             pre_product = middleware.response(pre_product)
     except BaseException:
         if DEBUG:
-            style = 'font-size: 14px;line-height: 1.5;font-family: Source Code Pro;'
+            style = 'font-size: 14px;' \
+                    'line-height: 1.5;' \
+                    'font-family: Source Code Pro;'
             message = traceback.format_exc().replace('\n', '<br/>').replace(' ', '&nbsp;')
             error_body = '<div style="{}">{}</div>'.format(style, message)
         else:

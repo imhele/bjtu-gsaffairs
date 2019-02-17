@@ -6,7 +6,7 @@ from ..utils import Format
 
 
 class Response(object):
-    def __init__(self, body=None, headers=None, status=None):
+    def __init__(self, body='', headers=None, status='200'):
         """
         :param str or bytes or dict body:
         :param Headers or dict headers:
@@ -20,11 +20,13 @@ class Response(object):
             self.headers = Headers(headers)
         if isinstance(body, str):
             self.body = body.encode(response.ENCODE)
+        elif isinstance(body, bytes):
+            self.body = body
         elif isinstance(body, dict):
-            if response.DICT_FORMAT.upper() == 'XML':
-                self.body = Format.xml(self.body, response.DICT_FORMAT_SORT)
-            else:
-                self.body = Format.json(self.body, response.DICT_FORMAT_SORT)
+            body = getattr(Format, response.DICT_FORMAT.lower())(self.body, response.DICT_FORMAT_SORT)
+            self.body = body.encode(response.ENCODE)
+        else:
+            raise ResponseValueError(('Response.body',), self.__init__.__doc__)
         if isinstance(status, int):
             self.status = str(status)
         elif isinstance(status, str):
