@@ -4,3 +4,5 @@ from middleware import TokenAuth, Common
 DEBUG = True
 
 MIDDLEWARE = (Common, TokenAuth)
+
+PATH_PREFIX = '/api'

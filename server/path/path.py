@@ -90,11 +90,18 @@ class BasicPath(object):
         body = '{} {} {}'.format(request.method, request.path, self.name)
         return Response(body)
     
-    def catch(self, request, match) -> Response:
+    def catch(self, request, match, exception) -> Response:
+        """
+        :param Request request:
+        :param re.Match match:
+        :param BaseException exception:
+        :return:
+        """
         error_body = '<h1>Server Error</h1>' \
                      '<h2>{}</h2>' \
                      '<h2>path: {}</h2>'.format(self.name, request.path)
         if DEBUG:
+            error_body += '<h2>match: {}</h2>'.format(match.groups())
             style = 'font-size: 14px;' \
                     'line-height: 1.5;' \
                     'font-family: Source Code Pro;'

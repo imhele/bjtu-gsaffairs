@@ -11,4 +11,4 @@ uwsgi = ">2.0"
 xmltodict = "*"
 
 [requires]
-python_version = "3"
+python_version = "3.7"

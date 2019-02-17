@@ -53,13 +53,6 @@ export const FormEventStore: {
   onValuesChange: [],
 };
 
-export interface Field<T = string> {
-  dirty?: boolean;
-  name?: string;
-  touched?: boolean;
-  value?: T;
-}
-
 export interface BaseFormProps<P> extends FormComponentProps {
   className?: string;
   colProps?: ColProps;
