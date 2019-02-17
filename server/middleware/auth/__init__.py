@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-ActAuth Beta
-"""
 from ..common import MiddleWare
 from ..middleware import Response
 
