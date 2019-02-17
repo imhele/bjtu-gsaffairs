@@ -49,7 +49,7 @@ const scope = (req, res) => {
       include: [],
       exclude: [],
     },
-    userName: 'User',
+    username: 'User',
   };
   if (!['admin', 'teacher', 'department'].includes(Authorization))
     return res.send({
@@ -58,11 +58,11 @@ const scope = (req, res) => {
     });
   switch (Authorization) {
     case 'admin':
-      result.userName = 'Admin';
+      result.username = 'Admin';
       result.scope.include = ['scope.admin'];
       break;
     case 'teacher':
-      result.userName = 'Teacher';
+      result.username = 'Teacher';
       result.scope.include = [
         'scope.position.manage.list',
         'scope.position.manage.create',
@@ -73,7 +73,7 @@ const scope = (req, res) => {
       ];
       break;
     case 'department':
-      result.userName = 'Department';
+      result.username = 'Department';
       result.scope.include = [
         'scope.position.manage.list',
         'scope.position.manage.create',

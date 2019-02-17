@@ -12,7 +12,7 @@ export interface LoginState {
     exclude?: Array<string | number>;
   };
   status?: boolean;
-  userName?: string;
+  username?: string;
 }
 
 const defaultState: LoginState = {
@@ -23,7 +23,7 @@ const defaultState: LoginState = {
     exclude: [],
   },
   status: false,
-  userName: 'NULL',
+  username: 'NULL',
 };
 
 export interface LoginModel extends Model {

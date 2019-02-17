@@ -26,13 +26,13 @@ class StoreType(object):
     OSS = 'OSS'
     OTS = 'OTS'
     MYSQL = 'MYSQL'
-
+    
     __values__ = [
         OSS,
         OTS,
         MYSQL,
     ]
-
+    
     __members__ = [
         'StoreType.OSS',
         'StoreType.OTS',
@@ -61,7 +61,7 @@ class ComparatorType(object):
         '<': 'LESS_THAN',
         '<=': 'LESS_EQUAL',
     }
-
+    
     def __init__(self, comparator_type):
         """
         :param str comparator_type: '=' / '!=' / '>' / '>=' / '<' / '<='
@@ -77,7 +77,7 @@ class StoreData(object):
     """
     :param list or tuple or dict or None data: Eg: [(key, value), (key, value, version)]
     """
-
+    
     def __init__(self, data=None):
         """
         :param list or tuple or dict or None data: Eg: [(key, value), (key, value, version)]
@@ -87,7 +87,7 @@ class StoreData(object):
         self.version = dict()
         if data is not None:
             self.update(data)
-
+    
     def update(self, data):
         """
         :param list or tuple or dict data: Eg: [(key, value), (key, value, version)]
@@ -134,7 +134,7 @@ class MySQL(Database):
             'port': self.port,
             'cursorclass': pymysql.cursors.DictCursor,
         }
-
+    
     def execute(self, sql, *args, **kwargs):
         """
         :param str sql: Eg: 'select COLUMN from TABLE where KEY="{}"'
@@ -154,7 +154,7 @@ class MySQL(Database):
         finally:
             connect.close()
         return list(cur.fetchmany(results))
-
+    
     def select(self, index, column=None, where=None, logical_operator=None, table_name=None):
         """
         :param list or tuple index: Primary key. Eg: [('ActID', 'abc')]
@@ -187,7 +187,7 @@ class MySQL(Database):
         sql = 'SELECT {0} FROM {1} WHERE {2}'.format(','.join(column), table_name, where_str)
         # ((execute() => []) or [None])[0] => None
         return StoreData((self.execute(sql, *param) or [None])[0])
-
+    
     def insert(self, index, column=None, table_name=None):
         """
         :param list or tuple index: Primary key. Eg: [('ActID', 'abc')]
@@ -204,7 +204,7 @@ class MySQL(Database):
             lambda i: '{}={{}}'.format(i[0])
             if isinstance(i[1], int) else '{}="{{}}"'.format(i[0]), [*index, *column])))
         self.execute('INSERT INTO {0} SET {1}'.format(table_name, key_str), *param)
-
+    
     def update(self, index, column, where=None, logical_operator=None, table_name=None):
         """
         :param list or tuple index: Primary key. Eg: [('ActID', 'abc')]
