@@ -21,3 +21,7 @@
 # python
 __pycache__
 env
+
+# editor
+/server/.idea/dictionaries
+/server/.idea/workspace.xml
