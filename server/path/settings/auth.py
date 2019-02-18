@@ -1,5 +1,0 @@
-# -*- coding: utf-8 -*-
-AUTHORIZE_HEADER = 'AUTHORIZATION'
-EXPIRES_IN = 7200
-SIGN_METHOD = 'hmac_sha256_hex'
-TOKEN_SPLIT_CHAR = ' '

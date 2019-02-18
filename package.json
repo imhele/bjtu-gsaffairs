@@ -54,11 +54,15 @@
     "umi-serve": "^1.0.0"
   },
   "lint-staged": {
-    "*.{js,jsx}": [
+    "{config,mock}/**/*.{js,jsx}": [
       "eslint --fix",
       "git add"
     ],
-    "*.{ts,tsx}": [
+    "src/**/*.{ts,tsx}": [
+      "tslint --fix",
+      "git add"
+    ],
+    "serve/{app,config,middleware}/**/*.{ts,tsx}": [
       "tslint --fix",
       "git add"
     ]
