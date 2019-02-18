@@ -1,6 +1,7 @@
 import React from 'react';
-import { Modal, Switch } from 'antd';
+import { Checkbox, Modal } from 'antd';
 import { ModalFuncProps } from 'antd/es/modal';
+import { CheckboxChangeEvent } from 'antd/es/checkbox';
 
 type MemorableModalFuncType = 'confirm' | 'error' | 'info' | 'success' | 'warn';
 
@@ -38,16 +39,13 @@ const noop = () => {};
 
 let storage = sessionStorage;
 
-const selected: { [key: string]: boolean } = {};
+const checked: { [key: string]: boolean } = {};
 
 let locale = (e: number, u: TimeUnit): React.ReactNode =>
   `No more reminders within ${e} ${u}${e === 1 ? '' : 's'}`;
 
-const onChangeSelect = (checked: boolean, event: any) => {
-  const { id = null } = event.currentTarget.dataset || {};
-  if (!id) return;
-  selected[id] = checked;
-};
+const onChangeCheckbox = ({ target }: CheckboxChangeEvent) =>
+  target.value && (checked[target.value] = target.checked);
 
 const tranformTime = (pre: number, unit: TimeUnit): number => {
   switch (unit) {
@@ -87,28 +85,27 @@ const Memorable = (
       onOk!(payload);
       return { destroy: null, update: null };
     }
-    selected[formattedId] = defaultEnable || !!preExpiryTime || !optional;
+    checked[formattedId] = defaultEnable || !!preExpiryTime || !optional;
     return Modal[type]({
       ...modalProps,
       content: optional ? (
         <React.Fragment>
           {content}
           <div>
-            <Switch
-              data-id={formattedId}
-              defaultChecked={selected[formattedId]}
-              onChange={onChangeSelect}
-              size="small"
-              style={{ marginRight: 8 }}
-            />
-            {formatText(expiresIn, timeUnit)}
+            <Checkbox
+              defaultChecked={checked[formattedId]}
+              onChange={onChangeCheckbox}
+              value={formattedId}
+            >
+              {formatText(expiresIn, timeUnit)}
+            </Checkbox>
           </div>
         </React.Fragment>
       ) : (
         content
       ),
       onOk: (...args: any[]) => {
-        if (selected[formattedId]) {
+        if (checked[formattedId]) {
           const nextExpiryTime = expiresIn
             ? (now + tranformTime(expiresIn, timeUnit)).toString()
             : '9';

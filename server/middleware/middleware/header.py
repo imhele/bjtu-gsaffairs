@@ -33,6 +33,13 @@ class Headers(object):
         return iter(self.headers.items())
     
     def __setitem__(self, key, value):
+        """
+        :param str key:
+        :param str value:
+        :return:
+        """
+        if not isinstance(value, str):
+            raise HeaderValueError(('Header.add()',), self.add.__doc__)
         key = NamingCase.header_case_str(key)
         self.headers[key] = value
     
@@ -45,6 +52,9 @@ class Headers(object):
         if key in self.headers:
             del self.headers[key]
     
+    def get(self, key):
+        return self[key]
+    
     def add(self, headers, value=None):
         """
         The key of headers are allowed to be upper case, such as 'CONTENT-TYPE',
@@ -53,7 +63,7 @@ class Headers(object):
         :param dict or tuple or list headers: eg: {'Content-Type': 'text/xml'} or [('Content-Type', 'text/xml'), ...]
         :param str value: eg: .add('Content-Type', 'text/xml')
         """
-        if isinstance(headers, str):
+        if isinstance(headers, str) and isinstance(value, str):
             self.headers.update(({NamingCase.header_case_str(headers): value}))
         else:
             try:

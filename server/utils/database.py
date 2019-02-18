@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Fragment of pyAct
+Fragment of pyAct, both MySQL and TableStore are supported with the same API.
 GitHub: https://github.com/act-auth/pyAct
 """
 import pymysql
-import settings
 from middleware.utils import Format
 
 
@@ -84,37 +83,33 @@ class StoreData(object):
         """
         self.dict = dict()
         self.list = list()
-        self.version = dict()
+        # self.version = dict()
         if data is not None:
             self.update(data)
     
     def update(self, data):
         """
-        :param list or tuple or dict data: Eg: [(key, value), (key, value, version)]
+        :param list or tuple or dict data: Eg: [(key, value)]
         """
         if isinstance(data, dict):
-            self.list = self.list + data.items()
-            return self.dict.update(data)
-        if not isinstance(data, (list, tuple)):
-            raise ValueError('class StoreData: ' + str(self.__doc__))
-        self.list = self.list + list(data)
-        for item in data:
-            self.dict[item[0]] = item[1]
-            if item[0] not in self.version:
-                self.version[item[0]] = list()
-            self.version[item[0]] += [(item[1], 0 if len(item) < 3 else item[2])]
-        return self
+            self.list = [*self.list, *data.items()]
+            self.dict.update(data)
+            return self
+        if isinstance(data, list or tuple):
+            self.list = [*self.list, *data]
+            self.dict.update(data)
+            return self
+        raise ValueError('class StoreData: ' + str(self.__doc__))
 
 
 class MySQL(Database):
-    def __init__(self, user, password, charset=settings.MYSQL_CHARSET, db=None,
-                 host=settings.MYSQL_HOST, port=settings.MYSQL_PORT, table_name=None):
+    def __init__(self, host=None, user=None, password='', db=None, charset='', port=0, table_name=None):
         """
+        :param str host: Host. Default localhost
         :param str user: User name of mysql server
         :param str password: Password of current user
-        :param str charset: Charset
         :param str db: Name of database
-        :param str host: Host. Default localhost
+        :param str charset: Charset
         :param int port: Port. Default 3306
         :param str table_name: Default table name
         """
@@ -155,12 +150,12 @@ class MySQL(Database):
             connect.close()
         return list(cur.fetchmany(results))
     
-    def select(self, index, column=None, where=None, logical_operator=None, table_name=None):
+    def select(self, index=None, column=None, where=None, logical_operator=None, table_name=None):
         """
         :param list or tuple index: Primary key. Eg: [('ActID', 'abc')]
         :param list or tuple column: Column name. Eg: ['ActiveParty', 'PassiveParty']
         :param list or tuple where: Filter. Eg: [('StartTime', ComparatorType('>='), 0)]
-        :param LogicalOperator logical_operator: LogicalOperator('AND')
+        :param LogicalOperator or str logical_operator: LogicalOperator('AND')
         :param str table_name: Table name
         :return:
 
@@ -168,12 +163,16 @@ class MySQL(Database):
         """
         if column is None:
             column = ['*']
+        if index is None:
+            index = [('0', 0)]
         if where is None:
             where = [('0', ComparatorType('='), 0)]
         if table_name is None:
             table_name = self.table_name
         if not isinstance(where[0][1], ComparatorType):
             raise ValueError('class ComparatorType: ' + str(ComparatorType.__doc__))
+        if isinstance(logical_operator, LogicalOperator):
+            logical_operator = logical_operator.MYSQL
         param = map(lambda i: i[-1], (*index, *where))
         index = tuple(map(
             lambda i: '{}={{}}'.format(i[0])
@@ -182,9 +181,8 @@ class MySQL(Database):
             lambda i: '{0}{1}{{}}'.format(i[0], i[1].MYSQL)
             if isinstance(i[2], int) else '{0}{1}"{{}}"'.format(i[0], i[1].MYSQL), where))
         # [('PassiveParty', '=', 'ABC'), ('StartTime', '>=', 0)] => ['PassiveParty="{}"', 'StartTime>={}']
-        index += ((' {} '.format(logical_operator.MYSQL)).join(where),)
-        where_str = (' {} '.format(LogicalOperator('AND').MYSQL)).join(index)
-        sql = 'SELECT {0} FROM {1} WHERE {2}'.format(','.join(column), table_name, where_str)
+        where_str = (' {} '.format('AND')).join(index + ((' {} '.format(logical_operator)).join(where),))
+        sql = 'SELECT {0} FROM {1} WHERE {2} LIMIT 1'.format(','.join(column), table_name, where_str)
         # ((execute() => []) or [None])[0] => None
         return StoreData((self.execute(sql, *param) or [None])[0])
     
@@ -205,21 +203,27 @@ class MySQL(Database):
             if isinstance(i[1], int) else '{}="{{}}"'.format(i[0]), [*index, *column])))
         self.execute('INSERT INTO {0} SET {1}'.format(table_name, key_str), *param)
     
-    def update(self, index, column, where=None, logical_operator=None, table_name=None):
+    def update(self, index=None, column=None, where=None, logical_operator=None, table_name=None):
         """
         :param list or tuple index: Primary key. Eg: [('ActID', 'abc')]
         :param list or tuple column: Attribute column. Eg: [('ActiveParty', 'abc')]
         :param list or tuple where: Filter. Eg: [('StartTime', ComparatorType('>='), 0)]
-        :param LogicalOperator logical_operator: LogicalOperator('AND')
+        :param LogicalOperator or str logical_operator: LogicalOperator('AND')
         :param str table_name: Table name
         :return:
         """
+        if column is None:
+            column = []
+        if index is None:
+            index = [('0', 0)]
         if where is None:
             where = (('0', ComparatorType('='), 0),)
         if table_name is None:
             table_name = self.table_name
         if not isinstance(where[0][1], ComparatorType):
             raise ValueError('class ComparatorType: ' + str(ComparatorType.__doc__))
+        if isinstance(logical_operator, LogicalOperator):
+            logical_operator = logical_operator.MYSQL
         param = tuple(map(lambda i: i[1], column))
         param += tuple(map(lambda i: i[-1], (*index, *where)))
         column = tuple(map(
@@ -231,6 +235,38 @@ class MySQL(Database):
         where = tuple(map(
             lambda i: '{0}{1}{{}}'.format(i[0], i[1].MYSQL)
             if isinstance(i[2], int) else '{0}{1}"{{}}"'.format(i[0], i[1].MYSQL), where))
-        index += ((' {} '.format(logical_operator.MYSQL)).join(where),)
-        where_str = (' {} '.format(LogicalOperator('AND').MYSQL)).join(index)
+        where_str = (' {} '.format('AND')).join(index + ((' {} '.format(logical_operator)).join(where),))
         self.execute('UPDATE {0} SET {1} WHERE {2}'.format(table_name, ','.join(column), where_str), *param)
+    
+    def select_range(self, column=None, where=None, offset=0, limit=-1, logical_operator=None, table_name=None):
+        """
+        :param list or tuple column: Column name. Eg: ['ActiveParty', 'PassiveParty']
+        :param list or tuple where: Filter. Eg: [('StartTime', ComparatorType('>='), 0)]
+        :param int offset: Offset of result
+        :param int limit: Limit of result
+        :param LogicalOperator or str logical_operator: LogicalOperator('AND')
+        :param str table_name: Table name
+        :return:
+
+        `[*list, *tuple]` instead of `list + tuple`
+        """
+        if column is None:
+            column = ['*']
+        if where is None:
+            where = [('0', ComparatorType('='), 0)]
+        if table_name is None:
+            table_name = self.table_name
+        if not isinstance(where[0][1], ComparatorType):
+            raise ValueError('class ComparatorType: ' + str(ComparatorType.__doc__))
+        if isinstance(logical_operator, LogicalOperator):
+            logical_operator = logical_operator.MYSQL
+        column = ','.join(column)
+        param = map(lambda i: i[-1], where)
+        where = tuple(map(
+            lambda i: '{0}{1}{{}}'.format(i[0], i[1].MYSQL)
+            if isinstance(i[2], int) else '{0}{1}"{{}}"'.format(i[0], i[1].MYSQL), where))
+        # [('PassiveParty', '=', 'ABC'), ('StartTime', '>=', 0)] => ['PassiveParty="{}"', 'StartTime>={}']
+        where_str = (' {} '.format(logical_operator)).join(where)
+        sql = 'SELECT {0} FROM {1} WHERE {2} LIMIT {3},{4}'.format(column, table_name, where_str, offset, limit)
+        # ((execute() => []) or [None])[0] => None
+        return list(map(lambda row: StoreData(row), self.execute(sql, *param)))

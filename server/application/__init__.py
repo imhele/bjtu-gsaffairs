@@ -1,30 +1,31 @@
-import settings
-from path import BasicPath, PathMatchError
-from middleware import Request, Response
+# -*- coding: utf-8 -*-
+from .root import root
+from middleware import Request
+from path import PathMatchError
 
 
-class Root(BasicPath):
-    path = getattr(settings, 'PATH_PREFIX', '(?:/)?')
-    name = 'RootPath'
-    children = None
-
-
-root = Root()
-
-
-def entry(request) -> Response:
+def entry(request):
     """
     :param Request request:
     :return:
     """
-    match, path_handler = root.match(request)
+    match, path = root.match(request)
     if match is None:
         raise PathMatchError()
-    catch = getattr(path_handler, 'catch')
+    if isinstance(path.before_main, list):
+        for fn in path.before_main:
+            fn(request, match)
+    catch = getattr(path, 'catch')
     if catch is None:
-        return path_handler.main(request, match)
-    # noinspection PyBroadException
-    try:
-        return path_handler.main(request, match)
-    except BaseException:
-        return path_handler.catch(request, match)
+        response = path.main(request, match)
+    else:
+        # noinspection PyBroadException
+        try:
+            response = path.main(request, match)
+        except BaseException:
+            response = path.catch(request, match)
+    if isinstance(path.after_main, list):
+        for fn in path.after_main:
+            fn(request, match, response)
+    return response
+

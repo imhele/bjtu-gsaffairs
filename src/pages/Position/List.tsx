@@ -214,7 +214,7 @@ class List extends Component<ListProps, ListState> {
       position: { total },
     } = this.props;
     return {
-      current: parseInt((this.offset / this.limit + 1).toFixed(0), 10),
+      current: Math.floor(this.offset / this.limit),
       onChange: this.onChangePage,
       onShowSizeChange: this.onShowSizeChange,
       pageSize: this.limit,

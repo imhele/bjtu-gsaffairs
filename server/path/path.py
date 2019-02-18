@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import re
-import traceback
-from .settings import DEBUG
 from middleware import Request, Response
 
 
@@ -11,12 +9,20 @@ class BasicPath(object):
     :param str name:
     :param str or list[str] method: one of HTTP methods
     :param list[BasicPath] children:
+    :param list[function] before_match:
+    :param list[function] after_match:
+    :param list[function] before_main:
+    :param list[function] after_main:
     """
-    path: str = ''
-    name: str = ''
-    method: str or list or None = None
-    children: list or None = ()
+    path = ''
+    name = ''
+    method = None
+    children = []
     __path_pattern = None
+    before_match = []
+    after_match = []
+    before_main = []
+    after_main = []
     
     def __init__(self, path=None, name=None, method=None, children=()):
         """
@@ -35,7 +41,7 @@ class BasicPath(object):
             self.__dict__['__path_pattern'] = re.compile(value)
         self.__dict__[key] = value
     
-    def match(self, request):
+    def __match(self, request):
         """
         :param Request request:
         :return:
@@ -63,6 +69,21 @@ class BasicPath(object):
                 return match_in_child, path_in_child
         return match, self
     
+    def match(self, request, parent_path=None):
+        """
+        :param Request request:
+        :param BasicPath parent_path:
+        :return:
+        """
+        if isinstance(self.before_match, list):
+            for fn in self.before_match:
+                fn(request, parent_path)
+        match, path = self.__match(request)
+        if isinstance(self.after_match, list):
+            for fn in self.after_match:
+                fn(request, parent_path, match, path)
+        return match, path
+    
     def main(self, request, match) -> Response:
         """
         :param Request request:
@@ -73,7 +94,6 @@ class BasicPath(object):
         return Response(body)
     
     catch = None
-
     '''
     def catch(self, request, match, exception) -> Response:
         """
@@ -86,11 +106,11 @@ class BasicPath(object):
                      '<h2>{}</h2>' \
                      '<h2>path: {}</h2>'.format(self.name, request.path)
         if DEBUG:
-            error_body += '<h2>match: {}</h2>'.format(match.groups())
+            error_body = '{}<h2>match: {}</h2>'.format(error_body, match.groups())
             style = 'font-size: 14px;' \
                     'line-height: 1.5;' \
                     'font-family: Source Code Pro;'
             message = traceback.format_exc().replace('\n', '<br/>').replace(' ', '&nbsp;')
-            error_body += '<div style="{}">{}</div>'.format(style, message)
+            error_body = '{}<div style="{}">{}</div>'.format(error_body, style, message)
         return Response(error_body, {'Content-type': 'text/html'}, 500)
     '''

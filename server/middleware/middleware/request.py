@@ -22,6 +22,7 @@ class Request(object):
             length = self.headers['Content-Length'] or settings.BODY_DEFAULT_LENGTH
             length = min(int(length), settings.BODY_MAX_LENGTH)
             self.body = body.read(length).decode()
+            print(self.body)
         else:
             self.body = ''
     
@@ -35,11 +36,11 @@ class Request(object):
     def __get_headers(self):
         headers = Headers()
         for (key, header) in settings.PARSE_HEADER:
-            headers[header] = self.__get_env(key)
+            headers[header] = self.__get_env(key, '')
         for key in self.env:
             if not isinstance(key, str):
                 continue
-            if key.startswith('HTTP_'):
+            if key.startswith('HTTP_') and isinstance(self.env[key], str):
                 headers[NamingCase.under_score_to_header_case_str(key[5:])] = self.env[key]
         return headers
     

@@ -29,7 +29,7 @@ def application(env, start_resp):
                     'line-height: 1.5;' \
                     'font-family: Source Code Pro;'
             message = traceback.format_exc().replace('\n', '<br/>').replace(' ', '&nbsp;')
-            error_body += '<div style="{}">{}</div>'.format(style, message)
+            error_body = '{}<div style="{}">{}</div>'.format(error_body, style, message)
         pre_product = Response(error_body, {'Content-type': 'text/html'}, err.http_status_code)
     except BaseException:
         error_body = '<h1>Server Error</h1>'
@@ -38,7 +38,7 @@ def application(env, start_resp):
                     'line-height: 1.5;' \
                     'font-family: Source Code Pro;'
             message = traceback.format_exc().replace('\n', '<br/>').replace(' ', '&nbsp;')
-            error_body += '<div style="{}">{}</div>'.format(style, message)
+            error_body = '{}<div style="{}">{}</div>'.format(error_body, style, message)
         pre_product = Response(error_body, {'Content-type': 'text/html'}, 500)
     start_resp(pre_product.status, pre_product.headers.list())
     return [pre_product.body]
