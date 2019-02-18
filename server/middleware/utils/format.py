@@ -70,6 +70,17 @@ class NamingCase(object):
         :return:
         """
         return '-'.join(map(lambda i: i[0].upper() + i[1:] if i else i, s.lower().split('_')))
+    
+    @staticmethod
+    def header_case_str(s, upper=False):
+        """
+        :param str s:
+        :param bool upper: Return upper case
+        :return:
+        """
+        if upper:
+            return s.upper()
+        return '-'.join(map(lambda i: i[0].upper() + i[1:].lower() if i else i, s.split('-')))
 
 
 class Format(object):

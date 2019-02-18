@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+import settings
 import traceback
-from path import main
+from application import entry
 from middleware import Response, exceptions
-from settings import DEBUG, MIDDLEWARE
+
+MIDDLEWARE: tuple = getattr(settings, 'MIDDLEWARE', tuple())
+DEBUG: bool = getattr(settings, 'DEBUG', False)
 
 
 def application(env, start_resp):
@@ -16,7 +19,7 @@ def application(env, start_resp):
         middleware_tuple = tuple(map(lambda mw: mw(env), MIDDLEWARE))
         for middleware in middleware_tuple:
             pre_product = middleware.request(pre_product)
-        pre_product = main(pre_product)
+        pre_product = entry(pre_product)
         for middleware in reversed(middleware_tuple):
             pre_product = middleware.response(pre_product)
     except exceptions.HTTPError as err:

@@ -1,26 +1,8 @@
 # -*- coding: utf-8 -*-
 import re
 import traceback
-from enum import Enum
-from settings import DEBUG
+from .settings import DEBUG
 from middleware import Request, Response
-
-
-class HTTPMethod(Enum):
-    CONNECT = 'CONNECT'
-    COPY = 'COPY'
-    DELETE = 'DELETE'
-    GET = 'GET'
-    HEAD = 'HEAD'
-    LINK = 'LINK'
-    MOVE = 'MOVE'
-    OPTIONS = 'OPTIONS'
-    PATCH = 'PATCH'
-    POST = 'POST'
-    PUT = 'PUT'
-    TRACE = 'TRACE'
-    UNLINK = 'UNLINK'
-    WRAPPED = 'WRAPPED'
 
 
 class BasicPath(object):
@@ -90,6 +72,9 @@ class BasicPath(object):
         body = '{} {} {}'.format(request.method, request.path, self.name)
         return Response(body)
     
+    catch = None
+
+    '''
     def catch(self, request, match, exception) -> Response:
         """
         :param Request request:
@@ -108,3 +93,4 @@ class BasicPath(object):
             message = traceback.format_exc().replace('\n', '<br/>').replace(' ', '&nbsp;')
             error_body += '<div style="{}">{}</div>'.format(style, message)
         return Response(error_body, {'Content-type': 'text/html'}, 500)
+    '''

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .header import Headers
+from .header import Headers, HTTPMethod
 from .request import Request
 from .response import Response
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from .header import Headers
-from ..default import response
+from ..settings import response as settings
 from ..exceptions import ResponseValueError
 from ..utils import Format
 
@@ -19,12 +19,12 @@ class Response(object):
         else:
             self.headers = Headers(headers)
         if isinstance(body, str):
-            self.body = body.encode(response.ENCODE)
+            self.body = body.encode(settings.ENCODE)
         elif isinstance(body, bytes):
             self.body = body
         elif isinstance(body, dict):
-            body = getattr(Format, response.DICT_FORMAT.lower())(self.body, response.DICT_FORMAT_SORT)
-            self.body = body.encode(response.ENCODE)
+            body = getattr(Format, settings.DICT_FORMAT.lower())(self.body, settings.DICT_FORMAT_SORT)
+            self.body = body.encode(settings.ENCODE)
         else:
             raise ResponseValueError(('Response.body',), self.__init__.__doc__)
         if isinstance(status, int):

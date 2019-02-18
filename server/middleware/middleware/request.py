@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import json
 import xmltodict
-from collections import OrderedDict
 from .header import Headers
-from ..default import request
+from ..settings import request as settings
 from ..utils import Format, NamingCase
+from collections import OrderedDict
 
 
 class Request(object):
@@ -19,22 +19,22 @@ class Request(object):
         self.query = Format.parse_qs(self.__get_env('QUERY_STRING', ''), True)
         body = self.__get_env('wsgi.input')
         if body:
-            length = self.headers['Content-Length'] or request.BODY_DEFAULT_LENGTH
-            length = min(int(length), request.BODY_MAX_LENGTH)
+            length = self.headers['Content-Length'] or settings.BODY_DEFAULT_LENGTH
+            length = min(int(length), settings.BODY_MAX_LENGTH)
             self.body = body.read(length).decode()
         else:
             self.body = ''
-
-    def __get_env(self, key, default=None):
+    
+    def __get_env(self, key, default_value=None):
         """
         :param str key:
-        :param default:
+        :param default_value:
         """
-        return self.env[key] if key in self.env else default
+        return self.env[key] if key in self.env else default_value
     
     def __get_headers(self):
         headers = Headers()
-        for (key, header) in request.PARSE_HEADER:
+        for (key, header) in settings.PARSE_HEADER:
             headers[header] = self.__get_env(key)
         for key in self.env:
             if not isinstance(key, str):
@@ -48,6 +48,6 @@ class Request(object):
             return xmltodict.parse(self.body)
         else:
             return OrderedDict({})
-
+    
     def json(self):
         return json.loads(self.body)
