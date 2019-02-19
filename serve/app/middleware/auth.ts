@@ -3,29 +3,36 @@ import { Context } from 'egg';
 import { AuthorizeError } from '../errcode';
 
 export interface MiddlewareAuthConfig {
-  expiresIn?: number;
   header?: string;
+  loginAging?: number;
   message?: string;
+  tokenAging?: number;
 }
 
 const defaultConfig: MiddlewareAuthConfig = {
-  expiresIn: 7200,
   header: 'Authorization',
+  loginAging: 7200,
+  tokenAging: 86400,
 };
 
 export default (): any => {
   return async (ctx: Context, next: () => Promise<any>) => {
     const config: Required<MiddlewareAuthConfig> = { ...defaultConfig, ...ctx.app.config.auth };
-    const { expiresIn, header, message } = config;
+    const { header, loginAging, message, tokenAging } = config;
+    // Token: `${timestamp} ${loginname} ${signature}`
     const tokenArr = ctx.request.get(header).split(' ');
     if (tokenArr.length !== 3) throw new AuthorizeError(message);
     const [timestamp, loginname, signature] = tokenArr;
+    // The token obtained at the time of logging in `tokenAging` seconds ago is invalid.
+    const tokenTimeDiff = moment().diff(timestamp, 'seconds');
+    if (tokenTimeDiff < 0 || tokenTimeDiff > tokenAging) throw new AuthorizeError(message);
     const userInfo = await ctx.service.user.findOne(loginname);
     if (userInfo.user === null) throw new AuthorizeError(message);
-    if (userInfo.user.last_login) {
-      const timeDiff = moment().diff(userInfo.user.last_login, 'seconds');
-      if (timeDiff < 0 || timeDiff > expiresIn) throw new AuthorizeError(message);
-    }
+    // If the user's last login distance is now more than `loginAging` seconds, the token will be invalid.
+    if (!userInfo.user.last_login) throw new AuthorizeError(message);
+    const loginTimeDiff = moment().diff(userInfo.user.last_login, 'seconds');
+    if (loginTimeDiff < 0 || loginTimeDiff > loginAging) throw new AuthorizeError(message);
+    // Check the signature
     const resign = ctx.service.user.getSign(
       userInfo.user.loginname,
       userInfo.user.password,
