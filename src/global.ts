@@ -10,9 +10,6 @@ export const APIPrefix: string = '/api';
 
 export const TypeSpaceChar: string = '~';
 
-// Unit: seconds
-export const LoginSignExpiresIn: number = 60;
-
 /**
  * Global id for components
  */

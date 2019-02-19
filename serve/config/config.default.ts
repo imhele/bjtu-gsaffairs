@@ -44,6 +44,13 @@ export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizCon
     pageUrl: '/exception/404',
   };
 
+  // Security
+  config.security = {
+    csrf: {
+      enable: false,
+    },
+  };
+
   /**
    * Other configuration for controller or service
    */

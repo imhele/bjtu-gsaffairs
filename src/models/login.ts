@@ -1,6 +1,5 @@
 import { Model } from 'dva';
 import router from 'umi/router';
-import { LoginSignExpiresIn } from '@/global';
 import { hmacSha256, setSign } from '@/utils/auth';
 import { fetchScope, login } from '@/services/login';
 
@@ -35,7 +34,7 @@ const model: LoginModel = {
   state: defaultState,
   effects: {
     *login({ payload }, { call, put, select }) {
-      payload.timestamp = Math.floor(Date.now() / 1000) + LoginSignExpiresIn;
+      payload.timestamp = Math.floor(Date.now() / 1000);
       payload.psw = hmacSha256(`${payload.timestamp}${payload.account}`, payload.psw);
       const response = yield call(login, payload);
       if (response && response.token) {

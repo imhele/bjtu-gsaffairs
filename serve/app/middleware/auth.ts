@@ -39,7 +39,7 @@ export default (): any => {
       timestamp,
     );
     if (resign !== signature) throw new AuthorizeError(message);
-    Object.assign(ctx.request, { auth: userInfo });
+    ctx.request.auth = userInfo;
     await next();
   };
 };

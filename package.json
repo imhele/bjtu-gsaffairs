@@ -5,6 +5,7 @@
     "start": "umi dev",
     "build": "umi build",
     "serve": "cross-env SERVE=1 umi-serve",
+    "start:s": "cross-env UMI_ENV=serve MOCK=none umi dev",
     "start:c": "npm run cleanCache && clear && umi dev",
     "start:cw": "npm run cleanCache:win && cls && umi dev",
     "pull:hg": "cd .. && hg pull && hg update",
