@@ -51,7 +51,8 @@
     "umi": "~2.5.0",
     "umi-plugin-nprogress": "^1.1.6",
     "umi-plugin-react": "^1.4.0",
-    "umi-serve": "^1.0.0"
+    "umi-serve": "^1.0.0",
+    "umi-types": "^0.1.1"
   },
   "lint-staged": {
     "{config,mock}/**/*.{js,jsx}": [

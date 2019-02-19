@@ -28,7 +28,7 @@ export interface BasicLayoutProps extends ConnectProps {
   };
   loading?: boolean;
   login?: LoginState;
-  route?: Route<string | string[], Array<string | number> | Array<string | number>[]>;
+  route?: Route<true>;
 }
 
 const BasicLayout: React.SFC<BasicLayoutProps> = ({

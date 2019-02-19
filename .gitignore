@@ -17,6 +17,7 @@
 .umi
 .umi-production
 *.local.js
+*.local.ts
 
 # python
 __pycache__

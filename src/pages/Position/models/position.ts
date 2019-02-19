@@ -147,7 +147,7 @@ const model: PositionModel = {
       }
     },
     *createPosition({ payload }, { call, put }) {
-      payload.body = Utils.formatMomentInFieldsValue(payload.body, Utils.formatMoment.YMD);
+      payload.body = Utils.formatMomentInFieldsValue(payload.body, Utils.formatMoment.YMDHms);
       const response = yield call(createPosition, payload);
       if (response) {
         yield put<{ type: string; payload: ResultState }>({
@@ -172,7 +172,7 @@ const model: PositionModel = {
       }
     },
     *editPosition({ payload }, { call }) {
-      payload.body = Utils.formatMomentInFieldsValue(payload.body, Utils.formatMoment.YMD);
+      payload.body = Utils.formatMomentInFieldsValue(payload.body, Utils.formatMoment.YMDHms);
       const response = yield call(editPosition, payload);
       if (response && !response.errcode) {
         message.success(response.errmsg);

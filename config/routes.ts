@@ -1,4 +1,4 @@
-export default [
+const route: Route<true>[] = [
   // user
   {
     path: '/user',
@@ -117,3 +117,5 @@ export default [
     ],
   },
 ];
+
+export default route;

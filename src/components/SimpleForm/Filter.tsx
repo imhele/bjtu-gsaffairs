@@ -6,6 +6,8 @@ import { groupByAmount, safeFun } from '@/utils/utils';
 import BaseForm, {
   BaseFormProps,
   FormEventStore,
+  OnFieldsChange,
+  OnValuesChange,
   renderFormItem,
   SimpleFormItemProps as FilterItemProps,
   SimpleFormItemType as FilterType,
@@ -154,18 +156,16 @@ class Filter extends BaseForm<FilterProps, FilterStates> {
 }
 
 export default Form.create<FilterProps>({
-  onFieldsChange: (...args: any[]) => {
-    FormEventStore.onFieldsChange.forEach((fn, index) => {
-      if (safeFun(fn, void 0, ...args) instanceof Error) {
-        FormEventStore.onFieldsChange.splice(index, 1);
-      }
+  onFieldsChange: (...args: [FilterProps, object, any, string]) => {
+    FormEventStore.onFieldsChange.forEach((fn: OnFieldsChange, index) => {
+      const tmp = safeFun<[FilterProps, object, any, string], OnFieldsChange>(fn, void 0, ...args);
+      if (tmp instanceof Error) FormEventStore.onFieldsChange.splice(index, 1);
     });
   },
-  onValuesChange: (...args: any[]) => {
-    FormEventStore.onValuesChange.forEach((fn, index) => {
-      if (safeFun(fn, void 0, ...args) instanceof Error) {
-        FormEventStore.onValuesChange.splice(index, 1);
-      }
+  onValuesChange: (...args: [FilterProps, any, any]) => {
+    FormEventStore.onValuesChange.forEach((fn: OnValuesChange, index) => {
+      const tmp = safeFun<[FilterProps, any, any], OnValuesChange>(fn, void 0, ...args);
+      if (tmp instanceof Error) FormEventStore.onValuesChange.splice(index, 1);
     });
   },
 })(Filter);

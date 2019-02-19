@@ -178,10 +178,7 @@ export function formatRouteInfo<T>(info: T | T[], key?: number): T {
   return null;
 }
 
-export function formatDynamicRoute(
-  route: Route<string | string[], Array<string | number> | Array<string | number>[]>,
-  key?: number,
-): Route {
+export function formatDynamicRoute(route: Route<true>, key?: number): Route {
   if (typeof route !== 'object') return route;
   let routes: Route[] = [];
   if (Array.isArray(route.routes) && route.routes.length) {

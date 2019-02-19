@@ -1,8 +1,10 @@
 // ref: https://umijs.org/config/
 import routes from './routes';
+import { IConfig, IRoute } from 'umi-types';
 
-export default {
-  routes,
+const config: IConfig = {
+  // Reference: https://github.com/umijs/umi/pull/2001
+  routes: routes as IRoute[],
   treeShaking: true,
   ignoreMomentLocale: true,
   targets: {
@@ -36,3 +38,5 @@ export default {
     'umi-plugin-nprogress',
   ],
 };
+
+export default config;

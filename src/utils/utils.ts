@@ -121,11 +121,16 @@ export function sandwichArray<T = any, U = any, V = any>(
   return res;
 }
 
-export function safeFun<T = any>(fn: Function, defaultReturn?: T, ...args: any[]): T {
+export function safeFun<T extends any[] = [], F extends (...args: T) => any = () => any>(
+  fn: F,
+  defaultReturn?: ReturnType<F>,
+  ...args: T
+): T {
   if (typeof fn !== 'function') return defaultReturn;
   try {
     return fn(...args);
   } catch (err) {
+    safeFun(err.preventDefault);
     return defaultReturn === void 0 ? err : defaultReturn;
   }
 }
@@ -166,7 +171,5 @@ const filterScopeRouteItem = (route: Route, currentScope: CurrentScope = []): Ro
   return { ...route, routes };
 };
 
-export const filterScopeRoute = (
-  route: Route<string | string[], Array<string | number> | Array<string | number>[]>,
-  currentScope: CurrentScope = [],
-): Route => filterScopeRouteItem(inheritScope(formatDynamicRoute(route)), currentScope);
+export const filterScopeRoute = (route: Route<true>, currentScope: CurrentScope = []): Route =>
+  filterScopeRouteItem(inheritScope(formatDynamicRoute(route)), currentScope);
