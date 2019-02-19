@@ -1,6 +1,4 @@
 defaultSeverity: error
-extends:
-  - tslint-config-egg
 jsRules:
 rules:
   eofline: true
@@ -12,14 +10,12 @@ rules:
     - order: statics-first
   new-parens: true
   no-arg: true
-  no-bitwise: true
   no-conditional-assignment: true
   no-consecutive-blank-lines: true
   no-construct: true
   no-duplicate-variable: true
   no-eval: true
   no-internal-module: true
-  no-multi-spaces: true
   no-namespace: true
   no-reference: true
   no-shadowed-variable: true
@@ -34,7 +30,6 @@ rules:
     - true
     - destructuring: all
   radix: true
-  space-in-parens: true
   switch-default: true
   trailing-comma:
     - true

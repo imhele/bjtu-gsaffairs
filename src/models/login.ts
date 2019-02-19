@@ -35,7 +35,7 @@ const model: LoginModel = {
   state: defaultState,
   effects: {
     *login({ payload }, { call, put, select }) {
-      payload.timestamp = (Date.now() / 1000).toFixed(0) + LoginSignExpiresIn;
+      payload.timestamp = Math.floor(Date.now() / 1000) + LoginSignExpiresIn;
       payload.psw = hmacSha256(`${payload.timestamp}${payload.account}`, payload.psw);
       const response = yield call(login, payload);
       if (response && response.token) {

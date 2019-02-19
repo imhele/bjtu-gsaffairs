@@ -1,16 +1,26 @@
 import { EggAppConfig, EggAppInfo, PowerPartial } from 'egg';
 
-export default (appInfo: EggAppInfo) => {
+export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizConfig => {
   const config = {} as PowerPartial<EggAppConfig>;
 
-  // use for cookie sign key, should change to your own and keep security
+  /**
+   * System configuration
+   */
+  // Key of cookies
   config.keys = appInfo.name + '_1550500108095_1703';
 
   // Nginx proxy
   config.proxy = true;
 
-  // Middleware
-  config.middleware = [];
+  /**
+   * Middlewares and their configuration
+   */
+  // Enabled global middlewares
+  config.middleware = ['errcode'];
+
+  config.auth = {
+    expiresIn: 7200,
+  };
 
   // `bodyParser` will parse body to object automatically
   config.bodyParser = {
@@ -31,9 +41,15 @@ export default (appInfo: EggAppInfo) => {
     pageUrl: '/exception/404',
   };
 
-  const bizConfig = {};
+  /**
+   * Other configuration for controller or service
+   */
+  const bizConfig = {
+    user: {
+      loginRedirect: '/position/manage/list',
+    },
+  };
 
-  // the return config will combines to EggAppConfig
   return {
     ...config,
     ...bizConfig,
