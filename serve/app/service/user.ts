@@ -66,7 +66,7 @@ export default class User extends Service {
   public async findOne(loginname: string) {
     const { model } = this.ctx;
     let type = UserType.Postgraduate;
-    let user: any = await model.Client.Postgraduate.findByPrimary(loginname);
+    let user: any = await model.Client.Postgraduate.findByPk(loginname);
     if (user === null) {
       type = UserType.Staff;
       user = await model.Client.Staff.findByPrimary(loginname);

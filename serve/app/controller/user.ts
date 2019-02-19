@@ -1,17 +1,18 @@
 import moment from 'moment';
 import { Controller } from 'egg';
 import { AuthorizeError } from '../errcode';
-import { LoginPayload } from '../../../src/services/login';
+// import { LoginPayload } from '../../../src/services/login';
 
 export default class HomeController extends Controller {
   public async login() {
     const {
       config: {
-        user: { loginRedirect: redirect },
+        other: { loginRedirect: redirect },
       },
-      ctx: { request, response, service },
+      ctx: { request, response },
+      service,
     } = this;
-    const { account = '', method = '', psw = '', timestamp = 0 } = request.body as LoginPayload;
+    const { account = '', method = '', psw = '', timestamp = 0 } = request.query as any;
     if (method !== 'psw' || !psw || !timestamp) {
       return this.loginFail('登录参数缺失');
     }

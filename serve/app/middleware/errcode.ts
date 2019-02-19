@@ -21,7 +21,7 @@ const FormatValidationError = (errors: ValidationErrorItem[]): ErrorMessage => {
 };
 
 export default (): any => {
-  return async function gzip(ctx: Context, next: () => Promise<any>) {
+  return async (ctx: Context, next: () => Promise<any>) => {
     try {
       await next();
       if (!Array.isArray(ctx.body) && typeof ctx.body === 'object') {
@@ -32,7 +32,10 @@ export default (): any => {
         const { errors } = err as ValidationError;
         ctx.body = FormatValidationError(errors);
       } else if (err instanceof BaseError) {
-        ctx.body = { ...errcode[err.type], errmsg: err.message } as ErrorMessage;
+        ctx.body = {
+          errcode: errcode[err.type].errcode,
+          errmsg: err.message || errcode[err.type].errmsg,
+        } as ErrorMessage;
       } else {
         ctx.body = { ...errcode.SystemBusy };
       }

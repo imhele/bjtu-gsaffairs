@@ -1,4 +1,5 @@
 import { EggAppConfig, EggAppInfo, PowerPartial } from 'egg';
+import { MiddlewareAuthConfig } from '../app/middleware/auth';
 
 export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizConfig => {
   const config = {} as PowerPartial<EggAppConfig>;
@@ -16,11 +17,13 @@ export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizCon
    * Middlewares and their configuration
    */
   // Enabled global middlewares
-  config.middleware = ['errcode'];
+  config.middleware = ['errcode', 'auth'];
 
   config.auth = {
+    enable: true,
     expiresIn: 7200,
-  };
+    ignore: ['/login'],
+  } as MiddlewareAuthConfig;
 
   // `bodyParser` will parse body to object automatically
   config.bodyParser = {
@@ -45,7 +48,7 @@ export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizCon
    * Other configuration for controller or service
    */
   const bizConfig = {
-    user: {
+    other: {
       loginRedirect: '/position/manage/list',
     },
   };
