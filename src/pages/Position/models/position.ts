@@ -24,6 +24,7 @@ export interface PositionDetailProps {
   columns: Array<{
     dataIndex: string;
     title: string;
+    [key: string]: any;
   }>;
   dataSource: object;
   stepsProps?: StepsProps;

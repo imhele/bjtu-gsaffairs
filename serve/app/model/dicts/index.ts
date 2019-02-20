@@ -1,1 +1,1 @@
-export { Department } from './department';
+export { Department, attr as DepartmentAttr } from './department';

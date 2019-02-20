@@ -1,8 +1,10 @@
 import { Service } from 'egg';
-import { Department, Position } from '../model';
+import { DataNotFound } from '../errcode';
+import { Department, Position, Staff } from '../model';
 
 interface PositionWithFK extends Position {
   Department: Department;
+  Staff: Staff;
 }
 
 /**
@@ -12,18 +14,14 @@ export default class PositionService extends Service {
   public async findOne(id: number | string) {
     const { model } = this.ctx;
     const position: any = await model.Interships.Position.findByPk(id, {
-      include: [{ model: model.Dicts.Department }],
+      include: [{ model: model.Dicts.Department }, { model: model.Client.Staff }],
     });
-    if (position === null) return null;
-    const formattedPosition = {
+    if (position === null) throw new DataNotFound('该岗位信息不存在');
+    return {
       ...position.dataValues,
       Department: position.dataValues.Department.dataValues,
+      Staff: position.dataValues.Staff.dataValues,
     } as PositionWithFK;
-    Object.entries(formattedPosition.Department).forEach(([key, value]) => {
-      formattedPosition[`department_${key}`] = value;
-    });
-    delete formattedPosition.Department;
-    return formattedPosition;
   }
 
   public async updateOne(id: number | string, values: Partial<Position>) {

@@ -51,31 +51,28 @@
       "dataIndex": "action"
     }
   ],
-  "detailDataSource": {
-    "sess": "2018-2019学年 第一学期",
-    "depName": "计算机与信息技术学院",
-    "name": "Example",
-    "needNum": 0,
-    "adminId": 123456,
-    "adminName": "Admin",
-    "adminPhone": 12345678901,
-    "classTechNo": 456789,
-    "classTech": "Teacher",
-    "classType": "本科",
-    "classNum": 40,
-    "classTime": "32 学时",
-    "need": "Desc.",
-    "content": "Content.",
-    "timeRange": "2019-01-10 ~ 2019-06-20",
-    "workTimeL": "12 小时/周",
-    "workTimeD": "周三",
-    "address": "第九教学楼 xxx",
-    "campus": "校本部",
-    "way": "固定",
-    "remark": "无",
-    "checkStatus": "审核通过",
-    "releaseStatus": "已发布"
-  },
+  "detailColumns": [
+    "semester",
+    "name",
+    "need",
+    "types",
+    "need_num",
+    "content",
+    "address",
+    "work_time_d",
+    "work_time_l",
+    "campus",
+    "way",
+    "start_t",
+    "end_t",
+    "class_type",
+    "class_num",
+    "class_time",
+    "status",
+    "audit_log",
+    "staff_username",
+    "department_name"
+  ],
   "createForm": {
     "manage": {
       "colProps": {
