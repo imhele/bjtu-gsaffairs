@@ -8,11 +8,6 @@ export enum UserType {
   Staff,
 }
 
-export const UserModelName = {
-  [UserType.Postgraduate]: 'Postgraduate',
-  [UserType.Staff]: 'Staff',
-};
-
 export const ScopeList = {
   admin: 'scope.admin',
   position: {
@@ -86,7 +81,7 @@ export default class UserService extends Service {
   public async updateLastLogin(loginname: string, userType: UserType) {
     const { model } = this.ctx;
     const now = moment().local();
-    await model.Client[UserModelName[userType]].update(
+    await model.Client[UserType[userType]].update(
       { last_login: now.format('YYYY-MM-DD HH:mm:ss') },
       { fields: ['last_login'], where: { loginname } },
     );

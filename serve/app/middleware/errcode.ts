@@ -7,9 +7,10 @@ const FormatValidationError = (errors: ValidationErrorItem[]): ErrorMessage => {
     .map(item => {
       try {
         const format =
-          ValidationMessage[item.validatorName] || ((v: string, k: string) => `${k}: ${v}`);
+          ValidationMessage[item.validatorName || item.validatorKey] ||
+          ((v: string, k: string) => `${k}: ${v}`);
         const value = item.value.toString();
-        return format(value.length > 10 ? `${value.slice(0, 7)}...` : value, item.validatorKey);
+        return format(value.length > 10 ? `${value.slice(0, 7)}...` : value, item.path);
       } catch {}
     })
     .filter(item => item)

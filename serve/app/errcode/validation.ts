@@ -1,3 +1,19 @@
+import { lenToArr } from '../utils';
+import { ValidationErrorItem } from 'sequelize';
+
+export const enumValid = (arr: object | any[]) => ({
+  notInEnum: (v: any) => {
+    if (!(Array.isArray(arr) ? arr : Object.values(arr)).includes(v))
+      throw new ValidationErrorItem('', '', '', v);
+  },
+});
+
+export const intEnumValid = (arr: any[] | number) => ({
+  notInEnum: (v: any) => {
+    if (!lenToArr(arr).includes(v)) throw new ValidationErrorItem('', '', '', v);
+  },
+});
+
 export const ValidationMessage: {
   [key: string]: (v: string, k: string, len?: [number, number]) => string;
 } = {
@@ -24,7 +40,7 @@ export const ValidationMessage: {
   notIn: v => `${v}不符合规范`, // check the value is not one of these
   isIn: v => `${v}不符合规范`, // check the value is one of these
   notContains: v => `${v}不符合规范`, // don't allow specific substrings
-  len: (v, k, len) => (len ? `${v}长度必须在 ${len.join(' ~ ')} 之间` : `${v}长度不在限制范围内`), // only allow values with length between 2 and 10
+  len: (v, _, len) => (len ? `${v}长度必须在 ${len.join(' ~ ')} 之间` : `${v}长度不在限制范围内`), // only allow values with length between 2 and 10
   isUUID: v => `${v}不符合规范`, // only allow uuids
   isDate: v => `${v}不是规范的日期`, // only allow date strings
   isAfter: v => `${v}超出允许的时间之外`, // only allow date strings after a specific date
@@ -32,4 +48,5 @@ export const ValidationMessage: {
   max: v => `${v}超过最大值`, // only allow values <= 23
   min: v => `${v}小于最小值`, // only allow values >= 23
   isCreditCard: v => `${v}不是正确的卡号`, // check for valid credit card numbers
+  notInEnum: v => `${v}不符合规范`,
 };

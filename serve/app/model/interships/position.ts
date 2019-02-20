@@ -1,13 +1,30 @@
 import { Application } from 'egg';
+import { intEnumValid } from '../../errcode';
 import {
   DefineModelAttributes,
   DATEONLY,
-  ENUM,
   INTEGER,
   JSON as JSONTYPE,
   STRING,
   TEXT,
 } from 'sequelize';
+
+export enum PositionType {
+  manage = '助管',
+  teach = '助教',
+}
+
+/**
+ * @Ref https://www.yuque.com/hele/doc/qzuay6#StepsProps
+ * Map `PostionStatus` to `StepStatus`
+ */
+export enum PostionStatus {
+  '审核通过' = 'finish',
+  '审核不通过' = 'error',
+  '草稿' = 'process',
+  '待审核' = 'process',
+  '已发布' = 'finish',
+}
 
 export interface Position {
   semester: string;
@@ -52,9 +69,9 @@ export const attr: DefineModelAttributes<Position> = {
   types: {
     allowNull: false,
     comment: '三助类型',
-    type: ENUM,
-    values: ['助管', '助教'],
-    validate: { isIn: [['助管', '助教']], notEmpty: true },
+    type: INTEGER,
+    values: Object.values(PositionType),
+    validate: { notEmpty: true, ...intEnumValid(Object.values(PositionType)) },
   },
   need_num: {
     allowNull: false,
@@ -89,18 +106,18 @@ export const attr: DefineModelAttributes<Position> = {
   campus: {
     allowNull: false,
     comment: '校区',
-    type: ENUM,
-    defaultValue: '校本部',
+    type: INTEGER,
+    defaultValue: 0,
     values: ['校本部', '东校区'],
-    validate: { isIn: [['校本部', '东校区']], notEmpty: true },
+    validate: { notEmpty: true, ...intEnumValid(2) },
   },
   way: {
     allowNull: false,
     comment: '聘用方式',
-    type: ENUM,
-    defaultValue: '固定',
+    type: INTEGER,
+    defaultValue: 0,
     values: ['固定', '临时'],
-    validate: { isIn: [['校本部', '东校区']], notEmpty: true },
+    validate: { notEmpty: true, ...intEnumValid(2) },
   },
   start_t: {
     allowNull: false,
@@ -117,10 +134,10 @@ export const attr: DefineModelAttributes<Position> = {
   class_type: {
     allowNull: true,
     comment: '课程类型',
-    type: ENUM,
-    defaultValue: '本科生',
+    type: INTEGER,
+    defaultValue: 0,
     values: ['本科生', '研究生'],
-    validate: { isIn: [['本科生', '研究生']], notEmpty: true },
+    validate: { notEmpty: true, ...intEnumValid(2) },
   },
   class_num: {
     allowNull: true,
@@ -137,10 +154,10 @@ export const attr: DefineModelAttributes<Position> = {
   status: {
     allowNull: false,
     comment: '状态',
-    type: ENUM,
-    defaultValue: '待审核',
-    values: ['审核通过', '审核不通过', '草稿', '待审核', '已发布'],
-    validate: { notEmpty: true },
+    type: INTEGER,
+    defaultValue: 0,
+    values: Object.keys(PostionStatus),
+    validate: { notEmpty: true, ...intEnumValid(Object.keys(PostionStatus)) },
   },
   audit: {
     allowNull: true,

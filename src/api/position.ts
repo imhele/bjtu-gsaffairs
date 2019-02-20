@@ -6,7 +6,7 @@ interface FetchQuery {
   type: PositionType;
 }
 
-interface FetchListBody extends RequestBody {
+export interface FetchListBody extends RequestBody {
   filtersValue?: object;
   limit?: number;
   offset?: number;
@@ -24,7 +24,7 @@ export async function fetchList(payload: FetchListPayload) {
   });
 }
 
-interface FetchDetailBody extends RequestBody {
+export interface FetchDetailBody extends RequestBody {
   key: string | number;
 }
 
@@ -40,7 +40,7 @@ export async function fetchDetail(payload: FetchDetailPayload) {
   });
 }
 
-interface DeletePositionBody extends RequestBody {
+export interface DeletePositionBody extends RequestBody {
   key: string | number;
 }
 
@@ -56,7 +56,7 @@ export async function deletePosition(payload: DeletePositionPayload) {
   });
 }
 
-interface FetchFormBody extends RequestBody {
+export interface FetchFormBody extends RequestBody {
   action: CellAction | TopbarAction;
   key?: string | number;
 }
@@ -73,7 +73,7 @@ export async function fetchForm(payload: FetchFormPayload) {
   });
 }
 
-interface CreatePositionBody extends RequestBody {
+export interface CreatePositionBody extends RequestBody {
   [key: string]: any;
 }
 
@@ -89,7 +89,7 @@ export async function createPosition(payload: CreatePositionPayload) {
   });
 }
 
-interface EditPositionBody extends RequestBody {
+export interface EditPositionBody extends RequestBody {
   key: string | number;
   [key: string]: any;
 }
@@ -106,7 +106,7 @@ export async function editPosition(payload: EditPositionPayload) {
   });
 }
 
-interface AuditPositionBody extends RequestBody {
+export interface AuditPositionBody extends RequestBody {
   key: string | number;
   [key: string]: any;
 }
