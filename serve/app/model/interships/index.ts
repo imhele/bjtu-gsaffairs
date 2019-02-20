@@ -1,1 +1,7 @@
-export { Position, PositionType, attr as PositionAttr } from './position';
+export {
+  Position as PositionModel,
+  PositionType,
+  PositionStatus,
+  PositionAuditStatus,
+  attr as PositionAttr,
+} from './position';

@@ -1,10 +1,10 @@
 import { Service } from 'egg';
 import { DataNotFound } from '../errcode';
-import { Department, Position, Staff } from '../model';
+import { DepartmentModel, PositionModel, StaffModel } from '../model';
 
-interface PositionWithFK extends Position {
-  Department: Department;
-  Staff: Staff;
+interface PositionWithFK extends PositionModel {
+  Department: DepartmentModel;
+  Staff: StaffModel;
 }
 
 /**
@@ -16,7 +16,7 @@ export default class PositionService extends Service {
     const position: any = await model.Interships.Position.findByPk(id, {
       include: [{ model: model.Dicts.Department }, { model: model.Client.Staff }],
     });
-    if (position === null) throw new DataNotFound('该岗位信息不存在');
+    if (position === null) throw new DataNotFound('岗位信息不存在');
     return {
       ...position.dataValues,
       Department: position.dataValues.Department.dataValues,
@@ -24,7 +24,7 @@ export default class PositionService extends Service {
     } as PositionWithFK;
   }
 
-  public async updateOne(id: number | string, values: Partial<Position>) {
+  public async updateOne(id: number | string, values: Partial<PositionModel>) {
     const { model } = this.ctx;
     await model.Interships.Position.update(values, {
       fields: Object.keys(values),

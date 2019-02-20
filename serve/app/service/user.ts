@@ -1,7 +1,8 @@
 import hash from 'hash.js';
 import moment from 'moment';
 import { Service } from 'egg';
-import { Postgraduate, Staff } from '../model';
+import { DataNotFound } from '../errcode';
+import { PostgraduateModel, StaffModel } from '../model';
 
 export enum UserType {
   Postgraduate,
@@ -71,11 +72,15 @@ export default class UserService extends Service {
       type = UserType.Staff;
       user = await model.Client.Staff.findByPrimary(loginname);
     }
-    if (user === null) return { user: null, type };
+    if (user === null) throw new DataNotFound('用户不存在');
     /**
      * @TODO Extra role of current user
      */
-    return { user: user.dataValues as Postgraduate | Staff, scope: UserScope[type], type };
+    return {
+      user: user.dataValues as PostgraduateModel | StaffModel,
+      scope: UserScope[type],
+      type,
+    };
   }
 
   public async updateLastLogin(loginname: string, userType: UserType) {

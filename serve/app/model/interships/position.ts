@@ -27,7 +27,7 @@ export enum PositionStatus {
 }
 
 export const PositionAuditStatus = {
-  [PositionType.助管]: ['单位申报', '人事处审核'],
+  [PositionType.助管]: ['单位申报', '人事处审核', '研工部审核', '发布岗位'],
   [PositionType.助教]: [
     '教师申报',
     '用人单位审核',
@@ -55,7 +55,7 @@ export interface Position {
   class_type: number;
   class_num: number;
   class_time: number;
-  status: string;
+  status: number;
   audit: number;
   audit_log: string[] | string[][];
   department_code?: string;

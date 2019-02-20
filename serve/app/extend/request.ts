@@ -1,9 +1,9 @@
 import { UserType } from '../service/user';
-import { Postgraduate, Staff } from '../model';
+import { PostgraduateModel, StaffModel } from '../model';
 
 interface RequestExtend {
   auth: {
-    user: Postgraduate | Staff;
+    user: PostgraduateModel | StaffModel;
     scope: string[];
     type: UserType;
   };

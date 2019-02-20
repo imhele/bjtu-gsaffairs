@@ -69,6 +69,7 @@
     "class_num",
     "class_time",
     "status",
+    "audit",
     "audit_log",
     "staff_username",
     "department_name"
