@@ -21,7 +21,7 @@
     "cleanCache:win": "del /Q /S src\\pages\\.umi && del /Q /S node_modules\\.cache"
   },
   "dependencies": {
-    "antd": "~3.13.2",
+    "antd": "~3.13.5",
     "classnames": "~2.2.6",
     "debounce": "1.2.0",
     "dva": "~2.5.0-beta.2",
@@ -52,11 +52,11 @@
     "tslint": "^5.12.0",
     "tslint-eslint-rules": "^5.4.0",
     "tslint-react": "^3.6.0",
-    "umi": "~2.5.0",
+    "umi": "~2.5.4",
     "umi-plugin-nprogress": "^1.1.6",
-    "umi-plugin-react": "^1.4.0",
-    "umi-serve": "^1.0.0",
-    "umi-types": "^0.1.1"
+    "umi-plugin-react": "~1.5.2",
+    "umi-serve": "~1.0.3",
+    "umi-types": "~0.1.2"
   },
   "lint-staged": {
     "{config,mock}/**/*.{js,jsx}": [
