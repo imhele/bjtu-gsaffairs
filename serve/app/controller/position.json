@@ -3,12 +3,12 @@
     {
       "width": 200,
       "title": "学期",
-      "dataIndex": "sess"
+      "dataIndex": "semester"
     },
     {
       "width": 188,
       "title": "单位",
-      "dataIndex": "depName"
+      "dataIndex": "department_name"
     },
     {
       "width": 255,
@@ -18,7 +18,7 @@
     {
       "width": 64,
       "title": "岗位人数",
-      "dataIndex": "needNum"
+      "dataIndex": "need_num"
     },
     {
       "width": 78,
@@ -28,12 +28,7 @@
     {
       "width": 108,
       "title": "审核状态",
-      "dataIndex": "checkStatus"
-    },
-    {
-      "width": 95,
-      "title": "发布状态",
-      "dataIndex": "releaseStatus"
+      "dataIndex": "status"
     },
     {
       "width": 95,
@@ -51,29 +46,51 @@
       "dataIndex": "action"
     }
   ],
-  "detailColumns": [
-    "semester",
-    "name",
-    "need",
-    "types",
-    "need_num",
-    "content",
-    "address",
-    "work_time_d",
-    "work_time_l",
-    "campus",
-    "way",
-    "start_t",
-    "end_t",
-    "class_type",
-    "class_num",
-    "class_time",
-    "status",
-    "audit",
-    "audit_log",
-    "staff_username",
-    "department_name"
-  ],
+  "detailColumns": {
+    "withAuditLog": [
+      "semester",
+      "name",
+      "need",
+      "types",
+      "need_num",
+      "content",
+      "address",
+      "work_time_d",
+      "work_time_l",
+      "campus",
+      "way",
+      "start_t",
+      "end_t",
+      "class_type",
+      "class_num",
+      "class_time",
+      "status",
+      "audit",
+      "audit_log",
+      "staff_username",
+      "department_name"
+    ],
+    "withoutAuditLog": [
+      "semester",
+      "name",
+      "need",
+      "types",
+      "need_num",
+      "content",
+      "address",
+      "work_time_d",
+      "work_time_l",
+      "campus",
+      "way",
+      "start_t",
+      "end_t",
+      "class_type",
+      "class_num",
+      "class_time",
+      "staff_username",
+      "department_name"
+    ]
+  },
   "createForm": {
     "manage": {
       "colProps": {

@@ -1,7 +1,10 @@
 import { Controller } from 'egg';
+import { ScopeList } from '../service/user';
+import { AuthorizeError } from '../errcode';
 import { detailColumns } from './position.json';
 import { StepsProps } from '../../../src/components/Steps';
-import { FetchDetailBody } from '../../../src/api/position';
+import { PositionState } from '../../../src/models/connect';
+import { FetchListBody, FetchDetailBody } from '../../../src/api/position';
 import {
   DepartmentAttr,
   PositionAttr,
@@ -14,10 +17,13 @@ import {
 
 export default class PositionController extends Controller {
   public async list() {
-    const {
-      ctx: { response },
-      service,
-    } = this;
+    const { ctx, service } = this;
+    const { type } = ctx.params;
+    if (!Object.values(PositionType).includes(type)) return;
+    const { filtersValue, limit = 10, offset = 0 } = ctx.request.body as FetchListBody;
+    const positions = await service.position.findSomeWithDep(limit, offset);
+    const result: Partial<PositionState> = {};
+    ctx.response.body = result;
   }
 
   public async detail() {
@@ -26,53 +32,65 @@ export default class PositionController extends Controller {
     if (!Object.values(PositionType).includes(type)) return;
     const { key: id } = ctx.request.body as FetchDetailBody;
     if (!id) return;
+    let columnKeys: string[] = [];
     const position = await service.position.findOne(id);
+    if (
+      ctx.request.auth.scope.includes(ScopeList.position[type].audit) ||
+      position.staff_loginname === ctx.request.auth.user.loginname ||
+      ctx.request.auth.scope.includes(ScopeList.admin)
+    ) {
+      /* The above users can view the audit records at any time. */
+      columnKeys = detailColumns.withAuditLog;
+    } else if (position.status === 4) /* '已发布' */ columnKeys = detailColumns.withoutAuditLog;
+    else throw new AuthorizeError('你暂时没有权限查看这个岗位的信息');
+
     /**
      * Format values
      */
     // [['a', 'b'], ['c']] => 'a,b\nc'
     position.audit_log = position.audit_log.join('\n') as any;
-    Object.entries(position.Department).forEach(([key, value]) => {
-      position[`department_${key}`] = value;
-    });
-    Object.entries(position.Staff).forEach(([key, value]) => {
-      position[`staff_${key}`] = value;
-    });
-    delete position.Staff;
-    delete position.Department;
 
     /**
      * Construct `columns`.
      */
-    const columns = [
-      ...Object.entries(PositionAttr).map(([key, value]: any) => {
-        // Handle enum type
-        if (value.values) {
-          position[key] = value.values[position[key]];
-        }
-        /**
-         * @Component `DescriptionList`
-         * @Ref /src/components/DescriptionList/index.tsx#L26-L31
-         * `span` is for layout
-         */
-        return {
-          dataIndex: key,
-          title: value.comment,
-          span: key === 'audit_log' ? 24 : void 0,
-        };
-      }),
-      ...Object.entries(StaffAttr).map(([key, value]: any) => ({
-        dataIndex: `staff_${key}`,
+    const columnsObj: {
+      [key: string]: {
+        dataIndex: string;
+        title: string;
+        span?: number;
+      };
+    } = {};
+    Object.entries(PositionAttr).forEach(([key, value]: any) => {
+      // Handle enum type
+      if (value.values) {
+        position[key] = value.values[position[key]];
+      }
+      /**
+       * @Component `DescriptionList`
+       * @Ref /src/components/DescriptionList/index.tsx#L26-L31
+       * `span` is for layout
+       */
+      columnsObj[key] = {
+        dataIndex: key,
         title: value.comment,
-      })),
-      ...Object.entries(DepartmentAttr).map(([key, value]: any) => ({
+        span: key === 'audit_log' ? 24 : void 0,
+      };
+    });
+    Object.entries(StaffAttr).forEach(([key, value]: any) => {
+      columnsObj[key] = {
+        dataIndex: `staff_${key}`,
+        title: key === 'username' ? '负责人姓名' : value.comment,
+      };
+    });
+    Object.entries(DepartmentAttr).map(([key, value]: any) => {
+      columnsObj[key] = {
         dataIndex: `department_${key}`,
         title: value.comment,
-      })),
-    ]
-      .filter(col => col.title)
-      .filter(col => position[col.dataIndex] !== null)
-      .filter(col => detailColumns.includes(col.dataIndex));
+      };
+    });
+    const columns = columnKeys
+      .map(col => columnsObj[col])
+      .filter(col => position[col.dataIndex] !== null);
 
     /**
      * Filter out other data in `position`.

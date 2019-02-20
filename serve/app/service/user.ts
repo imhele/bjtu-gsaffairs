@@ -9,6 +9,19 @@ export enum UserType {
   Staff,
 }
 
+export type ScopeValue =
+  | 'scope.admin'
+  | 'scope.position.manage.list'
+  | 'scope.position.manage.create'
+  | 'scope.position.manage.export'
+  | 'scope.position.manage.audit'
+  | 'scope.position.manage.apply'
+  | 'scope.position.teach.list'
+  | 'scope.position.teach.create'
+  | 'scope.position.teach.export'
+  | 'scope.position.teach.audit'
+  | 'scope.position.teach.apply';
+
 export const ScopeList = {
   admin: 'scope.admin',
   position: {
@@ -29,7 +42,7 @@ export const ScopeList = {
   },
 };
 
-export const UserScope = {
+export const UserScope: { [key: number]: ScopeValue[] } = {
   [UserType.Postgraduate]: [
     'scope.position.manage.list',
     'scope.position.manage.apply',
@@ -78,7 +91,7 @@ export default class UserService extends Service {
      */
     return {
       user: user.dataValues as PostgraduateModel | StaffModel,
-      scope: UserScope[type],
+      scope: UserScope[type] || [],
       type,
     };
   }

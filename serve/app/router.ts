@@ -7,5 +7,5 @@ export default (app: Application) => {
   router.post('/scope', controller.user.scope);
 
   router.get('/position/:type/list', controller.position.list);
-  router.get('/position/:type/detail', controller.position.detail);
+  router.post('/position/:type/detail', controller.position.detail);
 };
