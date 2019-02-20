@@ -20,8 +20,10 @@ Postgraduate Assistant Post Management System.
 - [TypeScript](https://github.com/Microsoft/TypeScript)
 - [React Hooks](https://reactjs.org/docs/hooks-intro.html)
 - [Less](https://github.com/less/less.js)
-- [Python](https://www.python.org/)
-- [uWSGI](https://github.com/unbit/uwsgi)
+- [EggJS](https://github.com/eggjs/egg)
+- ~~[Python](https://www.python.org/)~~
+- ~~[uWSGI](https://github.com/unbit/uwsgi)~~
+> Backend framework has changed from Python to NodeJS since [commit#8c75cfa](https://github.com/imhele/bjtu-papms/commit/8c75cfa441577a1556f74a2b2145300c04448a51)
 
 
 ## Usage

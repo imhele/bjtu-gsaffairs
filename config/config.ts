@@ -1,10 +1,9 @@
 // ref: https://umijs.org/config/
 import routes from './routes';
-import { IConfig, IRoute } from 'umi-types';
+import { IConfig } from 'umi-types';
 
 const config: IConfig = {
-  // Reference: https://github.com/umijs/umi/pull/2001
-  routes: routes as IRoute[],
+  routes: routes as any,
   treeShaking: true,
   ignoreMomentLocale: true,
   targets: {
