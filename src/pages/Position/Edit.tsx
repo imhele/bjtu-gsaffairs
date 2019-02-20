@@ -7,11 +7,10 @@ import commonStyles from '../common.less';
 import SimpleForm from '@/components/SimpleForm';
 import Exception404 from '@/pages/Exception/404';
 import { formatStrOrNumQuery } from '@/utils/format';
-import { FetchFormPayload } from '@/services/position';
-import { EditPositionPayload } from '@/services/position';
 import { Button, Col, Empty, message, Skeleton } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { buttonColProps, CellAction, PositionType } from './consts';
+import { EditPositionPayload, FetchFormPayload } from '@/api/position';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 
 export interface EditProps extends ConnectProps<{ type: PositionType }> {

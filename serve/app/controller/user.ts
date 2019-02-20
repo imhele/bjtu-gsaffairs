@@ -1,9 +1,9 @@
 import moment from 'moment';
 import { Controller } from 'egg';
 import { AuthorizeError } from '../errcode';
-import { LoginPayload } from '../../../src/services/login';
+import { LoginPayload } from '../../../src/api/login';
 
-export default class HomeController extends Controller {
+export default class UserController extends Controller {
   public async login() {
     const {
       config: {

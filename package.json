@@ -1,4 +1,6 @@
 {
+  "name": "bjtu-papms",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "test": "umi test",

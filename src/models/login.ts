@@ -1,7 +1,7 @@
 import { Model } from 'dva';
 import router from 'umi/router';
+import { fetchScope, login } from '@/api/login';
 import { hmacSha256, setSign } from '@/utils/auth';
-import { fetchScope, login } from '@/services/login';
 
 export interface LoginState {
   avatar?: string;

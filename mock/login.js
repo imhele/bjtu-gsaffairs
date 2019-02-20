@@ -17,7 +17,7 @@ const login = (req, res) => {
       errmsg: 'Invalid login method',
     });
   }
-  if (timestamp < Date.now() / 1000)
+  if (timestamp + 60 < Date.now() / 1000)
     return res.send({
       errcode: 40011,
       errmsg: 'Expired signature',

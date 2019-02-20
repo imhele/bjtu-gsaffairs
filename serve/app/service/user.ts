@@ -51,7 +51,7 @@ export const UserScope = {
 /**
  * Service of user
  */
-export default class User extends Service {
+export default class UserService extends Service {
   public getSign(
     loginname: string,
     password: string,

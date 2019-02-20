@@ -86,10 +86,11 @@ const Detail: React.SFC<DetailProps> = props => (
       {props.stepsProps && <Steps className={styles.steps} {...props.stepsProps} />}
       <DescriptionList
         description={props.columns.map(
-          (col): DescriptionProps => ({
-            children: props.dataSource[col.dataIndex],
-            key: col.dataIndex,
-            term: col.title,
+          ({ dataIndex, title, ...restProps }): DescriptionProps => ({
+            children: props.dataSource[dataIndex],
+            key: dataIndex,
+            term: title,
+            ...restProps,
           }),
         )}
       />

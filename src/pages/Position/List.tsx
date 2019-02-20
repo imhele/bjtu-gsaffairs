@@ -19,7 +19,7 @@ import { CheckAuth, getCurrentScope } from '@/components/Authorized';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import { CellAction, HideWithouSelection, PositionType, TopbarAction } from './consts';
 import { NoviceTutorialWrapper, NoviceTutorialContext } from '@/components/NoviceTutorial';
-import { FetchListPayload, FetchDetailPayload, DeletePositionPayload } from '@/services/position';
+import { FetchListPayload, FetchDetailPayload, DeletePositionPayload } from '@/api/position';
 import StandardTable, {
   PaginationConfig,
   StandardTableAction,

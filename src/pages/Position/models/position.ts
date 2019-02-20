@@ -17,7 +17,7 @@ import {
   fetchDetail,
   fetchForm,
   fetchList,
-} from '@/services/position';
+} from '@/api/position';
 
 export interface PositionDetailProps {
   actionKey: string | string[];

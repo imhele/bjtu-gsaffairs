@@ -7,10 +7,9 @@ import commonStyles from '../common.less';
 import SimpleForm from '@/components/SimpleForm';
 import Exception404 from '@/pages/Exception/404';
 import { Button, Col, message, Skeleton } from 'antd';
-import { FetchFormPayload } from '@/services/position';
-import { CreatePositionPayload } from '@/services/position';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { buttonColProps, PositionType, TopbarAction } from './consts';
+import { CreatePositionPayload, FetchFormPayload } from '@/api/position';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 
 export interface CreateProps extends ConnectProps<{ type: PositionType }> {

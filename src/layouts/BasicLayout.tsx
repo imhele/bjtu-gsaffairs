@@ -65,7 +65,7 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
   useMedia({ query: '(max-width: 1300px)', onChange: onCollapse });
   useEffect(() => {
     setRoute(Utils.filterScopeRoute(restProps.route, currentScope));
-  }, [currentScope.include, currentScope.exclude]);
+  }, [currentScope]);
   /**
    * `delay` in `<QueueAnim />` is setted to wait for `onCollapse` in constructor
    */

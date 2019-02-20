@@ -19,8 +19,12 @@ export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizCon
   // Enabled global middlewares
   config.middleware = ['errcode', 'auth'];
 
+  config.errcode = {
+    enable: false, // @DEBUG
+  };
+
   config.auth = {
-    enable: true,
+    enable: false, // @DEBUG
     loginAging: 7200,
     ignore: ['/login'],
   } as MiddlewareAuthConfig;

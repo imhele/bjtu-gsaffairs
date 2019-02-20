@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'dva';
 import styles from './Login.less';
-import { LoginPayload } from '@/services/login';
+import { LoginPayload } from '@/api/login';
 import { FormComponentProps } from 'antd/es/form';
 import { FormattedMessage } from 'umi-plugin-locale';
 import { Button, Card, Form, Icon, Input } from 'antd';

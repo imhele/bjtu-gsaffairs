@@ -9,11 +9,10 @@ import commonStyles from '../common.less';
 import { scrollToTop } from '@/utils/utils';
 import SimpleForm from '@/components/SimpleForm';
 import Exception404 from '@/pages/Exception/404';
-import { FetchFormPayload } from '@/services/position';
-import { AuditPositionPayload } from '@/services/position';
 import { GlobalId, StorageId, TypeSpaceChar } from '@/global';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { buttonColProps, CellAction, PositionType } from './consts';
+import { AuditPositionPayload, FetchFormPayload } from '@/api/position';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import {
   Button,

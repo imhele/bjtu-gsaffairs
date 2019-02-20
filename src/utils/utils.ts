@@ -25,8 +25,7 @@ export function UUID(length = 32, join = ''): string {
 
 export function pathToScope(route: Route, pathname: string): (string | number)[] {
   if (!!!route || !!!pathname) return ['DENY'];
-  if (route.path === pathname) return route.scope;
-  if (!Array.isArray(route.routes)) return ['DENY'];
+  if (route.path === pathname || !Array.isArray(route.routes)) return route.scope;
   return pathToScope(
     route.routes.find(v => v.path && pathToRegexp(`${v.path}(.*)`).test(pathname)),
     pathname,
@@ -165,7 +164,10 @@ export const inheritScope = (route: Route, parentScope: (string | number)[] = []
 const filterScopeRouteItem = (route: Route, currentScope: CurrentScope = []): Route => {
   if (!Array.isArray(route.routes)) return { ...route, routes: void 0 };
   const routes = route.routes
-    .filter(child => CheckAuth(child.scope, currentScope))
+    .map(child => ({
+      ...child,
+      hideInMenu: child.hideInMenu || !CheckAuth(child.scope, currentScope),
+    }))
     .map(child => filterScopeRouteItem(child, currentScope));
   if (!routes.length) return { ...route, routes: route.component ? void 0 : null };
   return { ...route, routes };
