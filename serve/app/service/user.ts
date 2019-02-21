@@ -22,6 +22,9 @@ export type ScopeValue =
   | 'scope.position.teach.audit'
   | 'scope.position.teach.apply';
 
+/**
+ * @Ref https://yuque.com/hele/doc/qzuay6#scopeList
+ */
 export const ScopeList = {
   admin: 'scope.admin',
   position: {
@@ -42,6 +45,7 @@ export const ScopeList = {
   },
 };
 
+// Basic scopes
 export const UserScope: { [key: number]: ScopeValue[] } = {
   [UserType.Postgraduate]: [
     'scope.position.manage.list',
@@ -89,9 +93,17 @@ export default class UserService extends Service {
     /**
      * @TODO Extra role of current user
      */
+    const auditableDep = await this.isIntershipAdmin(loginname);
+    const scope = UserScope[type];
+    if (auditableDep.length) {
+      /* Scope of batch audit */
+      scope.push(ScopeList.position.teach.audit as ScopeValue);
+      scope.push(ScopeList.position.manage.audit as ScopeValue);
+    }
     return {
-      user: user.dataValues as PostgraduateModel | StaffModel,
-      scope: UserScope[type] || [],
+      auditableDep,
+      user: user.format() as PostgraduateModel | StaffModel,
+      scope,
       type,
     };
   }
@@ -110,5 +122,13 @@ export default class UserService extends Service {
       .hmac(hash.sha256 as any, secret)
       .update(content)
       .digest('hex');
+  }
+
+  private async isIntershipAdmin(jobnum: string) {
+    const { model } = this.ctx;
+    const auditableDepartments = await model.Interships.Admins.findAll({
+      where: { staff_jobnum: jobnum },
+    });
+    return auditableDepartments.map((dep: any) => dep.get('department_code') as string);
   }
 }

@@ -3,10 +3,19 @@ import { PostgraduateModel, StaffModel } from '../model';
 
 interface RequestExtend {
   auth: {
-    user: PostgraduateModel | StaffModel;
+    /* auditableDep: [`${department_code}`] */
+    auditableDep: string[];
     scope: string[];
     type: UserType;
+    user: PostgraduateModel | StaffModel;
   };
 }
 
-export default {} as RequestExtend;
+export default {
+  auth: {
+    auditableDep: [],
+    scope: [],
+    type: UserType.Postgraduate,
+    user: {} as any,
+  },
+} as RequestExtend;

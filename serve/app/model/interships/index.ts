@@ -1,3 +1,4 @@
+export { IntershipsAdmin as IntershipsAdminModel, attr as IntershipsAdminAttr } from './admins';
 export {
   Position as PositionModel,
   PositionType,

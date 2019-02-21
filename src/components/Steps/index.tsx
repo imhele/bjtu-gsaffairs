@@ -22,7 +22,7 @@ export interface StepsProps {
 }
 
 const Steps: React.SFC<StepsProps> = ({ steps, ...restProps }) =>
-  steps ? (
+  steps && steps.length ? (
     <AntSteps {...restProps}>
       {steps.map((step, index) => (
         <AntSteps.Step {...step} key={step.key || index} />

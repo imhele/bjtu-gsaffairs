@@ -1,5 +1,6 @@
 import { Application } from 'egg';
 import { intEnumValid } from '../../errcode';
+import { setModelInstanceMethods } from '../../utils';
 import {
   DefineModelAttributes,
   DATEONLY,
@@ -18,13 +19,13 @@ export enum PositionType {
  * @Ref https://www.yuque.com/hele/doc/qzuay6#StepsProps
  * Map `PostionStatus` to `StepStatus`
  */
-export enum PositionStatus {
-  '待审核' = 'process',
-  '审核通过' = 'finish',
-  '审核不通过' = 'error',
-  '草稿' = 'process',
-  '已发布' = 'finish',
-}
+export const PositionStatus = {
+  待审核: 'process',
+  审核通过: 'finish',
+  审核不通过: 'error',
+  草稿: 'process',
+  已发布: 'finish',
+};
 
 export const PositionAuditStatus = {
   [PositionType.助管]: ['单位申报', '人事处审核', '研工部审核', '发布岗位'],
@@ -39,6 +40,7 @@ export const PositionAuditStatus = {
 };
 
 export interface Position {
+  id?: number;
   semester: string;
   name: string;
   types: number;
@@ -59,7 +61,7 @@ export interface Position {
   audit: number;
   audit_log: string[] | string[][];
   department_code?: string;
-  staff_loginname?: string;
+  staff_jobnum?: string;
 }
 
 export const attr: DefineModelAttributes<Position> = {
@@ -194,12 +196,16 @@ export const attr: DefineModelAttributes<Position> = {
 };
 
 export default (app: Application) => {
-  const PositionModel = app.model.define('Position', attr, {
+  const PositionModel = app.model.define('IntershipsPosition', attr, {
     tableName: 'interships_position',
   });
   PositionModel.associate = () => {
-    app.model.Interships.Position.belongsTo(app.model.Dicts.Department);
-    app.model.Interships.Position.belongsTo(app.model.Client.Staff);
+    app.model.Interships.Position.belongsTo(app.model.Dicts.Department, {
+      foreignKey: 'department_code',
+    });
+    app.model.Interships.Position.belongsTo(app.model.People.Staff, {
+      foreignKey: 'staff_jobnum',
+    });
   };
-  return PositionModel;
+  return setModelInstanceMethods(PositionModel, attr);
 };

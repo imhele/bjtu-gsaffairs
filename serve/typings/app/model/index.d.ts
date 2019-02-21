@@ -12,6 +12,8 @@ import ExportDictsIndex from '../../../app/model/dicts/index';
 import ExportIntershipsAdmins from '../../../app/model/interships/admins';
 import ExportIntershipsIndex from '../../../app/model/interships/index';
 import ExportIntershipsPosition from '../../../app/model/interships/position';
+import ExportPeopleIndex from '../../../app/model/people/index';
+import ExportPeopleStaff from '../../../app/model/people/staff';
 
 declare module 'sequelize' {
   interface Sequelize {
@@ -32,6 +34,10 @@ declare module 'sequelize' {
       Admins: ReturnType<typeof ExportIntershipsAdmins>;
       Index: ReturnType<typeof ExportIntershipsIndex>;
       Position: ReturnType<typeof ExportIntershipsPosition>;
+    }
+    People: {
+      Index: ReturnType<typeof ExportPeopleIndex>;
+      Staff: ReturnType<typeof ExportPeopleStaff>;
     }
   }
 }

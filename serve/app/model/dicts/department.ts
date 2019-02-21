@@ -1,4 +1,5 @@
 import { Application } from 'egg';
+import { setModelInstanceMethods } from '../../utils';
 import { DefineModelAttributes, INTEGER, TINYINT, STRING } from 'sequelize';
 
 export interface Department {
@@ -50,6 +51,9 @@ export const attr: DefineModelAttributes<Department> = {
 };
 
 export default (app: Application) =>
-  app.model.define('Department', attr, {
-    tableName: 'dicts_department',
-  });
+  setModelInstanceMethods(
+    app.model.define('DictsDepartment', attr, {
+      tableName: 'dicts_department',
+    }),
+    attr,
+  );

@@ -1,11 +1,12 @@
 import { Service } from 'egg';
+import { WhereOptions } from 'sequelize';
 import { DataNotFound } from '../errcode';
-import { DepartmentModel, PositionModel, StaffModel } from '../model';
+import { DepartmentModel, PositionAttr, PositionModel, StaffModel } from '../model';
 
 interface PositionWithFK<D extends boolean = false, S extends boolean = false>
   extends PositionModel {
-  Department: D extends true ? DepartmentModel : never;
-  Staff: S extends true ? StaffModel : never;
+  DictsDepartment: D extends true ? DepartmentModel : never;
+  PeopleStaff: S extends true ? StaffModel : never;
   [key: string]: any;
 }
 
@@ -20,10 +21,10 @@ export default class PositionService extends Service {
   public async findOne(id: number | string): Promise<PositionWithFK> {
     const { model } = this.ctx;
     const position: any = await model.Interships.Position.findByPk(id, {
-      include: [model.Dicts.Department, model.Client.Staff],
+      include: [model.Dicts.Department, model.People.Staff],
     });
     if (position === null) throw new DataNotFound('岗位信息不存在');
-    return this.formatPosition(position) as PositionWithFK;
+    return position.format() as PositionWithFK;
   }
 
   public async updateOne(id: number | string, values: Partial<PositionModel>) {
@@ -41,7 +42,7 @@ export default class PositionService extends Service {
     limit: number,
     offset: number,
     attributes?: string[],
-    where?: Partial<PositionModel>,
+    where?: WhereOptions<PositionModel>,
   ) {
     const { model } = this.ctx;
     const positions: any[] = await model.Interships.Position.findAll({
@@ -55,23 +56,21 @@ export default class PositionService extends Service {
   }
 
   private formatPosition(position: any) {
-    const formattedPosition = {
-      ...position.dataValues,
-      Department: (position.dataValues.Department || {}).dataValues,
-      Staff: (position.dataValues.Staff || {}).dataValues,
-    } as PositionWithFK<true, true>;
-    if (formattedPosition.Department) {
-      Object.entries(formattedPosition.Department).forEach(([key, value]) => {
-        formattedPosition[`department_${key}`] = value;
+    const formatted = position.format();
+    if (formatted.DictsDepartment) {
+      formatted.DictsDepartment = formatted.DictsDepartment.format();
+      Object.entries(formatted.DictsDepartment).forEach(([key, value]) => {
+        formatted[`department_${key}`] = value;
       });
-      delete formattedPosition.Department;
+      delete formatted.DictsDepartment;
     }
-    if (formattedPosition.Staff) {
-      Object.entries(formattedPosition.Staff).forEach(([key, value]) => {
-        formattedPosition[`staff_${key}`] = value;
+    if (formatted.PeopleStaff) {
+      formatted.PeopleStaff = formatted.PeopleStaff.format();
+      Object.entries(formatted.PeopleStaff).forEach(([key, value]) => {
+        formatted[`staff_${key}`] = value;
       });
-      delete formattedPosition.Staff;
+      delete formatted.PeopleStaff;
     }
-    return formattedPosition as any;
+    return formatted as any;
   }
 }

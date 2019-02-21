@@ -1,4 +1,5 @@
 import { Application } from 'egg';
+import { setModelInstanceMethods } from '../../utils';
 import { DefineModelAttributes, DATE, STRING, TINYINT } from 'sequelize';
 
 export interface Postgraduate {
@@ -14,8 +15,8 @@ export const attr: DefineModelAttributes<Postgraduate> = {
     allowNull: false,
     comment: '工号',
     primaryKey: true,
-    type: STRING(50),
-    validate: { len: [0, 50], notEmpty: true },
+    type: STRING(12),
+    validate: { len: [0, 12], notEmpty: true },
   },
   password: {
     allowNull: false,
@@ -44,6 +45,9 @@ export const attr: DefineModelAttributes<Postgraduate> = {
 };
 
 export default (app: Application) =>
-  app.model.define('Postgraduate', attr, {
-    tableName: 'client_postgraduate',
-  });
+  setModelInstanceMethods(
+    app.model.define('ClientPostgraduate', attr, {
+      tableName: 'client_postgraduate',
+    }),
+    attr,
+  );

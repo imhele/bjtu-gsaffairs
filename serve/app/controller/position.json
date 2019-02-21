@@ -67,7 +67,7 @@
       "status",
       "audit",
       "audit_log",
-      "staff_username",
+      "staff_name",
       "department_name"
     ],
     "withoutAuditLog": [
@@ -87,7 +87,7 @@
       "class_type",
       "class_num",
       "class_time",
-      "staff_username",
+      "staff_name",
       "department_name"
     ]
   },
