@@ -39,26 +39,26 @@ export const PositionAuditStatus = {
   ],
 };
 
-export interface Position {
+export interface Position<E extends boolean = false> {
   id?: number;
   semester: string;
   name: string;
-  types: number;
+  types: E extends false ? string : number;
   need: string;
   need_num: number;
   content: string;
   address: string;
   work_time_d: string;
   work_time_l: number;
-  campus: number;
-  way: number;
+  campus: E extends false ? string : number;
+  way: E extends false ? string : number;
   start_t: string;
   end_t: string;
-  class_type: number;
+  class_type: E extends false ? string : number;
   class_num: number;
   class_time: number;
-  status: number;
-  audit: number;
+  status: E extends false ? string : number;
+  audit: E extends false ? string : number;
   audit_log: string[] | string[][];
   department_code?: string;
   staff_jobnum?: string;

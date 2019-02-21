@@ -24,7 +24,7 @@ export default class PositionService extends Service {
       include: [model.Dicts.Department, model.People.Staff],
     });
     if (position === null) throw new DataNotFound('岗位信息不存在');
-    return position.format() as PositionWithFK;
+    return this.formatPosition(position) as PositionWithFK;
   }
 
   public async updateOne(id: number | string, values: Partial<PositionModel>) {
