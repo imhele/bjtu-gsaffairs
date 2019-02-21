@@ -1,7 +1,7 @@
 import { Service } from 'egg';
 import { WhereOptions } from 'sequelize';
 import { DataNotFound } from '../errcode';
-import { DepartmentModel, PositionAttr, PositionModel, StaffModel } from '../model';
+import { DepartmentModel, PositionModel, StaffModel } from '../model';
 
 interface PositionWithFK<D extends boolean = false, S extends boolean = false>
   extends PositionModel {
@@ -38,21 +38,35 @@ export default class PositionService extends Service {
   /**
    * Find some of positions with department information.
    */
-  public async findSomeWithDep(
-    limit: number,
-    offset: number,
-    attributes?: string[],
-    where?: WhereOptions<PositionModel>,
-  ) {
+  public async findSomeWithDep<C extends boolean, TCustomAttributes>({
+    limit,
+    offset,
+    attributes,
+    where,
+    depAttributes,
+    count,
+  }: {
+    limit: number;
+    offset: number;
+    attributes?: string[];
+    where?: WhereOptions<PositionModel & TCustomAttributes>;
+    depAttributes?: (keyof DepartmentModel)[];
+    count?: C;
+  }) {
     const { model } = this.ctx;
-    const positions: any[] = await model.Interships.Position.findAll({
+    const result = await (model.Interships.Position[count ? 'findAndCountAll' : 'findAll'] as any)({
       limit,
       offset,
       attributes,
       where,
-      include: [model.Dicts.Department],
+      include: [{ model: model.Dicts.Department, attributes: depAttributes }],
     });
-    return positions.map(item => this.formatPosition(item)) as PositionWithFK[];
+    return {
+      positions: (count ? result.rows : result).map(item =>
+        this.formatPosition(item),
+      ) as PositionWithFK[],
+      total: result.count as (C extends true ? number : undefined),
+    };
   }
 
   private formatPosition(position: any) {

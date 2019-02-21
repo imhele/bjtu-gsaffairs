@@ -94,14 +94,16 @@ export default class UserService extends Service {
      * @TODO Extra role of current user
      */
     const auditableDep = await this.isIntershipAdmin(loginname);
+    const auditLink = 'audit_link' in user ? user.audit_link : [];
     const scope = UserScope[type];
-    if (auditableDep.length) {
+    if (auditableDep.length || auditLink.length) {
       /* Scope of batch audit */
       scope.push(ScopeList.position.teach.audit as ScopeValue);
       scope.push(ScopeList.position.manage.audit as ScopeValue);
     }
     return {
       auditableDep,
+      auditLink,
       user: user.format() as PostgraduateModel | StaffModel,
       scope,
       type,

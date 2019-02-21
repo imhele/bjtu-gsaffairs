@@ -1,13 +1,23 @@
 import { Application } from 'egg';
+import { jsonEnumArrValid } from '../../errcode';
 import { setModelInstanceMethods } from '../../utils';
-import { DefineModelAttributes, DATE, STRING, TINYINT } from 'sequelize';
+import { DefineModelAttributes, DATE, JSON as JSONTYPE, STRING, TINYINT } from 'sequelize';
 
-export interface Staff {
+export const StaffAuditLink = [
+  '人事处审核',
+  '用人单位审核',
+  '教务处审核',
+  '研究生院审核',
+  '研工部审核',
+];
+
+export interface Staff<E extends boolean = false> {
   loginname: string;
   password: string;
   username: string;
   is_active: number;
   last_login: string;
+  audit_link: E extends false ? string[] : number;
 }
 
 export const attr: DefineModelAttributes<Staff> = {
@@ -41,6 +51,12 @@ export const attr: DefineModelAttributes<Staff> = {
     comment: '最后登录时间',
     type: DATE,
     validate: { isDate: true },
+  },
+  audit_link: {
+    allowNull: true,
+    comment: '审核环节',
+    type: JSONTYPE,
+    validate: { notEmpty: true, ...jsonEnumArrValid(StaffAuditLink) },
   },
 };
 

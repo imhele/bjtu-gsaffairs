@@ -17,6 +17,21 @@ export const intEnumValid = (arr: any[] | number | object) => {
   };
 };
 
+export const jsonEnumArrValid = (arr: any[]) => {
+  return {
+    notInEnum: (v: string) => {
+      if (!v) return;
+      try {
+        const obj: any[] = JSON.parse(v);
+        if (!Array.isArray(obj) || obj.some(i => !arr.includes(i)))
+          throw new ValidationErrorItem('', '', '', v);
+      } catch {
+        throw new ValidationErrorItem('', '', '', v);
+      }
+    },
+  };
+};
+
 export const ValidationMessage: {
   [key: string]: (v: string, k: string, len?: [number, number]) => string;
 } = {

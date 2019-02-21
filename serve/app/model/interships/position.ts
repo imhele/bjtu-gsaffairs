@@ -10,10 +10,10 @@ import {
   TEXT,
 } from 'sequelize';
 
-export enum PositionType {
-  '助管' = 'manage',
-  '助教' = 'teach',
-}
+export const PositionType = {
+  manage: '助管',
+  teach: '助教',
+};
 
 /**
  * @Ref https://www.yuque.com/hele/doc/qzuay6#StepsProps
@@ -28,15 +28,8 @@ export const PositionStatus = {
 };
 
 export const PositionAuditStatus = {
-  [PositionType.助管]: ['单位申报', '人事处审核', '研工部审核', '发布岗位'],
-  [PositionType.助教]: [
-    '教师申报',
-    '用人单位审核',
-    '教务处审核',
-    '研究生院审核',
-    '研工部审核',
-    '发布岗位',
-  ],
+  manage: ['职工申报', '用人单位审核', '人事处审核', '研工部审核', '发布岗位'],
+  teach: ['教师申报', '用人单位审核', '教务处审核', '研究生院审核', '研工部审核', '发布岗位'],
 };
 
 export interface Position<E extends boolean = false> {
@@ -57,7 +50,13 @@ export interface Position<E extends boolean = false> {
   class_type: E extends false ? string : number;
   class_num: number;
   class_time: number;
+  /**
+   * 此岗位当前所处的审核状态
+   */
   status: E extends false ? string : number;
+  /**
+   * 此岗位当前所在的审核环节
+   */
   audit: E extends false ? string : number;
   audit_log: string[] | string[][];
   department_code?: string;
@@ -87,8 +86,8 @@ export const attr: DefineModelAttributes<Position> = {
     allowNull: false,
     comment: '三助类型',
     type: INTEGER,
-    values: Object.keys(PositionType),
-    validate: { notEmpty: true, ...intEnumValid(PositionType) },
+    values: Object.values(PositionType),
+    validate: { notEmpty: true, ...intEnumValid(Object.values(PositionType)) },
   },
   need_num: {
     allowNull: false,
@@ -118,7 +117,7 @@ export const attr: DefineModelAttributes<Position> = {
     allowNull: true,
     comment: '周工作量',
     type: INTEGER,
-    validate: { len: [0, 12], notEmpty: true },
+    validate: { isInt: true, notEmpty: true },
   },
   campus: {
     allowNull: false,
@@ -160,13 +159,13 @@ export const attr: DefineModelAttributes<Position> = {
     allowNull: true,
     comment: '课程人数',
     type: INTEGER,
-    validate: { notEmpty: true },
+    validate: { isInt: true, notEmpty: true },
   },
   class_time: {
     allowNull: true,
     comment: '学时数',
     type: INTEGER,
-    validate: { notEmpty: true },
+    validate: { isInt: true, notEmpty: true },
   },
   status: {
     allowNull: false,

@@ -20,7 +20,7 @@ export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizCon
   config.middleware = ['errcode', 'auth'];
 
   config.errcode = {
-    enable: true, // @DEBUG
+    enable: true,
   };
 
   config.auth = {

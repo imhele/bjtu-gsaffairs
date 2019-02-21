@@ -3,7 +3,6 @@
 
 import 'egg';
 import ExportIndex from '../../../app/model/index';
-import ExportAuthIndex from '../../../app/model/auth/index';
 import ExportClientIndex from '../../../app/model/client/index';
 import ExportClientPostgraduate from '../../../app/model/client/postgraduate';
 import ExportClientStaff from '../../../app/model/client/staff';
@@ -18,9 +17,6 @@ import ExportPeopleStaff from '../../../app/model/people/staff';
 declare module 'sequelize' {
   interface Sequelize {
     Index: ReturnType<typeof ExportIndex>;
-    Auth: {
-      Index: ReturnType<typeof ExportAuthIndex>;
-    }
     Client: {
       Index: ReturnType<typeof ExportClientIndex>;
       Postgraduate: ReturnType<typeof ExportClientPostgraduate>;

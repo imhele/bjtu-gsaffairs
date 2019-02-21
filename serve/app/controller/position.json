@@ -1,4 +1,18 @@
 {
+  "tableQueryFields": [
+    "id",
+    "semester",
+    "name",
+    "need_num",
+    "work_time_l",
+    "campus",
+    "status",
+    "way",
+    "class_type",
+    "staff_jobnum",
+    "department_code",
+    "audit"
+  ],
   "tableColumns": [
     {
       "width": 200,
@@ -21,9 +35,19 @@
       "dataIndex": "need_num"
     },
     {
+      "width": 64,
+      "title": "周工作量",
+      "dataIndex": "work_time_l"
+    },
+    {
       "width": 78,
       "title": "校区",
       "dataIndex": "campus"
+    },
+    {
+      "width": 95,
+      "title": "课程类型",
+      "dataIndex": "class_type"
     },
     {
       "width": 108,
@@ -36,16 +60,18 @@
       "dataIndex": "way"
     },
     {
-      "width": 108,
-      "title": "申请状态",
-      "dataIndex": "applyStatus"
-    },
-    {
       "width": 112,
       "title": "操作",
       "dataIndex": "action"
     }
   ],
+  "operationArea": {
+    "operation": [
+      { "icon": "plus", "text": "新建", "type": "create" },
+      { "icon": "cloud-download", "text": "导出", "type": "export" },
+      { "icon": "audit", "text": "审核", "type": "audit" }
+    ]
+  },
   "detailColumns": {
     "withAuditLog": [
       "semester",
