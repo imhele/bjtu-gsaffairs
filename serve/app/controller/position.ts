@@ -56,10 +56,9 @@ export default class PositionController extends Controller {
      */
     const filters = [body.filtersValue || {}] as WhereOptions<PositionModel & WhereNested>[];
     Object.keys(filters).forEach(key => {
-      if (filtersMap[key] && filtersMap[key].type === SimpleFormItemType.Input) {
+      if (filtersMap[key] && filtersMap[key].type === SimpleFormItemType.Input)
         /* Input 类型使用模糊查询 */
         filters[key] = { [Op.like]: filters[key] };
-      }
     });
     filters[0].types = positionType;
     if (
@@ -239,7 +238,7 @@ export default class PositionController extends Controller {
         action.set(CellAction.Preview, true);
         /* 学生可申请已发布的岗位 */
         if (scope.includes(ScopeList.position[type].apply)) {
-          // @TODO 学生已申请岗位时，状态不可用
+          // @TODO 学生已申请岗位时，状态不可用，目前直接在用户进入申请页时判断权限
           action.set(CellAction.Apply, true);
         }
       }

@@ -9,6 +9,7 @@ import ExportClientStaff from '../../../app/model/client/staff';
 import ExportDictsDepartment from '../../../app/model/dicts/department';
 import ExportDictsIndex from '../../../app/model/dicts/index';
 import ExportIntershipsAdmins from '../../../app/model/interships/admins';
+import ExportIntershipsConfig from '../../../app/model/interships/config';
 import ExportIntershipsIndex from '../../../app/model/interships/index';
 import ExportIntershipsPosition from '../../../app/model/interships/position';
 import ExportPeopleIndex from '../../../app/model/people/index';
@@ -28,6 +29,7 @@ declare module 'sequelize' {
     }
     Interships: {
       Admins: ReturnType<typeof ExportIntershipsAdmins>;
+      Config: ReturnType<typeof ExportIntershipsConfig>;
       Index: ReturnType<typeof ExportIntershipsIndex>;
       Position: ReturnType<typeof ExportIntershipsPosition>;
     }

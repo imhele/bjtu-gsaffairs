@@ -1,6 +1,7 @@
 import { Application } from 'egg';
 import { setModelInstanceMethods } from '../../utils';
-import { DefineModelAttributes, INTEGER, TINYINT, STRING } from 'sequelize';
+import { filtersMap } from '../../controller/positionFilter';
+import { DefineModelAttributes, Instance, INTEGER, TINYINT, STRING } from 'sequelize';
 
 export interface Department {
   code: string;
@@ -50,10 +51,20 @@ export const attr: DefineModelAttributes<Department> = {
   },
 };
 
-export default (app: Application) =>
-  setModelInstanceMethods(
+export default (app: Application) => {
+  const Model = setModelInstanceMethods(
     app.model.define('DictsDepartment', attr, {
       tableName: 'dicts_department',
     }),
     attr,
   );
+  Model.associate = async () => {
+    /* 后端启动时，从数据库取出所有部门的名称，添加到 `filtersMap` 中 */
+    const departments = await app.model.Dicts.Department.findAll({ attributes: ['code', 'name'] });
+    filtersMap.department_code!.selectOptions = departments.map((item: any) => ({
+      title: item.get('name'),
+      value: item.get('code'),
+    }));
+  };
+  return Model;
+};

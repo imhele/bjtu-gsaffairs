@@ -3,20 +3,21 @@ import { DefineAttributeColumnOptions } from 'sequelize';
 import { FilterItemProps, SimpleFormItemType } from '../../../src/components/SimpleForm';
 
 const NewPositionAttr = PositionAttr as {
-  [K in keyof Required<typeof PositionAttr>]: DefineAttributeColumnOptions
+  [key: string]: DefineAttributeColumnOptions;
 };
 
 export const filtersMap: { [K in keyof Partial<typeof PositionAttr>]: FilterItemProps } = {
   semester: {
     id: 'semester',
     title: '学年学期',
-    type: SimpleFormItemType.Input,
+    type: SimpleFormItemType.Select,
+    selectOptions: ['2018-2019学年 第一学期', '2018-2019学年 第二学期'].map(value => ({ value })),
   },
   department_code: {
     id: 'department_code',
     title: '单位',
-    selectOptions: [], // @TODO
     type: SimpleFormItemType.Select,
+    selectOptions: [],
   },
   name: {
     id: 'name',
