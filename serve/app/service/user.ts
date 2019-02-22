@@ -90,9 +90,6 @@ export default class UserService extends Service {
       user = await model.Client.Staff.findByPrimary(loginname);
     }
     if (user === null) throw new DataNotFound('用户不存在');
-    /**
-     * @TODO Extra role of current user
-     */
     const auditableDep = await this.isIntershipAdmin(loginname);
     const auditLink = 'audit_link' in user ? user.audit_link : [];
     const scope = UserScope[type];

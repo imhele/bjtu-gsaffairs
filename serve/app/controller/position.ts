@@ -11,7 +11,12 @@ import { CellAction } from '../../../src/pages/Position/consts';
 import { SimpleFormItemType } from '../../../src/components/SimpleForm';
 import { filtersKeyMap, filtersMap, getFilters } from './positionFilter';
 import { StandardTableActionProps } from '../../../src/components/StandardTable';
-import { FetchListBody, FetchDetailBody, DeletePositionBody } from '../../../src/api/position';
+import {
+  FetchListBody,
+  FetchDetailBody,
+  DeletePositionBody,
+  AuditPositionBody,
+} from '../../../src/api/position';
 import {
   createReturn,
   detailColumns,
@@ -295,7 +300,8 @@ export default class PositionController extends Controller {
     if (!availableActions.get(CellAction.Edit))
       throw new AuthorizeError('你暂时没有权限编辑这个岗位');
 
-    const values = { ...ctx.request.body, key: void 0 } as PositionModel<true>;
+    delete ctx.request.body.key;
+    const values = { ...ctx.request.body } as PositionModel<true>;
     delete values.types;
     values.status = (PositionAttr.status as any).values.indexOf('待审核');
     values.audit = (PositionAttr.audit as any).values.indexOf(PositionAuditStatus[type][1]);
@@ -306,6 +312,49 @@ export default class PositionController extends Controller {
     values.staff_jobnum = auth.user.loginname;
     await service.position.updateOne(parseInt(id as string, 10), values as any);
     ctx.response.body = { errmsg: '提交成功' };
+  }
+
+  public async audit() {
+    const { ctx, service } = this;
+    const { auth } = ctx.request;
+    const { type } = ctx.params as { type: keyof typeof PositionType };
+    const { key: id } = ctx.request.body as AuditPositionBody;
+    if (!Object.keys(PositionType).includes(type) || !id) return;
+
+    /**
+     * Authorize
+     */
+    const position = await service.position.findOne(parseInt(id as string, 10));
+    const availableActions = this.getPositionAction(position, auth, type);
+    if (!availableActions.get(CellAction.Audit))
+      throw new AuthorizeError('你暂时没有权限审核这个岗位');
+
+    const values = {} as PositionModel<true>;
+    let auditStatus: number = PositionAuditStatus[type].indexOf(position.audit);
+    switch (ctx.request.body.status) {
+      case '审核通过':
+        if (++auditStatus === PositionAuditStatus[type].length - 1)
+          values.status = (PositionAttr.status as any).values.indexOf('已发布');
+        break;
+      case '审核不通过':
+        values.status = (PositionAttr.status as any).values.indexOf('审核不通过');
+        break;
+      case '退回':
+        auditStatus = 0;
+        values.status = (PositionAttr.status as any).values.indexOf('草稿');
+        break;
+      default:
+        return;
+    }
+    values.audit = (PositionAttr.audit as any).values.indexOf(
+      PositionAuditStatus[type][auditStatus],
+    );
+    values.audit_log = [
+      ...position.audit_log,
+      service.position.getAuditLogItem(auth, PositionAuditStatus[type][auditStatus]),
+    ];
+    await service.position.updateOne(parseInt(id as string, 10), values as any);
+    ctx.response.body = { errmsg: '审核成功' };
   }
 
   /**
