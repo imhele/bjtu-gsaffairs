@@ -1,6 +1,8 @@
+import moment from 'moment';
 import { Service } from 'egg';
 import { WhereOptions } from 'sequelize';
 import { DataNotFound } from '../errcode';
+import { AuthResult } from '../extend/request';
 import { DepartmentModel, PositionModel, StaffModel } from '../model';
 
 interface PositionWithFK<D extends boolean = false, S extends boolean = false>
@@ -27,12 +29,18 @@ export default class PositionService extends Service {
     return this.formatPosition(position) as PositionWithFK;
   }
 
-  public async updateOne(id: number | string, values: Partial<PositionModel>) {
+  public async updateOne(id: number | string, values: Partial<PositionModel<true>>) {
     const { model } = this.ctx;
     await model.Interships.Position.update(values, {
       fields: Object.keys(values),
       where: { id },
     });
+  }
+
+  public async addOne(values: Required<PositionModel<true>>) {
+    const { model } = this.ctx;
+    delete values.id;
+    await model.Interships.Position.create(values);
   }
 
   /**
@@ -67,6 +75,10 @@ export default class PositionService extends Service {
       ) as PositionWithFK[],
       total: result.count as (C extends true ? number : undefined),
     };
+  }
+
+  public getAuditLogItem(auth: AuthResult, auditStatus: string) {
+    return [moment().format('YYYY-MM-DD HH:mm:ss'), auditStatus, auth.user.username]
   }
 
   private formatPosition(position: any) {

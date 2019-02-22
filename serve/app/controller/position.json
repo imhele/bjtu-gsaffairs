@@ -117,6 +117,18 @@
       "department_name"
     ]
   },
+  "createReturn": {
+    "title": "创建成功",
+    "description": "你已成功创建一个新岗位，请耐心等待审核结果",
+    "extra": {
+      "columns": [
+        { "title": "岗位名称", "dataIndex": "name" },
+        { "title": "岗位人数", "dataIndex": "need_num" },
+        { "title": "计划工作量", "dataIndex": "work_time_l" }
+      ],
+      "dataSource": {}
+    }
+  },
   "createForm": {
     "manage": {
       "colProps": {

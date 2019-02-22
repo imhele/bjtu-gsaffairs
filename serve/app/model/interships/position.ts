@@ -63,7 +63,7 @@ export interface Position<E extends boolean = false> {
   staff_jobnum?: string;
 }
 
-export const attr: DefineModelAttributes<Position> = {
+export const attr: DefineModelAttributes<Position<true>> = {
   semester: {
     allowNull: false,
     comment: '学年学期',
@@ -117,7 +117,7 @@ export const attr: DefineModelAttributes<Position> = {
     allowNull: true,
     comment: '周工作量',
     type: INTEGER,
-    validate: { isInt: true, notEmpty: true },
+    validate: { isInt: true, max: 12, notEmpty: true },
   },
   campus: {
     allowNull: false,

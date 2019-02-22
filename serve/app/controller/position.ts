@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { Controller } from 'egg';
 import { getFromIntEnum } from '../utils';
 import { ScopeList } from '../service/user';
@@ -11,7 +12,13 @@ import { SimpleFormItemType } from '../../../src/components/SimpleForm';
 import { filtersKeyMap, filtersMap, getFilters } from './positionFilter';
 import { FetchListBody, FetchDetailBody } from '../../../src/api/position';
 import { StandardTableActionProps } from '../../../src/components/StandardTable';
-import { detailColumns, operationArea, tableColumns, tableQueryFields } from './position.json';
+import {
+  createReturn,
+  detailColumns,
+  operationArea,
+  tableColumns,
+  tableQueryFields,
+} from './position.json';
 import {
   DepartmentAttr,
   PositionAttr,
@@ -34,13 +41,7 @@ const ActionText = {
 export default class PositionController extends Controller {
   public async list() {
     const { ctx, service } = this;
-    // const { auth } = ctx.request; @DEBUG
-    const auth = {
-      scope: ['scope.position.manage.audit'] as string[],
-      auditableDep: [''],
-      user: { loginname: '' },
-      auditLink: ['研工部审核'],
-    } as AuthResult;
+    const { auth } = ctx.request;
     const body = ctx.request.body as FetchListBody;
     const { type } = ctx.params as { type: keyof typeof PositionType };
     const positionType: number = (PositionAttr.types as any).values.indexOf(PositionType[type]);
@@ -216,6 +217,48 @@ export default class PositionController extends Controller {
     columns.forEach(col => (dataSource[col.dataIndex] = position[col.dataIndex]));
 
     ctx.response.body = { columns, dataSource, stepsProps };
+  }
+
+  public async create() {
+    const { ctx, service } = this;
+    const { auth } = ctx.request;
+    const { type } = ctx.params as { type: keyof typeof PositionType };
+    if (!Object.keys(PositionType).includes(type)) return;
+
+    /**
+     * Authorize
+     */
+    if (!auth.scope.includes(ScopeList.position[type].create))
+      throw new AuthorizeError('你暂时没有权限创建岗位');
+
+    const values = { ...ctx.request.body } as PositionModel<true>;
+    values.types = (PositionAttr.types as any).values.indexOf(PositionType[type]);
+    values.status = (PositionAttr.status as any).values.indexOf('待审核');
+    values.audit = (PositionAttr.audit as any).values.indexOf(PositionAuditStatus[type][1]);
+    values.audit_log = [service.position.getAuditLogItem(auth, PositionAuditStatus[type][0])];
+    values.staff_jobnum = auth.user.loginname;
+    await service.position.addOne(values as any);
+
+    /**
+     * Construct `stepsProps`.
+     */
+    const stepsProps: StepsProps = {
+      current: 1,
+      steps: PositionAuditStatus[type].map(title => ({ title })),
+    };
+
+    ctx.response.body = {
+      ...createReturn,
+      stepsProps,
+      extra: {
+        ...createReturn.extra,
+        dataSource: {
+          name: ctx.request.body.name,
+          need_num: ctx.request.body.need_num,
+          work_time_l: ctx.request.body.work_time_l,
+        },
+      },
+    };
   }
 
   /**
