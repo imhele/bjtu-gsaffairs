@@ -26,7 +26,13 @@ export interface DescriptionListProps {
 const Description: React.SFC<DescriptionProps> = ({ term, column, children, ...restProps }) => (
   <Col {...responsive[column]} {...restProps}>
     {term && <div className={styles.term}>{term}</div>}
-    {children && <div className={styles.detail}>{children}</div>}
+    {children && (
+      <div className={styles.detail}>
+        {typeof children === 'string'
+          ? children.split('\n').map((child, index) => <div key={index}>{child}</div>)
+          : children}
+      </div>
+    )}
   </Col>
 );
 

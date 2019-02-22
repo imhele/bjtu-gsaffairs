@@ -181,16 +181,16 @@ export const renderFormItem = (
       item = <Input.TextArea autosize {...formItem.itemProps} />;
       break;
     case SimpleFormItemType.DatePicker:
-      item = <DatePicker {...formItem.itemProps} />;
+      item = <DatePicker style={{ width: '100%' }} {...formItem.itemProps} />;
       break;
     case SimpleFormItemType.MonthPicker:
-      item = <DatePicker.MonthPicker {...formItem.itemProps} />;
+      item = <DatePicker.MonthPicker style={{ width: '100%' }} {...formItem.itemProps} />;
       break;
     case SimpleFormItemType.RangePicker:
-      item = <DatePicker.RangePicker {...formItem.itemProps} />;
+      item = <DatePicker.RangePicker style={{ width: '100%' }} {...formItem.itemProps} />;
       break;
     case SimpleFormItemType.WeekPicker:
-      item = <DatePicker.WeekPicker {...formItem.itemProps} />;
+      item = <DatePicker.WeekPicker style={{ width: '100%' }} {...formItem.itemProps} />;
       break;
     default:
       item = null;

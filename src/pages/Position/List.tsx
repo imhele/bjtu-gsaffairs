@@ -214,7 +214,6 @@ class List extends Component<ListProps, ListState> {
       position: { total },
     } = this.props;
     return {
-      current: Math.floor(this.offset / this.limit),
       onChange: this.onChangePage,
       onShowSizeChange: this.onShowSizeChange,
       pageSize: this.limit,
