@@ -24,7 +24,7 @@ export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizCon
   };
 
   config.auth = {
-    enable: false, // @DEBUG
+    enable: true,
     loginAging: 7200,
     ignore: ['/login'],
   } as MiddlewareAuthConfig;

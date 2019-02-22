@@ -363,11 +363,11 @@ export default class PositionController extends Controller {
     ctx.response.body = { errmsg: '审核成功' };
   }
 
-  public async test() {
+  public async form() {
     const { ctx, service } = this;
     const { auth } = ctx.request;
     const { type } = ctx.params as { type: keyof typeof PositionType };
-    const { key: id = 4, action = CellAction.Edit } = ctx.request.body as FetchFormBody; // @DEBUG
+    const { key: id, action } = ctx.request.body as FetchFormBody;
     if (!Object.keys(PositionType).includes(type)) return;
 
     let formItems: SimpleFormItemProps[] = (ctx.model.Interships.Position as any).toForm(
