@@ -35,11 +35,6 @@ export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizCon
     formLimit: '1mb',
   };
 
-  // `listen.path` supports unix sock path
-  config.cluster = {
-    listen: { port: 7001 },
-  };
-
   // 404 not found
   config.notfound = {
     pageUrl: '/exception/404',
