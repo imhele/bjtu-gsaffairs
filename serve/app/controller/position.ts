@@ -7,6 +7,7 @@ import { Op, WhereNested, WhereOptions } from 'sequelize';
 import { StepsProps } from '../../../src/components/Steps';
 import { PositionState } from '../../../src/models/connect';
 import { attr as DepartmentAttr } from '../model/dicts/department';
+import { FetchListBody, FetchFormBody } from '../../../src/api/position';
 import { filtersKeyMap, filtersMap, getFilters } from './positionFilter';
 import { CellAction, TopbarAction } from '../../../src/pages/Position/consts';
 import { StandardTableActionProps } from '../../../src/components/StandardTable';
@@ -19,14 +20,6 @@ import {
   PositionType,
   StaffInfoAttr,
 } from '../model';
-import {
-  FetchListBody,
-  FetchDetailBody,
-  DeletePositionBody,
-  EditPositionBody,
-  AuditPositionBody,
-  FetchFormBody,
-} from '../../../src/api/position';
 import {
   auditFormItems,
   createReturn,
@@ -148,12 +141,11 @@ export default class PositionController extends Controller {
   public async detail() {
     const { ctx, service } = this;
     const { auth } = ctx.request;
-    const { type } = ctx.params as { type: keyof typeof PositionType };
-    const { key: id } = ctx.request.body as FetchDetailBody;
+    const { type, id } = ctx.params as { type: keyof typeof PositionType; id: string };
     if (!Object.keys(PositionType).includes(type) || id === void 0) return;
 
     let columnsKey: string[] = detailColumns.withoutAuditLog;
-    const position = await service.position.findOne(parseInt(id as string, 10));
+    const position = await service.position.findOne(parseInt(id, 10));
 
     /**
      * Construct `stepsProps`.
@@ -280,33 +272,31 @@ export default class PositionController extends Controller {
   public async delete() {
     const { ctx, service } = this;
     const { auth } = ctx.request;
-    const { type } = ctx.params as { type: keyof typeof PositionType };
-    const { key: id } = ctx.request.body as DeletePositionBody;
+    const { type, id } = ctx.params as { type: keyof typeof PositionType; id: string };
     if (!Object.keys(PositionType).includes(type) || id === void 0) return;
 
     /**
      * Authorize
      */
-    const position = await service.position.findOne(parseInt(id as string, 10));
+    const position = await service.position.findOne(parseInt(id, 10));
     const availableActions = this.getPositionAction(position, auth, type);
     if (!availableActions.get(CellAction.Delete))
       throw new AuthorizeError('你暂时没有权限删除这个岗位');
 
-    await service.position.deleteOne(parseInt(id as string, 10));
+    await service.position.deleteOne(parseInt(id, 10));
     ctx.response.body = { errmsg: '删除成功' };
   }
 
   public async edit() {
     const { ctx, service } = this;
     const { auth } = ctx.request;
-    const { type } = ctx.params as { type: keyof typeof PositionType };
-    const { key: id } = ctx.request.body as EditPositionBody;
+    const { type, id } = ctx.params as { type: keyof typeof PositionType; id: string };
     if (!Object.keys(PositionType).includes(type) || id === void 0) return;
 
     /**
      * Authorize
      */
-    const position = await service.position.findOne(parseInt(id as string, 10));
+    const position = await service.position.findOne(parseInt(id, 10));
     const availableActions = this.getPositionAction(position, auth, type);
     if (!availableActions.get(CellAction.Edit))
       throw new AuthorizeError('你暂时没有权限编辑这个岗位');
@@ -321,21 +311,20 @@ export default class PositionController extends Controller {
       service.position.getAuditLogItem(auth, PositionAuditStatus[type][0]),
     ]);
     values.staff_jobnum = auth.user.loginname;
-    await service.position.updateOne(parseInt(id as string, 10), values as any);
+    await service.position.updateOne(parseInt(id, 10), values as any);
     ctx.response.body = { errmsg: '提交成功' };
   }
 
   public async audit() {
     const { ctx, service } = this;
     const { auth } = ctx.request;
-    const { type } = ctx.params as { type: keyof typeof PositionType };
-    const { key: id } = ctx.request.body as AuditPositionBody;
+    const { type, id } = ctx.params as { type: keyof typeof PositionType; id: string };
     if (!Object.keys(PositionType).includes(type) || id === void 0) return;
 
     /**
      * Authorize
      */
-    const position = await service.position.findOne(parseInt(id as string, 10));
+    const position = await service.position.findOne(parseInt(id, 10));
     const availableActions = this.getPositionAction(position, auth, type);
     if (!availableActions.get(CellAction.Audit))
       throw new AuthorizeError('你暂时没有权限审核这个岗位');
@@ -365,15 +354,15 @@ export default class PositionController extends Controller {
         service.position.getAuditLogItem(auth, position.audit, ctx.request.body.status, ...opinion),
       ]),
     );
-    await service.position.updateOne(parseInt(id as string, 10), values as any);
+    await service.position.updateOne(parseInt(id, 10), values as any);
     ctx.response.body = { errmsg: '审核成功' };
   }
 
   public async form() {
     const { ctx, service } = this;
     const { auth } = ctx.request;
-    const { type } = ctx.params as { type: keyof typeof PositionType };
-    const { key: id, action } = ctx.request.body as FetchFormBody;
+    const { action } = ctx.request.body as FetchFormBody;
+    const { type, id } = ctx.params as { type: keyof typeof PositionType; id: string };
     if (!Object.keys(PositionType).includes(type)) return;
 
     let formItems: SimpleFormItemProps[] = (ctx.model.Interships.Position as any).toForm(
@@ -393,7 +382,7 @@ export default class PositionController extends Controller {
         throw new AuthorizeError('你暂时没有权限创建岗位');
       formItems.unshift(...this.getUserStaticFormItems(auth));
     } else {
-      const position = await service.position.findOne(parseInt(id as string, 10));
+      const position = await service.position.findOne(parseInt(id, 10));
       const availableActions = this.getPositionAction(position, auth, type);
       switch (action) {
         case CellAction.Edit:

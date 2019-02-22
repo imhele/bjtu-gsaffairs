@@ -55,11 +55,8 @@ class Edit extends Component<EditProps> {
     dispatch<FetchFormPayload>({
       type: 'position/fetchForm',
       payload: {
-        body: {
-          action: CellAction.Edit,
-          key: this.key,
-        },
-        query: { type },
+        body: { action: CellAction.Edit },
+        query: { type, key: this.key },
       },
     });
   }
@@ -97,11 +94,8 @@ class Edit extends Component<EditProps> {
     dispatch<EditPositionPayload>({
       type: 'position/editPosition',
       payload: {
-        body: {
-          ...fieldsValue,
-          key: this.key,
-        },
-        query: { type },
+        body: fieldsValue,
+        query: { type, key: this.key },
       },
     });
   };

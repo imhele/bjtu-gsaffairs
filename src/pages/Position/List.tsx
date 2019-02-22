@@ -10,12 +10,12 @@ import { getUseMedia } from 'react-media-hook2';
 import { message, Radio, Skeleton } from 'antd';
 import { Filter } from '@/components/SimpleForm';
 import { RadioChangeEvent } from 'antd/es/radio';
+import { CheckAuth } from '@/components/Authorized';
 import { WrappedFormUtils } from 'antd/es/form/Form';
 import { formatStrOrNumQuery } from '@/utils/format';
 import MemorableModal from '@/components/MemorableModal';
 import { GlobalId, StorageId, TypeSpaceChar } from '@/global';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
-import { CheckAuth, getCurrentScope } from '@/components/Authorized';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import { CellAction, HideWithouSelection, PositionType, TopbarAction } from './consts';
 import { NoviceTutorialWrapper, NoviceTutorialContext } from '@/components/NoviceTutorial';
@@ -162,16 +162,13 @@ class List extends Component<ListProps, ListState> {
     this.cancelSelection(currentRowKey);
     dispatch<DeletePositionPayload>({
       type: 'position/deletePosition',
-      payload: {
-        body: { key: currentRowKey },
-        query: { type },
-      },
+      payload: { query: { type, key: currentRowKey } },
       callback: this.deleteCallback,
     });
   };
 
   deleteCallback = (payload: DeletePositionPayload) => {
-    this.deletingRowKeys.delete(payload.body.key);
+    this.deletingRowKeys.delete(payload.query.key);
     this.onCloseDetail();
     this.fetchList();
   };
@@ -282,10 +279,7 @@ class List extends Component<ListProps, ListState> {
         this.setState({ currentRow, currentRowKey, detailVisible: true });
         dispatch<FetchDetailPayload>({
           type: 'position/fetchDetail',
-          payload: {
-            body: { key: currentRowKey },
-            query: { type },
-          },
+          payload: { query: { type, key: currentRowKey } },
         });
         break;
       case CellAction.Delete:

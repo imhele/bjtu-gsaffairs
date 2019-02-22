@@ -97,15 +97,20 @@ export default class UserService extends Service {
     }
     if (user === null) throw new DataNotFound('用户不存在');
     let scope = UserScope[type];
-    const auditLink = parseJSON(user.audit_link);
+    let auditLink = parseJSON(user.audit_link);
     const auditableDep = await this.isIntershipAdmin(loginname);
-    if (auditLink === 'admin') scope = ['scope.admin'];
-    else if (Array.isArray(auditLink) && (auditableDep.length || auditLink.length)) {
-      /* Scope of audit */
-      scope.push(
-        ScopeList.position.teach.audit as ScopeValue,
-        ScopeList.position.manage.audit as ScopeValue,
-      );
+    if (auditLink === 'admin') {
+      scope = ['scope.admin'];
+      auditLink = [];
+    } else {
+      if (!Array.isArray(auditLink)) auditLink = [];
+      if (auditableDep.length || auditLink.length) {
+        /* Scope of audit */
+        scope.push(
+          ScopeList.position.teach.audit as ScopeValue,
+          ScopeList.position.manage.audit as ScopeValue,
+        );
+      }
     }
     return {
       auditableDep,

@@ -54,7 +54,7 @@ export interface PositionState {
     x?: boolean | number | string;
     y?: boolean | number | string;
   };
-  selectable?: boolean;
+  selectable?: boolean | object;
   unSelectableKey?: string;
   /**
    * Position detail

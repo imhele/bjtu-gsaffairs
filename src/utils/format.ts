@@ -204,5 +204,5 @@ export function formatDynamicRoute(route: Route<true>, key?: number): Route {
       ? formatRouteInfo<Array<string | number>>(route.scope, key)
       : (route.scope as Array<string | number>),
     routes,
-  };
+  } as Route;
 }

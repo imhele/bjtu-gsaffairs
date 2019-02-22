@@ -185,7 +185,7 @@ export const attr: DefineModelAttributes<Position<true>> = {
     allowNull: true,
     comment: '审核日志',
     type: TEXT,
-    defaultValue: JSON.stringify(['暂无记录']),
+    defaultValue: JSON.stringify([]),
     validate: { isJson },
   },
   cellphone: {

@@ -91,11 +91,8 @@ class Audit extends Component<AuditProps, AuditState> {
     dispatch<FetchFormPayload>({
       type: 'position/fetchForm',
       payload: {
-        body: {
-          action: CellAction.Audit,
-          key: this.key,
-        },
-        query: { type },
+        body: { action: CellAction.Audit },
+        query: { type, key: this.key },
       },
     });
   }
@@ -151,11 +148,8 @@ class Audit extends Component<AuditProps, AuditState> {
     dispatch<FetchFormPayload>({
       type: 'position/fetchForm',
       payload: {
-        body: {
-          action: CellAction.Audit,
-          key: this.key,
-        },
-        query: { type },
+        body: { action: CellAction.Audit },
+        query: { type, key: this.key },
       },
     });
     const auditRowKeys = (this.keyQueue as (string | number)[]).map(key => {
@@ -199,11 +193,8 @@ class Audit extends Component<AuditProps, AuditState> {
     dispatch<AuditPositionPayload>({
       type: 'position/auditPosition',
       payload: {
-        body: {
-          ...fieldsValue,
-          key: this.key,
-        },
-        query: { type },
+        body: fieldsValue,
+        query: { type, key: this.key },
       },
       callback,
     });

@@ -6,6 +6,11 @@ declare type Route<D extends boolean | object[] = false> =
       component?: never;
       path: string;
       redirect: string;
+      routes?: never;
+      dynamic?: never;
+      icon?: never;
+      name?: never;
+      scope?: never;
     }
   | {
       component?: string;
