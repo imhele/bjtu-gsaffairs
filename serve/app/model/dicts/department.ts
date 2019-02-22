@@ -38,6 +38,7 @@ export const attr: DefineModelAttributes<Department> = {
   level: {
     allowNull: true,
     comment: '单位级别',
+    defaultValue: null,
     type: INTEGER,
   },
   used: {

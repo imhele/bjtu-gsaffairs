@@ -28,6 +28,7 @@ import {
   FetchFormBody,
 } from '../../../src/api/position';
 import {
+  auditFormItems,
   createReturn,
   detailColumns,
   formLayoutProps,
@@ -65,10 +66,10 @@ export default class PositionController extends Controller {
      */
     let attributes = tableQueryFields.withStatus;
     const filters = [{ ...body.filtersValue } || {}] as WhereOptions<PositionModel & WhereNested>[];
-    Object.keys(filters).forEach(key => {
+    Object.keys(filters[0]).forEach(key => {
       if (filtersMap[key] && filtersMap[key].type === SimpleFormItemType.Input)
         /* Input 类型使用模糊查询 */
-        filters[key] = { [Op.like]: filters[key] };
+        filters[0][key] = { [Op.like]: `%${filters[0][key]}%` };
     });
     filters[0].types = positionType as number;
     if (
@@ -149,7 +150,7 @@ export default class PositionController extends Controller {
     const { auth } = ctx.request;
     const { type } = ctx.params as { type: keyof typeof PositionType };
     const { key: id } = ctx.request.body as FetchDetailBody;
-    if (!Object.keys(PositionType).includes(type) || !id) return;
+    if (!Object.keys(PositionType).includes(type) || id === void 0) return;
 
     let columnsKey: string[] = detailColumns.withoutAuditLog;
     const position = await service.position.findOne(parseInt(id as string, 10));
@@ -181,7 +182,7 @@ export default class PositionController extends Controller {
     // [['a', 'b'], ['c']] => 'a，b\nc'
     position.audit_log = position.audit_log
       .map(i => (Array.isArray(i) ? i.join('，') : i))
-      .join('\n') as any;
+      .join(`\n`) as any;
 
     /**
      * Construct `columns`.
@@ -279,7 +280,7 @@ export default class PositionController extends Controller {
     const { auth } = ctx.request;
     const { type } = ctx.params as { type: keyof typeof PositionType };
     const { key: id } = ctx.request.body as DeletePositionBody;
-    if (!Object.keys(PositionType).includes(type) || !id) return;
+    if (!Object.keys(PositionType).includes(type) || id === void 0) return;
 
     /**
      * Authorize
@@ -298,7 +299,7 @@ export default class PositionController extends Controller {
     const { auth } = ctx.request;
     const { type } = ctx.params as { type: keyof typeof PositionType };
     const { key: id } = ctx.request.body as EditPositionBody;
-    if (!Object.keys(PositionType).includes(type) || !id) return;
+    if (!Object.keys(PositionType).includes(type) || id === void 0) return;
 
     /**
      * Authorize
@@ -327,7 +328,7 @@ export default class PositionController extends Controller {
     const { auth } = ctx.request;
     const { type } = ctx.params as { type: keyof typeof PositionType };
     const { key: id } = ctx.request.body as AuditPositionBody;
-    if (!Object.keys(PositionType).includes(type) || !id) return;
+    if (!Object.keys(PositionType).includes(type) || id === void 0) return;
 
     /**
      * Authorize
@@ -355,8 +356,11 @@ export default class PositionController extends Controller {
         return;
     }
     const auditStatus = PositionAuditStatus[type][auditStatusIndex];
+    const opinion = Array.isArray(ctx.request.body.opinion) ? ctx.request.body.opinion : [];
     values.audit = getFromIntEnum(PositionAttr, 'audit', null, auditStatus) as number;
-    values.audit_log = [...position.audit_log, service.position.getAuditLogItem(auth, auditStatus)];
+    values.audit_log = position.audit_log.concat([
+      service.position.getAuditLogItem(auth, position.audit, ctx.request.body.status, ...opinion),
+    ]);
     await service.position.updateOne(parseInt(id as string, 10), values as any);
     ctx.response.body = { errmsg: '审核成功' };
   }
@@ -397,22 +401,32 @@ export default class PositionController extends Controller {
         case CellAction.Audit:
           if (!availableActions.get(CellAction.Audit))
             throw new AuthorizeError('你暂时没有权限审核这个岗位');
-          formItems = ['semester', ...positionFormFields[type]].map(
-            (key: string): SimpleFormItemProps => ({
-              id: key,
+          formItems = this.getUserStaticFormItems(position).concat(
+            {
+              id: 'department_code',
               decoratorOptions,
               type: SimpleFormItemType.Extra,
-              extra: position[key],
-              title: PositionAttr[key].comment,
-            }),
+              extra: position.department_name,
+              title: '用工单位',
+            },
+            ['semester', ...positionFormFields[type]].map(
+              (key: string): SimpleFormItemProps => ({
+                id: key,
+                decoratorOptions,
+                type: SimpleFormItemType.Extra,
+                extra: position[key],
+                title: PositionAttr[key].comment,
+              }),
+            ),
           );
-          formItems.unshift(...this.getUserStaticFormItems(position), {
-            id: 'department_code',
-            decoratorOptions,
-            type: SimpleFormItemType.Extra,
-            extra: position.department_name,
-            title: '用工单位',
-          });
+          // if (formItems.length % 2)
+          //   formItems.push({
+          //     id: 'HOLD-A-PLACE',
+          //     extra: '',
+          //     type: SimpleFormItemType.Extra,
+          //     withoutWrap: true,
+          //   });
+          formItems.push(...(auditFormItems as any));
           break;
         default:
           return;

@@ -153,7 +153,7 @@ export const attr: DefineModelAttributes<Position<true>> = {
     allowNull: true,
     comment: '课程类型',
     type: INTEGER,
-    defaultValue: 0,
+    defaultValue: null,
     values: ['本科生', '研究生'],
     validate: { notEmpty: true, ...intEnumValid(2) },
   },

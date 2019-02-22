@@ -186,5 +186,25 @@
         "lg": 24
       }
     }
-  }
+  },
+  "auditFormItems": [
+    {
+      "id": "status",
+      "title": "审核结果",
+      "type": "ButtonRadio",
+      "decoratorOptions": { "rules": [{ "required": true, "message": "必填项" }] },
+      "selectOptions": [{ "value": "审核通过" }, { "value": "审核不通过" }, { "value": "退回" }]
+    },
+    {
+      "id": "opinion",
+      "tip": "回车进行多选，可以输入自定义文案",
+      "title": "审核意见",
+      "type": "Select",
+      "itemProps": {
+        "mode": "tags",
+        "placeholder": "键入文字查询常用语"
+      },
+      "selectOptions": [{ "value": "信息填写不准确" }, { "value": "岗位人数过多" }]
+    }
+  ]
 }

@@ -83,8 +83,8 @@ export default class PositionService extends Service {
     };
   }
 
-  public getAuditLogItem(auth: AuthResult, auditStatus: string) {
-    return [moment().format('YYYY-MM-DD HH:mm:ss'), auditStatus, auth.user.username];
+  public getAuditLogItem(auth: AuthResult, auditStatus: string, ...args: string[]) {
+    return [moment().format('YYYY-MM-DD HH:mm:ss'), auditStatus, auth.user.username, ...args];
   }
 
   private formatPosition(position: any) {
