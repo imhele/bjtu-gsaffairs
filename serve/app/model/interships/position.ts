@@ -61,6 +61,7 @@ export interface Position<E extends boolean = false> {
   audit_log: (string | string[])[];
   department_code?: string;
   staff_jobnum?: string;
+  cellphone: string;
 }
 
 export const attr: DefineModelAttributes<Position<true>> = {
@@ -117,7 +118,7 @@ export const attr: DefineModelAttributes<Position<true>> = {
     allowNull: true,
     comment: '周工作量',
     type: INTEGER,
-    validate: { isInt: true, max: 12, notEmpty: true },
+    validate: { isInt: true, min: 0, max: 12, notEmpty: true },
   },
   campus: {
     allowNull: false,
@@ -191,6 +192,12 @@ export const attr: DefineModelAttributes<Position<true>> = {
     comment: '审核日志',
     type: JSONTYPE,
     defaultValue: JSON.stringify(['暂无记录']),
+  },
+  cellphone: {
+    allowNull: true,
+    comment: '联系电话',
+    type: STRING(20),
+    validate: { len: [0, 20], notEmpty: true },
   },
 };
 

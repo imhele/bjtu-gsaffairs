@@ -1,5 +1,6 @@
 import ChangeCase from 'change-case';
-import { DefineModelAttributes, DefineAttributeColumnOptions, Instance } from 'sequelize';
+import { SimpleFormItemProps, SimpleFormItemType } from '../../../src/components/SimpleForm';
+import { DefineModelAttributes, DefineAttributeColumnOptions, Instance, TEXT } from 'sequelize';
 
 export const lenToArr = (arr: any[] | number) =>
   (typeof arr === 'number' ? Array.from({ length: arr }) : arr).map((_, i) => i);
@@ -35,6 +36,68 @@ export const setModelInstanceMethods = <T = any, M = any>(
     attrs: function(this: Instance<T>) {
       return Object.keys(attr);
     },
+  });
+  Object.assign(model, {
+    toForm: (fields?: string[]): SimpleFormItemProps[] =>
+      (fields || Object.keys(attr)).map(
+        (id): SimpleFormItemProps => {
+          const res = {
+            id,
+            decoratorOptions: { rules: [] },
+            itemProps: {},
+            title: attr[id].comment,
+            type: SimpleFormItemType.Input,
+          } as SimpleFormItemProps;
+          if (attr[id].values) {
+            res.type = SimpleFormItemType.ButtonRadio;
+            res.selectOptions =
+              'values' in attr[id].type
+                ? attr[id].values.map((value: string) => ({
+                    value,
+                  }))
+                : attr[id].values.map((title: string, value: number) => ({
+                    title,
+                    value,
+                  }));
+          } else if (!('_binary' in attr[id].type) && !('_zerofill' in attr[id].type)) {
+            res.type = SimpleFormItemType.TextArea;
+          }
+          if (attr[id].validate) {
+            if (attr[id].validate.isInt) res.type = SimpleFormItemType.InputNumber;
+            if (attr[id].validate.isDate) {
+              res.type = SimpleFormItemType.DatePicker;
+              if ('_length' in attr[id].type) res.itemProps.showTime = true;
+            }
+            if (attr[id].validate.notEmpty)
+              res.decoratorOptions!.rules!.push({ required: true, message: '必填项' });
+            if (attr[id].validate.min !== void 0) {
+              res.itemProps!.min = attr[id].validate.min;
+              res.itemProps!.placeholder = `请输入不小于 ${attr[id].validate.min} 的数字`;
+            }
+            if (attr[id].validate.max !== void 0) {
+              res.itemProps!.max = attr[id].validate.max;
+              res.itemProps!.placeholder = `请输入不超过 ${attr[id].validate.max} 的数字`;
+            }
+            if (attr[id].validate.min !== void 0 && attr[id].validate.max !== void 0) {
+              res.itemProps!.placeholder = `请输入 ${attr[id].validate.min} ~ ${
+                attr[id].validate.max
+              } 之间的数字`;
+            }
+            if (attr[id].validate.len) {
+              res.decoratorOptions!.rules!.push({
+                max: attr[id].validate.len[1],
+                message: `长度不能超过 ${attr[id].validate.len[1]} 个字符`,
+              });
+              if (attr[id].validate.len[0])
+                res.decoratorOptions!.rules!.push({
+                  min: attr[id].validate.len[0],
+                  message: `长度不能少于 ${attr[id].validate.len[1]} 个字符`,
+                });
+            }
+          }
+          return res;
+        },
+      ),
   });
   return model;
 };

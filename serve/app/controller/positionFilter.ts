@@ -15,7 +15,7 @@ export const filtersMap: { [K in keyof Partial<typeof PositionAttr>]: FilterItem
   },
   department_code: {
     id: 'department_code',
-    title: '单位',
+    title: '用工单位',
     type: SimpleFormItemType.Select,
     selectOptions: [],
   },

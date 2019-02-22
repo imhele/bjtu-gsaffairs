@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { Controller } from 'egg';
 import { getFromIntEnum } from '../utils';
 import { ScopeList } from '../service/user';
@@ -7,20 +6,24 @@ import { AuthResult } from '../extend/request';
 import { Op, WhereNested, WhereOptions } from 'sequelize';
 import { StepsProps } from '../../../src/components/Steps';
 import { PositionState } from '../../../src/models/connect';
-import { CellAction } from '../../../src/pages/Position/consts';
-import { SimpleFormItemType } from '../../../src/components/SimpleForm';
 import { filtersKeyMap, filtersMap, getFilters } from './positionFilter';
+import { CellAction, TopbarAction } from '../../../src/pages/Position/consts';
 import { StandardTableActionProps } from '../../../src/components/StandardTable';
+import { SimpleFormItemType, SimpleFormItemProps } from '../../../src/components/SimpleForm';
 import {
   FetchListBody,
   FetchDetailBody,
   DeletePositionBody,
+  EditPositionBody,
   AuditPositionBody,
+  FetchFormBody,
 } from '../../../src/api/position';
 import {
   createReturn,
   detailColumns,
+  formLayoutProps,
   operationArea,
+  positionFormFields,
   tableColumns,
   tableQueryFields,
 } from './position.json';
@@ -233,7 +236,10 @@ export default class PositionController extends Controller {
     /**
      * Authorize
      */
-    if (!auth.scope.includes(ScopeList.position[type].create))
+    if (
+      !auth.scope.includes(ScopeList.position[type].create) &&
+      !auth.scope.includes(ScopeList.admin)
+    )
       throw new AuthorizeError('你暂时没有权限创建岗位');
 
     const values = { ...ctx.request.body } as PositionModel<true>;
@@ -289,7 +295,7 @@ export default class PositionController extends Controller {
     const { ctx, service } = this;
     const { auth } = ctx.request;
     const { type } = ctx.params as { type: keyof typeof PositionType };
-    const { key: id } = ctx.request.body as DeletePositionBody;
+    const { key: id } = ctx.request.body as EditPositionBody;
     if (!Object.keys(PositionType).includes(type) || !id) return;
 
     /**
@@ -355,6 +361,85 @@ export default class PositionController extends Controller {
     ];
     await service.position.updateOne(parseInt(id as string, 10), values as any);
     ctx.response.body = { errmsg: '审核成功' };
+  }
+
+  public async test() {
+    const { ctx, service } = this;
+    const { auth } = ctx.request;
+    const { type } = ctx.params as { type: keyof typeof PositionType };
+    const { key: id = 4, action = CellAction.Edit } = ctx.request.body as FetchFormBody; // @DEBUG
+    if (!Object.keys(PositionType).includes(type)) return;
+
+    let formItems: SimpleFormItemProps[] = (ctx.model.Interships.Position as any).toForm(
+      positionFormFields[type],
+    );
+    formItems.unshift(filtersMap.department_code!, filtersMap.semester!);
+    let initialFieldsValue: object = {};
+    if (action === TopbarAction.Create) {
+      if (
+        !auth.scope.includes(ScopeList.position[type].create) &&
+        !auth.scope.includes(ScopeList.admin)
+      )
+        throw new AuthorizeError('你暂时没有权限创建岗位');
+      formItems = formItems.concat(this.getUserStaticFormItems(auth));
+    } else {
+      const position = await service.position.findOne(parseInt(id as string, 10));
+      const availableActions = this.getPositionAction(position, auth, type);
+      switch (action) {
+        case CellAction.Edit:
+          if (!availableActions.get(CellAction.Edit))
+            throw new AuthorizeError('你暂时没有权限编辑这个岗位');
+          initialFieldsValue = position;
+          formItems = formItems.concat(this.getUserStaticFormItems(position));
+          break;
+        case CellAction.Audit:
+          if (!availableActions.get(CellAction.Audit))
+            throw new AuthorizeError('你暂时没有权限审核这个岗位');
+          formItems = positionFormFields[type].concat('semester').map(
+            (key: string): SimpleFormItemProps => ({
+              id: key,
+              type: SimpleFormItemType.Extra,
+              extra: position[key],
+              title: PositionAttr[key].comment,
+            }),
+          );
+          formItems.unshift(...this.getUserStaticFormItems(position), {
+            id: 'department_code',
+            type: SimpleFormItemType.Extra,
+            extra: position.department_name,
+            title: '用工单位',
+          });
+          break;
+        default:
+          return;
+      }
+    }
+
+    ctx.response.body = {
+      ...formLayoutProps,
+      formItems,
+      initialFieldsValue,
+    };
+  }
+
+  /**
+   * 获取不可修改的表单内容，这里是用户信息
+   */
+  private getUserStaticFormItems(info: AuthResult | PositionModel): SimpleFormItemProps[] {
+    return [
+      {
+        id: 'loginname',
+        type: SimpleFormItemType.Extra,
+        extra: 'user' in info ? info.user.loginname : info.staff_jobnum,
+        title: '负责人工号',
+      },
+      {
+        id: 'username',
+        type: SimpleFormItemType.Extra,
+        extra: 'user' in info ? info.user.username : (info as any).staff_name,
+        title: '负责人姓名',
+      },
+    ];
   }
 
   /**

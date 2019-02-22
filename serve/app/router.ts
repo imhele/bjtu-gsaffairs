@@ -6,6 +6,7 @@ export default (app: Application) => {
   router.post('/login', controller.user.login);
   router.post('/scope', controller.user.scope);
 
+  router.get('/position/:type/test', controller.position.test);
   router.post('/position/:type/list', controller.position.list);
   router.post('/position/:type/detail', controller.position.detail);
   router.post('/position/:type/create', controller.position.create);

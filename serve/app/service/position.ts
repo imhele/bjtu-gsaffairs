@@ -5,7 +5,7 @@ import { DataNotFound } from '../errcode';
 import { AuthResult } from '../extend/request';
 import { DepartmentModel, PositionModel, StaffModel } from '../model';
 
-interface PositionWithFK<D extends boolean = false, S extends boolean = false>
+export interface PositionWithFK<D extends boolean = false, S extends boolean = false>
   extends PositionModel {
   DictsDepartment: D extends true ? DepartmentModel : never;
   PeopleStaff: S extends true ? StaffModel : never;
@@ -22,6 +22,7 @@ export default class PositionService extends Service {
    */
   public async findOne(id: number): Promise<PositionWithFK> {
     const { model } = this.ctx;
+    if (id === void 0) throw new DataNotFound('岗位信息不存在');
     const position: any = await model.Interships.Position.findByPk(id, {
       include: [model.Dicts.Department, model.People.Staff],
     });
