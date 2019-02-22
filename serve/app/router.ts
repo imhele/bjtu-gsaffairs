@@ -8,4 +8,6 @@ export default (app: Application) => {
 
   router.get('/position/:type/list', controller.position.list);
   router.post('/position/:type/detail', controller.position.detail);
+  router.post('/position/:type/create', controller.position.create);
+  router.get('/position/:type/delete', controller.position.delete);
 };

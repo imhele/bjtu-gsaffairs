@@ -10,8 +10,8 @@ import { PositionState } from '../../../src/models/connect';
 import { CellAction } from '../../../src/pages/Position/consts';
 import { SimpleFormItemType } from '../../../src/components/SimpleForm';
 import { filtersKeyMap, filtersMap, getFilters } from './positionFilter';
-import { FetchListBody, FetchDetailBody } from '../../../src/api/position';
 import { StandardTableActionProps } from '../../../src/components/StandardTable';
+import { FetchListBody, FetchDetailBody, DeletePositionBody } from '../../../src/api/position';
 import {
   createReturn,
   detailColumns,
@@ -143,7 +143,7 @@ export default class PositionController extends Controller {
     if (!Object.keys(PositionType).includes(type) || !id) return;
 
     let columnKeys: string[] = detailColumns.withoutAuditLog;
-    const position = await service.position.findOne(id);
+    const position = await service.position.findOne(parseInt(id as string, 10));
 
     /**
      * Construct `stepsProps`.
@@ -259,6 +259,25 @@ export default class PositionController extends Controller {
         },
       },
     };
+  }
+
+  public async delete() {
+    const { ctx, service } = this;
+    const { auth } = ctx.request;
+    const { type } = ctx.params as { type: keyof typeof PositionType };
+    const { key: id } = ctx.request.body as DeletePositionBody;
+    if (!Object.keys(PositionType).includes(type) || !id) return;
+
+    /**
+     * Authorize
+     */
+    const position = await service.position.findOne(parseInt(id as string, 10));
+    const availableActions = this.getPositionAction(position, auth, type);
+    if (!availableActions.get(CellAction.Delete))
+      throw new AuthorizeError('你暂时没有权限删除这个岗位');
+
+    await service.position.deleteOne(parseInt(id as string, 10));
+    ctx.response.body = { errmsg: '删除成功' };
   }
 
   /**

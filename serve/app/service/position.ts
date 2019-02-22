@@ -20,7 +20,7 @@ export default class PositionService extends Service {
    * Return information of a position with staff and department information
    * formatted as `staff_${key}` and `department_${key}`
    */
-  public async findOne(id: number | string): Promise<PositionWithFK> {
+  public async findOne(id: number): Promise<PositionWithFK> {
     const { model } = this.ctx;
     const position: any = await model.Interships.Position.findByPk(id, {
       include: [model.Dicts.Department, model.People.Staff],
@@ -29,7 +29,7 @@ export default class PositionService extends Service {
     return this.formatPosition(position) as PositionWithFK;
   }
 
-  public async updateOne(id: number | string, values: Partial<PositionModel<true>>) {
+  public async updateOne(id: number, values: Partial<PositionModel<true>>) {
     const { model } = this.ctx;
     await model.Interships.Position.update(values, {
       fields: Object.keys(values),
@@ -41,6 +41,11 @@ export default class PositionService extends Service {
     const { model } = this.ctx;
     delete values.id;
     await model.Interships.Position.create(values);
+  }
+
+  public async deleteOne(id: number) {
+    const { model } = this.ctx;
+    await model.Interships.Position.destroy({ where: { id } });
   }
 
   /**
@@ -78,7 +83,7 @@ export default class PositionService extends Service {
   }
 
   public getAuditLogItem(auth: AuthResult, auditStatus: string) {
-    return [moment().format('YYYY-MM-DD HH:mm:ss'), auditStatus, auth.user.username]
+    return [moment().format('YYYY-MM-DD HH:mm:ss'), auditStatus, auth.user.username];
   }
 
   private formatPosition(position: any) {
