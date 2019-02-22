@@ -17,7 +17,8 @@ export default class UserController extends Controller {
       return this.loginFail('登录参数缺失');
     }
     const timeDiff = moment().unix() - Math.floor(timestamp);
-    if (timeDiff > 30 || timeDiff < 0) {
+    // 服务器有 5 秒左右时差
+    if (timeDiff > 30 || timeDiff < -5) {
       return this.loginFail('密钥已失效，请重新登陆');
     }
     const { user, type } = await service.user.findOne(account);
