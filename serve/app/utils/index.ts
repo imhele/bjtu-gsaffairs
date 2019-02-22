@@ -102,6 +102,15 @@ export const setModelInstanceMethods = <T = any, M = any>(
           return res;
         },
       ),
+    formatBack: (values: { [key: string]: any }) => {
+      Object.entries(values).forEach(([key, value]: any) => {
+        // Handle enum type
+        if (attr[key] && attr[key].values && typeof value === 'string') {
+          values[key] = attr[key].values.indexOf(value);
+        }
+      });
+      return values;
+    },
   });
   return model;
 };

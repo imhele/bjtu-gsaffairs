@@ -55,7 +55,7 @@ export interface FetchFormPayload {
 }
 
 export async function fetchForm({ body, query }: FetchFormPayload) {
-  return requests<FetchFormBody>(`${APIPrefix}/position/${query.type}/form/${query.key}`, {
+  return requests<FetchFormBody>(`${APIPrefix}/position/${query.type}/form/${query.key || ''}`, {
     body,
     method: 'POST',
   });

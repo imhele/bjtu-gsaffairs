@@ -58,7 +58,7 @@ export const formatMomentInSimpleFormInitValue = (
     try {
       switch (item.type) {
         case SimpleFormItemType.DatePicker:
-          if (init[item.id]) res[item.id] = moment(init[item.id]);
+          if (init[item.id] !== void 0) res[item.id] = moment(init[item.id]);
           if (Array.isArray(item.enabledTimeRange)) {
             // string => Moment
             item.enabledTimeRange[0] = moment(item.enabledTimeRange[0]);
@@ -73,7 +73,7 @@ export const formatMomentInSimpleFormInitValue = (
           }
           break;
         case SimpleFormItemType.MonthPicker:
-          if (init[item.id]) res[item.id] = moment(init[item.id]);
+          if (init[item.id] !== void 0) res[item.id] = moment(init[item.id]);
           if (Array.isArray(item.enabledTimeRange)) {
             item.enabledTimeRange[0] = moment(item.enabledTimeRange[0]);
             item.enabledTimeRange[1] = moment(item.enabledTimeRange[1]);
@@ -87,7 +87,7 @@ export const formatMomentInSimpleFormInitValue = (
           }
           break;
         case SimpleFormItemType.WeekPicker:
-          if (init[item.id]) res[item.id] = moment(init[item.id]);
+          if (init[item.id] !== void 0) res[item.id] = moment(init[item.id]);
           if (Array.isArray(item.enabledTimeRange)) {
             item.enabledTimeRange[0] = moment(item.enabledTimeRange[0]);
             item.enabledTimeRange[1] = moment(item.enabledTimeRange[1]);
@@ -117,7 +117,7 @@ export const formatMomentInSimpleFormInitValue = (
           }
           break;
         default:
-          if (init[item.id]) res[item.id] = init[item.id];
+          if (init[item.id] !== void 0) res[item.id] = init[item.id];
           break;
       }
     } catch {}

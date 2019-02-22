@@ -12,4 +12,9 @@ declare module 'sequelize' {
   interface DefineValidateOptions {
     fn?: (value: any) => void;
   }
+
+  interface Model<TInstance, TAttributes> {
+    formatBack: (values: { [K in keyof TAttributes]: any }) => { [K in keyof TAttributes]: any };
+    toForm: (fields?: (keyof TAttributes)[]) => SimpleFormItemProps[];
+  }
 }

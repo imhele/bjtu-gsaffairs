@@ -365,7 +365,7 @@ export default class PositionController extends Controller {
     const { type, id } = ctx.params as { type: keyof typeof PositionType; id: string };
     if (!Object.keys(PositionType).includes(type)) return;
 
-    let formItems: SimpleFormItemProps[] = (ctx.model.Interships.Position as any).toForm(
+    let formItems: SimpleFormItemProps[] = (ctx.model.Interships.Position.toForm as any)(
       positionFormFields[type],
     );
     let initialFieldsValue: object = {};
@@ -388,7 +388,7 @@ export default class PositionController extends Controller {
         case CellAction.Edit:
           if (!availableActions.get(CellAction.Edit))
             throw new AuthorizeError('你暂时没有权限编辑这个岗位');
-          initialFieldsValue = position;
+          initialFieldsValue = ctx.model.Interships.Position.formatBack(position);
           formItems.unshift(...this.getUserStaticFormItems(position));
           break;
         case CellAction.Audit:
