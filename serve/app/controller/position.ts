@@ -4,22 +4,22 @@ import { AuthorizeError } from '../errcode';
 import { AuthResult } from '../extend/request';
 import { getFromIntEnum, parseJSON } from '../utils';
 import { Op, WhereNested, WhereOptions } from 'sequelize';
-import { StepsProps } from '../../../src/components/Steps';
-import { PositionState } from '../../../src/models/connect';
+// import { StepsProps } from '../../../src/components/Steps';
+// import { PositionState } from '../../../src/models/connect';
+import { attr as StaffInfoAttr } from '../model/people/staff';
 import { attr as DepartmentAttr } from '../model/dicts/department';
-import { FetchListBody, FetchFormBody } from '../../../src/api/position';
+import { CellAction, SimpleFormItemType, TopbarAction } from '../link';
+// import { FetchListBody, FetchFormBody } from '../../../src/api/position';
 import { filtersKeyMap, filtersMap, getFilters } from './positionFilter';
-import { CellAction, TopbarAction } from '../../../src/pages/Position/consts';
-import { StandardTableActionProps } from '../../../src/components/StandardTable';
-import { SimpleFormItemType, SimpleFormItemProps } from '../../../src/components/SimpleForm';
+// import { StandardTableActionProps } from '../../../src/components/StandardTable';
+// import { SimpleFormItemType, SimpleFormItemProps } from '../../../src/components/SimpleForm';
 import {
-  PositionAttr,
+  Position as PositionModel,
+  attr as PositionAttr,
   PositionAuditStatus,
-  PositionModel,
   PositionStatus,
   PositionType,
-  StaffInfoAttr,
-} from '../model';
+} from '../model/interships/position';
 import {
   auditFormItems,
   createReturn,

@@ -1,6 +1,7 @@
 import ChangeCase from 'change-case';
+import { SimpleFormItemType } from '../link';
 import { DefineModelAttributes, DefineAttributeColumnOptions, Instance } from 'sequelize';
-import { SimpleFormItemProps, SimpleFormItemType } from '../../../src/components/SimpleForm';
+// import { SimpleFormItemProps, SimpleFormItemType } from '../../../src/components/SimpleForm';
 
 export const lenToArr = (arr: any[] | number) =>
   (typeof arr === 'number' ? Array.from({ length: arr }) : arr).map((_, i) => i);

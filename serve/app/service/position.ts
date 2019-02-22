@@ -3,7 +3,9 @@ import { Service } from 'egg';
 import { WhereOptions } from 'sequelize';
 import { DataNotFound } from '../errcode';
 import { AuthResult } from '../extend/request';
-import { DepartmentModel, PositionModel, StaffModel } from '../model';
+import { Staff as StaffModel } from '../model/client/staff';
+import { Position as PositionModel } from '../model/interships/position';
+import { Department as DepartmentModel } from '../model/dicts/department';
 
 export interface PositionWithFK<D extends boolean = false, S extends boolean = false>
   extends PositionModel {

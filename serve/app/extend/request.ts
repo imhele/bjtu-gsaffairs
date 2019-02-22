@@ -1,5 +1,6 @@
 import { UserType } from '../service/user';
-import { PostgraduateModel, StaffModel } from '../model';
+import { Staff as StaffModel } from '../model/client/staff';
+import { Postgraduate as PostgraduateModel } from '../model/client/postgraduate';
 
 export interface AuthResult {
   /* 用人单位审核 auditableDep: [`${department_code}`] */

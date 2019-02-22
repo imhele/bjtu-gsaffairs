@@ -1,6 +1,7 @@
-import { PositionAttr, PositionType } from '../model';
+import { SimpleFormItemType } from '../link';
 import { DefineAttributeColumnOptions } from 'sequelize';
-import { FilterItemProps, SimpleFormItemType } from '../../../src/components/SimpleForm';
+import { attr as PositionAttr, PositionType } from '../model/interships/position';
+// import { FilterItemProps, SimpleFormItemType } from '../../../src/components/SimpleForm';
 
 const NewPositionAttr = PositionAttr as {
   [key: string]: DefineAttributeColumnOptions;

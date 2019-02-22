@@ -3,7 +3,8 @@ import moment from 'moment';
 import { Service } from 'egg';
 import { parseJSON } from '../utils';
 import { DataNotFound } from '../errcode';
-import { PostgraduateModel, StaffModel } from '../model';
+import { Staff as StaffModel } from '../model/client/staff';
+import { Postgraduate as PostgraduateModel } from '../model/client/postgraduate';
 
 export enum UserType {
   Postgraduate,

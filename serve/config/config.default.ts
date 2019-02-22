@@ -37,10 +37,7 @@ export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizCon
 
   // `listen.path` supports unix sock path
   config.cluster = {
-    listen: {
-      path: '',
-      port: 7001,
-    },
+    listen: { port: 7001 },
   };
 
   // 404 not found
