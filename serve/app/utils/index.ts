@@ -1,6 +1,6 @@
 import ChangeCase from 'change-case';
+import { DefineModelAttributes, DefineAttributeColumnOptions, Instance } from 'sequelize';
 import { SimpleFormItemProps, SimpleFormItemType } from '../../../src/components/SimpleForm';
-import { DefineModelAttributes, DefineAttributeColumnOptions, Instance, TEXT } from 'sequelize';
 
 export const lenToArr = (arr: any[] | number) =>
   (typeof arr === 'number' ? Array.from({ length: arr }) : arr).map((_, i) => i);
@@ -129,4 +129,13 @@ export const uniqueNum = (count: number) => {
     (pre, _, cur) => pre + base / (factorial(cur)! * factorial(count - cur)!),
     1,
   );
+};
+
+export const parseJSON = (v: any) => {
+  if (typeof v !== 'string') return;
+  try {
+    return JSON.parse(v);
+  } catch {
+    return null;
+  }
 };

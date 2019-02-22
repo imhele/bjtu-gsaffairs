@@ -1,7 +1,7 @@
 import { Application } from 'egg';
-import { jsonEnumArrValid } from '../../errcode';
+import { isJson } from '../../errcode';
 import { setModelInstanceMethods } from '../../utils';
-import { DefineModelAttributes, DATE, JSON as JSONTYPE, STRING, TINYINT } from 'sequelize';
+import { DefineModelAttributes, DATE, STRING, TINYINT, TEXT } from 'sequelize';
 
 export const StaffAuditLink = [
   '人事处审核',
@@ -55,8 +55,8 @@ export const attr: DefineModelAttributes<Staff> = {
   audit_link: {
     allowNull: true,
     comment: '审核环节',
-    type: JSONTYPE,
-    validate: { notEmpty: true, ...jsonEnumArrValid(StaffAuditLink) },
+    type: TEXT,
+    validate: { notEmpty: true, isJson },
   },
 };
 

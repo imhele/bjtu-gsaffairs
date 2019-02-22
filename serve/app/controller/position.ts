@@ -1,8 +1,8 @@
 import { Controller } from 'egg';
-import { getFromIntEnum } from '../utils';
 import { ScopeList } from '../service/user';
 import { AuthorizeError } from '../errcode';
 import { AuthResult } from '../extend/request';
+import { getFromIntEnum, parseJSON } from '../utils';
 import { Op, WhereNested, WhereOptions } from 'sequelize';
 import { StepsProps } from '../../../src/components/Steps';
 import { PositionState } from '../../../src/models/connect';
@@ -180,9 +180,9 @@ export default class PositionController extends Controller {
      * Format values
      */
     // [['a', 'b'], ['c']] => 'a，b\nc'
-    position.audit_log = position.audit_log
-      .map(i => (Array.isArray(i) ? i.join('，') : i))
-      .join(`\n`) as any;
+    position.audit_log = parseJSON(position.audit_log)
+      .map((i: string | string[]) => (Array.isArray(i) ? i.join('，') : i))
+      .join(`\n`);
 
     /**
      * Construct `columns`.
@@ -246,11 +246,13 @@ export default class PositionController extends Controller {
       throw new AuthorizeError('你暂时没有权限创建岗位');
 
     const values = { ...ctx.request.body } as PositionModel<true>;
+    values.staff_jobnum = auth.user.loginname;
     values.types = getFromIntEnum(PositionAttr, 'types', null, PositionType[type]) as number;
     values.status = getFromIntEnum(PositionAttr, 'status', null, '待审核') as number;
     values.audit = getFromIntEnum(PositionAttr, 'audit', null, PositionAuditStatus[type][1]) as any;
-    values.audit_log = [service.position.getAuditLogItem(auth, PositionAuditStatus[type][0])];
-    values.staff_jobnum = auth.user.loginname;
+    values.audit_log = JSON.stringify([
+      service.position.getAuditLogItem(auth, PositionAuditStatus[type][0]),
+    ]);
     await service.position.addOne(values as any);
 
     /**
@@ -314,10 +316,10 @@ export default class PositionController extends Controller {
     delete values.types;
     values.status = getFromIntEnum(PositionAttr, 'status', null, '待审核') as number;
     values.audit = getFromIntEnum(PositionAttr, 'audit', null, PositionAuditStatus[type][1]) as any;
-    values.audit_log = [
-      ...position.audit_log,
+    values.audit_log = JSON.stringify([
+      ...parseJSON(position.audit_log),
       service.position.getAuditLogItem(auth, PositionAuditStatus[type][0]),
-    ];
+    ]);
     values.staff_jobnum = auth.user.loginname;
     await service.position.updateOne(parseInt(id as string, 10), values as any);
     ctx.response.body = { errmsg: '提交成功' };
@@ -358,9 +360,11 @@ export default class PositionController extends Controller {
     const auditStatus = PositionAuditStatus[type][auditStatusIndex];
     const opinion = Array.isArray(ctx.request.body.opinion) ? ctx.request.body.opinion : [];
     values.audit = getFromIntEnum(PositionAttr, 'audit', null, auditStatus) as number;
-    values.audit_log = position.audit_log.concat([
-      service.position.getAuditLogItem(auth, position.audit, ctx.request.body.status, ...opinion),
-    ]);
+    values.audit_log = JSON.stringify(
+      parseJSON(position.audit_log).concat([
+        service.position.getAuditLogItem(auth, position.audit, ctx.request.body.status, ...opinion),
+      ]),
+    );
     await service.position.updateOne(parseInt(id as string, 10), values as any);
     ctx.response.body = { errmsg: '审核成功' };
   }

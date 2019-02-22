@@ -1,6 +1,7 @@
 import hash from 'hash.js';
 import moment from 'moment';
 import { Service } from 'egg';
+import { parseJSON } from '../utils';
 import { DataNotFound } from '../errcode';
 import { PostgraduateModel, StaffModel } from '../model';
 
@@ -96,10 +97,10 @@ export default class UserService extends Service {
     }
     if (user === null) throw new DataNotFound('用户不存在');
     let scope = UserScope[type];
+    const auditLink = parseJSON(user.audit_link);
     const auditableDep = await this.isIntershipAdmin(loginname);
-    const auditLink = Array.isArray(user.audit_link) ? user.audit_link : [];
-    if (user.audit_link === 'admin') scope = ['scope.admin'];
-    else if (auditableDep.length || auditLink.length) {
+    if (auditLink === 'admin') scope = ['scope.admin'];
+    else if (Array.isArray(auditLink) && (auditableDep.length || auditLink.length)) {
       /* Scope of audit */
       scope.push(
         ScopeList.position.teach.audit as ScopeValue,

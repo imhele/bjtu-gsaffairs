@@ -1,14 +1,7 @@
 import { Application } from 'egg';
-import { intEnumValid } from '../../errcode';
+import { intEnumValid, isJson } from '../../errcode';
 import { setModelInstanceMethods } from '../../utils';
-import {
-  DefineModelAttributes,
-  DATEONLY,
-  INTEGER,
-  JSON as JSONTYPE,
-  STRING,
-  TEXT,
-} from 'sequelize';
+import { DefineModelAttributes, DATEONLY, INTEGER, STRING, TEXT } from 'sequelize';
 
 export const PositionType = {
   manage: '助管',
@@ -58,7 +51,7 @@ export interface Position<E extends boolean = false> {
    * 此岗位当前所在的审核环节
    */
   audit: E extends false ? string : number;
-  audit_log: (string | string[])[];
+  audit_log: string;
   department_code?: string;
   staff_jobnum?: string;
   cellphone: string;
@@ -191,8 +184,9 @@ export const attr: DefineModelAttributes<Position<true>> = {
   audit_log: {
     allowNull: true,
     comment: '审核日志',
-    type: JSONTYPE,
+    type: TEXT,
     defaultValue: JSON.stringify(['暂无记录']),
+    validate: { isJson },
   },
   cellphone: {
     allowNull: true,

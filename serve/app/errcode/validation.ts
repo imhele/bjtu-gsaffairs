@@ -17,6 +17,14 @@ export const intEnumValid = (arr: any[] | number | object) => {
   };
 };
 
+export const isJson = (v: string) => {
+  try {
+    JSON.parse(v);
+  } catch {
+    throw new ValidationErrorItem('', '', '', v);
+  }
+};
+
 export const jsonEnumArrValid = (arr: any[]) => {
   return {
     notInEnum: (v: string) => {
@@ -67,4 +75,5 @@ export const ValidationMessage: {
   min: v => `${v}小于最小值`, // only allow values >= 23
   isCreditCard: v => `${v}不是正确的卡号`, // check for valid credit card numbers
   notInEnum: v => `${v}不符合规范`,
+  isJson: v => `${v}必须是 JSON 类型字符串`,
 };
