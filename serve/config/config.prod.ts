@@ -18,6 +18,9 @@ export default () => {
         timestamps: false,
         underscored: true,
       },
+      cluster: {
+        listen: { path: 'unix:///tmp/bjtu-papms.sock' },
+      },
     },
   };
   return config;
