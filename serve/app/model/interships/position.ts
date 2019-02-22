@@ -58,7 +58,7 @@ export interface Position<E extends boolean = false> {
    * 此岗位当前所在的审核环节
    */
   audit: E extends false ? string : number;
-  audit_log: string[] | string[][];
+  audit_log: (string | string[])[];
   department_code?: string;
   staff_jobnum?: string;
 }

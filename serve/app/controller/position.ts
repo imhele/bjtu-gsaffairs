@@ -280,6 +280,34 @@ export default class PositionController extends Controller {
     ctx.response.body = { errmsg: '删除成功' };
   }
 
+  public async edit() {
+    const { ctx, service } = this;
+    const { auth } = ctx.request;
+    const { type } = ctx.params as { type: keyof typeof PositionType };
+    const { key: id } = ctx.request.body as DeletePositionBody;
+    if (!Object.keys(PositionType).includes(type) || !id) return;
+
+    /**
+     * Authorize
+     */
+    const position = await service.position.findOne(parseInt(id as string, 10));
+    const availableActions = this.getPositionAction(position, auth, type);
+    if (!availableActions.get(CellAction.Edit))
+      throw new AuthorizeError('你暂时没有权限编辑这个岗位');
+
+    const values = { ...ctx.request.body, key: void 0 } as PositionModel<true>;
+    delete values.types;
+    values.status = (PositionAttr.status as any).values.indexOf('待审核');
+    values.audit = (PositionAttr.audit as any).values.indexOf(PositionAuditStatus[type][1]);
+    values.audit_log = [
+      ...position.audit_log,
+      service.position.getAuditLogItem(auth, PositionAuditStatus[type][0]),
+    ];
+    values.staff_jobnum = auth.user.loginname;
+    await service.position.updateOne(parseInt(id as string, 10), values as any);
+    ctx.response.body = { errmsg: '提交成功' };
+  }
+
   /**
    * 获取当前岗位有权限的操作列表
    */
