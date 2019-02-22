@@ -26,7 +26,7 @@ export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizCon
   config.auth = {
     enable: true,
     loginAging: 7200,
-    ignore: ['/login'],
+    ignore: ['/api/login'],
   } as MiddlewareAuthConfig;
 
   // `bodyParser` will parse body to object automatically
