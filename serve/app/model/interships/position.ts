@@ -118,8 +118,9 @@ export const attr: DefineModelAttributes<Position<true>> = {
     allowNull: true,
     comment: '周工作量',
     type: INTEGER,
+    tip: '单位：小时 / 人周',
     validate: { isInt: true, min: 0, max: 12, notEmpty: true },
-  },
+  } as any,
   campus: {
     allowNull: false,
     comment: '校区',

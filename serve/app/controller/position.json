@@ -1,31 +1,45 @@
 {
-  "tableQueryFields": [
-    "id",
-    "semester",
-    "name",
-    "need_num",
-    "work_time_l",
-    "campus",
-    "status",
-    "way",
-    "class_type",
-    "staff_jobnum",
-    "department_code",
-    "audit"
-  ],
+  "tableQueryFields": {
+    "withStatus": [
+      "id",
+      "semester",
+      "name",
+      "need_num",
+      "campus",
+      "status",
+      "way",
+      "class_type",
+      "staff_jobnum",
+      "department_code",
+      "audit"
+    ],
+    "withoutStatus": [
+      "id",
+      "semester",
+      "name",
+      "need_num",
+      "work_time_l",
+      "campus",
+      "way",
+      "class_type",
+      "staff_jobnum",
+      "department_code",
+      "audit"
+    ]
+  },
   "tableColumns": [
     {
       "width": 200,
-      "title": "学期",
+      "title": "学年学期",
       "dataIndex": "semester"
     },
     {
       "width": 188,
-      "title": "单位",
+      "title": "用工单位",
       "dataIndex": "department_name"
     },
     {
-      "width": 255,
+      "width": 240,
       "title": "岗位名称",
       "dataIndex": "name"
     },
@@ -50,12 +64,12 @@
       "dataIndex": "class_type"
     },
     {
-      "width": 108,
+      "width": 95,
       "title": "审核状态",
       "dataIndex": "status"
     },
     {
-      "width": 95,
+      "width": 64,
       "title": "聘用方式",
       "dataIndex": "way"
     },
@@ -132,8 +146,8 @@
   "positionFormFields": {
     "manage": [
       "name",
-      "need",
       "need_num",
+      "need",
       "content",
       "address",
       "work_time_d",
@@ -145,8 +159,8 @@
     ],
     "teach": [
       "name",
-      "need",
       "need_num",
+      "need",
       "content",
       "address",
       "work_time_d",

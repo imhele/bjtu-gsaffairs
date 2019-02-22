@@ -61,6 +61,7 @@ export const setModelInstanceMethods = <T = any, M = any>(
                   }));
           } else if (!('_binary' in attr[id].type) && !('_zerofill' in attr[id].type)) {
             res.type = SimpleFormItemType.TextArea;
+            res.itemProps.autosize = { minRows: 2 };
           }
           if (attr[id].validate) {
             if (attr[id].validate.isInt) res.type = SimpleFormItemType.InputNumber;
@@ -84,9 +85,10 @@ export const setModelInstanceMethods = <T = any, M = any>(
               } 之间的数字`;
             }
             if (attr[id].validate.len) {
+              res.itemProps!.placeholder = `长度不能超过 ${attr[id].validate.len[1]} 个字符`;
               res.decoratorOptions!.rules!.push({
                 max: attr[id].validate.len[1],
-                message: `长度不能超过 ${attr[id].validate.len[1]} 个字符`,
+                message: res.itemProps!.placeholder,
               });
               if (attr[id].validate.len[0])
                 res.decoratorOptions!.rules!.push({
@@ -95,6 +97,7 @@ export const setModelInstanceMethods = <T = any, M = any>(
                 });
             }
           }
+          if (attr[id].tip) res.tip = attr[id].tip;
           return res;
         },
       ),

@@ -13,11 +13,13 @@ export type ScopeValue =
   | 'scope.admin'
   | 'scope.position.manage.list'
   | 'scope.position.manage.create'
+  | 'scope.position.manage.edit'
   | 'scope.position.manage.export'
   | 'scope.position.manage.audit'
   | 'scope.position.manage.apply'
   | 'scope.position.teach.list'
   | 'scope.position.teach.create'
+  | 'scope.position.teach.edit'
   | 'scope.position.teach.export'
   | 'scope.position.teach.audit'
   | 'scope.position.teach.apply';
@@ -38,6 +40,7 @@ export const ScopeList = {
     teach: {
       list: 'scope.position.teach.list',
       create: 'scope.position.teach.create',
+      edit: 'scope.position.teach.edit',
       export: 'scope.position.teach.export',
       audit: 'scope.position.teach.audit',
       apply: 'scope.position.teach.apply',
@@ -56,8 +59,10 @@ export const UserScope: { [key: number]: ScopeValue[] } = {
   [UserType.Staff]: [
     'scope.position.manage.list',
     'scope.position.manage.create',
+    'scope.position.manage.edit',
     'scope.position.teach.list',
     'scope.position.teach.create',
+    'scope.position.teach.edit',
   ],
 };
 
@@ -91,7 +96,7 @@ export default class UserService extends Service {
     }
     if (user === null) throw new DataNotFound('用户不存在');
     const auditableDep = await this.isIntershipAdmin(loginname);
-    const auditLink = 'audit_link' in user ? user.audit_link : [];
+    const auditLink = Array.isArray(user.audit_link) ? user.audit_link : [];
     const scope = UserScope[type];
     if (auditableDep.length || auditLink.length) {
       /* Scope of audit */

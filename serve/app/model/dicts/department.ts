@@ -1,7 +1,7 @@
 import { Application } from 'egg';
 import { setModelInstanceMethods } from '../../utils';
 import { filtersMap } from '../../controller/positionFilter';
-import { DefineModelAttributes, Instance, INTEGER, TINYINT, STRING } from 'sequelize';
+import { DefineModelAttributes, INTEGER, TINYINT, STRING } from 'sequelize';
 
 export interface Department {
   code: string;

@@ -6,10 +6,19 @@ import { AuthResult } from '../extend/request';
 import { Op, WhereNested, WhereOptions } from 'sequelize';
 import { StepsProps } from '../../../src/components/Steps';
 import { PositionState } from '../../../src/models/connect';
+import { attr as DepartmentAttr } from '../model/dicts/department';
 import { filtersKeyMap, filtersMap, getFilters } from './positionFilter';
 import { CellAction, TopbarAction } from '../../../src/pages/Position/consts';
 import { StandardTableActionProps } from '../../../src/components/StandardTable';
 import { SimpleFormItemType, SimpleFormItemProps } from '../../../src/components/SimpleForm';
+import {
+  PositionAttr,
+  PositionAuditStatus,
+  PositionModel,
+  PositionStatus,
+  PositionType,
+  StaffInfoAttr,
+} from '../model';
 import {
   FetchListBody,
   FetchDetailBody,
@@ -27,15 +36,6 @@ import {
   tableColumns,
   tableQueryFields,
 } from './position.json';
-import {
-  DepartmentAttr,
-  PositionAttr,
-  PositionAuditStatus,
-  PositionModel,
-  PositionStatus,
-  PositionType,
-  StaffAttr,
-} from '../model';
 
 const ActionText = {
   [CellAction.Apply]: '申请',
@@ -52,24 +52,25 @@ export default class PositionController extends Controller {
     const { auth } = ctx.request;
     const body = ctx.request.body as FetchListBody;
     const { type } = ctx.params as { type: keyof typeof PositionType };
-    const positionType: number = (PositionAttr.types as any).values.indexOf(PositionType[type]);
+    const positionType = getFromIntEnum(PositionAttr, 'types', null, PositionType[type]);
     const { limit = 10, offset = 0 } = body;
     if (positionType === -1) return;
 
     let columns = [...tableColumns];
     let filtersKey = filtersKeyMap[type].withStatus;
-    if (type !== 'manage') columns = columns.filter(({ dataIndex }) => dataIndex !== 'class_type');
+    if (type !== 'teach') columns = columns.filter(({ dataIndex }) => dataIndex !== 'class_type');
 
     /**
      * Construct `filtersValue`
      */
-    const filters = [body.filtersValue || {}] as WhereOptions<PositionModel & WhereNested>[];
+    let attributes = tableQueryFields.withStatus;
+    const filters = [{ ...body.filtersValue } || {}] as WhereOptions<PositionModel & WhereNested>[];
     Object.keys(filters).forEach(key => {
       if (filtersMap[key] && filtersMap[key].type === SimpleFormItemType.Input)
         /* Input 类型使用模糊查询 */
         filters[key] = { [Op.like]: filters[key] };
     });
-    filters[0].types = positionType;
+    filters[0].types = positionType as number;
     if (
       !auth.scope.includes(ScopeList.admin) &&
       !auth.scope.includes(ScopeList.position[type].audit)
@@ -84,8 +85,8 @@ export default class PositionController extends Controller {
         });
       } else {
         /* 既没有审核权限，也没有创建权限 */
+        attributes = tableQueryFields.withoutStatus;
         filtersKey = filtersKeyMap[type].withoutStatus;
-        columns = columns.filter(({ dataIndex }) => dataIndex !== 'status');
         filters[0].status = getFromIntEnum(PositionAttr, 'status', null, '已发布');
       }
     }
@@ -96,8 +97,8 @@ export default class PositionController extends Controller {
     const { positions, total } = await service.position.findSomeWithDep({
       limit,
       offset,
+      attributes,
       count: true,
-      attributes: tableQueryFields,
       where: { [Op.and]: filters },
       depAttributes: ['name'],
     });
@@ -108,12 +109,12 @@ export default class PositionController extends Controller {
     const dataSource = positions.map(item => {
       const availableActions = this.getPositionAction(item, auth, type);
       availableActions.delete(CellAction.Preview);
-      const action: StandardTableActionProps = Array.from(availableActions.keys()).map(
-        actionItem => ({
+      const action: StandardTableActionProps = Array.from(availableActions.entries())
+        .filter(([_, enable]) => enable)
+        .map(([actionItem]) => ({
           text: ActionText[actionItem],
           type: actionItem,
-        }),
-      );
+        }));
       return {
         ...item,
         name: {
@@ -150,7 +151,7 @@ export default class PositionController extends Controller {
     const { key: id } = ctx.request.body as FetchDetailBody;
     if (!Object.keys(PositionType).includes(type) || !id) return;
 
-    let columnKeys: string[] = detailColumns.withoutAuditLog;
+    let columnsKey: string[] = detailColumns.withoutAuditLog;
     const position = await service.position.findOne(parseInt(id as string, 10));
 
     /**
@@ -167,8 +168,8 @@ export default class PositionController extends Controller {
     const availableActions = this.getPositionAction(position, auth, type);
     if (!availableActions.get(CellAction.Preview))
       throw new AuthorizeError('你暂时没有权限查看这个岗位的信息');
-    if (availableActions.has(CellAction.Audit)) {
-      columnKeys = detailColumns.withAuditLog;
+    if (availableActions.has(CellAction.Audit) || availableActions.has(CellAction.Edit)) {
+      columnsKey = detailColumns.withAuditLog;
       stepsProps.current = PositionAuditStatus[type].indexOf(position.audit!);
       stepsProps.status = PositionStatus[position.status!];
       stepsProps.steps = PositionAuditStatus[type].map((title: string) => ({ title }));
@@ -177,8 +178,10 @@ export default class PositionController extends Controller {
     /**
      * Format values
      */
-    // [['a', 'b'], ['c']] => 'a,b\nc'
-    position.audit_log = position.audit_log.join('\n') as any;
+    // [['a', 'b'], ['c']] => 'a，b\nc'
+    position.audit_log = position.audit_log
+      .map(i => (Array.isArray(i) ? i.join('，') : i))
+      .join('\n') as any;
 
     /**
      * Construct `columns`.
@@ -199,22 +202,21 @@ export default class PositionController extends Controller {
       columnsObj[key] = {
         dataIndex: key,
         title: value.comment,
-        span: key === 'audit_log' ? 24 : void 0,
+        ...(key === 'audit_log' ? { sm: 24, md: 24 } : void 0),
       };
     });
-    Object.entries(StaffAttr).forEach(([key, value]: any) => {
-      columnsObj[key] = {
-        dataIndex: `staff_${key}`,
-        title: key === 'name' ? '负责人姓名' : value.comment,
+    Object.entries(StaffInfoAttr).forEach(([dataIndex, value]: any) => {
+      dataIndex = `staff_${dataIndex}`;
+      columnsObj[dataIndex] = {
+        dataIndex,
+        title: dataIndex === 'staff_name' ? '负责人姓名' : value.comment,
       };
     });
-    Object.entries(DepartmentAttr).map(([key, value]: any) => {
-      columnsObj[key] = {
-        dataIndex: `department_${key}`,
-        title: value.comment,
-      };
+    Object.entries(DepartmentAttr).forEach(([dataIndex, value]: any) => {
+      dataIndex = `department_${dataIndex}`;
+      columnsObj[dataIndex] = { dataIndex, title: value.comment };
     });
-    const columns = columnKeys
+    const columns = columnsKey
       .map(col => columnsObj[col])
       .filter(col => position[col.dataIndex] !== null);
 
@@ -243,9 +245,9 @@ export default class PositionController extends Controller {
       throw new AuthorizeError('你暂时没有权限创建岗位');
 
     const values = { ...ctx.request.body } as PositionModel<true>;
-    values.types = (PositionAttr.types as any).values.indexOf(PositionType[type]);
-    values.status = (PositionAttr.status as any).values.indexOf('待审核');
-    values.audit = (PositionAttr.audit as any).values.indexOf(PositionAuditStatus[type][1]);
+    values.types = getFromIntEnum(PositionAttr, 'types', null, PositionType[type]) as number;
+    values.status = getFromIntEnum(PositionAttr, 'status', null, '待审核') as number;
+    values.audit = getFromIntEnum(PositionAttr, 'audit', null, PositionAuditStatus[type][1]) as any;
     values.audit_log = [service.position.getAuditLogItem(auth, PositionAuditStatus[type][0])];
     values.staff_jobnum = auth.user.loginname;
     await service.position.addOne(values as any);
@@ -309,8 +311,8 @@ export default class PositionController extends Controller {
     delete ctx.request.body.key;
     const values = { ...ctx.request.body } as PositionModel<true>;
     delete values.types;
-    values.status = (PositionAttr.status as any).values.indexOf('待审核');
-    values.audit = (PositionAttr.audit as any).values.indexOf(PositionAuditStatus[type][1]);
+    values.status = getFromIntEnum(PositionAttr, 'status', null, '待审核') as number;
+    values.audit = getFromIntEnum(PositionAttr, 'audit', null, PositionAuditStatus[type][1]) as any;
     values.audit_log = [
       ...position.audit_log,
       service.position.getAuditLogItem(auth, PositionAuditStatus[type][0]),
@@ -336,29 +338,25 @@ export default class PositionController extends Controller {
       throw new AuthorizeError('你暂时没有权限审核这个岗位');
 
     const values = {} as PositionModel<true>;
-    let auditStatus: number = PositionAuditStatus[type].indexOf(position.audit);
+    let auditStatusIndex: number = PositionAuditStatus[type].indexOf(position.audit);
     switch (ctx.request.body.status) {
       case '审核通过':
-        if (++auditStatus === PositionAuditStatus[type].length - 1)
-          values.status = (PositionAttr.status as any).values.indexOf('已发布');
+        if (++auditStatusIndex === PositionAuditStatus[type].length - 1)
+          values.status = getFromIntEnum(PositionAttr, 'status', null, '已发布') as number;
         break;
       case '审核不通过':
-        values.status = (PositionAttr.status as any).values.indexOf('审核不通过');
+        values.status = getFromIntEnum(PositionAttr, 'status', null, '审核不通过') as number;
         break;
       case '退回':
-        auditStatus = 0;
-        values.status = (PositionAttr.status as any).values.indexOf('草稿');
+        auditStatusIndex = 0;
+        values.status = getFromIntEnum(PositionAttr, 'status', null, '草稿') as number;
         break;
       default:
         return;
     }
-    values.audit = (PositionAttr.audit as any).values.indexOf(
-      PositionAuditStatus[type][auditStatus],
-    );
-    values.audit_log = [
-      ...position.audit_log,
-      service.position.getAuditLogItem(auth, PositionAuditStatus[type][auditStatus]),
-    ];
+    const auditStatus = PositionAuditStatus[type][auditStatusIndex];
+    values.audit = getFromIntEnum(PositionAttr, 'audit', null, auditStatus) as number;
+    values.audit_log = [...position.audit_log, service.position.getAuditLogItem(auth, auditStatus)];
     await service.position.updateOne(parseInt(id as string, 10), values as any);
     ctx.response.body = { errmsg: '审核成功' };
   }
@@ -373,15 +371,19 @@ export default class PositionController extends Controller {
     let formItems: SimpleFormItemProps[] = (ctx.model.Interships.Position as any).toForm(
       positionFormFields[type],
     );
-    formItems.unshift(filtersMap.department_code!, filtersMap.semester!);
     let initialFieldsValue: object = {};
+    const decoratorOptions = { rules: [{ required: true, message: '必填项' }] };
+    formItems.unshift(
+      { ...filtersMap.department_code!, decoratorOptions },
+      { ...filtersMap.semester!, decoratorOptions },
+    );
     if (action === TopbarAction.Create) {
       if (
         !auth.scope.includes(ScopeList.position[type].create) &&
         !auth.scope.includes(ScopeList.admin)
       )
         throw new AuthorizeError('你暂时没有权限创建岗位');
-      formItems = formItems.concat(this.getUserStaticFormItems(auth));
+      formItems.unshift(...this.getUserStaticFormItems(auth));
     } else {
       const position = await service.position.findOne(parseInt(id as string, 10));
       const availableActions = this.getPositionAction(position, auth, type);
@@ -390,14 +392,15 @@ export default class PositionController extends Controller {
           if (!availableActions.get(CellAction.Edit))
             throw new AuthorizeError('你暂时没有权限编辑这个岗位');
           initialFieldsValue = position;
-          formItems = formItems.concat(this.getUserStaticFormItems(position));
+          formItems.unshift(...this.getUserStaticFormItems(position));
           break;
         case CellAction.Audit:
           if (!availableActions.get(CellAction.Audit))
             throw new AuthorizeError('你暂时没有权限审核这个岗位');
-          formItems = positionFormFields[type].concat('semester').map(
+          formItems = ['semester', ...positionFormFields[type]].map(
             (key: string): SimpleFormItemProps => ({
               id: key,
+              decoratorOptions,
               type: SimpleFormItemType.Extra,
               extra: position[key],
               title: PositionAttr[key].comment,
@@ -405,6 +408,7 @@ export default class PositionController extends Controller {
           );
           formItems.unshift(...this.getUserStaticFormItems(position), {
             id: 'department_code',
+            decoratorOptions,
             type: SimpleFormItemType.Extra,
             extra: position.department_name,
             title: '用工单位',

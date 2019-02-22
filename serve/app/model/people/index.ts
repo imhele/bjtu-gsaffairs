@@ -1,1 +1,1 @@
-export { StaffInfo, attr as StaffInfoAttr } from './staff';
+export { StaffInfo as StaffInfoModel, attr as StaffInfoAttr } from './staff';
