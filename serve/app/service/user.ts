@@ -95,10 +95,11 @@ export default class UserService extends Service {
       user = await model.Client.Staff.findByPrimary(loginname);
     }
     if (user === null) throw new DataNotFound('用户不存在');
+    let scope = UserScope[type];
     const auditableDep = await this.isIntershipAdmin(loginname);
     const auditLink = Array.isArray(user.audit_link) ? user.audit_link : [];
-    const scope = UserScope[type];
-    if (auditableDep.length || auditLink.length) {
+    if (user.audit_link === 'admin') scope = ['scope.admin'];
+    else if (auditableDep.length || auditLink.length) {
       /* Scope of audit */
       scope.push(
         ScopeList.position.teach.audit as ScopeValue,
