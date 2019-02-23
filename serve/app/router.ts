@@ -14,6 +14,10 @@ export default (app: Application) => {
   router.post('/api/position/:type/audit/:id', controller.position.audit);
   router.post('/api/position/:type/edit/:id', controller.position.edit);
 
+  router.post('/api/stuapply/:type/list', controller.stuapply.list);
   router.post('/api/stuapply/:type/form/:id', controller.stuapply.form);
   router.post('/api/stuapply/:type/create/:id', controller.stuapply.create);
+  router.post('/api/stuapply/:type/delete/:id', controller.stuapply.delete);
+  router.post('/api/stuapply/:type/audit/:id', controller.stuapply.audit);
+  router.post('/api/stuapply/:type/edit/:id', controller.stuapply.edit);
 };

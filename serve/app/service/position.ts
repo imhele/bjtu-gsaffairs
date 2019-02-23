@@ -6,8 +6,13 @@ import { WhereOptions } from 'sequelize';
 import { DataNotFound } from '../errcode';
 import { AuthResult } from '../extend/request';
 import { Staff as StaffModel } from '../model/client/staff';
-import { Department as DepartmentModel } from '../model/dicts/department';
-import { Position as PositionModel, PositionType } from '../model/interships/position';
+import { attr as StaffInfoAttr } from '../model/people/staff';
+import { attr as DepartmentAttr, Department as DepartmentModel } from '../model/dicts/department';
+import {
+  PositionType,
+  attr as PositionAttr,
+  Position as PositionModel,
+} from '../model/interships/position';
 
 export interface PositionWithFK<D extends boolean = false, S extends boolean = false>
   extends PositionModel {
@@ -67,7 +72,7 @@ export default class PositionService extends Service {
     limit: number;
     offset: number;
     attributes?: string[];
-    where?: WhereOptions<PositionModel & TCustomAttributes>;
+    where?: WhereOptions<PositionModel<true> & TCustomAttributes>;
     depAttributes?: (keyof DepartmentModel)[];
     count?: C;
   }) {
@@ -138,6 +143,22 @@ export default class PositionService extends Service {
       }
     }
     return action;
+  }
+
+  public getColumnsObj() {
+    const columnsObj: { [key: string]: { dataIndex: string; title: string } } = {};
+    Object.entries(PositionAttr).forEach(([dataIndex, value]: any) => {
+      columnsObj[dataIndex] = { dataIndex, title: value.comment };
+    });
+    Object.entries(StaffInfoAttr).forEach(([dataIndex, value]: any) => {
+      dataIndex = `staff_${dataIndex}`;
+      columnsObj[dataIndex] = { dataIndex, title: value.comment };
+    });
+    Object.entries(DepartmentAttr).forEach(([dataIndex, value]: any) => {
+      dataIndex = `department_${dataIndex}`;
+      columnsObj[dataIndex] = { dataIndex, title: value.comment };
+    });
+    return columnsObj;
   }
 
   private formatPosition(position: any) {

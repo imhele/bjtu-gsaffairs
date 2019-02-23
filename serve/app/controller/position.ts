@@ -1,13 +1,11 @@
 import { Controller } from 'egg';
 import { ScopeList } from '../service/user';
+import { Op, WhereOptions } from 'sequelize';
 import { AuthResult } from '../extend/request';
 import { getFromIntEnum, parseJSON } from '../utils';
 import { AuthorizeError, DataNotFound } from '../errcode';
-import { Op, WhereNested, WhereOptions } from 'sequelize';
 // import { StepsProps } from '../../../src/components/Steps';
 // import { PositionState } from '../../../src/models/connect';
-import { attr as StaffInfoAttr } from '../model/people/staff';
-import { attr as DepartmentAttr } from '../model/dicts/department';
 import { CellAction, SimpleFormItemType, TopbarAction } from '../link';
 // import { FetchListBody, FetchFormBody } from '../../../src/api/position';
 import { filtersKeyMap, filtersMap, getFilters } from './positionFilter';
@@ -31,7 +29,7 @@ import {
   tableQueryFields,
 } from './position.json';
 
-const ActionText = {
+export const ActionText = {
   [CellAction.Apply]: '申请',
   [CellAction.Audit]: '审核',
   [CellAction.Delete]: '删除',
@@ -58,16 +56,16 @@ export default class PositionController extends Controller {
      * Construct `filtersValue`
      */
     let attributes = tableQueryFields.withStatus;
-    const hasAuditScope = auth.scope.find(
+    const hasAuditScope = auth.scope.some(
       i => i === ScopeList.admin || i === ScopeList.position[type].audit,
     );
-    const filters = [{ ...body.filtersValue } || {}] as WhereOptions<PositionModel & WhereNested>[];
+    const filters: WhereOptions<PositionModel>[] = [{ ...body.filtersValue }];
+    filters[0].types = positionType;
     Object.keys(filters[0]).forEach(key => {
+      /* Input 类型使用模糊查询 */
       if (filtersMap[key] && filtersMap[key].type === SimpleFormItemType.Input)
-        /* Input 类型使用模糊查询 */
         filters[0][key] = { [Op.like]: `%${filters[0][key]}%` };
     });
-    filters[0].types = positionType as number;
     if (!hasAuditScope) {
       if (auth.scope.includes(ScopeList.position[type].create)) {
         /* 没有审核权限的用户只能检索到已发布的岗位或自己创建的岗位 */
@@ -180,36 +178,9 @@ export default class PositionController extends Controller {
     /**
      * Construct `columns`.
      */
-    const columnsObj: {
-      [key: string]: {
-        dataIndex: string;
-        title: string;
-        span?: number;
-      };
-    } = {};
-    Object.entries(PositionAttr).forEach(([key, value]: any) => {
-      /**
-       * @Component `DescriptionList`
-       * @Ref /src/components/DescriptionList/index.tsx#L26-L31
-       * `span` is for layout
-       */
-      columnsObj[key] = {
-        dataIndex: key,
-        title: value.comment,
-        ...(key === 'audit_log' ? { sm: 24, md: 24 } : void 0),
-      };
-    });
-    Object.entries(StaffInfoAttr).forEach(([dataIndex, value]: any) => {
-      dataIndex = `staff_${dataIndex}`;
-      columnsObj[dataIndex] = {
-        dataIndex,
-        title: dataIndex === 'staff_name' ? '负责人姓名' : value.comment,
-      };
-    });
-    Object.entries(DepartmentAttr).forEach(([dataIndex, value]: any) => {
-      dataIndex = `department_${dataIndex}`;
-      columnsObj[dataIndex] = { dataIndex, title: value.comment };
-    });
+    const columnsObj = service.position.getColumnsObj();
+    columnsObj.staff_name.title = '负责人姓名';
+    Object.assign(columnsObj.audit_log, { sm: 24, md: 24 });
     const columns = columnsKey
       .map(col => columnsObj[col])
       .filter(col => position[col.dataIndex] !== null);

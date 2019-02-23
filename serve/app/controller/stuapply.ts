@@ -1,16 +1,98 @@
 import { Controller } from 'egg';
-import { parseJSON } from '../utils';
 import { CellAction } from '../link';
+import { ActionText } from './position';
 import { ScopeList } from '../service/user';
+import { Op, WhereOptions } from 'sequelize';
+import { getFromIntEnum, parseJSON } from '../utils';
 import { AuthorizeError, DataNotFound } from '../errcode';
-import { PositionType } from '../model/interships/position';
 import { excludeFormFields, applyReturn } from './stuapply.json';
+import { SchoolCensus as SchoolCensusModel } from '../model/school/census';
 import {
   ApplyAuditStatus,
   IntershipsStuapply as StuapplyModel,
+  ApplyStatus,
 } from '../model/interships/stuapply';
+import {
+  attr as PositionAttr,
+  PositionType,
+  Position as PositionModel,
+} from '../model/interships/position';
 
 export default class UserController extends Controller {
+  public async list() {
+    const { ctx, service } = this;
+    const { auth, body } = ctx.request;
+    const { type } = ctx.params as { type: keyof typeof PositionType };
+    const positionType = getFromIntEnum(PositionAttr, 'types', null, PositionType[type]);
+    if (positionType === -1) return;
+    const { limit = 10, offset = 0, status = null } = body;
+    const applyFilters = [] as WhereOptions<StuapplyModel>[];
+    const positionFilters = [{ types: positionType }] as WhereOptions<PositionModel>[];
+    let search: any = typeof body.search === 'string' && body.search ? body.search : '';
+    if (search) search = { [Op.like]: `%${search}%` };
+    if (search) positionFilters.push({ name: search, address: search, work_time_d: search });
+    if (!auth.scope.includes(ScopeList.admin)) {
+      if (auth.auditLink.length)
+        applyFilters.push({
+          [Op.or]: auth.auditLink
+            .map(i => ({ audit: ApplyAuditStatus.indexOf(i) }))
+            .filter(i => i.audit !== -1),
+        });
+      if (auth.auditableDep.length)
+        positionFilters.push({ [Op.or]: auth.auditableDep.map(i => ({ department_code: i })) });
+      if (auth.scope.includes(ScopeList.position[type].create))
+        positionFilters.push({ staff_jobnum: auth.user.loginname });
+      if (auth.scope.includes(ScopeList.position[type].apply))
+        applyFilters[0].student_number = auth.user.loginname;
+    }
+
+    /**
+     * Qurey batabase
+     */
+    const options = {
+      limit,
+      offset,
+      where: { [Op.or]: applyFilters } as WhereOptions<StuapplyModel>,
+    };
+    const include = [
+      { model: ctx.model.School.Census },
+      { model: ctx.model.Interships.Position, where: { [Op.and]: positionFilters } },
+    ];
+    if (status && Object.keys(ApplyStatus).includes(status))
+      Object.assign(options.where, ctx.model.Interships.Stuapply.formatBack({ status }));
+    if (search) {
+      options.where.student_number = search;
+      Object.assign(include[0], { where: { name: search } as WhereOptions<SchoolCensusModel> });
+    }
+    const { positions, total } = await service.stuapply.findAndCountAll(options, include);
+
+    /**
+     * Format dataSource
+     */
+    const dataSource = positions.map(item => {
+      const availableActions = service.stuapply.authorize(item, auth, type);
+      const action: StandardTableActionProps = Array.from(availableActions.entries())
+        .filter(([_, enable]) => enable)
+        .map(([actionItem]) => ({
+          text: ActionText[actionItem],
+          type: actionItem,
+        }));
+      return { ...item, action };
+    });
+
+    /**
+     * Construct result
+     */
+    const result: Partial<PositionState> = {
+      columns: Object.values(service.stuapply.getColumnsObj()),
+      dataSource,
+      total,
+      rowKey: 'id',
+    };
+
+    ctx.response.body = result;
+  }
+
   public async form() {
     const {
       ctx: { request, response, model, params },

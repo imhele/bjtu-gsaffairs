@@ -3,9 +3,17 @@ import { ScopeList } from './user';
 import { CellAction } from '../link';
 import { DataNotFound } from '../errcode';
 import { AuthResult } from '../extend/request';
-import { SchoolCensus as CensusModel } from '../model/school/census';
-import { IntershipsStuapply as StuapplyModel } from '../model/interships/stuapply';
-import { Position as PositionModel, PositionType } from '../model/interships/position';
+import { FindOptions, IncludeOptions, Model } from 'sequelize';
+import { attr as SchoolCensusAttr, SchoolCensus as CensusModel } from '../model/school/census';
+import {
+  attr as StuapplyAttr,
+  IntershipsStuapply as StuapplyModel,
+} from '../model/interships/stuapply';
+import {
+  PositionType,
+  attr as PositionAttr,
+  Position as PositionModel,
+} from '../model/interships/position';
 
 export interface StuapplyWithFK<D extends boolean = false, S extends boolean = false>
   extends StuapplyModel {
@@ -93,6 +101,34 @@ export default class StuapplyService extends Service {
         action.set(CellAction.Audit, stuapply.audit === '导师确认' && stuapply.status === '待审核');
     }
     return action;
+  }
+
+  public async findAndCountAll<TCustomAttributes>(
+    options: FindOptions<StuapplyModel<true> & TCustomAttributes>,
+    include?: Array<Model<any, any> | IncludeOptions>,
+  ) {
+    const { model } = this.ctx;
+    const result = await model.Interships.Stuapply.findAndCountAll({ ...options, include });
+    return {
+      positions: result.rows.map((item: any) => this.formatStuapply(item)) as StuapplyWithFK[],
+      total: result.count,
+    };
+  }
+
+  public getColumnsObj() {
+    const columnsObj: { [key: string]: { dataIndex: string; title: string } } = {};
+    Object.entries(StuapplyAttr).forEach(([dataIndex, value]: any) => {
+      columnsObj[dataIndex] = { dataIndex, title: value.comment };
+    });
+    Object.entries(PositionAttr).forEach(([dataIndex, value]: any) => {
+      dataIndex = `position_${dataIndex}`;
+      columnsObj[dataIndex] = { dataIndex, title: value.comment };
+    });
+    Object.entries(SchoolCensusAttr).forEach(([dataIndex, value]: any) => {
+      dataIndex = `student_${dataIndex}`;
+      columnsObj[dataIndex] = { dataIndex, title: value.comment };
+    });
+    return columnsObj;
   }
 
   private formatStuapply(stuapply: any) {
