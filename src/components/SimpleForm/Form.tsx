@@ -108,7 +108,15 @@ class SimpleForm extends BaseForm<SimpleFormProps> {
   };
 
   render() {
-    const { className, empty, formItems, hideRequiredMark, layout, style } = this.props;
+    const {
+      className,
+      empty,
+      formItems,
+      groupAmount,
+      hideRequiredMark,
+      layout,
+      style,
+    } = this.props;
     if (!Array.isArray(formItems) || !formItems.length) {
       return empty === void 0 ? <Empty /> : empty;
     }
@@ -118,7 +126,11 @@ class SimpleForm extends BaseForm<SimpleFormProps> {
         hideRequiredMark={hideRequiredMark}
         layout={layout}
         onSubmit={this.onSubmit}
-        style={style}
+        style={{
+          margin: 'auto',
+          maxWidth: groupAmount < 2 ? '900px' : void 0,
+          ...style,
+        }}
       >
         {this.renderFormItems()}
       </Form>

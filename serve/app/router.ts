@@ -13,4 +13,6 @@ export default (app: Application) => {
   router.post('/api/position/:type/delete/:id', controller.position.delete);
   router.post('/api/position/:type/audit/:id', controller.position.audit);
   router.post('/api/position/:type/edit/:id', controller.position.edit);
+
+  router.post('/api/stuapply/:type/form/:id', controller.stuapply.form);
 };

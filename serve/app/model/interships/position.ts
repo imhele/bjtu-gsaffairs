@@ -189,7 +189,7 @@ export const attr: DefineModelAttributes<Position<true>> = {
     validate: { isJson },
   },
   cellphone: {
-    allowNull: true,
+    allowNull: false,
     comment: '联系电话',
     type: STRING(20),
     validate: { len: [0, 20], notEmpty: true },

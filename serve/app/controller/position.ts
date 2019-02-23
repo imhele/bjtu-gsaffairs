@@ -1,8 +1,8 @@
 import { Controller } from 'egg';
 import { ScopeList } from '../service/user';
-import { AuthorizeError, DataNotFound } from '../errcode';
 import { AuthResult } from '../extend/request';
 import { getFromIntEnum, parseJSON } from '../utils';
+import { AuthorizeError, DataNotFound } from '../errcode';
 import { Op, WhereNested, WhereOptions } from 'sequelize';
 // import { StepsProps } from '../../../src/components/Steps';
 // import { PositionState } from '../../../src/models/connect';
@@ -58,6 +58,9 @@ export default class PositionController extends Controller {
      * Construct `filtersValue`
      */
     let attributes = tableQueryFields.withStatus;
+    const hasAuditScope = auth.scope.find(
+      i => i === ScopeList.admin || i === ScopeList.position[type].audit,
+    );
     const filters = [{ ...body.filtersValue } || {}] as WhereOptions<PositionModel & WhereNested>[];
     Object.keys(filters[0]).forEach(key => {
       if (filtersMap[key] && filtersMap[key].type === SimpleFormItemType.Input)
@@ -65,10 +68,7 @@ export default class PositionController extends Controller {
         filters[0][key] = { [Op.like]: `%${filters[0][key]}%` };
     });
     filters[0].types = positionType as number;
-    if (
-      !auth.scope.includes(ScopeList.admin) &&
-      !auth.scope.includes(ScopeList.position[type].audit)
-    ) {
+    if (!hasAuditScope) {
       if (auth.scope.includes(ScopeList.position[type].create)) {
         /* 没有审核权限的用户只能检索到已发布的岗位或自己创建的岗位 */
         filters.push({
@@ -101,7 +101,7 @@ export default class PositionController extends Controller {
      * Format dataSource
      */
     const dataSource = positions.map(item => {
-      const availableActions = this.getPositionAction(item, auth, type);
+      const availableActions = service.position.getPositionAction(item, auth, type);
       availableActions.delete(CellAction.Preview);
       const action: StandardTableActionProps = Array.from(availableActions.entries())
         .filter(([_, enable]) => enable)
@@ -128,7 +128,7 @@ export default class PositionController extends Controller {
       total,
       rowKey: 'id',
       actionKey: ['action', 'name'],
-      selectable: { columnWidth: 57 },
+      selectable: hasAuditScope && { columnWidth: 57 },
     };
     if (!offset) result.operationArea = operationArea;
     if (!body.filtersValue || !Object.keys(body.filtersValue).length) {
@@ -158,7 +158,7 @@ export default class PositionController extends Controller {
     /**
      * Authorize
      */
-    const availableActions = this.getPositionAction(position, auth, type);
+    const availableActions = service.position.getPositionAction(position, auth, type);
     if (!availableActions.get(CellAction.Preview))
       throw new AuthorizeError('你暂时没有权限查看这个岗位的信息');
     if (availableActions.has(CellAction.Audit) || availableActions.has(CellAction.Edit)) {
@@ -286,7 +286,7 @@ export default class PositionController extends Controller {
      * Authorize
      */
     const position = await service.position.findOne(parseInt(id, 10));
-    const availableActions = this.getPositionAction(position, auth, type);
+    const availableActions = service.position.getPositionAction(position, auth, type);
     if (!availableActions.get(CellAction.Delete))
       throw new AuthorizeError('你暂时没有权限删除这个岗位');
 
@@ -304,7 +304,7 @@ export default class PositionController extends Controller {
      * Authorize
      */
     const position = await service.position.findOne(parseInt(id, 10));
-    const availableActions = this.getPositionAction(position, auth, type);
+    const availableActions = service.position.getPositionAction(position, auth, type);
     if (!availableActions.get(CellAction.Edit))
       throw new AuthorizeError('你暂时没有权限编辑这个岗位');
 
@@ -332,7 +332,7 @@ export default class PositionController extends Controller {
      * Authorize
      */
     const position = await service.position.findOne(parseInt(id, 10));
-    const availableActions = this.getPositionAction(position, auth, type);
+    const availableActions = service.position.getPositionAction(position, auth, type);
     if (!availableActions.get(CellAction.Audit))
       throw new AuthorizeError('你暂时没有权限审核这个岗位');
 
@@ -413,7 +413,7 @@ export default class PositionController extends Controller {
       formItems.unshift(...this.getUserStaticFormItems(auth));
     } else {
       const position = await service.position.findOne(parseInt(id, 10));
-      const availableActions = this.getPositionAction(position, auth, type);
+      const availableActions = service.position.getPositionAction(position, auth, type);
       switch (action) {
         case CellAction.Edit:
           if (!availableActions.get(CellAction.Edit))
@@ -480,54 +480,5 @@ export default class PositionController extends Controller {
         title: '负责人姓名',
       },
     ];
-  }
-
-  /**
-   * 获取当前岗位有权限的操作列表
-   */
-  private getPositionAction(
-    position: PositionModel,
-    { auditableDep, auditLink, scope, user }: AuthResult,
-    type: keyof typeof PositionType,
-  ) {
-    const action: Map<CellAction, boolean> = new Map();
-    if (scope.includes(ScopeList.admin)) {
-      action.set(CellAction.Preview, true);
-      action.set(CellAction.Delete, true);
-      action.set(CellAction.Edit, true);
-      action.set(CellAction.Audit, position.status === '待审核');
-    } else {
-      /* 已发布的岗位所有人可见 */
-      if (position.status === '已发布') {
-        action.set(CellAction.Preview, true);
-        /* 学生可申请已发布的岗位 */
-        if (scope.includes(ScopeList.position[type].apply)) {
-          // @TODO 学生已申请岗位时，状态不可用，目前直接在用户进入申请页时判断权限
-          action.set(CellAction.Apply, true);
-        }
-      }
-      /* 有审核权限的管理员可以查看非 `已发布` 状态的岗位 */
-      if (scope.includes(ScopeList.position[type].audit)) {
-        action.set(CellAction.Preview, true);
-      }
-      /* 用户可以访问和删除自己发布的岗位 */
-      if (position.staff_jobnum === user.loginname) {
-        action.set(CellAction.Preview, true);
-        action.set(CellAction.Delete, true);
-        /* 草稿状态下可以编辑 */
-        action.set(CellAction.Edit, position.status === '草稿');
-      }
-      /* 根据岗位审核进度设定审核权限可用状态 */
-      if (auditableDep.includes(position.department_code!)) {
-        action.set(
-          CellAction.Audit,
-          position.audit === '用人单位审核' && position.status === '待审核',
-        );
-      }
-      if (auditLink.includes(position.audit)) {
-        action.set(CellAction.Audit, position.status === '待审核');
-      }
-    }
-    return action;
   }
 }

@@ -39,8 +39,13 @@ export const setModelInstanceMethods = <T = any, M = any>(
     },
   });
   Object.assign(model, {
-    toForm: (fields?: string[]): SimpleFormItemProps[] =>
-      (fields || Object.keys(attr)).map(
+    toForm: (fields?: string[], exclude: boolean = false): SimpleFormItemProps[] =>
+      (fields
+        ? exclude
+          ? Object.keys(attr).filter(i => !fields.includes(i))
+          : fields
+        : Object.keys(attr)
+      ).map(
         (id): SimpleFormItemProps => {
           const res = {
             id,

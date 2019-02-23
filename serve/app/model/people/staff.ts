@@ -154,7 +154,7 @@ export const attr: DefineModelAttributes<StaffInfo> = {
     allowNull: true,
     comment: '人事单位是否本校',
     type: TINYINT,
-    values: ['是', '否'],
+    values: ['否', '是'],
     validate: { ...intEnumValid(2) },
   },
 };
