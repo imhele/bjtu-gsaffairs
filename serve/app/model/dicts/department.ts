@@ -61,7 +61,7 @@ export default (app: Application) => {
   );
   Model.associate = async () => {
     /* 后端启动时，从数据库取出所有部门的名称，添加到 `filtersMap` 中 */
-    const departments = await app.model.Dicts.Department.findAll({ attributes: ['code', 'name'] });
+    const departments = await app.model.Dicts.Department.findAll({ attributes: ['code', 'name', 'level'] });
     filtersMap.department_code!.selectOptions = departments.map((item: any) => ({
       title: item.get('name'),
       value: item.get('code'),

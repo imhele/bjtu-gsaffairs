@@ -1,6 +1,6 @@
 import { Controller } from 'egg';
 import { ScopeList } from '../service/user';
-import { AuthorizeError } from '../errcode';
+import { AuthorizeError, DataNotFound } from '../errcode';
 import { AuthResult } from '../extend/request';
 import { getFromIntEnum, parseJSON } from '../utils';
 import { Op, WhereNested, WhereOptions } from 'sequelize';
@@ -249,7 +249,8 @@ export default class PositionController extends Controller {
       const dep: any = await ctx.model.People.Staff.findByPk(auth.user.loginname, {
         attributes: ['department_code'],
       });
-      if (dep !== null) values.department_code = dep.get('department_code');
+      if (dep !== null && dep.get('department_code') !== null)
+        values.department_code = dep.get('department_code');
     }
     await service.position.addOne(values as any);
 
@@ -397,16 +398,16 @@ export default class PositionController extends Controller {
           );
         else {
           const dep: any = await ctx.model.People.Staff.findByPk(auth.user.loginname, {
-            attributes: ['department'],
-            where: { department_code: { [Op.not]: null } },
+            attributes: ['department', 'department_code'],
           });
-          if (dep !== null)
-            formItems[0] = {
-              id: 'department_code',
-              type: SimpleFormItemType.Extra,
-              extra: dep.get('department'),
-              title: '用工单位',
-            };
+          if (dep === null || dep.get('department_code') === null)
+            throw new DataNotFound('找不到你的单位信息，请联系管理员补录');
+          formItems[0] = {
+            id: 'department_code',
+            type: SimpleFormItemType.Extra,
+            extra: dep.get('department'),
+            title: '用工单位',
+          };
         }
       }
       formItems.unshift(...this.getUserStaticFormItems(auth));
