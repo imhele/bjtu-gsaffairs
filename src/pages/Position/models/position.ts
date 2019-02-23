@@ -10,10 +10,12 @@ import { ColProps, RowProps } from 'antd/es/grid';
 import { StandardTableOperationAreaProps } from '@/components/StandardTable';
 import { FilterItemProps, SimpleFormItemProps } from '@/components/SimpleForm';
 import {
+  applyPosition,
   auditPosition,
   createPosition,
   deletePosition,
   editPosition,
+  fetchApplyForm,
   fetchDetail,
   fetchForm,
   fetchList,
@@ -102,6 +104,19 @@ const defaultState: PositionState = {
   },
 };
 
+const SuccessActions = payload => [
+  {
+    text: formatMessage({ id: 'word.back-to-list' }),
+    type: 'replace',
+    path: `/position/${payload.query.type}/list`,
+  },
+  {
+    text: formatMessage({ id: 'position.create.continue-create' }),
+    type: 'replace',
+    path: `/position/${payload.query.type}/create`,
+  },
+];
+
 export interface PositionModel extends Model {
   state: PositionState;
 }
@@ -141,10 +156,19 @@ const model: PositionModel = {
           response.formItems,
           response.initialFieldsValue,
         );
-        yield put({
-          type: 'setForm',
-          payload: response,
-        });
+        yield put({ type: 'setForm', payload: response });
+      }
+    },
+    *fetchApplyForm({ payload }, { call, put }) {
+      const response = yield call(fetchApplyForm, payload);
+      if (response && typeof response === 'object') {
+        response.initialFieldsValue = Utils.safeFun(
+          Utils.formatMomentInSimpleFormInitValue,
+          {},
+          response.formItems,
+          response.initialFieldsValue,
+        );
+        yield put({ type: 'setForm', payload: response });
       }
     },
     *createPosition({ payload }, { call, put }) {
@@ -155,18 +179,7 @@ const model: PositionModel = {
           type: 'result/success',
           payload: {
             type: 'success',
-            actions: [
-              {
-                text: formatMessage({ id: 'word.back-to-list' }),
-                type: 'replace',
-                path: `/position/${payload.query.type}/list`,
-              },
-              {
-                text: formatMessage({ id: 'position.create.continue-create' }),
-                type: 'replace',
-                path: `/position/${payload.query.type}/create`,
-              },
-            ],
+            actions: SuccessActions(payload),
             ...response,
           },
         });
@@ -186,6 +199,20 @@ const model: PositionModel = {
       if (response && !response.errcode) {
         message.success(response.errmsg);
         Utils.safeFun(callback, null, payload);
+      }
+    },
+    *applyPosition({ payload }, { call, put }) {
+      payload.body = Utils.formatMomentInFieldsValue(payload.body, Utils.formatMoment.YMDHms);
+      const response = yield call(applyPosition, payload);
+      if (response) {
+        yield put<{ type: string; payload: ResultState }>({
+          type: 'result/success',
+          payload: {
+            type: 'success',
+            actions: SuccessActions(payload),
+            ...response,
+          },
+        });
       }
     },
   },

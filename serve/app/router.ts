@@ -15,4 +15,5 @@ export default (app: Application) => {
   router.post('/api/position/:type/edit/:id', controller.position.edit);
 
   router.post('/api/stuapply/:type/form/:id', controller.stuapply.form);
+  router.post('/api/stuapply/:type/create/:id', controller.stuapply.create);
 };

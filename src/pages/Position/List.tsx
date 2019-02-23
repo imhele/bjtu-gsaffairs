@@ -292,13 +292,15 @@ class List extends Component<ListProps, ListState> {
         });
         break;
       case CellAction.Edit:
-        const query = formatStrOrNumQuery.stringify({ key: currentRowKey });
-        router.push(`edit?${query}`);
+        router.push(`edit?${formatStrOrNumQuery.stringify({ key: currentRowKey })}`);
         break;
       case CellAction.Audit:
         currentRowKey = `${typeof currentRowKey}${TypeSpaceChar}${currentRowKey}`;
         sessionStorage.setItem(StorageId.PARowKes, JSON.stringify([currentRowKey]));
         router.push('audit');
+        break;
+      case CellAction.Apply:
+        router.push(`apply?${formatStrOrNumQuery.stringify({ key: currentRowKey })}`);
         break;
       default:
         message.warn(formatMessage({ id: 'position.error.unknown.action' }));

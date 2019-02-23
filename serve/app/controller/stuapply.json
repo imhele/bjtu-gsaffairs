@@ -1,3 +1,15 @@
 {
-  "excludeFormFields": ["status", "audit", "audit_log"]
+  "excludeFormFields": ["status", "audit", "audit_log"],
+  "applyReturn": {
+    "title": "提交成功",
+    "description": "你已成功提交岗位申请，请耐心等待审核结果",
+    "extra": {
+      "columns": [
+        { "title": "岗位名称", "dataIndex": "name" },
+        { "title": "联系电话", "dataIndex": "phone" },
+        { "title": "计划工作量", "dataIndex": "work_time_l" }
+      ],
+      "dataSource": {}
+    }
+  }
 }

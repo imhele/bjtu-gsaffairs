@@ -71,6 +71,14 @@ const route: Route<true>[] = [
             name: ['route.position.manage.audit', 'route.position.teach.audit'],
             scope: [['scope.position.manage.audit'], ['scope.position.teach.audit']],
           },
+          {
+            path: '/position/:type/apply',
+            component: './Position/Apply',
+            hideInMenu: true,
+            dynamic: [{ type: 'manage' }, { type: 'teach' }],
+            name: ['route.position.manage.apply', 'route.position.teach.apply'],
+            scope: [['scope.position.manage.apply'], ['scope.position.teach.apply']],
+          },
         ],
       },
       // result

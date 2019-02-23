@@ -73,7 +73,7 @@ export default class PositionController extends Controller {
         /* 没有审核权限的用户只能检索到已发布的岗位或自己创建的岗位 */
         filters.push({
           [Op.or]: [
-            { status: getFromIntEnum(PositionAttr, 'status', null, '已发布') },
+            { status: ctx.model.Interships.Position.formatBack({ status: '已发布' }).status },
             { staff_jobnum: auth.user.loginname },
           ],
         });
@@ -81,7 +81,7 @@ export default class PositionController extends Controller {
         /* 既没有审核权限，也没有创建权限 */
         attributes = tableQueryFields.withoutStatus;
         filtersKey = filtersKeyMap[type].withoutStatus;
-        filters[0].status = getFromIntEnum(PositionAttr, 'status', null, '已发布');
+        filters[0].status = ctx.model.Interships.Position.formatBack({ status: '已发布' }).status;
       }
     }
 
@@ -237,14 +237,16 @@ export default class PositionController extends Controller {
     )
       throw new AuthorizeError('你暂时没有权限创建岗位');
 
-    const values = { ...ctx.request.body } as PositionModel<true>;
-    values.staff_jobnum = auth.user.loginname;
-    values.types = getFromIntEnum(PositionAttr, 'types', null, PositionType[type]) as number;
-    values.status = getFromIntEnum(PositionAttr, 'status', null, '待审核') as number;
-    values.audit = getFromIntEnum(PositionAttr, 'audit', null, PositionAuditStatus[type][1]) as any;
-    values.audit_log = JSON.stringify([
-      service.position.getAuditLogItem(auth, PositionAuditStatus[type][0]),
-    ]);
+    const values = ctx.model.Interships.Position.formatBack({
+      ...ctx.request.body,
+      audit: PositionAuditStatus[type][1],
+      staff_jobnum: auth.user.loginname,
+      status: '待审核',
+      types: PositionType[type],
+      audit_log: JSON.stringify([
+        service.position.getAuditLogItem(auth, PositionAuditStatus[type][0]),
+      ]),
+    });
     if (values.department_code === void 0 || !auth.scope.includes(ScopeList.position[type].audit)) {
       const dep: any = await ctx.model.People.Staff.findByPk(auth.user.loginname, {
         attributes: ['department_code'],
@@ -308,16 +310,18 @@ export default class PositionController extends Controller {
     if (!availableActions.get(CellAction.Edit))
       throw new AuthorizeError('你暂时没有权限编辑这个岗位');
 
+    delete ctx.request.body.types;
     delete ctx.request.body.key;
-    const values = { ...ctx.request.body } as PositionModel<true>;
-    delete values.types;
-    values.status = getFromIntEnum(PositionAttr, 'status', null, '待审核') as number;
-    values.audit = getFromIntEnum(PositionAttr, 'audit', null, PositionAuditStatus[type][1]) as any;
-    values.audit_log = JSON.stringify([
-      ...parseJSON(position.audit_log),
-      service.position.getAuditLogItem(auth, PositionAuditStatus[type][0]),
-    ]);
-    values.staff_jobnum = auth.user.loginname;
+    delete ctx.request.body.staff_jobnum;
+    const values = ctx.model.Interships.Position.formatBack({
+      ...ctx.request.body,
+      audit: PositionAuditStatus[type][1],
+      status: '待审核',
+      audit_log: JSON.stringify([
+        ...parseJSON(position.audit_log),
+        service.position.getAuditLogItem(auth, PositionAuditStatus[type][0]),
+      ]),
+    });
     await service.position.updateOne(parseInt(id, 10), values as any);
     ctx.response.body = { errmsg: '提交成功' };
   }
@@ -336,31 +340,29 @@ export default class PositionController extends Controller {
     if (!availableActions.get(CellAction.Audit))
       throw new AuthorizeError('你暂时没有权限审核这个岗位');
 
-    const values = {} as PositionModel<true>;
+    let values = {} as PositionModel;
     let auditStatusIndex: number = PositionAuditStatus[type].indexOf(position.audit);
     switch (ctx.request.body.status) {
       case '审核通过':
-        if (++auditStatusIndex === PositionAuditStatus[type].length - 1)
-          values.status = getFromIntEnum(PositionAttr, 'status', null, '已发布') as number;
+        if (++auditStatusIndex === PositionAuditStatus[type].length - 1) values.status = '已发布';
         break;
       case '审核不通过':
-        values.status = getFromIntEnum(PositionAttr, 'status', null, '审核不通过') as number;
+        values.status = '审核不通过';
         break;
       case '退回':
         auditStatusIndex = 0;
-        values.status = getFromIntEnum(PositionAttr, 'status', null, '草稿') as number;
+        values.status = '草稿';
         break;
       default:
-        return;
+        throw new DataNotFound('无效的审核选项');
     }
-    const auditStatus = PositionAuditStatus[type][auditStatusIndex];
+    values.audit = PositionAuditStatus[type][auditStatusIndex];
     const opinion = Array.isArray(ctx.request.body.opinion) ? ctx.request.body.opinion : [];
-    values.audit = getFromIntEnum(PositionAttr, 'audit', null, auditStatus) as number;
-    values.audit_log = JSON.stringify(
-      parseJSON(position.audit_log).concat([
-        service.position.getAuditLogItem(auth, position.audit, ctx.request.body.status, ...opinion),
-      ]),
-    );
+    values.audit_log = JSON.stringify([
+      ...parseJSON(position.audit_log),
+      service.position.getAuditLogItem(auth, position.audit, ctx.request.body.status, ...opinion),
+    ]);
+    values = ctx.model.Interships.Position.formatBack(values);
     await service.position.updateOne(parseInt(id, 10), values as any);
     ctx.response.body = { errmsg: '审核成功' };
   }

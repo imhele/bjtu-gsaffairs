@@ -108,3 +108,29 @@ export async function auditPosition({ body, query }: AuditPositionPayload) {
     method: 'POST',
   });
 }
+
+export interface ApplyFormPayload {
+  query: FetchQuery;
+}
+
+export async function fetchApplyForm({ query }: ApplyFormPayload) {
+  return requests(`${APIPrefix}/stuapply/${query.type}/form/${query.key}`, {
+    method: 'POST',
+  });
+}
+
+export interface ApplyPositionBody extends RequestBody {
+  [key: string]: any;
+}
+
+export interface ApplyPositionPayload {
+  body: ApplyPositionBody;
+  query: FetchQuery;
+}
+
+export async function applyPosition({ body, query }: ApplyPositionPayload) {
+  return requests<ApplyPositionBody>(`${APIPrefix}/stuapply/${query.type}/create/${query.key}`, {
+    body,
+    method: 'POST',
+  });
+}

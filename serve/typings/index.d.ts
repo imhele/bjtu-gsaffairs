@@ -14,7 +14,7 @@ declare module 'sequelize' {
   }
 
   interface Model<TInstance, TAttributes> {
-    formatBack: (values: { [K in keyof TAttributes]: any }) => { [K in keyof TAttributes]: any };
+    formatBack: (values: { [K in keyof TAttributes]?: any }) => { [K in keyof TAttributes]: any };
     toForm: (fields?: (keyof TAttributes)[], exclude?: boolean) => SimpleFormItemProps[];
   }
 }
