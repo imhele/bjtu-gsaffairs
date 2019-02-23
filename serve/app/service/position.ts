@@ -101,7 +101,6 @@ export default class PositionService extends Service {
   ) {
     const action: Map<CellAction, boolean> = new Map();
     if (scope.includes(ScopeList.admin)) {
-      action.set(CellAction.Apply, true);
       action.set(CellAction.Preview, true);
       action.set(CellAction.Delete, true);
       action.set(CellAction.Edit, true);

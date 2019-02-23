@@ -3,6 +3,7 @@ import routes from './routes';
 import { IConfig } from 'umi-types';
 
 const config: IConfig = {
+  hash: true,
   routes: routes as any,
   treeShaking: true,
   ignoreMomentLocale: true,
