@@ -1,5 +1,4 @@
 import { Application } from 'egg';
-import { PositionStatus as ApplyStatus } from './position';
 import { setModelInstanceMethods } from '../../utils';
 import { isJson, intEnumValid } from '../../errcode/validation';
 import { DefineModelAttributes, STRING, TEXT, INTEGER } from 'sequelize';
@@ -23,9 +22,14 @@ export interface IntershipsStuapply<E extends boolean = false> {
   position_id?: number;
 }
 
-export { ApplyStatus };
+export const ApplyStatus = {
+  待审核: 'process',
+  审核通过: 'finish',
+  审核不通过: 'error',
+  草稿: 'process',
+};
 
-export const ApplyAuditStatus = ['学生申请', '导师确认', '用工单位审核', '研工部审核', '申请成功'];
+export const ApplyAuditStatus = ['学生申请', '导师确认', '用人单位审核', '研工部审核', '申请成功'];
 
 export const attr: DefineModelAttributes<IntershipsStuapply<true>> = {
   phone: {

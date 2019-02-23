@@ -311,8 +311,8 @@ export default class PositionController extends Controller {
     if (!availableActions.get(CellAction.Edit))
       throw new AuthorizeError('你暂时没有权限编辑这个岗位');
 
+    delete ctx.request.body.id;
     delete ctx.request.body.types;
-    delete ctx.request.body.key;
     delete ctx.request.body.staff_jobnum;
     const values = ctx.model.Interships.Position.formatBack({
       ...ctx.request.body,
@@ -323,7 +323,7 @@ export default class PositionController extends Controller {
         service.position.getAuditLogItem(auth, PositionAuditStatus[type][0]),
       ]),
     });
-    await service.position.updateOne(parseInt(id, 10), values as any);
+    await service.position.updateOne(parseInt(id, 10), values);
     ctx.response.body = { errmsg: '提交成功' };
   }
 

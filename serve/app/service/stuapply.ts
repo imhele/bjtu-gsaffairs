@@ -1,8 +1,11 @@
 import { Service } from 'egg';
+import { ScopeList } from './user';
+import { CellAction } from '../link';
 import { DataNotFound } from '../errcode';
+import { AuthResult } from '../extend/request';
 import { SchoolCensus as CensusModel } from '../model/school/census';
-import { Position as PositionModel } from '../model/interships/position';
 import { IntershipsStuapply as StuapplyModel } from '../model/interships/stuapply';
+import { Position as PositionModel, PositionType } from '../model/interships/position';
 
 export interface StuapplyWithFK<D extends boolean = false, S extends boolean = false>
   extends StuapplyModel {
@@ -41,6 +44,55 @@ export default class StuapplyService extends Service {
   public async deleteOne(id: number) {
     const { model } = this.ctx;
     await model.Interships.Stuapply.destroy({ where: { id } });
+  }
+
+  public async hasApplied(positionId: number, student: string) {
+    const { model } = this.ctx;
+    const stuapply = await model.Interships.Stuapply.findAll({
+      limit: 1,
+      attributes: ['id'],
+      where: { student_number: student, position_id: positionId },
+    });
+    return stuapply.length ? true : false;
+  }
+
+  /**
+   * 不包含 CellAction.Preview 的判断
+   */
+  public authorize(
+    stuapply: StuapplyWithFK,
+    { auditableDep, auditLink, scope, user }: AuthResult,
+    type: keyof typeof PositionType,
+  ) {
+    const action: Map<CellAction, boolean> = new Map();
+    if (scope.includes(ScopeList.admin)) {
+      action.set(CellAction.Delete, true);
+      action.set(CellAction.Edit, true);
+      action.set(CellAction.Audit, stuapply.status === '待审核');
+    } else {
+      if (scope.includes(ScopeList.position[type].apply)) action.set(CellAction.Apply, true);
+      /* 用户可以访问和删除自己发布的岗位 */
+      if (stuapply.student_number === user.loginname) {
+        action.set(CellAction.Delete, true);
+        /* 草稿状态下可以编辑 */
+        action.set(CellAction.Edit, stuapply.status === '草稿');
+      }
+      /* 根据岗位审核进度设定审核权限可用状态 */
+      if (auditableDep.includes(stuapply.position_department_code!)) {
+        action.set(
+          CellAction.Audit,
+          stuapply.audit === '用人单位审核' && stuapply.status === '待审核',
+        );
+      }
+      if (auditLink.includes(stuapply.audit))
+        action.set(CellAction.Audit, stuapply.status === '待审核');
+      if (
+        stuapply.student_teacher_code === user.loginname ||
+        stuapply.student_teacher2_code === user.loginname
+      )
+        action.set(CellAction.Audit, stuapply.audit === '导师确认' && stuapply.status === '待审核');
+    }
+    return action;
   }
 
   private formatStuapply(stuapply: any) {

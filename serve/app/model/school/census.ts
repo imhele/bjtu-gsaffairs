@@ -65,7 +65,6 @@ export const attr: DefineModelAttributes<SchoolCensus> = {
     type: STRING(2),
     validate: { len: [0, 2] },
   },
-
   teacher_code: {
     allowNull: true,
     comment: '导师工资号',

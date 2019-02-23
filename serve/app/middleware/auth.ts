@@ -24,8 +24,8 @@ export default (): any => {
     if (tokenArr.length !== 3) throw new AuthorizeError(message);
     const [timestamp, loginname, signature] = tokenArr;
     // The token obtained at the time of logging in `tokenAging` seconds ago is invalid.
-    const tokenTimeDiff = moment().diff(timestamp, 'seconds');
-    if (tokenTimeDiff < 0 || tokenTimeDiff > tokenAging) throw new AuthorizeError(message);
+    const tokenTimeDiff = moment().unix() - parseInt(timestamp, 10);
+    if (tokenTimeDiff < -5 || tokenTimeDiff > tokenAging) throw new AuthorizeError(message);
     const userInfo = await ctx.service.user.findOne(loginname);
     if (userInfo.user === null) throw new AuthorizeError(message);
     // If the user's last login distance is now more than `loginAging` seconds, the token will be invalid.
