@@ -21,7 +21,7 @@ export const PositionStatus = {
 };
 
 export const PositionAuditStatus = {
-  manage: ['职工申报', '用人单位审核', '人事处审核', '研工部审核', '发布岗位'],
+  manage: ['职工申报', '人事处审核', '研工部审核', '发布岗位'],
   teach: ['教师申报', '用人单位审核', '教务处审核', '研究生院审核', '研工部审核', '发布岗位'],
 };
 

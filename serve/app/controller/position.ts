@@ -12,7 +12,7 @@ import { CellAction, SimpleFormItemType, TopbarAction } from '../link';
 // import { FetchListBody, FetchFormBody } from '../../../src/api/position';
 import { filtersKeyMap, filtersMap, getFilters } from './positionFilter';
 // import { StandardTableActionProps } from '../../../src/components/StandardTable';
-// import { SimpleFormItemType, SimpleFormItemProps } from '../../../src/components/SimpleForm';
+// import { SimpleFormItemProps } from '../../../src/components/SimpleForm';
 import {
   Position as PositionModel,
   attr as PositionAttr,
@@ -245,6 +245,12 @@ export default class PositionController extends Controller {
     values.audit_log = JSON.stringify([
       service.position.getAuditLogItem(auth, PositionAuditStatus[type][0]),
     ]);
+    if (values.department_code === void 0 || !auth.scope.includes(ScopeList.position[type].audit)) {
+      const dep: any = await ctx.model.People.Staff.findByPk(auth.user.loginname, {
+        attributes: ['department_code'],
+      });
+      if (dep !== null) values.department_code = dep.get('department_code');
+    }
     await service.position.addOne(values as any);
 
     /**
@@ -380,6 +386,29 @@ export default class PositionController extends Controller {
         !auth.scope.includes(ScopeList.admin)
       )
         throw new AuthorizeError('你暂时没有权限创建岗位');
+      else if (!auth.scope.includes(ScopeList.admin)) {
+        if (auth.auditLink.length)
+          formItems[0].selectOptions = formItems[0].selectOptions!.filter(
+            (i: any) => i.level === 3,
+          );
+        else if (auth.auditableDep.length)
+          formItems[0].selectOptions = formItems[0].selectOptions!.filter(i =>
+            auth.auditableDep.includes(i.value as any),
+          );
+        else {
+          const dep: any = await ctx.model.People.Staff.findByPk(auth.user.loginname, {
+            attributes: ['department'],
+            where: { department_code: { [Op.not]: null } },
+          });
+          if (dep !== null)
+            formItems[0] = {
+              id: 'department_code',
+              type: SimpleFormItemType.Extra,
+              extra: dep.get('department'),
+              title: '用工单位',
+            };
+        }
+      }
       formItems.unshift(...this.getUserStaticFormItems(auth));
     } else {
       const position = await service.position.findOne(parseInt(id, 10));
@@ -397,7 +426,6 @@ export default class PositionController extends Controller {
           formItems = this.getUserStaticFormItems(position).concat(
             {
               id: 'department_code',
-              decoratorOptions,
               type: SimpleFormItemType.Extra,
               extra: position.department_name,
               title: '用工单位',

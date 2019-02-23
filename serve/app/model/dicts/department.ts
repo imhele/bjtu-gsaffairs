@@ -65,6 +65,7 @@ export default (app: Application) => {
     filtersMap.department_code!.selectOptions = departments.map((item: any) => ({
       title: item.get('name'),
       value: item.get('code'),
+      level: item.get('level'),
     }));
   };
   return Model;
