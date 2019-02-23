@@ -18,7 +18,6 @@
       "semester",
       "name",
       "need_num",
-      "work_time_l",
       "campus",
       "way",
       "class_type",
@@ -49,11 +48,6 @@
       "dataIndex": "need_num"
     },
     {
-      "width": 64,
-      "title": "周工作量",
-      "dataIndex": "work_time_l"
-    },
-    {
       "width": 78,
       "title": "校区",
       "dataIndex": "campus"
@@ -82,7 +76,6 @@
   "operationArea": {
     "operation": [
       { "icon": "plus", "text": "新建", "type": "create" },
-      { "icon": "cloud-download", "text": "导出", "type": "export" },
       { "icon": "audit", "text": "审核", "type": "audit" }
     ]
   },

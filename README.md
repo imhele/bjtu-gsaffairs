@@ -28,11 +28,21 @@ Postgraduate Assistant Post Management System.
 
 ## Usage
 
+### Dev
+
 ```bash
 $ git clone https://github.com/imhele/bjtu-papms.git --depth=1
-$ cd bjtu-papms
-$ npm install
-$ npm start
+$ cd bjtu-papms && npm install && cd ./serve && npm install && cd ..
+$ npm start:mock
+# Open a new bash window
+$ cd ./serve && npm run dev
+```
+
+### Deploy
+
+```bash
+$ git clone https://github.com/imhele/bjtu-papms.git --depth=1
+$ cd bjtu-papms && sh ./deploy.sh
 ```
 
 

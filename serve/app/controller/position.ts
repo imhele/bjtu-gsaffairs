@@ -81,6 +81,7 @@ export default class PositionController extends Controller {
         /* 既没有审核权限，也没有创建权限 */
         attributes = tableQueryFields.withoutStatus;
         filtersKey = filtersKeyMap[type].withoutStatus;
+        columns = columns.filter(i => i.dataIndex !== 'status');
         filters[0].status = ctx.model.Interships.Position.formatBack({ status: '已发布' }).status;
       }
     }
