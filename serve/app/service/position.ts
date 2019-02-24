@@ -1,6 +1,7 @@
 import moment from 'moment';
 import { Service } from 'egg';
 import { ScopeList } from './user';
+import { parseJSON } from '../utils';
 import { CellAction } from '../link';
 import { WhereOptions } from 'sequelize';
 import { DataNotFound } from '../errcode';
@@ -159,6 +160,16 @@ export default class PositionService extends Service {
       columnsObj[dataIndex] = { dataIndex, title: value.comment };
     });
     return columnsObj;
+  }
+
+  /**
+   * Format values
+   * `[['a', 'b'], ['c']]` => `'a，b\nc'`
+   */
+  public formatAuditLog(auditLog: string) {
+    return parseJSON(auditLog)
+      .map((i: string | string[]) => (Array.isArray(i) ? i.join('，') : i))
+      .join(`\n`);
   }
 
   private formatPosition(position: any) {

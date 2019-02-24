@@ -1,22 +1,24 @@
 import { Controller } from 'egg';
 import { CellAction } from '../link';
-import { ActionText } from './position';
-import { ScopeList } from '../service/user';
-import { Op, WhereOptions } from 'sequelize';
+import { WhereOptions } from 'sequelize';
 import { getFromIntEnum, parseJSON } from '../utils';
+import { ScopeList, UserType } from '../service/user';
 import { AuthorizeError, DataNotFound } from '../errcode';
-import { excludeFormFields, applyReturn } from './stuapply.json';
-import { SchoolCensus as SchoolCensusModel } from '../model/school/census';
+import { attr as PositionAttr, PositionType } from '../model/interships/position';
+import { excludeFormFields, applyReturn, positionDetailFields } from './stuapply.json';
 import {
   ApplyAuditStatus,
   IntershipsStuapply as StuapplyModel,
   ApplyStatus,
 } from '../model/interships/stuapply';
-import {
-  attr as PositionAttr,
-  PositionType,
-  Position as PositionModel,
-} from '../model/interships/position';
+
+const ActionText = {
+  [CellAction.Apply]: { text: '申请', type: CellAction.Apply },
+  [CellAction.Audit]: { text: '审核', type: CellAction.Audit },
+  [CellAction.Delete]: { text: '删除', type: CellAction.Delete },
+  [CellAction.Download]: { text: '下载', type: CellAction.Download }, // uncompleted function
+  [CellAction.Edit]: { text: '编辑', type: CellAction.Edit },
+};
 
 export default class UserController extends Controller {
   public async list() {
@@ -25,69 +27,57 @@ export default class UserController extends Controller {
     const { type } = ctx.params as { type: keyof typeof PositionType };
     const positionType = getFromIntEnum(PositionAttr, 'types', null, PositionType[type]);
     if (positionType === -1) return;
-    const { limit = 10, offset = 0, status = null } = body;
+    const { limit = 10, offset = 0, status = '' } = body;
     const applyFilters = [] as WhereOptions<StuapplyModel>[];
-    const positionFilters = [{ types: positionType }] as WhereOptions<PositionModel>[];
-    let search: any = typeof body.search === 'string' && body.search ? body.search : '';
-    if (search) search = { [Op.like]: `%${search}%` };
-    if (search) positionFilters.push({ name: search, address: search, work_time_d: search });
-    if (!auth.scope.includes(ScopeList.admin)) {
-      if (auth.auditLink.length)
-        applyFilters.push({
-          [Op.or]: auth.auditLink
-            .map(i => ({ audit: ApplyAuditStatus.indexOf(i) }))
-            .filter(i => i.audit !== -1),
-        });
-      if (auth.auditableDep.length)
-        positionFilters.push({ [Op.or]: auth.auditableDep.map(i => ({ department_code: i })) });
-      if (auth.scope.includes(ScopeList.position[type].create))
-        positionFilters.push({ staff_jobnum: auth.user.loginname });
-      if (auth.scope.includes(ScopeList.position[type].apply))
-        applyFilters[0].student_number = auth.user.loginname;
-    }
+    if (auth.type === UserType.Postgraduate)
+      applyFilters.push({ student_number: auth.user.loginname });
+    if (status && Object.keys(ApplyStatus).includes(status))
+      applyFilters.push(ctx.model.Interships.Stuapply.formatBack({ status }));
 
     /**
      * Qurey batabase
      */
-    const options = {
-      limit,
-      offset,
-      where: { [Op.or]: applyFilters } as WhereOptions<StuapplyModel>,
-    };
     const include = [
       { model: ctx.model.School.Census },
-      { model: ctx.model.Interships.Position, where: { [Op.and]: positionFilters } },
+      { model: ctx.model.Interships.Position, where: { types: positionType } },
     ];
-    if (status && Object.keys(ApplyStatus).includes(status))
-      Object.assign(options.where, ctx.model.Interships.Stuapply.formatBack({ status }));
-    if (search) {
-      options.where.student_number = search;
-      Object.assign(include[0], { where: { name: search } as WhereOptions<SchoolCensusModel> });
-    }
-    const { positions, total } = await service.stuapply.findAndCountAll(options, include);
+    const options = { limit, offset };
+    if (applyFilters.length) Object.assign(options, { where: applyFilters });
+    const dbRes = await service.stuapply.findAndCountAll<false>(options, include, false);
 
     /**
      * Format dataSource
      */
-    const dataSource = positions.map(item => {
-      const availableActions = service.stuapply.authorize(item, auth, type);
-      const action: StandardTableActionProps = Array.from(availableActions.entries())
-        .filter(([_, enable]) => enable)
-        .map(([actionItem]) => ({
-          text: ActionText[actionItem],
-          type: actionItem,
-        }));
-      return { ...item, action };
+    const dataSource = dbRes.positions.map(item => {
+      const availableActions = service.stuapply.authorizeWithoutPrefix(item, auth, type);
+      const action: StandardTableActionProps = Array.from(availableActions.entries()).map(
+        ([actionItem, enable]) => ({ ...ActionText[actionItem], disabled: !enable }),
+      );
+      return {
+        ...item,
+        action,
+        key: item.IntershipsStuapply.id,
+        title: `申请人：${item.SchoolCensus.name}\xa0\xa0\xa0\xa0申请岗位：${item.IntershipsPosition.name}`,
+      };
     });
 
     /**
      * Construct result
      */
+    const columns: any = {};
+    const columnsObj = service.stuapply.getColumnsObj(false);
+    Object.entries(columnsObj).forEach(([key, value]) => (columns[key] = Object.values(value)));
+    columns.IntershipsPosition = positionDetailFields.map(k => columnsObj.IntershipsPosition[k]);
     const result: Partial<PositionState> = {
-      columns: Object.values(service.stuapply.getColumnsObj()),
+      columns,
+      columnsKeys: Object.keys(columns),
       dataSource,
-      total,
-      rowKey: 'id',
+      columnsText: {
+        IntershipsStuapply: '申请信息',
+        SchoolCensus: '学籍信息',
+        IntershipsPosition: '岗位信息',
+      },
+      total: dbRes.total,
     };
 
     ctx.response.body = result;

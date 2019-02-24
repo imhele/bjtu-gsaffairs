@@ -11,5 +11,17 @@
       ],
       "dataSource": {}
     }
-  }
+  },
+  "positionDetailFields": [
+    "semester",
+    "name",
+    "need_num",
+    "address",
+    "work_time_d",
+    "work_time_l",
+    "campus",
+    "way",
+    "start_t",
+    "end_t"
+  ]
 }

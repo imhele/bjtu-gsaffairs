@@ -5,7 +5,7 @@ import { ButtonProps } from 'antd/es/button';
 import { Button, Modal, Skeleton } from 'antd';
 import { FormattedMessage } from 'umi-plugin-locale';
 import Steps, { StepsProps } from '@/components/Steps';
-import { PositionDetailProps } from './models/position';
+import { PositionDetailProps } from '@/models/position';
 import { StandardTableAction } from '@/components/StandardTable';
 import DescriptionList, { DescriptionProps } from '@/components/DescriptionList';
 

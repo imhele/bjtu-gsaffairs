@@ -25,6 +25,7 @@
     "memoize-one": "5.0.0",
     "path-to-regexp": "3.0.0",
     "rc-queue-anim": "~1.6.11",
+    "react-infinite-scroller": "^1.2.4",
     "react-media-hook2": "^1.0.0"
   },
   "devDependencies": {
@@ -34,6 +35,7 @@
     "@types/memoize-one": "~4.1.0",
     "@types/react": "~16.8.3",
     "@types/react-dom": "~16.8.1",
+    "@types/react-infinite-scroller": "^1.2.1",
     "@types/react-test-renderer": "^16.0.3",
     "babel-eslint": "^9.0.0",
     "cross-env": "^5.2.0",

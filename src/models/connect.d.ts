@@ -1,9 +1,10 @@
 import { GlobalState } from './global';
 import { LoginState } from './login';
 import { ResultState } from './result';
-import { PositionState } from '@/pages/Position/models/position';
+import { PositionState } from '@/models/position';
+import { StuapplyState } from '@/pages/Stuapply/models/stuapply';
 
-export { GlobalState, LoginState, PositionState, ResultState };
+export { GlobalState, LoginState, PositionState, ResultState, StuapplyState };
 
 export type Dispatch = <T = any, U = (payload: T) => void>(action: {
   type: string;
@@ -19,6 +20,7 @@ export interface Loading {
     login?: boolean;
     position?: boolean;
     result?: boolean;
+    stuapply?: boolean;
   };
 }
 
@@ -28,6 +30,7 @@ export interface ConnectState {
   loading: Loading;
   position?: PositionState;
   result?: ResultState;
+  stuapply?: StuapplyState;
 }
 
 export interface ConnectProps<T extends object = {}> extends React.Props<any> {

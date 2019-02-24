@@ -22,6 +22,12 @@ export interface StuapplyWithFK<D extends boolean = false, S extends boolean = f
   [key: string]: any;
 }
 
+export interface StuapplyWithoutPrefix {
+  IntershipsStuapply: StuapplyModel;
+  IntershipsPosition: PositionModel;
+  SchoolCensus: CensusModel;
+}
+
 /**
  * Service of stuapply
  */
@@ -103,49 +109,128 @@ export default class StuapplyService extends Service {
     return action;
   }
 
-  public async findAndCountAll<TCustomAttributes>(
+  /**
+   * 无前缀版
+   */
+  public authorizeWithoutPrefix(
+    stuapply: StuapplyWithoutPrefix,
+    { auditableDep, auditLink, scope, user }: AuthResult,
+    type: keyof typeof PositionType,
+  ) {
+    const action: Map<CellAction, boolean> = new Map();
+    if (scope.includes(ScopeList.admin)) {
+      action.set(CellAction.Delete, true);
+      action.set(CellAction.Edit, true);
+      action.set(CellAction.Audit, stuapply.IntershipsStuapply.status === '待审核');
+    } else {
+      if (scope.includes(ScopeList.position[type].apply)) action.set(CellAction.Apply, true);
+      /* 用户可以访问和删除自己发布的岗位 */
+      if (stuapply.IntershipsStuapply.student_number === user.loginname) {
+        action.set(CellAction.Delete, true);
+        /* 草稿状态下可以编辑 */
+        action.set(CellAction.Edit, stuapply.IntershipsStuapply.status === '草稿');
+      }
+      /* 根据岗位审核进度设定审核权限可用状态 */
+      if (auditableDep.includes(stuapply.IntershipsPosition.department_code!)) {
+        action.set(
+          CellAction.Audit,
+          stuapply.IntershipsStuapply.audit === '用人单位审核' &&
+            stuapply.IntershipsStuapply.status === '待审核',
+        );
+      }
+      if (auditLink.includes(stuapply.IntershipsStuapply.audit))
+        action.set(CellAction.Audit, stuapply.IntershipsStuapply.status === '待审核');
+      if (
+        stuapply.SchoolCensus.teacher_code === user.loginname ||
+        stuapply.SchoolCensus.teacher2_code === user.loginname
+      )
+        action.set(
+          CellAction.Audit,
+          stuapply.IntershipsStuapply.audit === '导师确认' &&
+            stuapply.IntershipsStuapply.status === '待审核',
+        );
+    }
+    return action;
+  }
+
+  public async findAndCountAll<P extends boolean = true, TCustomAttributes = {}>(
     options: FindOptions<StuapplyModel<true> & TCustomAttributes>,
     include?: Array<Model<any, any> | IncludeOptions>,
+    toPrefix: boolean = true,
+    formatLog: boolean = true,
   ) {
     const { model } = this.ctx;
     const result = await model.Interships.Stuapply.findAndCountAll({ ...options, include });
     return {
-      positions: result.rows.map((item: any) => this.formatStuapply(item)) as StuapplyWithFK[],
+      positions: result.rows.map((item: any) =>
+        this.formatStuapply(item, toPrefix, formatLog),
+      ) as (P extends true ? StuapplyWithFK : StuapplyWithoutPrefix)[],
       total: result.count,
     };
   }
 
-  public getColumnsObj() {
-    const columnsObj: { [key: string]: { dataIndex: string; title: string } } = {};
+  public getColumnsObj(toPrefix: boolean = true) {
+    let columnsObj: { [key: string]: object } = {};
     Object.entries(StuapplyAttr).forEach(([dataIndex, value]: any) => {
       columnsObj[dataIndex] = { dataIndex, title: value.comment };
     });
-    Object.entries(PositionAttr).forEach(([dataIndex, value]: any) => {
-      dataIndex = `position_${dataIndex}`;
-      columnsObj[dataIndex] = { dataIndex, title: value.comment };
-    });
-    Object.entries(SchoolCensusAttr).forEach(([dataIndex, value]: any) => {
-      dataIndex = `student_${dataIndex}`;
-      columnsObj[dataIndex] = { dataIndex, title: value.comment };
-    });
+    if (toPrefix) {
+      Object.entries(PositionAttr).forEach(([dataIndex, value]: any) => {
+        dataIndex = `position_${dataIndex}`;
+        columnsObj[dataIndex] = { dataIndex, title: value.comment };
+      });
+      Object.entries(SchoolCensusAttr).forEach(([dataIndex, value]: any) => {
+        dataIndex = `student_${dataIndex}`;
+        columnsObj[dataIndex] = { dataIndex, title: value.comment };
+      });
+    } else {
+      columnsObj = { IntershipsStuapply: columnsObj };
+      Object.assign(columnsObj, { SchoolCensus: {}, IntershipsPosition: {} });
+      Object.entries(PositionAttr).forEach(([dataIndex, value]: any) => {
+        columnsObj.IntershipsPosition[dataIndex] = { dataIndex, title: value.comment };
+      });
+      Object.entries(SchoolCensusAttr).forEach(([dataIndex, value]: any) => {
+        columnsObj.SchoolCensus[dataIndex] = { dataIndex, title: value.comment };
+      });
+    }
     return columnsObj;
   }
 
-  private formatStuapply(stuapply: any) {
+  private formatStuapply(stuapply: any, toPrefix: boolean = true, formatLog: boolean = true) {
     const formatted = stuapply.format();
+    if (formatLog && formatted.audit_log)
+      formatted.audit_log = this.service.position.formatAuditLog(formatted.audit_log);
+    if (formatted.SchoolCensu) formatted.SchoolCensus = formatted.SchoolCensu;
     if (formatted.IntershipsPosition) {
       formatted.IntershipsPosition = formatted.IntershipsPosition.format();
-      Object.entries(formatted.IntershipsPosition).forEach(([key, value]) => {
-        formatted[`position_${key}`] = value;
-      });
-      delete formatted.IntershipsPosition;
+      const { audit_log } = formatted.IntershipsPosition;
+      if (formatLog && audit_log)
+        formatted.IntershipsPosition.audit_log = this.service.position.formatAuditLog(audit_log);
+      if (toPrefix) {
+        Object.entries(formatted.IntershipsPosition).forEach(([key, value]) => {
+          formatted[`position_${key}`] = value;
+        });
+        delete formatted.IntershipsPosition;
+      }
     }
     if (formatted.SchoolCensus) {
       formatted.SchoolCensus = formatted.SchoolCensus.format();
-      Object.entries(formatted.SchoolCensus).forEach(([key, value]) => {
-        formatted[`student_${key}`] = value;
-      });
-      delete formatted.SchoolCensus;
+      if (toPrefix) {
+        Object.entries(formatted.SchoolCensus).forEach(([key, value]) => {
+          formatted[`student_${key}`] = value;
+        });
+        delete formatted.SchoolCensus;
+      }
+    }
+    if (!toPrefix) {
+      const res = {
+        IntershipsStuapply: formatted,
+        SchoolCensus: formatted.SchoolCensus,
+        IntershipsPosition: formatted.IntershipsPosition,
+      };
+      delete res.IntershipsStuapply.SchoolCensus;
+      delete res.IntershipsStuapply.IntershipsPosition;
+      return res;
     }
     return formatted as any;
   }

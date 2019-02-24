@@ -81,6 +81,12 @@ const route: Route<true>[] = [
           },
         ],
       },
+      {
+        path: '/stuapply',
+        component: './Stuapply/List',
+        icon: 'bars',
+        name: 'route.stuapply',
+      },
       // result
       {
         path: '/result',

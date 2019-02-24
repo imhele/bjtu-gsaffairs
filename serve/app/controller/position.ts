@@ -145,6 +145,7 @@ export default class PositionController extends Controller {
 
     let columnsKey: string[] = detailColumns.withoutAuditLog;
     const position = await service.position.findOne(parseInt(id, 10));
+    position.audit_log = service.position.formatAuditLog(position.audit_log);
 
     /**
      * Construct `stepsProps`.
@@ -166,14 +167,6 @@ export default class PositionController extends Controller {
       stepsProps.status = PositionStatus[position.status!];
       stepsProps.steps = PositionAuditStatus[type].map((title: string) => ({ title }));
     }
-
-    /**
-     * Format values
-     */
-    // [['a', 'b'], ['c']] => 'a，b\nc'
-    position.audit_log = parseJSON(position.audit_log)
-      .map((i: string | string[]) => (Array.isArray(i) ? i.join('，') : i))
-      .join(`\n`);
 
     /**
      * Construct `columns`.

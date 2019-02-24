@@ -8,9 +8,9 @@ import commonStyles from '../common.less';
 import SimpleForm from '@/components/SimpleForm';
 import Exception404 from '@/pages/Exception/404';
 import { formatStrOrNumQuery } from '@/utils/format';
-import { Button, Col, Empty, message, Skeleton } from 'antd';
+import { Button, Col, message, Skeleton } from 'antd';
+import { buttonColProps, PositionType } from './consts';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import { buttonColProps, CellAction, PositionType } from './consts';
 import { ApplyPositionPayload, ApplyFormPayload } from '@/api/position';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 
