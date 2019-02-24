@@ -1,5 +1,5 @@
-sudo yarn install
 sudo git pull
+sudo yarn install
 sudo yarn build
 cd ./serve
 sudo yarn stop
