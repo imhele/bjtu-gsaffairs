@@ -124,7 +124,7 @@ export const getFromIntEnum = <T = object>(
   attr: DefineModelAttributes<T>,
   key: keyof T,
   index: number | null,
-  value: string,
+  value?: string,
 ) =>
   index === null
     ? (attr[key] as DefineAttributeColumnOptions).values!.indexOf(value)

@@ -56,7 +56,7 @@ export default class UserController extends Controller {
         .concat(ActionText[CellAction.Preview] as any);
       const title = `申请人：${item.SchoolCensus.name}\xa0\xa0\xa0\xa0申请岗位：${
         item.IntershipsPosition.name
-      }`;
+      }\xa0\xa0\xa0\xa0当前状态：${item.IntershipsStuapply.status}`;
       return {
         ...item,
         action,
@@ -190,7 +190,7 @@ export default class UserController extends Controller {
       status: '待审核',
       audit: ApplyAuditStatus[1],
       audit_log: JSON.stringify([
-        ...parseJSON(apply.audit_log),
+        ...parseJSON(apply.audit_log), // some bugs here
         service.position.getAuditLogItem(request.auth, ApplyAuditStatus[0]),
       ]),
     } as StuapplyModel<true>);

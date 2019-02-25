@@ -12,6 +12,7 @@ export const enum CellAction {
   Download = 'download',
   Edit = 'edit',
   Preview = 'preview',
+  Save = 'save',
 }
 
 export const enum TopbarAction {

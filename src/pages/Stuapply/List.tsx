@@ -10,9 +10,9 @@ import { FetchDetailPayload } from '@/api/position';
 import InfiniteScroll from 'react-infinite-scroller';
 import MemorableModal from '@/components/MemorableModal';
 import DescriptionList from '@/components/DescriptionList';
-import { Card, Collapse, Icon, message, Spin } from 'antd';
 import { CellAction, PositionType } from '../Position/consts';
 import { StandardTableAction } from '@/components/StandardTable';
+import { Card, Collapse, Icon, Input, message, Spin } from 'antd';
 import { FetchListPayload, DeleteStuapplyPayload, EditStuapplyBody } from '@/api/stuapply';
 import { ConnectProps, ConnectState, PositionState, StuapplyState } from '@/models/connect';
 
@@ -31,6 +31,7 @@ export interface ListProps extends ConnectProps<{ type: PositionType }> {
 
 interface ListState {
   activeTabKey: string;
+  auditing: boolean;
   currentKey: string;
   detailVisible: boolean;
   editing: boolean;
@@ -40,6 +41,7 @@ interface ListState {
 class List extends Component<ListProps, ListState> {
   state: ListState = {
     activeTabKey: null,
+    auditing: false,
     currentKey: null,
     detailVisible: false,
     editing: false,
@@ -99,8 +101,8 @@ class List extends Component<ListProps, ListState> {
     // @TODO
   };
 
-  cancelEditingState = () => {
-    this.setState({ editing: false, formValue: {} });
+  cancelEditAuditState = () => {
+    this.setState({ auditing: false, editing: false, formValue: {} });
     this.fetchList();
   };
 
@@ -109,7 +111,7 @@ class List extends Component<ListProps, ListState> {
   onClickAction = ({ currentTarget }: React.MouseEvent) => {
     const { type } = this;
     const { dispatch } = this.props;
-    const { editing, formValue } = this.state;
+    const { editing, auditing, formValue } = this.state;
     const {
       dataset: { index, key, type: actionType, position },
     } = currentTarget as HTMLElement;
@@ -117,7 +119,11 @@ class List extends Component<ListProps, ListState> {
     switch (actionType) {
       /* Preview for post */
       case CellAction.Preview:
-        this.setState({ detailVisible: true, editing: false });
+        this.setState({
+          detailVisible: true,
+          auditing: false,
+          editing: false,
+        });
         dispatch<FetchDetailPayload>({
           type: 'position/fetchDetail',
           payload: { query: { type, key: position } },
@@ -134,22 +140,17 @@ class List extends Component<ListProps, ListState> {
         });
         break;
       case CellAction.Edit:
-        if (!editing) this.setState({ editing: true });
-        else
-          dispatch<EditStuapplyBody>({
-            type: 'stuapply/editStuapply',
-            payload: { body: formValue, query: { type, key: currentKey } },
-            callback: this.cancelEditingState,
-          });
+        if (!editing && !auditing) this.setState({ editing: true });
         break;
       case CellAction.Audit:
-        if (!editing) this.setState({ editing: true });
-        else
-          dispatch<EditStuapplyBody>({
-            type: 'stuapply/auditStuapply',
-            payload: { body: formValue, query: { type, key: currentKey } },
-            callback: this.cancelEditingState,
-          });
+        if (!editing && !auditing) this.setState({ auditing: true });
+        break;
+      case CellAction.Save:
+        dispatch<EditStuapplyBody>({
+          type: editing ? 'stuapply/editStuapply' : 'stuapply/auditStuapply',
+          payload: { body: formValue, query: { type, key: currentKey } },
+          callback: this.cancelEditAuditState,
+        });
         break;
       default:
         message.warn(formatMessage({ id: 'position.error.unknown.action' }));
@@ -159,7 +160,7 @@ class List extends Component<ListProps, ListState> {
   renderActionItem = (
     action: StandardTableAction,
     record: { [key: string]: any },
-    index: number,
+    cardIndex: number,
   ): Partial<StandardTableAction> => {
     const {
       stuapply: { rowKey = 'key' },
@@ -167,7 +168,7 @@ class List extends Component<ListProps, ListState> {
     return (
       <a
         className={action.disabled ? styles.disabled : void 0}
-        data-index={index}
+        data-index={cardIndex}
         data-key={record[rowKey]}
         data-position={record.positionKey}
         data-type={action.type}
@@ -178,8 +179,8 @@ class List extends Component<ListProps, ListState> {
     );
   };
 
-  renderCardItem = (item: any) => {
-    const { activeTabKey } = this.state;
+  renderCardItem = (item: any, cardIndex: number) => {
+    const { activeTabKey, editing, auditing } = this.state;
     const {
       stuapply: { actionKey, rowKey, columnsKeys, columnsText, columns },
     } = this.props;
@@ -187,7 +188,9 @@ class List extends Component<ListProps, ListState> {
     const itemKey = `${item[rowKey]}`;
     const loading = this.loadingKeys.has(itemKey);
     const realActiveKey = activeTabKey || columnsKeys[0];
-    const actions: StandardTableAction[] = item[actionKey] || [];
+    let actions: (StandardTableAction)[] = item[actionKey] || [];
+    if (editing || auditing)
+      actions = [{ type: CellAction.Save, text: formatMessage({ id: 'word.save' }) }];
     if (loading)
       header = (
         <span>
@@ -199,7 +202,7 @@ class List extends Component<ListProps, ListState> {
       <Collapse.Panel header={header} key={itemKey}>
         <Spin spinning={loading}>
           <Card
-            actions={actions.map((a, i) => this.renderActionItem(a, item, i))}
+            actions={actions.map(a => this.renderActionItem(a, item, cardIndex))}
             activeTabKey={realActiveKey}
             bordered={false}
             className={styles.card}
@@ -222,8 +225,8 @@ class List extends Component<ListProps, ListState> {
   };
 
   onChangeOpenKey = (key: string) => {
-    const { currentKey, editing } = this.state;
-    if (editing && key !== currentKey)
+    const { currentKey, editing, auditing } = this.state;
+    if ((editing || auditing) && key !== currentKey)
       message.warn(formatMessage({ id: 'stuapply.trigger-other-action-while-editing' }));
     else this.setState({ currentKey: key });
   };

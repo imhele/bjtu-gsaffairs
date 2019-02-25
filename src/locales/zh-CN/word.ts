@@ -23,6 +23,7 @@ export default {
   'word.quit': '退出',
   'word.reset': '重置',
   'word.retract': '收起',
+  'word.save': '保存',
   'word.second': '秒',
   'word.skip-this-item': '跳过此项',
   'word.submit': '提交',
