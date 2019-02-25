@@ -12,7 +12,7 @@ import MemorableModal from '@/components/MemorableModal';
 import DescriptionList from '@/components/DescriptionList';
 import { CellAction, PositionType } from '../Position/consts';
 import { StandardTableAction } from '@/components/StandardTable';
-import { Card, Collapse, Icon, Input, message, Spin } from 'antd';
+import { Button, Card, Collapse, Icon, Input, message, Spin } from 'antd';
 import { FetchListPayload, DeleteStuapplyPayload, EditStuapplyBody } from '@/api/stuapply';
 import { ConnectProps, ConnectState, PositionState, StuapplyState } from '@/models/connect';
 
@@ -46,7 +46,7 @@ class List extends Component<ListProps, ListState> {
     editing: false,
   };
 
-  auditForm = []
+  auditForm = [];
 
   private loadingKeys: Set<string> = new Set();
   /**
@@ -122,7 +122,7 @@ class List extends Component<ListProps, ListState> {
       dispatch,
       stuapply: { dataSource, columnsKeys },
     } = this.props;
-    const { editing, auditing, activeTabKey } = this.state;
+    const { editing, auditing } = this.state;
     const {
       dataset: { index, key, type: actionType, position },
     } = currentTarget as HTMLElement;
@@ -294,6 +294,23 @@ class List extends Component<ListProps, ListState> {
     );
   };
 
+  renderLoadButton = () => {
+    const {
+      stuapply: { dataSource, total },
+    } = this.props;
+    return (
+      <div className={styles.load}>
+        {dataSource.length >= total ? (
+          formatMessage({ id: 'tip.loaded-all' })
+        ) : (
+          <Button onClick={this.fetchList} type="primary">
+            {formatMessage({ id: 'word.load-more' })}
+          </Button>
+        )}
+      </div>
+    );
+  };
+
   render() {
     const { detailVisible } = this.state;
     const {
@@ -316,9 +333,7 @@ class List extends Component<ListProps, ListState> {
               <Spin />
             </div>
           )}
-          {dataSource.length >= total && (
-            <div className={styles.loadedAll}>{formatMessage({ id: 'tip.loaded-all' })}</div>
-          )}
+          {this.renderLoadButton()}
         </InfiniteScroll>
         <Detail
           {...detail}
