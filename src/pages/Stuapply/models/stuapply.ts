@@ -2,7 +2,13 @@ import { Model } from 'dva';
 import { message } from 'antd';
 import * as Utils from '@/utils/utils';
 import { DescriptionProps } from '@/components/DescriptionList';
-import { fetchList, editStuapply, auditStuapply, deleteStuapply } from '@/api/stuapply';
+import {
+  fetchList,
+  editStuapply,
+  auditStuapply,
+  deleteStuapply,
+  FetchListPayload,
+} from '@/api/stuapply';
 
 export interface StuapplyState {
   actionKey?: string;
@@ -32,8 +38,16 @@ const model: StuapplyModel = {
   namespace: 'stuapply',
   state: defaultState,
   effects: {
-    *fetchList({ callback, payload }, { call, put }) {
+    *fetchList({ callback, payload }, { call, put, select }) {
       const response = yield call(fetchList, payload);
+      const {body: {offset}} = payload as FetchListPayload;
+      if (response && 'dataSource' in response && offset) {
+        const { dataSource } = response;
+        if (Array.isArray(dataSource) && dataSource.length) {
+          const prevSource: object[] = yield select(({stuapply}) => stuapply.dataSource);
+          response.dataSource = prevSource.slice(0, offset).concat(dataSource);
+        }
+      }
       yield put({
         type: 'setState',
         payload: response,
