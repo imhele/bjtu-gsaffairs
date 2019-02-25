@@ -173,7 +173,10 @@ export default class StuapplyService extends Service {
     let columnsObj: { [key: string]: object } = {};
     Object.entries(StuapplyAttr).forEach(([dataIndex, value]: any) => {
       columnsObj[dataIndex] = { dataIndex, title: value.comment };
-      if (dataIndex === 'audit_log') Object.assign(columnsObj[dataIndex], { sm: 24, md: 24 });
+      if (dataIndex === 'audit_log')
+        Object.assign(columnsObj[dataIndex], { editDisabled: true, sm: 24, md: 24 });
+      else if (dataIndex === 'status' || dataIndex === 'audit')
+        Object.assign(columnsObj[dataIndex], { editDisabled: true });
     });
     if (toPrefix) {
       Object.entries(PositionAttr).forEach(([dataIndex, value]: any) => {

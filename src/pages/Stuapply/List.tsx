@@ -35,7 +35,6 @@ interface ListState {
   currentKey: string;
   detailVisible: boolean;
   editing: boolean;
-  formValue: { [key: string]: string | number };
 }
 
 class List extends Component<ListProps, ListState> {
@@ -45,7 +44,6 @@ class List extends Component<ListProps, ListState> {
     currentKey: null,
     detailVisible: false,
     editing: false,
-    formValue: {},
   };
 
   private loadingKeys: Set<string> = new Set();
@@ -58,6 +56,7 @@ class List extends Component<ListProps, ListState> {
   private offset: number = 0;
   private type: PositionType = null;
   private status: string = '';
+  private formValue: { [key: string]: string } = {};
 
   constructor(props: ListProps) {
     super(props);
@@ -102,7 +101,8 @@ class List extends Component<ListProps, ListState> {
   };
 
   cancelEditAuditState = () => {
-    this.setState({ auditing: false, editing: false, formValue: {} });
+    this.formValue = {};
+    this.setState({ auditing: false, editing: false });
     this.fetchList();
   };
 
@@ -114,7 +114,7 @@ class List extends Component<ListProps, ListState> {
       dispatch,
       stuapply: { dataSource, columnsKeys },
     } = this.props;
-    const { editing, auditing, formValue, activeTabKey } = this.state;
+    const { editing, auditing, activeTabKey } = this.state;
     const {
       dataset: { index, key, type: actionType, position },
     } = currentTarget as HTMLElement;
@@ -143,21 +143,24 @@ class List extends Component<ListProps, ListState> {
         });
         break;
       case CellAction.Edit:
-        if (!editing && !auditing)
-          this.setState({
-            editing: true,
-            formValue: dataSource[parseInt(index, 10)][activeTabKey || columnsKeys[0]],
-          });
+        if (!editing && !auditing) {
+          this.formValue = dataSource[parseInt(index, 10)][columnsKeys[0]];
+          this.setState({ editing: true, activeTabKey: columnsKeys[0] });
+        }
         break;
       case CellAction.Audit:
-        if (!editing && !auditing) this.setState({ auditing: true });
+        if (!editing && !auditing) this.setState({ auditing: true, activeTabKey: columnsKeys[0] });
         break;
       case CellAction.Save:
         dispatch<EditStuapplyBody>({
           type: editing ? 'stuapply/editStuapply' : 'stuapply/auditStuapply',
-          payload: { body: formValue, query: { type, key: currentKey } },
+          payload: { body: this.formValue, query: { type, key: currentKey } },
           callback: this.cancelEditAuditState,
         });
+        break;
+      case CellAction.Cancel:
+        this.formValue = {};
+        this.setState({ auditing: false, editing: false });
         break;
       default:
         message.warn(formatMessage({ id: 'position.error.unknown.action' }));
@@ -187,12 +190,11 @@ class List extends Component<ListProps, ListState> {
   };
 
   onFormValueChange = ({ target: { id, value } }) => {
-    const { formValue } = this.state;
-    if (id) this.setState({ formValue: { ...formValue, [id]: value } });
+    if (id) this.formValue[id] = value;
   };
 
   renderCardItem = (item: any, cardIndex: number) => {
-    const { activeTabKey, editing, auditing, formValue } = this.state;
+    const { activeTabKey, editing, auditing } = this.state;
     const {
       stuapply: { actionKey, rowKey, columnsKeys, columnsText, columns },
     } = this.props;
@@ -202,7 +204,10 @@ class List extends Component<ListProps, ListState> {
     const realActiveKey = activeTabKey || columnsKeys[0];
     let actions: (StandardTableAction)[] = item[actionKey] || [];
     if (editing || auditing)
-      actions = [{ type: CellAction.Save, text: formatMessage({ id: 'word.save' }) }];
+      actions = [
+        { type: CellAction.Save, text: formatMessage({ id: 'word.save' }) },
+        { type: CellAction.Cancel, text: formatMessage({ id: 'word.cancel' }) },
+      ];
     if (loading)
       header = (
         <span>
@@ -223,21 +228,24 @@ class List extends Component<ListProps, ListState> {
             tabList={columnsKeys.map(col => ({ key: col, tab: columnsText[col] || col }))}
           >
             <DescriptionList
-              description={columns[realActiveKey].map(({ dataIndex, title, ...restProps }) => ({
-                children: editing ? (
-                  <Input.TextArea
-                    autosize
-                    id={dataIndex}
-                    value={formValue[dataIndex]}
-                    onChange={this.onFormValueChange}
-                  />
-                ) : (
-                  item[realActiveKey][dataIndex]
-                ),
-                key: dataIndex,
-                term: title,
-                ...restProps,
-              }))}
+              description={columns[realActiveKey].map(
+                ({ dataIndex, editDisabled, title, ...restProps }) => ({
+                  children:
+                    editing && realActiveKey === columnsKeys[0] && !editDisabled ? (
+                      <Input.TextArea
+                        autosize
+                        defaultValue={this.formValue[dataIndex]}
+                        id={dataIndex}
+                        onChange={this.onFormValueChange}
+                      />
+                    ) : (
+                      item[realActiveKey][dataIndex]
+                    ),
+                  key: dataIndex,
+                  term: title,
+                  ...restProps,
+                }),
+              )}
             />
           </Card>
         </Spin>

@@ -13,6 +13,7 @@ export const enum CellAction {
   Edit = 'edit',
   Preview = 'preview',
   Save = 'save',
+  Cancel = 'cancel',
 }
 
 export const enum TopbarAction {

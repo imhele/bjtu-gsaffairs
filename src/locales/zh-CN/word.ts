@@ -4,6 +4,7 @@ export default {
   'word.back': '返回',
   'word.back-to-home': '返回首页',
   'word.back-to-list': '返回列表',
+  'word.cancel': '取消',
   'word.clear': '清空',
   'word.close': '关闭',
   'word.confirm': '确认',

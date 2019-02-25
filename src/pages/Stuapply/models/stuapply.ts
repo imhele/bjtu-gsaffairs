@@ -12,7 +12,7 @@ import {
 
 export interface StuapplyState {
   actionKey?: string;
-  columns: { [key: string]: (DescriptionProps & { dataIndex: string })[] };
+  columns: { [key: string]: (DescriptionProps & { dataIndex: string; editDisabled: boolean })[] };
   columnsKeys: string[];
   columnsText: { [key: string]: string };
   dataSource: object[];
@@ -40,11 +40,13 @@ const model: StuapplyModel = {
   effects: {
     *fetchList({ callback, payload }, { call, put, select }) {
       const response = yield call(fetchList, payload);
-      const {body: {offset}} = payload as FetchListPayload;
+      const {
+        body: { offset },
+      } = payload as FetchListPayload;
       if (response && 'dataSource' in response && offset) {
         const { dataSource } = response;
         if (Array.isArray(dataSource) && dataSource.length) {
-          const prevSource: object[] = yield select(({stuapply}) => stuapply.dataSource);
+          const prevSource: object[] = yield select(({ stuapply }) => stuapply.dataSource);
           response.dataSource = prevSource.slice(0, offset).concat(dataSource);
         }
       }
