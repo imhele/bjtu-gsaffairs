@@ -5,15 +5,15 @@ import Edit from '../Position/Edit';
 import Detail from '../Position/Detail';
 import React, { Component } from 'react';
 import commonStyles from '../common.less';
+import { formatMessage } from 'umi-plugin-locale';
 import { FetchDetailPayload } from '@/api/position';
 import InfiniteScroll from 'react-infinite-scroller';
-import { Card, Collapse, message, Spin } from 'antd';
 import MemorableModal from '@/components/MemorableModal';
+import DescriptionList from '@/components/DescriptionList';
+import { Card, Collapse, Icon, message, Spin } from 'antd';
 import { CellAction, PositionType } from '../Position/consts';
 import { GlobalId, StorageId, TypeSpaceChar } from '@/global';
 import { StandardTableAction } from '@/components/StandardTable';
-import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
-import DescriptionList, { DescriptionProps } from '@/components/DescriptionList';
 import { FetchListPayload, DeleteStuapplyPayload, EditStuapplyBody } from '@/api/stuapply';
 import { ConnectProps, ConnectState, PositionState, StuapplyState } from '@/models/connect';
 
@@ -45,17 +45,13 @@ class List extends Component<ListProps, ListState> {
     editing: false,
   };
 
-  private loadingKeys: Set<string | number> = new Set();
-  private expandText = {
-    expand: <FormattedMessage id="word.expand" />,
-    retract: <FormattedMessage id="word.retract" />,
-  };
+  private loadingKeys: Set<string> = new Set();
   /**
    * When user changes value of `limit` or `offset`,
    * `onShowSizeChange` and `onChangPage` will call `fetchList`
    * which makes `props` change and trigger component re-rendering.
    */
-  private limit: number = 10;
+  private limit: number = 20;
   private offset: number = 0;
   private type: PositionType = null;
   private status: string = '';
@@ -78,11 +74,10 @@ class List extends Component<ListProps, ListState> {
         body: { limit, offset, status },
         query: { type },
       },
-      callback: this.correctOffset,
     });
   };
 
-  deleteStuapply = (key: string | number) => {
+  deleteStuapply = (key: string) => {
     const { type } = this;
     const { dispatch } = this.props;
     this.loadingKeys.add(key);
@@ -99,36 +94,26 @@ class List extends Component<ListProps, ListState> {
     this.fetchList();
   };
 
-  correctOffset = () => {
-    const { stuapply } = this.props;
-    this.offset = stuapply.dataSource.length;
-  };
-
   onSearch = (value: string) => {
     // @TODO
   };
 
-  onCloseDetail = () => {
-    const { detailVisible } = this.state;
-    if (detailVisible) {
-      this.setState({
-        currentKey: null,
-        detailVisible: false,
-      });
-    }
-  };
+  onCloseDetail = () => this.setState({ detailVisible: false });
 
-  onClickAction = (currentKey: string | number, actionType: CellAction) => {
+  onClickAction = ({ currentTarget }: React.MouseEvent) => {
     const { type } = this;
     const { dispatch } = this.props;
-    currentKey = `${currentKey}`;
+    const {
+      dataset: { key, type: actionType, position },
+    } = currentTarget as HTMLElement;
+    let currentKey = `${key}`;
     switch (actionType) {
       /* Preview for post */
       case CellAction.Preview:
         this.setState({ currentKey, detailVisible: true, editing: false });
         dispatch<FetchDetailPayload>({
           type: 'position/fetchDetail',
-          payload: { query: { type, key: currentKey } },
+          payload: { query: { type, key: position } },
         });
         break;
       // @TODO
@@ -158,45 +143,56 @@ class List extends Component<ListProps, ListState> {
     }
   };
 
-  renderActionProps = (
+  renderActionItem = (
     action: StandardTableAction,
-    record: object,
+    record: { [key: string]: any },
   ): Partial<StandardTableAction> => {
     const {
       stuapply: { rowKey = 'key' },
     } = this.props;
-    if (this.loadingKeys.has(record[rowKey])) {
-      return { ...action, loading: true };
-    }
-    return action;
+    return (
+      <a
+        className={action.disabled ? styles.disabled : void 0}
+        data-key={record[rowKey]}
+        data-type={action.type}
+        data-position={record.positionKey}
+        onClick={this.onClickAction}
+      >
+        {action.text || <Icon type={action.icon} />}
+      </a>
+    );
   };
 
   renderCardItem = (item: any) => {
     const { activeTabKey } = this.state;
     const {
-      stuapply: { rowKey, columnsKeys, columnsText, columns },
+      stuapply: { actionKey, rowKey, columnsKeys, columnsText, columns },
     } = this.props;
     const itemKey = `${item[rowKey]}`;
     const realActiveKey = activeTabKey || columnsKeys[0];
+    const actions: StandardTableAction[] = item[actionKey] || [];
     return (
       <Collapse.Panel header={item.title} key={itemKey}>
-        <Card
-          activeTabKey={realActiveKey}
-          bordered={false}
-          className={styles.card}
-          onTabChange={key => this.setState({ activeTabKey: key })}
-          size="small"
-          tabList={columnsKeys.map(col => ({ key: col, tab: columnsText[col] || col }))}
-        >
-          <DescriptionList
-            description={columns[realActiveKey].map(({ dataIndex, title, ...restProps }) => ({
-              children: item[realActiveKey][dataIndex],
-              key: dataIndex,
-              term: title,
-              ...restProps,
-            }))}
-          />
-        </Card>
+        <Spin spinning={this.loadingKeys.has(itemKey)}>
+          <Card
+            actions={actions.map(i => this.renderActionItem(i, item))}
+            activeTabKey={realActiveKey}
+            bordered={false}
+            className={styles.card}
+            onTabChange={key => this.setState({ activeTabKey: key })}
+            size="small"
+            tabList={columnsKeys.map(col => ({ key: col, tab: columnsText[col] || col }))}
+          >
+            <DescriptionList
+              description={columns[realActiveKey].map(({ dataIndex, title, ...restProps }) => ({
+                children: item[realActiveKey][dataIndex],
+                key: dataIndex,
+                term: title,
+                ...restProps,
+              }))}
+            />
+          </Card>
+        </Spin>
       </Collapse.Panel>
     );
   };
@@ -216,6 +212,7 @@ class List extends Component<ListProps, ListState> {
         <Collapse
           accordion
           activeKey={currentKey}
+          bordered={false}
           className={styles.collapse}
           onChange={this.onChangeOpenKey}
         >
@@ -255,9 +252,7 @@ class List extends Component<ListProps, ListState> {
         </InfiniteScroll>
         <Detail
           {...detail}
-          currentRowKey={currentKey}
           loading={loading.fetchPositionDetail}
-          onClickAction={this.onClickAction}
           onClose={this.onCloseDetail}
           visible={detailVisible}
         />

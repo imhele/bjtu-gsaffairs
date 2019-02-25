@@ -13,6 +13,7 @@ import {
 } from '../model/interships/stuapply';
 
 const ActionText = {
+  [CellAction.Preview]: { text: '岗位', type: CellAction.Preview },
   [CellAction.Apply]: { text: '申请', type: CellAction.Apply },
   [CellAction.Audit]: { text: '审核', type: CellAction.Audit },
   [CellAction.Delete]: { text: '删除', type: CellAction.Delete },
@@ -50,14 +51,18 @@ export default class UserController extends Controller {
      */
     const dataSource = dbRes.positions.map(item => {
       const availableActions = service.stuapply.authorizeWithoutPrefix(item, auth, type);
-      const action: StandardTableActionProps = Array.from(availableActions.entries()).map(
-        ([actionItem, enable]) => ({ ...ActionText[actionItem], disabled: !enable }),
-      );
+      const action: StandardTableActionProps = Array.from(availableActions.entries())
+        .map(([actionItem, enable]) => ({ ...ActionText[actionItem], disabled: !enable }))
+        .concat(ActionText[CellAction.Preview] as any);
+      const title = `申请人：${item.SchoolCensus.name}\xa0\xa0\xa0\xa0申请岗位：${
+        item.IntershipsPosition.name
+      }`;
       return {
         ...item,
         action,
+        title,
         key: item.IntershipsStuapply.id,
-        title: `申请人：${item.SchoolCensus.name}\xa0\xa0\xa0\xa0申请岗位：${item.IntershipsPosition.name}`,
+        positionKey: item.IntershipsPosition.id,
       };
     });
 

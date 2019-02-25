@@ -5,7 +5,7 @@ import { DescriptionProps } from '@/components/DescriptionList';
 import { fetchList, editStuapply, auditStuapply, deleteStuapply } from '@/api/stuapply';
 
 export interface StuapplyState {
-  actionKey?: string | string[];
+  actionKey?: string;
   columns: { [key: string]: (DescriptionProps & { dataIndex: string })[] };
   columnsKeys: string[];
   columnsText: { [key: string]: string };

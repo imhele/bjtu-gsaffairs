@@ -3,7 +3,7 @@ import { IConfig } from 'umi-types';
 export default {
   proxy: {
     '/api': {
-      target: 'http://gsaffairs.bjtu.edu.cn/',
+      target: 'http://localhost:7001/',
       changeOrigin: true,
     },
   },

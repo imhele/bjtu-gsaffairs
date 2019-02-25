@@ -2,6 +2,7 @@ import exception from './zh-CN/exception';
 import login from './zh-CN/login';
 import position from './zh-CN/position';
 import route from './zh-CN/route';
+import stuapply from './zh-CN/stuapply';
 import tip from './zh-CN/tip';
 import user from './zh-CN/user';
 import word from './zh-CN/word';
@@ -15,6 +16,7 @@ export default {
   ...login,
   ...position,
   ...route,
+  ...stuapply,
   ...tip,
   ...user,
   ...word,

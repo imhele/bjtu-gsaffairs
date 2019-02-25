@@ -1,4 +1,5 @@
 @import '../../default.less';
+@import '~antd/es/style/themes/default.less';
 
 .loadingContainer {
   position: absolute;
@@ -8,6 +9,7 @@
 }
 
 .card {
+  background: transparent;
   :global {
     .ant-tabs .ant-tabs-large-bar .ant-tabs-tab {
       font-size: 14px;
@@ -16,6 +18,13 @@
     }
     .ant-card-body {
       padding: @page-gap-3 @page-gap-7;
+    }
+    .ant-card-actions a {
+      color: @primary-color;
+      &.diabled {
+        color: rgba(0, 0, 0, 0.45);
+        cursor: not-allowed;
+      }
     }
   }
 }
