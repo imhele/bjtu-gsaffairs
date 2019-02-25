@@ -8,7 +8,19 @@
   text-align: center;
 }
 
+.loadedAll {
+  width: 100%;
+  cursor: default;
+  text-align: center;
+  margin: @page-gap-4 0;
+}
+
+.scrollContainer {
+  position: relative;
+}
+
 .card {
+  border-top: 1px solid #e8e8e8;
   background: transparent;
   :global {
     .ant-tabs .ant-tabs-large-bar .ant-tabs-tab {
@@ -30,7 +42,17 @@
 }
 
 .collapse {
+  &:first-child {
+    border-radius: 0;
+    border-top: 1px solid #d9d9d9;
+  }
   :global(.ant-collapse-content-box) {
+    padding: 0;
+  }
+  &:global(.ant-collapse-borderless
+      > .ant-collapse-item
+      > .ant-collapse-content
+      > .ant-collapse-content-box) {
     padding: 0;
   }
 }

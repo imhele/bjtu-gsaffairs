@@ -46,6 +46,8 @@ class List extends Component<ListProps, ListState> {
     editing: false,
   };
 
+  auditForm = []
+
   private loadingKeys: Set<string> = new Set();
   /**
    * When user changes value of `limit` or `offset`,
@@ -76,7 +78,13 @@ class List extends Component<ListProps, ListState> {
         body: { limit, offset, status },
         query: { type },
       },
+      callback: this.correctOffset,
     });
+  };
+
+  correctOffset = () => {
+    const { stuapply } = this.props;
+    this.offset = stuapply.dataSource.length;
   };
 
   deleteStuapply = (key: string) => {
@@ -296,17 +304,20 @@ class List extends Component<ListProps, ListState> {
     return (
       <div className={commonStyles.contentBody}>
         <InfiniteScroll
+          className={styles.scrollContainer}
           initialLoad={false}
           pageStart={0}
           loadMore={this.fetchList}
           hasMore={!loading.fetchList && dataSource.length < total}
-          useWindow={false}
         >
           {this.renderFirstLoading()}
           {loading.fetchList && dataSource.length < total && (
             <div className={styles.loadingContainer}>
               <Spin />
             </div>
+          )}
+          {dataSource.length >= total && (
+            <div className={styles.loadedAll}>{formatMessage({ id: 'tip.loaded-all' })}</div>
           )}
         </InfiniteScroll>
         <Detail
