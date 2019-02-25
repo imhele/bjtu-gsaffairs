@@ -127,7 +127,7 @@ export const getFromIntEnum = <T = object>(
   value?: string,
 ) =>
   index === null
-    ? (attr[key] as DefineAttributeColumnOptions).values!.indexOf(value)
+    ? (attr[key] as DefineAttributeColumnOptions).values!.indexOf(value!)
     : (attr[key] as DefineAttributeColumnOptions).values![index];
 
 export const factorial = (n: number) =>

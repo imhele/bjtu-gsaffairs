@@ -2,8 +2,11 @@
 
 .descriptionList {
   // offset the padding-bottom of last row
+  // `margin-top` and `padding-top` is setted to show shadows of <Input />:focus
   :global {
     .ant-row {
+      padding-top: 2px;
+      margin-top: -2px;
       margin-bottom: -16px;
       overflow: hidden;
     }

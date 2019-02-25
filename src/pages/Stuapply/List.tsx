@@ -110,8 +110,11 @@ class List extends Component<ListProps, ListState> {
 
   onClickAction = ({ currentTarget }: React.MouseEvent) => {
     const { type } = this;
-    const { dispatch } = this.props;
-    const { editing, auditing, formValue } = this.state;
+    const {
+      dispatch,
+      stuapply: { dataSource, columnsKeys },
+    } = this.props;
+    const { editing, auditing, formValue, activeTabKey } = this.state;
     const {
       dataset: { index, key, type: actionType, position },
     } = currentTarget as HTMLElement;
@@ -140,7 +143,11 @@ class List extends Component<ListProps, ListState> {
         });
         break;
       case CellAction.Edit:
-        if (!editing && !auditing) this.setState({ editing: true });
+        if (!editing && !auditing)
+          this.setState({
+            editing: true,
+            formValue: dataSource[parseInt(index, 10)][activeTabKey || columnsKeys[0]],
+          });
         break;
       case CellAction.Audit:
         if (!editing && !auditing) this.setState({ auditing: true });
@@ -179,8 +186,13 @@ class List extends Component<ListProps, ListState> {
     );
   };
 
+  onFormValueChange = ({ target: { id, value } }) => {
+    const { formValue } = this.state;
+    if (id) this.setState({ formValue: { ...formValue, [id]: value } });
+  };
+
   renderCardItem = (item: any, cardIndex: number) => {
-    const { activeTabKey, editing, auditing } = this.state;
+    const { activeTabKey, editing, auditing, formValue } = this.state;
     const {
       stuapply: { actionKey, rowKey, columnsKeys, columnsText, columns },
     } = this.props;
@@ -212,7 +224,16 @@ class List extends Component<ListProps, ListState> {
           >
             <DescriptionList
               description={columns[realActiveKey].map(({ dataIndex, title, ...restProps }) => ({
-                children: item[realActiveKey][dataIndex],
+                children: editing ? (
+                  <Input.TextArea
+                    autosize
+                    id={dataIndex}
+                    value={formValue[dataIndex]}
+                    onChange={this.onFormValueChange}
+                  />
+                ) : (
+                  item[realActiveKey][dataIndex]
+                ),
                 key: dataIndex,
                 term: title,
                 ...restProps,

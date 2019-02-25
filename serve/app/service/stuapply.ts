@@ -173,6 +173,7 @@ export default class StuapplyService extends Service {
     let columnsObj: { [key: string]: object } = {};
     Object.entries(StuapplyAttr).forEach(([dataIndex, value]: any) => {
       columnsObj[dataIndex] = { dataIndex, title: value.comment };
+      if (dataIndex === 'audit_log') Object.assign(columnsObj[dataIndex], { sm: 24, md: 24 });
     });
     if (toPrefix) {
       Object.entries(PositionAttr).forEach(([dataIndex, value]: any) => {
@@ -196,7 +197,7 @@ export default class StuapplyService extends Service {
     return columnsObj;
   }
 
-  private formatStuapply(stuapply: any, toPrefix: boolean = true, formatLog: boolean = true) {
+  private formatStuapply(stuapply: any, toPrefix: boolean = true, formatLog: boolean = false) {
     const formatted = stuapply.format();
     if (formatLog && formatted.audit_log)
       formatted.audit_log = this.service.position.formatAuditLog(formatted.audit_log);
