@@ -8,5 +8,20 @@
 }
 
 .card {
-  margin-bottom: @page-gap-6;
+  :global {
+    .ant-tabs .ant-tabs-large-bar .ant-tabs-tab {
+      font-size: 14px;
+      padding: @page-gap-3 @page-gap-4;
+      margin-right: @page-gap-2;
+    }
+    .ant-card-body {
+      padding: @page-gap-3 @page-gap-7;
+    }
+  }
+}
+
+.collapse {
+  :global(.ant-collapse-content-box) {
+    padding: 0;
+  }
 }

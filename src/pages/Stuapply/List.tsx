@@ -7,7 +7,7 @@ import React, { Component } from 'react';
 import commonStyles from '../common.less';
 import { FetchDetailPayload } from '@/api/position';
 import InfiniteScroll from 'react-infinite-scroller';
-import { message, Row, Col, Card, Spin } from 'antd';
+import { Card, Collapse, message, Spin } from 'antd';
 import MemorableModal from '@/components/MemorableModal';
 import { CellAction, PositionType } from '../Position/consts';
 import { GlobalId, StorageId, TypeSpaceChar } from '@/global';
@@ -32,7 +32,7 @@ export interface ListProps extends ConnectProps<{ type: PositionType }> {
 
 interface ListState {
   activeTabKey: string;
-  currentKey: string | number;
+  currentKey: string;
   detailVisible: boolean;
   editing: boolean;
 }
@@ -121,6 +121,7 @@ class List extends Component<ListProps, ListState> {
   onClickAction = (currentKey: string | number, actionType: CellAction) => {
     const { type } = this;
     const { dispatch } = this.props;
+    currentKey = `${currentKey}`;
     switch (actionType) {
       /* Preview for post */
       case CellAction.Preview:
@@ -171,39 +172,56 @@ class List extends Component<ListProps, ListState> {
   };
 
   renderCardItem = (item: any) => {
-    const { currentKey, activeTabKey } = this.state;
+    const { activeTabKey } = this.state;
     const {
       stuapply: { rowKey, columnsKeys, columnsText, columns },
     } = this.props;
-    const realActiveKey = currentKey === item[rowKey] ? activeTabKey : columnsKeys[0];
+    const itemKey = `${item[rowKey]}`;
+    const realActiveKey = activeTabKey || columnsKeys[0];
     return (
-      <Card
-        activeTabKey={realActiveKey}
-        className={styles.card}
-        key={item[rowKey]}
-        onTabChange={key => this.setState({ currentKey: item[rowKey], activeTabKey: key })}
-        title={item.title}
-        tabList={columnsKeys.map(col => ({ key: col, tab: columnsText[col] || col }))}
-      >
-        <DescriptionList
-          col={4}
-          description={columns[realActiveKey].map(({ dataIndex, title, ...restProps }) => ({
-            children: item[realActiveKey][dataIndex],
-            key: dataIndex,
-            term: title,
-            ...restProps,
-          }))}
-        />
-      </Card>
+      <Collapse.Panel header={item.title} key={itemKey}>
+        <Card
+          activeTabKey={realActiveKey}
+          bordered={false}
+          className={styles.card}
+          onTabChange={key => this.setState({ activeTabKey: key })}
+          size="small"
+          tabList={columnsKeys.map(col => ({ key: col, tab: columnsText[col] || col }))}
+        >
+          <DescriptionList
+            description={columns[realActiveKey].map(({ dataIndex, title, ...restProps }) => ({
+              children: item[realActiveKey][dataIndex],
+              key: dataIndex,
+              term: title,
+              ...restProps,
+            }))}
+          />
+        </Card>
+      </Collapse.Panel>
     );
   };
 
+  onChangeOpenKey = (key: string) => {
+    this.setState({ currentKey: key });
+  };
+
   renderFirstLoading = () => {
+    const { currentKey } = this.state;
     const {
       loading: { fetchList },
       stuapply: { columnsKeys, dataSource },
     } = this.props;
-    if (columnsKeys.length) return dataSource.map(this.renderCardItem);
+    if (columnsKeys.length)
+      return (
+        <Collapse
+          accordion
+          activeKey={currentKey}
+          className={styles.collapse}
+          onChange={this.onChangeOpenKey}
+        >
+          {dataSource.map(this.renderCardItem)}
+        </Collapse>
+      );
     if (!fetchList) return Edit.Empty;
     return (
       <div style={{ width: '100%', textAlign: 'center' }}>
@@ -213,11 +231,11 @@ class List extends Component<ListProps, ListState> {
   };
 
   render() {
-    const { currentKey, detailVisible, editing, activeTabKey } = this.state;
+    const { currentKey, detailVisible } = this.state;
     const {
       loading,
       position: { detail },
-      stuapply: { actionKey, columns, columnsKeys, dataSource, rowKey, total },
+      stuapply: { dataSource, total },
     } = this.props;
     return (
       <div className={commonStyles.contentBody}>
