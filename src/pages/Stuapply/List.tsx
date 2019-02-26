@@ -49,13 +49,6 @@ class List extends Component<ListProps, ListState> {
 
   auditForm = [];
 
-  headerExtra: React.ReactNode = (
-    <Tabs className={styles.tabs} onChange={this.onPageHeaderTabChange}>
-      <Tabs.TabPane key="manage" tab={formatMessage({ id: 'position.manage' })} />
-      <Tabs.TabPane key="teach" tab={formatMessage({ id: 'position.teach' })} />
-    </Tabs>
-  );
-
   private loadingKeys: Set<string> = new Set();
   /**
    * When user changes value of `limit` or `offset`,
@@ -327,6 +320,13 @@ class List extends Component<ListProps, ListState> {
     this.fetchList();
   };
 
+  headerExtra = (): React.ReactNode => (
+    <Tabs className={styles.tabs} onChange={this.onPageHeaderTabChange}>
+      <Tabs.TabPane key="manage" tab={formatMessage({ id: 'position.manage' })} />
+      <Tabs.TabPane key="teach" tab={formatMessage({ id: 'position.teach' })} />
+    </Tabs>
+  );
+
   render() {
     const { detailVisible } = this.state;
     const {
@@ -335,7 +335,7 @@ class List extends Component<ListProps, ListState> {
       stuapply: { dataSource, total },
     } = this.props;
     return (
-      <PageHeader headerExtra={this.headerExtra}>
+      <PageHeader headerExtra={this.headerExtra()}>
         <div className={commonStyles.contentBody}>
           <InfiniteScroll
             className={styles.scrollContainer}
