@@ -12,4 +12,6 @@ export default {
   'position.list.tableSize.middle': '中型',
   'position.list.tableSize.small': '小型',
   'position.list.total': '共 {total} 条结果',
+  'position.manage': '助管',
+  'position.teach': '助教',
 };

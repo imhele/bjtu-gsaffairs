@@ -23,6 +23,7 @@ export default {
   'route.position.teach.list': '助教列表',
   'route.position.teach.list-title': '助教列表',
   'route.stuapply': '申请列表',
+  'route.stuapply-title': '申请列表',
   'route.result': '结果页',
   'route.result.success': '成功页',
   'route.result.success-title': '成功页',

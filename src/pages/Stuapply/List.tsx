@@ -5,6 +5,7 @@ import { GlobalId } from '@/global';
 import Detail from '../Position/Detail';
 import React, { Component } from 'react';
 import commonStyles from '../common.less';
+import PageHeader from '@/layouts/PageHeader';
 import { formatMessage } from 'umi-plugin-locale';
 import { FetchDetailPayload } from '@/api/position';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -12,7 +13,7 @@ import MemorableModal from '@/components/MemorableModal';
 import DescriptionList from '@/components/DescriptionList';
 import { CellAction, PositionType } from '../Position/consts';
 import { StandardTableAction } from '@/components/StandardTable';
-import { Button, Card, Collapse, Icon, Input, message, Spin } from 'antd';
+import { Button, Card, Collapse, Icon, Input, message, Spin, Tabs } from 'antd';
 import { FetchListPayload, DeleteStuapplyPayload, EditStuapplyBody } from '@/api/stuapply';
 import { ConnectProps, ConnectState, PositionState, StuapplyState } from '@/models/connect';
 
@@ -47,6 +48,13 @@ class List extends Component<ListProps, ListState> {
   };
 
   auditForm = [];
+
+  headerExtra: React.ReactNode = (
+    <Tabs className={styles.tabs} onChange={this.onPageHeaderTabChange}>
+      <Tabs.TabPane key="manage" tab={formatMessage({ id: 'position.manage' })} />
+      <Tabs.TabPane key="teach" tab={formatMessage({ id: 'position.teach' })} />
+    </Tabs>
+  );
 
   private loadingKeys: Set<string> = new Set();
   /**
@@ -91,7 +99,6 @@ class List extends Component<ListProps, ListState> {
     const { type } = this;
     const { dispatch } = this.props;
     this.loadingKeys.add(key);
-    // this.cancelSelection(key);
     dispatch<DeleteStuapplyPayload>({
       type: 'stuapply/deleteStuapply',
       payload: { query: { type, key } },
@@ -274,18 +281,21 @@ class List extends Component<ListProps, ListState> {
       loading: { fetchList },
       stuapply: { columnsKeys, dataSource },
     } = this.props;
-    if (columnsKeys.length)
-      return (
-        <Collapse
-          accordion
-          activeKey={currentKey}
-          bordered={false}
-          className={styles.collapse}
-          onChange={this.onChangeOpenKey}
-        >
-          {dataSource.map(this.renderCardItem)}
-        </Collapse>
-      );
+    if (columnsKeys.length) {
+      if (dataSource.length)
+        return (
+          <Collapse
+            accordion
+            activeKey={currentKey}
+            bordered={false}
+            className={styles.collapse}
+            onChange={this.onChangeOpenKey}
+          >
+            {dataSource.map(this.renderCardItem)}
+          </Collapse>
+        );
+      return Edit.Empty;
+    }
     if (!fetchList) return Edit.Empty;
     return (
       <div style={{ width: '100%', textAlign: 'center' }}>
@@ -311,6 +321,12 @@ class List extends Component<ListProps, ListState> {
     );
   };
 
+  onPageHeaderTabChange = (tabKey: string) => {
+    this.type = tabKey as PositionType;
+    this.offset = 0;
+    this.fetchList();
+  };
+
   render() {
     const { detailVisible } = this.state;
     const {
@@ -319,29 +335,31 @@ class List extends Component<ListProps, ListState> {
       stuapply: { dataSource, total },
     } = this.props;
     return (
-      <div className={commonStyles.contentBody}>
-        <InfiniteScroll
-          className={styles.scrollContainer}
-          initialLoad={false}
-          pageStart={0}
-          loadMore={this.fetchList}
-          hasMore={!loading.fetchList && dataSource.length < total}
-        >
-          {this.renderFirstLoading()}
-          {loading.fetchList && dataSource.length < total && (
-            <div className={styles.loadingContainer}>
-              <Spin />
-            </div>
-          )}
-          {this.renderLoadButton()}
-        </InfiniteScroll>
-        <Detail
-          {...detail}
-          loading={loading.fetchPositionDetail}
-          onClose={this.onCloseDetail}
-          visible={detailVisible}
-        />
-      </div>
+      <PageHeader headerExtra={this.headerExtra}>
+        <div className={commonStyles.contentBody}>
+          <InfiniteScroll
+            className={styles.scrollContainer}
+            initialLoad={false}
+            pageStart={0}
+            loadMore={this.fetchList}
+            hasMore={!loading.fetchList && dataSource.length < total}
+          >
+            {this.renderFirstLoading()}
+            {loading.fetchList && dataSource.length < total && (
+              <div className={styles.loadingContainer}>
+                <Spin />
+              </div>
+            )}
+            {this.renderLoadButton()}
+          </InfiniteScroll>
+          <Detail
+            {...detail}
+            loading={loading.fetchPositionDetail}
+            onClose={this.onCloseDetail}
+            visible={detailVisible}
+          />
+        </div>
+      </PageHeader>
     );
   }
 }

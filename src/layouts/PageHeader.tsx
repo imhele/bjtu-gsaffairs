@@ -7,9 +7,10 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 
 export interface PageHeaderProps {
   defaultMessage?: string | ((path: string) => string);
+  headerExtra?: React.ReactNode;
 }
 
-const PageHeader: React.SFC<PageHeaderProps> = ({ children, defaultMessage }) => {
+const PageHeader: React.SFC<PageHeaderProps> = ({ children, defaultMessage, headerExtra }) => {
   const { pathname } = window.location;
   const paths = pathnameToArr(pathname);
   const unknownMsg = formatMessage({ id: 'word.unknown-page', defaultMessage: 'Unknown page' });
@@ -42,6 +43,7 @@ const PageHeader: React.SFC<PageHeaderProps> = ({ children, defaultMessage }) =>
             }
           />
         </div>
+        {headerExtra}
       </div>
       {children}
     </React.Fragment>
