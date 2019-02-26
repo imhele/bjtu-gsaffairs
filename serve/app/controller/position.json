@@ -8,7 +8,6 @@
       "campus",
       "status",
       "way",
-      "class_type",
       "staff_jobnum",
       "department_code",
       "audit"
@@ -20,7 +19,6 @@
       "need_num",
       "campus",
       "way",
-      "class_type",
       "staff_jobnum",
       "department_code",
       "audit"
@@ -51,11 +49,6 @@
       "width": 78,
       "title": "校区",
       "dataIndex": "campus"
-    },
-    {
-      "width": 95,
-      "title": "课程类型",
-      "dataIndex": "class_type"
     },
     {
       "width": 95,
@@ -94,9 +87,6 @@
       "way",
       "start_t",
       "end_t",
-      "class_type",
-      "class_num",
-      "class_time",
       "status",
       "audit",
       "audit_log",
@@ -117,9 +107,6 @@
       "way",
       "start_t",
       "end_t",
-      "class_type",
-      "class_num",
-      "class_time",
       "staff_name",
       "department_name"
     ]
@@ -160,9 +147,6 @@
       "work_time_d",
       "work_time_l",
       "cellphone",
-      "class_type",
-      "class_time",
-      "class_num",
       "campus",
       "way",
       "start_t",

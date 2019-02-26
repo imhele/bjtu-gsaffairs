@@ -1,4 +1,3 @@
-'school_census';
 import { Application } from 'egg';
 import { intEnumValid } from '../../errcode';
 import { setModelInstanceMethods } from '../../utils';
@@ -37,15 +36,15 @@ export const attr: DefineModelAttributes<SchoolCensus> = {
     allowNull: true,
     comment: '学生类型',
     type: INTEGER,
-    values: ['博士', '硕士', '推免生', '进修生'],
-    validate: { ...intEnumValid(4) },
+    values: ['', '博士', '硕士', '推免生', '进修生'],
+    validate: { ...intEnumValid(5, 1) },
   },
   sex: {
     allowNull: true,
     comment: '性别',
     type: INTEGER,
-    values: ['男', '女'],
-    validate: { ...intEnumValid(2) },
+    values: ['', '男', '女'],
+    validate: { ...intEnumValid(3, 1) },
   },
   discipline: {
     allowNull: true,

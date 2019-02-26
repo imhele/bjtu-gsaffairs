@@ -10,15 +10,23 @@ import { Staff as StaffModel } from '../model/client/staff';
 import { attr as StaffInfoAttr } from '../model/people/staff';
 import { attr as DepartmentAttr, Department as DepartmentModel } from '../model/dicts/department';
 import {
+  attr as TaskTeachingAttr,
+  TaskTeaching as TaskTeachingModel,
+} from '../model/task/teaching';
+import {
   PositionType,
   attr as PositionAttr,
   Position as PositionModel,
 } from '../model/interships/position';
 
-export interface PositionWithFK<D extends boolean = false, S extends boolean = false>
-  extends PositionModel {
+export interface PositionWithFK<
+  D extends boolean = false,
+  S extends boolean = false,
+  T extends boolean = false
+> extends PositionModel {
   DictsDepartment: D extends true ? DepartmentModel : never;
   PeopleStaff: S extends true ? StaffModel : never;
+  TaskTeaching: T extends true ? TaskTeachingModel : never;
   [key: string]: any;
 }
 
@@ -30,12 +38,12 @@ export default class PositionService extends Service {
    * Return information of a position with staff and department information
    * formatted as `staff_${key}` and `department_${key}`
    */
-  public async findOne(id: number): Promise<PositionWithFK> {
+  public async findOne(id: number, teach: boolean = false): Promise<PositionWithFK> {
     const { model } = this.ctx;
     if (id === void 0) throw new DataNotFound('岗位信息不存在');
-    const position: any = await model.Interships.Position.findByPk(id, {
-      include: [model.Dicts.Department, model.People.Staff],
-    });
+    const include = [model.Dicts.Department, model.People.Staff];
+    if (teach) include.push(model.Task.Teaching as any);
+    const position: any = await model.Interships.Position.findByPk(id, { include });
     if (position === null) throw new DataNotFound('岗位信息不存在');
     return this.formatPosition(position) as PositionWithFK;
   }
@@ -159,6 +167,10 @@ export default class PositionService extends Service {
       dataIndex = `department_${dataIndex}`;
       columnsObj[dataIndex] = { dataIndex, title: value.comment };
     });
+    Object.entries(TaskTeachingAttr).forEach(([dataIndex, value]: any) => {
+      dataIndex = `teaching_${dataIndex}`;
+      columnsObj[dataIndex] = { dataIndex, title: value.comment };
+    });
     return columnsObj;
   }
 
@@ -187,6 +199,13 @@ export default class PositionService extends Service {
         formatted[`staff_${key}`] = value;
       });
       delete formatted.PeopleStaff;
+    }
+    if (formatted.TaskTeaching) {
+      formatted.TaskTeaching = formatted.TaskTeaching.format();
+      Object.entries(formatted.TaskTeaching).forEach(([key, value]) => {
+        formatted[`teaching_${key}`] = value;
+      });
+      delete formatted.TaskTeaching;
     }
     return formatted as any;
   }

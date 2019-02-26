@@ -43,15 +43,6 @@ export const filtersMap: { [K in keyof Partial<typeof PositionAttr>]: FilterItem
     title: '聘用方式',
     type: SimpleFormItemType.Select,
   },
-  class_type: {
-    id: 'class_type',
-    selectOptions: NewPositionAttr.class_type.values!.map((title, index) => ({
-      value: index,
-      title,
-    })),
-    title: '课程类型',
-    type: SimpleFormItemType.Select,
-  },
 };
 
 export const filtersKeyMap: {
@@ -64,8 +55,8 @@ export const filtersKeyMap: {
     withoutStatus: ['semester', 'department_code', 'name', 'campus', 'way'],
   },
   teach: {
-    withStatus: ['semester', 'department_code', 'name', 'campus', 'status', 'way', 'class_type'],
-    withoutStatus: ['semester', 'department_code', 'name', 'campus', 'way', 'class_type'],
+    withStatus: ['semester', 'department_code', 'name', 'campus', 'status', 'way'],
+    withoutStatus: ['semester', 'department_code', 'name', 'campus', 'way'],
   },
 };
 

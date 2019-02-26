@@ -50,7 +50,7 @@ export default class PositionController extends Controller {
 
     let columns = [...tableColumns];
     let filtersKey = filtersKeyMap[type].withStatus;
-    if (type !== 'teach') columns = columns.filter(({ dataIndex }) => dataIndex !== 'class_type');
+    // if (type !== 'teach') columns = columns.filter(({ dataIndex }) => dataIndex !== 'class_type');
 
     /**
      * Construct `filtersValue`
@@ -167,6 +167,15 @@ export default class PositionController extends Controller {
       stepsProps.status = PositionStatus[position.status!];
       stepsProps.steps = PositionAuditStatus[type].map((title: string) => ({ title }));
     }
+    if (type === PositionType.teach)
+      columnsKey.push(
+        'teaching_kch',
+        'teaching_kch',
+        'teaching_kcm',
+        'teaching_kxh',
+        'teaching_jkzxs',
+        'teaching_student_type',
+      );
 
     /**
      * Construct `columns`.

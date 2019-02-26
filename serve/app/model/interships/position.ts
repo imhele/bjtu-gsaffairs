@@ -40,9 +40,6 @@ export interface Position<E extends boolean = false> {
   way: E extends false ? string : number;
   start_t: string;
   end_t: string;
-  class_type: E extends false ? string : number;
-  class_num: number;
-  class_time: number;
   /**
    * 此岗位当前所处的审核状态
    */
@@ -55,6 +52,7 @@ export interface Position<E extends boolean = false> {
   department_code?: string;
   staff_jobnum?: string;
   cellphone: string;
+  task_teaching_id?: number;
 }
 
 export const attr: DefineModelAttributes<Position<true>> = {
@@ -142,26 +140,6 @@ export const attr: DefineModelAttributes<Position<true>> = {
     type: DATEONLY,
     validate: { isDate: true, notEmpty: true },
   },
-  class_type: {
-    allowNull: true,
-    comment: '课程类型',
-    type: INTEGER,
-    defaultValue: null,
-    values: ['本科生', '研究生'],
-    validate: { notEmpty: true, ...intEnumValid(2) },
-  },
-  class_num: {
-    allowNull: true,
-    comment: '课程人数',
-    type: INTEGER,
-    validate: { isInt: true, notEmpty: true },
-  },
-  class_time: {
-    allowNull: true,
-    comment: '学时数',
-    type: INTEGER,
-    validate: { isInt: true, notEmpty: true },
-  },
   status: {
     allowNull: false,
     comment: '状态',
@@ -206,6 +184,9 @@ export default (app: Application) => {
     });
     app.model.Interships.Position.belongsTo(app.model.People.Staff, {
       foreignKey: 'staff_jobnum',
+    });
+    app.model.Interships.Position.belongsTo(app.model.Task.Teaching, {
+      foreignKey: 'task_teaching_id',
     });
   };
   return setModelInstanceMethods(PositionModel, attr);

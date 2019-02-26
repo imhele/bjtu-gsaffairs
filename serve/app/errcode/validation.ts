@@ -8,11 +8,12 @@ export const enumValid = (arr: object | any[]) => ({
   },
 });
 
-export const intEnumValid = (arr: any[] | number | object) => {
+export const intEnumValid = (arr: any[] | number | object, start: number = 0) => {
   const numArr = lenToArr(Array.isArray(arr) || typeof arr === 'number' ? arr : Object.keys(arr));
   return {
     notInEnum: (v: any) => {
-      if (!numArr.includes(v)) throw new ValidationErrorItem('', '', '', v);
+      if (typeof v !== 'number' || v < start || !numArr.includes(v))
+        throw new ValidationErrorItem('', '', '', v);
     },
   };
 };

@@ -12,6 +12,8 @@ import ExportIntershipsPosition from '../../../app/model/interships/position';
 import ExportIntershipsStuapply from '../../../app/model/interships/stuapply';
 import ExportPeopleStaff from '../../../app/model/people/staff';
 import ExportSchoolCensus from '../../../app/model/school/census';
+import ExportTaskTeacher from '../../../app/model/task/teacher';
+import ExportTaskTeaching from '../../../app/model/task/teaching';
 
 declare module 'sequelize' {
   interface Sequelize {
@@ -34,6 +36,10 @@ declare module 'sequelize' {
     }
     School: {
       Census: ReturnType<typeof ExportSchoolCensus>;
+    }
+    Task: {
+      Teacher: ReturnType<typeof ExportTaskTeacher>;
+      Teaching: ReturnType<typeof ExportTaskTeaching>;
     }
   }
 }
