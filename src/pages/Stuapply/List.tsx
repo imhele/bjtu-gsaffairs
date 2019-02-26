@@ -67,7 +67,7 @@ class List extends Component<ListProps, ListState> {
    * `onShowSizeChange` and `onChangPage` will call `fetchList`
    * which makes `props` change and trigger component re-rendering.
    */
-  private limit: number = 20;
+  private limit: number = 40;
   private offset: number = 0;
   private type: PositionType = null;
   private status: string = '';

@@ -48,7 +48,7 @@ const model: StuapplyModel = {
         if (Array.isArray(dataSource) && dataSource.length) {
           const prevSource: object[] = yield select(({ stuapply }) => stuapply.dataSource);
           response.dataSource = prevSource.slice(0, offset).concat(dataSource);
-        }
+        } else delete response.dataSource;
       }
       yield put({
         type: 'setState',
