@@ -16,6 +16,7 @@ import { CellAction, PositionType } from '../Position/consts';
 import { Input, message, Radio, Row, Spin, Tabs } from 'antd';
 import { StandardTableAction } from '@/components/StandardTable';
 import { Button, Card, Checkbox, Col, Collapse, Icon } from 'antd';
+import { renderFormItem, SimpleFormItemType } from '@/components/SimpleForm/BaseForm';
 import { FetchListPayload, DeleteStuapplyPayload, EditStuapplyBody } from '@/api/stuapply';
 import { ConnectProps, ConnectState, PositionState, StuapplyState } from '@/models/connect';
 
@@ -70,7 +71,7 @@ class List extends Component<ListProps, ListState> {
   private offset: number = 0;
   private type: PositionType = null;
   private status: string = '';
-  private formValue: { [key: string]: string } = {};
+  private formValue: { [key: string]: string | string[] } = {};
 
   constructor(props: ListProps) {
     super(props);
@@ -192,12 +193,12 @@ class List extends Component<ListProps, ListState> {
     } = this.props;
     return (
       <a
-        className={action.disabled ? styles.disabled : void 0}
         data-index={cardIndex}
         data-key={record[rowKey]}
         data-position={record.positionKey}
         data-type={action.type}
-        onClick={this.onClickAction}
+        onClick={action.disabled ? void 0 : this.onClickAction}
+        style={action.disabled ? { color: 'rgba(0, 0, 0, 0.45)', cursor: 'not-allowed' } : {}}
       >
         {action.text || <Icon type={action.icon} />}
       </a>
@@ -206,6 +207,51 @@ class List extends Component<ListProps, ListState> {
 
   onFormValueChange = ({ target: { id, value } }) => {
     if (id) this.formValue[id] = value;
+  };
+
+  renderAuditForm = () => {
+    const { activeTabKey, auditing } = this.state;
+    const {
+      stuapply: { columnsKeys },
+    } = this.props;
+    if (activeTabKey && activeTabKey !== columnsKeys[0]) return [];
+    if (!auditing) return [];
+    if (!this.formValue.status) {
+      this.formValue = { status: '审核通过', opinion: [] };
+    }
+    return [
+      {
+        id: 'status_FORM',
+        title: '审核结果',
+        type: SimpleFormItemType.ButtonRadio,
+        withoutWrap: true,
+        itemProps: {
+          defaultValue: '审核通过',
+          onChange: ({ target: { value } }: RadioChangeEvent) => (this.formValue.status = value),
+        },
+        selectOptions: [{ value: '审核通过' }, { value: '审核不通过' }, { value: '退回' }],
+      },
+      {
+        id: 'opinion_FORM',
+        tip: '回车进行多选，可以输入自定义文案',
+        title: '审核意见',
+        type: SimpleFormItemType.Select,
+        withoutWrap: true,
+        itemProps: {
+          mode: 'tags',
+          placeholder: '键入文字查询常用语',
+          onChange: (values: string[]) => (this.formValue.opinion = values),
+          style: { width: '100%' },
+        },
+        selectOptions: [{ value: '信息填写不准确' }, { value: '岗位人数过多' }],
+      },
+    ].map(item => ({
+      children: renderFormItem(item, null, void 0, {}),
+      key: item.id,
+      term: item.title,
+      sm: 24,
+      md: 24,
+    }));
   };
 
   renderCardItem = (item: any, cardIndex: number) => {
@@ -243,8 +289,8 @@ class List extends Component<ListProps, ListState> {
             tabList={columnsKeys.map(col => ({ key: col, tab: columnsText[col] || col }))}
           >
             <DescriptionList
-              description={columns[realActiveKey].map(
-                ({ dataIndex, editDisabled, title, ...restProps }) => ({
+              description={columns[realActiveKey]
+                .map(({ dataIndex, editDisabled, title, ...restProps }) => ({
                   children:
                     editing && realActiveKey === columnsKeys[0] && !editDisabled ? (
                       <Input.TextArea
@@ -259,8 +305,8 @@ class List extends Component<ListProps, ListState> {
                   key: dataIndex,
                   term: title,
                   ...restProps,
-                }),
-              )}
+                }))
+                .concat(this.renderAuditForm())}
             />
           </Card>
         </Spin>
@@ -282,7 +328,9 @@ class List extends Component<ListProps, ListState> {
     } = this.props;
     if (filterValue === filtersOptions[0].value || !filterValue) return true;
     if (!Array.isArray(item[actionKey])) return false;
-    return item[actionKey].some((action: StandardTableAction) => action.type === filterValue);
+    return item[actionKey].some(
+      (action: StandardTableAction) => action.type === filterValue && !action.disabled,
+    );
   };
 
   renderFirstLoading = () => {

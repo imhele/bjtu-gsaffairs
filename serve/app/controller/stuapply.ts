@@ -1,9 +1,10 @@
 import { Controller } from 'egg';
 import { CellAction } from '../link';
-import { WhereOptions } from 'sequelize';
+import { Op, WhereOptions } from 'sequelize';
 import { getFromIntEnum, parseJSON } from '../utils';
 import { ScopeList, UserType } from '../service/user';
 import { AuthorizeError, DataNotFound } from '../errcode';
+import { SchoolCensus as SchoolCensusModel } from '../model/school/census';
 import { attr as PositionAttr, PositionType } from '../model/interships/position';
 import { excludeFormFields, applyReturn, positionDetailFields } from './stuapply.json';
 import {
@@ -44,6 +45,12 @@ export default class UserController extends Controller {
     ];
     const options = { limit, offset };
     if (applyFilters.length) Object.assign(options, { where: applyFilters });
+    if (auth.type === UserType.Staff && !auth.scope.includes(ScopeList.position[type].audit))
+      Object.assign(include[0], {
+        where: {
+          [Op.or]: [{ teacher_code: auth.user.loginname }, { teacher2_code: auth.user.loginname }],
+        } as WhereOptions<SchoolCensusModel>,
+      });
     const dbRes = await service.stuapply.findAndCountAll<false>(options, include, false);
 
     /**

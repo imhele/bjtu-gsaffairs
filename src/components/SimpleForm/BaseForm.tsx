@@ -127,7 +127,7 @@ export default class BaseForm<P extends BaseFormProps<P>, S = {}> extends Compon
 
 export const renderFormItem = (
   formItem: SimpleFormItemProps,
-  form: WrappedFormUtils,
+  form: WrappedFormUtils | null,
   formItemProps: FormItemProps,
   initialFieldsValue: object,
 ): React.ReactNode => {
@@ -195,7 +195,7 @@ export const renderFormItem = (
     default:
       item = null;
   }
-  if (formItem.type !== SimpleFormItemType.Extra) {
+  if (formItem.type !== SimpleFormItemType.Extra && form !== null) {
     item = form.getFieldDecorator(formItem.id, {
       initialValue: initialFieldsValue[formItem.id],
       ...formItem.decoratorOptions,
