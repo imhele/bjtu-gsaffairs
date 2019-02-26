@@ -45,12 +45,6 @@ export default class UserController extends Controller {
     ];
     const options = { limit, offset };
     if (applyFilters.length) Object.assign(options, { where: applyFilters });
-    if (auth.type === UserType.Staff && !auth.scope.includes(ScopeList.position[type].audit))
-      Object.assign(include[0], {
-        where: {
-          [Op.or]: [{ teacher_code: auth.user.loginname }, { teacher2_code: auth.user.loginname }],
-        } as WhereOptions<SchoolCensusModel>,
-      });
     const dbRes = await service.stuapply.findAndCountAll<false>(options, include, false);
 
     /**
