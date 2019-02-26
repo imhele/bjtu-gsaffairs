@@ -153,6 +153,13 @@
       "end_t"
     ]
   },
+  "teachingTaskFields": [
+    "teaching_kch",
+    "teaching_kcm",
+    "teaching_kxh",
+    "teaching_jkzxs",
+    "teaching_student_type"
+  ],
   "formLayoutProps": {
     "colProps": {
       "md": 12,

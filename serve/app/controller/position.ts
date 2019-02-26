@@ -6,6 +6,7 @@ import { getFromIntEnum, parseJSON } from '../utils';
 import { AuthorizeError, DataNotFound } from '../errcode';
 // import { StepsProps } from '../../../src/components/Steps';
 // import { PositionState } from '../../../src/models/connect';
+import { attr as TaskTeachingAttr } from '../model/task/teaching';
 import { CellAction, SimpleFormItemType, TopbarAction } from '../link';
 // import { FetchListBody, FetchFormBody } from '../../../src/api/position';
 import { filtersKeyMap, filtersMap, getFilters } from './positionFilter';
@@ -27,6 +28,7 @@ import {
   positionFormFields,
   tableColumns,
   tableQueryFields,
+  teachingTaskFields,
 } from './position.json';
 
 export const ActionText = {
@@ -144,7 +146,7 @@ export default class PositionController extends Controller {
     if (!Object.keys(PositionType).includes(type) || id === void 0) return;
 
     let columnsKey: string[] = detailColumns.withoutAuditLog;
-    const position = await service.position.findOne(parseInt(id, 10));
+    const position = await service.position.findOne(parseInt(id, 10), type === 'teach');
     position.audit_log = service.position.formatAuditLog(position.audit_log);
 
     /**
@@ -167,15 +169,7 @@ export default class PositionController extends Controller {
       stepsProps.status = PositionStatus[position.status!];
       stepsProps.steps = PositionAuditStatus[type].map((title: string) => ({ title }));
     }
-    if (type === PositionType.teach)
-      columnsKey.push(
-        'teaching_kch',
-        'teaching_kch',
-        'teaching_kcm',
-        'teaching_kxh',
-        'teaching_jkzxs',
-        'teaching_student_type',
-      );
+    if (type === 'teach') columnsKey.push(...teachingTaskFields);
 
     /**
      * Construct `columns`.
@@ -235,7 +229,9 @@ export default class PositionController extends Controller {
      */
     const stepsProps: StepsProps = {
       current: 1,
-      steps: PositionAuditStatus[type].map(title => ({ title })),
+      steps: PositionAuditStatus[type]
+        .filter(i => i !== '教务处审核')
+        .map(i => ({ title: i === '研究生院审核' ? '教务处/研究生院审核' : i })),
     };
 
     ctx.response.body = {
@@ -309,7 +305,7 @@ export default class PositionController extends Controller {
     /**
      * Authorize
      */
-    const position = await service.position.findOne(parseInt(id, 10));
+    const position = await service.position.findOne(parseInt(id, 10), type === 'teach');
     const availableActions = service.position.getPositionAction(position, auth, type);
     if (!availableActions.get(CellAction.Audit))
       throw new AuthorizeError('你暂时没有权限审核这个岗位');
@@ -319,6 +315,11 @@ export default class PositionController extends Controller {
     switch (ctx.request.body.status) {
       case '审核通过':
         if (++auditStatusIndex === PositionAuditStatus[type].length - 1) values.status = '已发布';
+        if (
+          (position.teaching_student_type === '研究生课程' && position.audit === '用人单位审核') ||
+          (position.teaching_student_type === '本科生课程' && position.audit === '教务处审核')
+        )
+          auditStatusIndex++;
         break;
       case '审核不通过':
         values.status = '审核不通过';
@@ -388,7 +389,7 @@ export default class PositionController extends Controller {
       }
       formItems.unshift(...this.getUserStaticFormItems(auth));
     } else {
-      const position = await service.position.findOne(parseInt(id, 10));
+      const position = await service.position.findOne(parseInt(id, 10), type === 'teach');
       const availableActions = service.position.getPositionAction(position, auth, type);
       switch (action) {
         case CellAction.Edit:
@@ -416,6 +417,15 @@ export default class PositionController extends Controller {
                 title: PositionAttr[key].comment,
               }),
             ),
+            teachingTaskFields.map(
+              (key: string): SimpleFormItemProps => ({
+                id: key,
+                decoratorOptions,
+                type: SimpleFormItemType.Extra,
+                extra: position[key],
+                title: TaskTeachingAttr[key.replace('teaching_', '')].comment,
+              }),
+            ),
           );
           // if (formItems.length % 2)
           //   formItems.push({
@@ -429,6 +439,11 @@ export default class PositionController extends Controller {
         default:
           return;
       }
+    }
+
+    if (type === 'teach' && (action === TopbarAction.Create || action === CellAction.Edit)) {
+      const tasks = await service.teaching.getTeachingTaskSelection();
+      formItems.splice(4, 0, tasks);
     }
 
     ctx.response.body = {
