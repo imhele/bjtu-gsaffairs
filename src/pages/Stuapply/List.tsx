@@ -112,7 +112,7 @@ class List extends Component<ListProps, ListState> {
   };
 
   deleteCallback = (payload: DeleteStuapplyPayload) => {
-    this.loadingKeys.delete(payload.query.key);
+    this.loadingKeys.delete(payload.query.key as string);
     this.fetchList();
   };
 

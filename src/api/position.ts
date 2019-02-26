@@ -4,7 +4,7 @@ import { CellAction, PositionType, TopbarAction } from '@/pages/Position/consts'
 
 export interface FetchQuery {
   type: PositionType;
-  key?: string;
+  key?: string | number;
 }
 
 export interface FetchListBody extends RequestBody {

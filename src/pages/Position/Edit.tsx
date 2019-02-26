@@ -21,7 +21,7 @@ export interface EditProps extends ConnectProps<{ type: PositionType }> {
   position?: PositionState;
 }
 
-const backToList = () => router.push('list');
+const backToList = () => router.push('/position/manage/list');
 
 class Edit extends Component<EditProps> {
   static Empty = (
