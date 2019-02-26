@@ -17,6 +17,7 @@ export const enum GlobalId {
   BasicLayout,
   DeletePostion,
   PromptAuditAllDone,
+  DeleteStuapply,
 }
 
 /**

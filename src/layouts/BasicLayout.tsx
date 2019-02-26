@@ -3,11 +3,11 @@ import Footer from './Footer';
 import { connect } from 'dva';
 import router from 'umi/router';
 import debounce from 'debounce';
-import { Layout, Spin } from 'antd';
 import QueueAnim from 'rc-queue-anim';
 import * as Utils from '@/utils/utils';
 import styles from './BasicLayout.less';
 import useMedia from 'react-media-hook2';
+import { BackTop, Layout, Spin } from 'antd';
 import Authorized from '@/components/Authorized';
 import Exception403 from '@/pages/Exception/403';
 import { formatMessage } from 'umi-plugin-locale';
@@ -123,6 +123,7 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
           </QueueAnim>
         </Layout>
       </NoviceTutorial>
+      <BackTop style={{ right: 50 }} />
     </DocumentTitle>
   );
 };

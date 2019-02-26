@@ -6,16 +6,25 @@ import Detail from '../Position/Detail';
 import React, { Component } from 'react';
 import commonStyles from '../common.less';
 import PageHeader from '@/layouts/PageHeader';
+import { RadioChangeEvent } from 'antd/es/radio';
 import { formatMessage } from 'umi-plugin-locale';
 import { FetchDetailPayload } from '@/api/position';
 import InfiniteScroll from 'react-infinite-scroller';
 import MemorableModal from '@/components/MemorableModal';
 import DescriptionList from '@/components/DescriptionList';
 import { CellAction, PositionType } from '../Position/consts';
+import { Input, message, Radio, Row, Spin, Tabs } from 'antd';
 import { StandardTableAction } from '@/components/StandardTable';
-import { Button, Card, Collapse, Icon, Input, message, Spin, Tabs } from 'antd';
+import { Button, Card, Checkbox, Col, Collapse, Icon } from 'antd';
 import { FetchListPayload, DeleteStuapplyPayload, EditStuapplyBody } from '@/api/stuapply';
 import { ConnectProps, ConnectState, PositionState, StuapplyState } from '@/models/connect';
+
+const filtersOptions = [
+  { label: '全部', value: 'all' },
+  { label: '可编辑', value: CellAction.Edit },
+  { label: '可审核', value: CellAction.Audit },
+  { label: '可删除', value: CellAction.Delete },
+];
 
 export interface ListProps extends ConnectProps<{ type: PositionType }> {
   loading?: {
@@ -36,6 +45,7 @@ interface ListState {
   currentKey: string;
   detailVisible: boolean;
   editing: boolean;
+  filterValue: string;
 }
 
 class List extends Component<ListProps, ListState> {
@@ -45,6 +55,7 @@ class List extends Component<ListProps, ListState> {
     currentKey: null,
     detailVisible: false,
     editing: false,
+    filterValue: 'all',
   };
 
   auditForm = [];
@@ -104,10 +115,6 @@ class List extends Component<ListProps, ListState> {
     this.fetchList();
   };
 
-  onSearch = (value: string) => {
-    // @TODO
-  };
-
   cancelEditAuditState = () => {
     this.formValue = {};
     this.setState({ auditing: false, editing: false });
@@ -144,7 +151,7 @@ class List extends Component<ListProps, ListState> {
         this.offset = parseInt(index, 10);
         MemorableModal.confirm({
           defaultEnable: false,
-          id: GlobalId.DeletePostion,
+          id: GlobalId.DeleteStuapply,
           onOk: this.deleteStuapply,
           payload: currentKey,
           title: formatMessage({ id: 'stuapply.delete.confirm' }),
@@ -268,6 +275,16 @@ class List extends Component<ListProps, ListState> {
     else this.setState({ currentKey: key });
   };
 
+  filterDataSource = (item: any) => {
+    const { filterValue } = this.state;
+    const {
+      stuapply: { actionKey },
+    } = this.props;
+    if (filterValue === filtersOptions[0].value || !filterValue) return true;
+    if (!Array.isArray(item[actionKey])) return false;
+    return item[actionKey].some((action: StandardTableAction) => action.type === filterValue);
+  };
+
   renderFirstLoading = () => {
     const { currentKey } = this.state;
     const {
@@ -284,7 +301,7 @@ class List extends Component<ListProps, ListState> {
             className={styles.collapse}
             onChange={this.onChangeOpenKey}
           >
-            {dataSource.map(this.renderCardItem)}
+            {dataSource.filter(this.filterDataSource).map(this.renderCardItem)}
           </Collapse>
         );
       return Edit.Empty;
@@ -327,6 +344,44 @@ class List extends Component<ListProps, ListState> {
     </Tabs>
   );
 
+  onFilterStatusChange = ({ target: { value } }: RadioChangeEvent) => {
+    this.status = value;
+    this.offset = 0;
+    this.fetchList();
+  };
+
+  onFilterActionChange = (values: (string | number | boolean)[]) => {
+    const { filterValue } = this.state;
+    const changedRes = values.find(item => item !== filterValue);
+    if (changedRes) this.setState({ filterValue: changedRes as string });
+  };
+
+  renderFilters = () => {
+    const { filterValue } = this.state;
+    return (
+      <Row gutter={24}>
+        <Col className={styles.filtersCol} lg={12} md={24}>
+          <span>状态：</span>
+          <Radio.Group buttonStyle="solid" defaultValue="" onChange={this.onFilterStatusChange}>
+            <Radio.Button value="">全部</Radio.Button>
+            <Radio.Button value="草稿">草稿</Radio.Button>
+            <Radio.Button value="待审核">待审核</Radio.Button>
+            <Radio.Button value="审核通过">审核通过</Radio.Button>
+            <Radio.Button value="审核不通过">审核不通过</Radio.Button>
+          </Radio.Group>
+        </Col>
+        <Col className={styles.filtersCol} lg={12} md={24}>
+          <span>只看：</span>
+          <Checkbox.Group
+            onChange={this.onFilterActionChange}
+            options={filtersOptions}
+            value={[filterValue]}
+          />
+        </Col>
+      </Row>
+    );
+  };
+
   render() {
     const { detailVisible } = this.state;
     const {
@@ -337,6 +392,7 @@ class List extends Component<ListProps, ListState> {
     return (
       <PageHeader headerExtra={this.headerExtra()}>
         <div className={commonStyles.contentBody}>
+          {this.renderFilters()}
           <InfiniteScroll
             className={styles.scrollContainer}
             initialLoad={false}
