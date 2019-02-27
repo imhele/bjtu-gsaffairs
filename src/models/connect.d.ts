@@ -2,9 +2,10 @@ import { GlobalState } from './global';
 import { LoginState } from './login';
 import { ResultState } from './result';
 import { PositionState } from '@/models/position';
+import { AdminState } from '@/pages/Admin/models/admin';
 import { StuapplyState } from '@/pages/Stuapply/models/stuapply';
 
-export { GlobalState, LoginState, PositionState, ResultState, StuapplyState };
+export { AdminState, GlobalState, LoginState, PositionState, ResultState, StuapplyState };
 
 export type Dispatch = <T = any, U = (payload: T) => void>(action: {
   type: string;
@@ -16,6 +17,7 @@ export interface Loading {
   global: boolean;
   effects: object;
   models: {
+    admin?: boolean;
     globale?: boolean;
     login?: boolean;
     position?: boolean;
@@ -25,11 +27,12 @@ export interface Loading {
 }
 
 export interface ConnectState {
+  admin?: AdminState;
   global: GlobalState;
   login: LoginState;
   loading: Loading;
-  position?: PositionState;
-  result?: ResultState;
+  position: PositionState;
+  result: ResultState;
   stuapply?: StuapplyState;
 }
 

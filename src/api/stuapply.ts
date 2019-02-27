@@ -34,12 +34,12 @@ export interface EditStuapplyBody extends RequestBody {
   [key: string]: any;
 }
 
-export interface EditPositionPayload {
+export interface EditStuapplyPayload {
   body: EditStuapplyBody;
   query: FetchQuery;
 }
 
-export async function editStuapply({ body, query }: EditPositionPayload) {
+export async function editStuapply({ body, query }: EditStuapplyPayload) {
   return requests<EditStuapplyBody>(`${APIPrefix}/stuapply/${query.type}/edit/${query.key}`, {
     body,
     method: 'POST',

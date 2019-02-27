@@ -1,4 +1,6 @@
 export default {
+  'route.admin': '管理',
+  'route.admin-title': '用户管理',
   'route.position': '岗位',
   'route.position.manage': '助管',
   'route.position.manage.apply': '申请岗位',

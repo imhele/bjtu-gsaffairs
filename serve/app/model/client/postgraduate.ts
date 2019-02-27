@@ -1,19 +1,21 @@
 import { Application } from 'egg';
+import { isJson } from '../../errcode';
 import { setModelInstanceMethods } from '../../utils';
-import { DefineModelAttributes, DATE, STRING, TINYINT } from 'sequelize';
+import { DefineModelAttributes, DATE, STRING, TINYINT, TEXT } from 'sequelize';
 
-export interface Postgraduate {
+export interface Postgraduate<E extends boolean = false> {
   loginname: string;
   password: string;
   username: string;
   is_active: number;
   last_login: string;
+  audit_link: E extends false ? string | string[] : string;
 }
 
-export const attr: DefineModelAttributes<Postgraduate> = {
+export const attr: DefineModelAttributes<Postgraduate<true>> = {
   loginname: {
     allowNull: false,
-    comment: '工号',
+    comment: '学号',
     primaryKey: true,
     type: STRING(12),
     validate: { len: [0, 12], notEmpty: true },
@@ -41,6 +43,12 @@ export const attr: DefineModelAttributes<Postgraduate> = {
     comment: '最后登录时间',
     type: DATE,
     validate: { isDate: true },
+  },
+  audit_link: {
+    allowNull: true,
+    comment: '审核环节',
+    type: TEXT,
+    validate: { notEmpty: true, isJson },
   },
 };
 

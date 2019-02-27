@@ -17,10 +17,10 @@ export interface Staff<E extends boolean = false> {
   username: string;
   is_active: number;
   last_login: string;
-  audit_link: E extends false ? string[] : number;
+  audit_link: E extends false ? string | string[] : string;
 }
 
-export const attr: DefineModelAttributes<Staff> = {
+export const attr: DefineModelAttributes<Staff<true>> = {
   loginname: {
     allowNull: false,
     comment: '工号',

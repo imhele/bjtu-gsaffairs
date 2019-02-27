@@ -20,4 +20,8 @@ export default (app: Application) => {
   router.post('/api/stuapply/:type/delete/:id', controller.stuapply.delete);
   router.post('/api/stuapply/:type/audit/:id', controller.stuapply.audit);
   router.post('/api/stuapply/:type/edit/:id', controller.stuapply.edit);
+
+  router.post('/api/admin/client/:type/list', controller.admin.clientList);
+  router.post('/api/admin/client/:type/create', controller.admin.clientCreate);
+  router.post('/api/admin/client/:type/delete/:id', controller.admin.clientDelete);
 };

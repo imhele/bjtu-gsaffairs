@@ -145,7 +145,7 @@ export default class PositionController extends Controller {
     const { type, id } = ctx.params as { type: keyof typeof PositionType; id: string };
     if (!Object.keys(PositionType).includes(type) || id === void 0) return;
 
-    let columnsKey: string[] = detailColumns.withoutAuditLog;
+    let columnsKey: string[] = [...detailColumns.withoutAuditLog];
     const position = await service.position.findOne(parseInt(id, 10), type === 'teach');
     position.audit_log = service.position.formatAuditLog(position.audit_log);
 
@@ -164,10 +164,13 @@ export default class PositionController extends Controller {
     if (!availableActions.get(CellAction.Preview))
       throw new AuthorizeError('你暂时没有权限查看这个岗位的信息');
     if (availableActions.has(CellAction.Audit) || availableActions.has(CellAction.Edit)) {
-      columnsKey = detailColumns.withAuditLog;
+      columnsKey = [...detailColumns.withAuditLog];
       stepsProps.current = PositionAuditStatus[type].indexOf(position.audit!);
       stepsProps.status = PositionStatus[position.status!];
-      stepsProps.steps = PositionAuditStatus[type].map((title: string) => ({ title }));
+      stepsProps.steps = PositionAuditStatus[type]
+        .filter(i => i !== '教务处审核')
+        .map(i => ({ title: i === '研究生院审核' ? '教务处/研究生院审核' : i }));
+      if (type === 'teach' && stepsProps.current > 2) stepsProps.current = stepsProps.current - 1;
     }
     if (type === 'teach') columnsKey.push(...teachingTaskFields);
 
@@ -417,16 +420,19 @@ export default class PositionController extends Controller {
                 title: PositionAttr[key].comment,
               }),
             ),
-            teachingTaskFields.map(
-              (key: string): SimpleFormItemProps => ({
-                id: key,
-                decoratorOptions,
-                type: SimpleFormItemType.Extra,
-                extra: position[key],
-                title: TaskTeachingAttr[key.replace('teaching_', '')].comment,
-              }),
-            ),
           );
+          if (type === 'teach')
+            formItems.push(
+              ...teachingTaskFields.map(
+                (key: string): SimpleFormItemProps => ({
+                  id: key,
+                  decoratorOptions,
+                  type: SimpleFormItemType.Extra,
+                  extra: position[key],
+                  title: TaskTeachingAttr[key.replace('teaching_', '')].comment,
+                }),
+              ),
+            );
           // if (formItems.length % 2)
           //   formItems.push({
           //     id: 'HOLD-A-PLACE',

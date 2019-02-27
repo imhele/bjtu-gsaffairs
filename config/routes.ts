@@ -87,6 +87,13 @@ const route: Route<true>[] = [
         icon: 'bars',
         name: 'route.stuapply',
       },
+      {
+        path: '/admin',
+        component: './Admin/List',
+        icon: 'setting',
+        name: 'route.admin',
+        scope: ['scope.admin'],
+      },
       // result
       {
         path: '/result',
