@@ -48,8 +48,6 @@ $ cd bjtu-papms && sh ./deploy.sh
 
 ## Preview
 
-[Click here to preview](https://bjtu-papms.netlify.com)
-
 ### List
 ![List](https://user-images.githubusercontent.com/32428655/52544912-d1647980-2dee-11e9-9c05-ed88e6f110f9.png)
 
