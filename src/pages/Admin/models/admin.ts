@@ -3,7 +3,7 @@ import { message } from 'antd';
 import * as Utils from '@/utils/utils';
 import { SimpleFormItemProps } from '@/components/SimpleForm';
 import { DescriptionProps } from '@/components/DescriptionList';
-import { fetchClientList, createClient, deleteClient } from '@/api/admin';
+import { fetchClientList, createClient, deleteClient, editClient } from '@/api/admin';
 
 export interface AdminState {
   columns: (DescriptionProps & { dataIndex: string })[];
@@ -45,8 +45,16 @@ const model: AdminModel = {
       Utils.safeFun(callback, null, payload);
     },
     *createClient({ callback, payload }, { call }) {
-      payload.body = Utils.formatMomentInFieldsValue(payload.body, Utils.formatMoment.YMDHms);
+      // payload.body = Utils.formatMomentInFieldsValue(payload.body, Utils.formatMoment.YMDHms);
       const response = yield call(createClient, payload);
+      if (response && !response.errcode) {
+        message.success(response.errmsg);
+        Utils.safeFun(callback, null, payload);
+      }
+    },
+    *editClient({ callback, payload }, { call }) {
+      // payload.body = Utils.formatMomentInFieldsValue(payload.body, Utils.formatMoment.YMDHms);
+      const response = yield call(editClient, payload);
       if (response && !response.errcode) {
         message.success(response.errmsg);
         Utils.safeFun(callback, null, payload);

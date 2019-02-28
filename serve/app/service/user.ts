@@ -98,13 +98,13 @@ export default class UserService extends Service {
     }
     if (user === null) throw new DataNotFound('用户不存在');
     let scope = UserScope[type];
-    let auditLink = parseJSON(user.audit_link);
+    let auditLink: string[] = parseJSON(user.audit_link);
     const auditableDep = await this.isIntershipAdmin(loginname);
-    if (auditLink === 'admin') {
+    if (!Array.isArray(auditLink)) auditLink = [];
+    if (auditLink.includes('admin')) {
       scope = ['scope.admin'];
       auditLink = [];
     } else {
-      if (!Array.isArray(auditLink)) auditLink = [];
       if (auditableDep.length || auditLink.length) {
         /* Scope of audit */
         scope.push(

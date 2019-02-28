@@ -147,7 +147,7 @@ export const uniqueNum = (count: number) => {
 };
 
 export const parseJSON = (v: any) => {
-  if (typeof v !== 'string') return v;
+  if (typeof v !== 'string' || !v) return v;
   try {
     return JSON.parse(v);
   } catch {

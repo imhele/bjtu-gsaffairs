@@ -48,3 +48,19 @@ export async function createClient({ body, query }: CreateClientPayload) {
     method: 'POST',
   });
 }
+
+export interface EditClientBody extends RequestBody {
+  [key: string]: any;
+}
+
+export interface EditClientPayload {
+  body: EditClientBody;
+  query: FetchClientQuery;
+}
+
+export async function editClient({ body, query }: EditClientPayload) {
+  return requests<EditClientBody>(`${APIPrefix}/admin/client/${query.type}/edit/${query.key}`, {
+    body,
+    method: 'POST',
+  });
+}

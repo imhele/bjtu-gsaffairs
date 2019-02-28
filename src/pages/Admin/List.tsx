@@ -3,21 +3,19 @@ import styles from './List.less';
 import { GlobalId } from '@/global';
 import React, { Component } from 'react';
 import commonStyles from '../common.less';
-import { ButtonProps } from 'antd/es/button';
 import PageHeader from '@/layouts/PageHeader';
 import { getUseMedia } from 'react-media-hook2';
-import SimpleForm from '@/components/SimpleForm';
 import { RadioChangeEvent } from 'antd/es/radio';
 import { message, Modal, Radio, Tabs } from 'antd';
 import MemorableModal from '@/components/MemorableModal';
 import { CellAction, TopbarAction } from '@/pages/Position/consts';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { ConnectProps, ConnectState, AdminState } from '@/models/connect';
+import SimpleForm, { SimpleFormItemProps } from '@/components/SimpleForm';
 import { FetchClientListPayload, CreateClientPayload, DeleteClientPayload } from '@/api/admin';
 import StandardTable, {
   PaginationConfig,
   StandardTableAction,
-  StandardTableMethods,
   StandardTableOperationAreaProps,
 } from '@/components/StandardTable';
 
@@ -26,6 +24,7 @@ export interface ListProps extends ConnectProps {
   loading?: {
     createClient?: boolean;
     deleteClient?: boolean;
+    editClient?: boolean;
     fetchClientList?: boolean;
     model?: boolean;
   };
@@ -39,9 +38,10 @@ const enum ListSize {
 }
 
 interface ListState {
-  createVisible: boolean;
-  currentRow: object;
-  currentRowKey: string | number;
+  currentRowKey: string;
+  formModalVisible: boolean;
+  formType: CellAction.Edit | TopbarAction.Create;
+  initailValue: { [key: string]: any };
   size: ListSize;
 }
 
@@ -50,6 +50,7 @@ interface ListState {
     loading: {
       createClient: loading.effects['admin/createClient'],
       deleteClient: loading.effects['admin/deleteClient'],
+      editClient: loading.effects['admin/editClient'],
       fetchClientList: loading.effects['admin/fetchClientList'],
       model: loading.models.admin,
     },
@@ -58,9 +59,10 @@ interface ListState {
 )
 class List extends Component<ListProps, ListState> {
   state: ListState = {
-    createVisible: false,
-    currentRow: null,
     currentRowKey: null,
+    formModalVisible: false,
+    formType: TopbarAction.Create,
+    initailValue: {},
     size: ListSize.Default,
   };
 
@@ -72,7 +74,6 @@ class List extends Component<ListProps, ListState> {
   private deletingRows: Set<number | string> = new Set();
   private limit: number = 10;
   private offset: number = 0;
-  private tableMethods: Partial<StandardTableMethods> = {};
   private type: 'staff' | 'postgraduate' = 'staff';
 
   constructor(props: ListProps) {
@@ -178,7 +179,7 @@ class List extends Component<ListProps, ListState> {
     );
   };
 
-  onClickAction = (currentRowKey: string | number, actionType: CellAction) => {
+  onClickAction = (currentRowKey: string, actionType: CellAction, record: object) => {
     switch (actionType) {
       case CellAction.Delete:
         MemorableModal.confirm({
@@ -189,6 +190,14 @@ class List extends Component<ListProps, ListState> {
           title: '你确定要删除这个账户吗',
         });
         break;
+      case CellAction.Edit:
+        this.setState({
+          currentRowKey,
+          formModalVisible: true,
+          formType: CellAction.Edit,
+          initailValue: record,
+        });
+        break;
       default:
         message.warn(formatMessage({ id: 'position.error.unknown.action' }));
     }
@@ -197,7 +206,11 @@ class List extends Component<ListProps, ListState> {
   onClickOperation = (_: any, operationType: string) => {
     switch (operationType) {
       case TopbarAction.Create:
-        this.setState({ createVisible: true });
+        this.setState({
+          currentRowKey: null,
+          formModalVisible: true,
+          formType: TopbarAction.Create,
+        });
         break;
       default:
         message.warn(formatMessage({ id: 'position.error.unknown.action' }));
@@ -208,25 +221,6 @@ class List extends Component<ListProps, ListState> {
     onClick: this.onClickOperation,
     operation: { text: '创建', icon: 'plus', type: TopbarAction.Create },
   });
-
-  renderDetailFooterProps = (
-    action: StandardTableAction,
-    currentRowKey: string | number,
-  ): ButtonProps => {
-    const { loading } = this.props;
-    const isDeleting = this.deletingRows.has(currentRowKey);
-    switch (action.type) {
-      case CellAction.Delete:
-        return {
-          disabled: loading.fetchClientList || isDeleting,
-          loading: loading.deleteClient && isDeleting,
-        };
-      default:
-        return {
-          disabled: loading.fetchClientList || isDeleting,
-        };
-    }
-  };
 
   renderActionProps = (
     action: StandardTableAction,
@@ -250,7 +244,12 @@ class List extends Component<ListProps, ListState> {
     this.fetchList();
   };
 
-  onCloseCreateModal = () => this.setState({ createVisible: false });
+  onCloseCreateModal = () =>
+    this.setState({
+      currentRowKey: null,
+      formModalVisible: false,
+      initailValue: {},
+    });
 
   headerExtra = (): React.ReactNode => (
     <Tabs className={styles.tabs} onChange={this.onPageHeaderTabChange}>
@@ -259,23 +258,35 @@ class List extends Component<ListProps, ListState> {
     </Tabs>
   );
 
-  createCallback = () => {
+  submitCallback = () => {
     this.fetchList();
     this.onCloseCreateModal();
-  }
+  };
 
-  onCreateClient = (body: { [key: string]: any }) => {
+  onSubmitClient = (body: { [key: string]: any }) => {
     const { type } = this;
     const { dispatch } = this.props;
+    const { currentRowKey, formType } = this.state;
+    const actionType = formType === TopbarAction.Create ? 'admin/createClient' : 'admin/editClient';
     dispatch<CreateClientPayload>({
-      type: 'admin/createClient',
-      payload: { query: { type }, body },
-      callback: this.createCallback,
+      type: actionType,
+      payload: { query: { type, key: currentRowKey }, body },
+      callback: this.submitCallback,
     });
   };
 
+  getFormItemProps = (item: SimpleFormItemProps): SimpleFormItemProps => {
+    const { formType } = this.state;
+    const {
+      admin: { rowKey },
+    } = this.props;
+    if (item.id === rowKey && formType === CellAction.Edit)
+      return { ...item, itemProps: { disabled: true } };
+    return item;
+  };
+
   render() {
-    const { size, createVisible } = this.state;
+    const { size, formModalVisible, formType, initailValue } = this.state;
     const {
       loading,
       admin: { columns, dataSource, rowKey, form },
@@ -298,10 +309,11 @@ class List extends Component<ListProps, ListState> {
         </div>
         <Modal
           className={styles.modal}
+          destroyOnClose
           footer={null}
           onCancel={this.onCloseCreateModal}
-          title="创建账户"
-          visible={createVisible}
+          title={formType === TopbarAction.Create ? '创建账户' : '修改账户'}
+          visible={formModalVisible}
         >
           <SimpleForm
             formItemProps={{
@@ -311,10 +323,11 @@ class List extends Component<ListProps, ListState> {
                 sm: { span: 10 },
               },
             }}
-            formItems={form}
-            onSubmit={this.onCreateClient}
+            formItems={form.map(this.getFormItemProps)}
+            initialFieldsValue={initailValue}
+            onSubmit={this.onSubmitClient}
             resetText="重置"
-            submitLoading={loading.createClient}
+            submitLoading={loading.createClient || loading.editClient}
             submitText="提交"
           />
         </Modal>
