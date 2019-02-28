@@ -65,6 +65,7 @@ class SimpleForm extends BaseForm<SimpleFormProps> {
 
   renderFormItems = (): React.ReactNode[] => {
     const {
+      changeFormItems,
       colProps,
       formItems,
       formItemProps,
@@ -89,6 +90,7 @@ class SimpleForm extends BaseForm<SimpleFormProps> {
                 this.wrappedFormUtils,
                 formItemProps,
                 this.tempFieldsValue,
+                changeFormItems,
               )}
             </Col>
           ))}

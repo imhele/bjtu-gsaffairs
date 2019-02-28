@@ -229,7 +229,7 @@ class List extends Component<ListProps, ListState> {
           defaultValue: '审核通过',
           onChange: ({ target: { value } }: RadioChangeEvent) => (this.formValue.status = value),
         },
-        selectOptions: [{ value: '审核通过' }, { value: '审核不通过' }, { value: '退回' }],
+        selectOptions: [{ value: '审核通过' }, { value: '废除' }, { value: '退回' }],
       },
       {
         id: 'opinion_FORM',
@@ -415,7 +415,7 @@ class List extends Component<ListProps, ListState> {
             <Radio.Button value="草稿">草稿</Radio.Button>
             <Radio.Button value="待审核">待审核</Radio.Button>
             <Radio.Button value="审核通过">审核通过</Radio.Button>
-            <Radio.Button value="审核不通过">审核不通过</Radio.Button>
+            <Radio.Button value="废除">废除</Radio.Button>
           </Radio.Group>
         </Col>
         <Col className={styles.filtersCol} lg={12} md={24}>

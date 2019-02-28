@@ -1,67 +1,50 @@
 {
-  "tableQueryFields": {
-    "withStatus": [
-      "id",
-      "semester",
-      "name",
-      "need_num",
-      "campus",
-      "status",
-      "way",
-      "staff_jobnum",
-      "department_code",
-      "audit"
-    ],
-    "withoutStatus": [
-      "id",
-      "semester",
-      "name",
-      "need_num",
-      "campus",
-      "way",
-      "staff_jobnum",
-      "department_code",
-      "audit"
-    ]
-  },
+  "tableQueryFields": [
+    "id",
+    "semester",
+    "name",
+    "need_num",
+    "campus",
+    "way",
+    "staff_jobnum",
+    "department_code",
+    "audit",
+    "status"
+  ],
   "tableColumns": [
     {
-      "width": 200,
       "title": "学年学期",
       "dataIndex": "semester"
     },
     {
-      "width": 188,
       "title": "用工单位",
       "dataIndex": "department_name"
     },
     {
-      "width": 240,
       "title": "岗位名称",
       "dataIndex": "name"
     },
     {
-      "width": 64,
       "title": "岗位人数",
       "dataIndex": "need_num"
     },
     {
-      "width": 78,
       "title": "校区",
       "dataIndex": "campus"
     },
     {
-      "width": 95,
       "title": "审核状态",
       "dataIndex": "status"
     },
     {
-      "width": 64,
+      "title": "审核环节",
+      "dataIndex": "audit"
+    },
+    {
       "title": "聘用方式",
       "dataIndex": "way"
     },
     {
-      "width": 112,
       "title": "操作",
       "dataIndex": "action"
     }
@@ -179,7 +162,7 @@
       "title": "审核结果",
       "type": "ButtonRadio",
       "decoratorOptions": { "rules": [{ "required": true, "message": "必填项" }] },
-      "selectOptions": [{ "value": "审核通过" }, { "value": "审核不通过" }, { "value": "退回" }]
+      "selectOptions": [{ "value": "审核通过" }, { "value": "废除" }, { "value": "退回" }]
     },
     {
       "id": "opinion",

@@ -59,43 +59,29 @@
     line-height: calc(@headerHeight - @page-gap-4 * 2);
   }
   .rightContent {
-    width: 120px;
+    width: 160px;
     float: right;
-    height: 100%;
+    display: flex;
     text-align: right;
-    padding: 0 @page-gap-4;
+    overflow: visible;
+    align-items: center;
+    height: @headerHeight;
     box-sizing: border-box;
+    padding: 0 @page-gap-4 0 0;
+    justify-content: space-between;
     .spin {
       width: 32px;
       margin-right: 22px;
       margin-top: @page-gap-1;
     }
-    .avatarContainer {
-      top: -4px;
-      cursor: pointer;
-      position: relative;
+    .username {
+      width: 100px;
       display: inline-block;
-      vertical-align: middle;
       line-height: @headerHeight;
-      i {
-        color: #bfbfbf;
-        vertical-align: middle;
-      }
-      .avatar {
-        vertical-align: middle;
-        margin-right: @page-gap-2;
-        background: @primary-color;
-      }
-      .avatar:empty {
-        width: 32px;
-        height: 32px;
-        overflow: hidden;
-        border-radius: 16px;
-        display: inline-block;
-        background-size: 32px 32px;
-        background-repeat: no-repeat;
-        background-image: url('../assets/avatar/cb032b06ddc63a4dd4993e280e94be72.svg');
-      }
+      color: #fff;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
     }
   }
   &.collapsed {

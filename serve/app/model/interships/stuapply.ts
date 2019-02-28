@@ -25,7 +25,7 @@ export interface IntershipsStuapply<E extends boolean = false> {
 export const ApplyStatus = {
   待审核: 'process',
   审核通过: 'finish',
-  审核不通过: 'error',
+  废除: 'error',
   草稿: 'process',
 };
 

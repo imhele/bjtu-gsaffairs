@@ -108,13 +108,21 @@ class Filter extends BaseForm<FilterProps, FilterStates> {
   };
 
   renderFilters = (): React.ReactNode[] => {
-    const { colProps, filters, form, formItemProps, groupAmount, rowProps } = this.props;
+    const {
+      changeFormItems,
+      colProps,
+      filters,
+      form,
+      formItemProps,
+      groupAmount,
+      rowProps,
+    } = this.props;
     return groupByAmount<FilterItemProps>(filters, groupAmount)
       .map((value, index) => (
         <Row {...rowProps} key={index}>
           {value.map(item => (
             <Col {...colProps} {...item.colProps} key={item.id}>
-              {renderFormItem(item, form, formItemProps, this.tempFieldsValue)}
+              {renderFormItem(item, form, formItemProps, this.tempFieldsValue, changeFormItems)}
             </Col>
           ))}
         </Row>

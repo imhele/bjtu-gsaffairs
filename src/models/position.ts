@@ -19,6 +19,7 @@ import {
   fetchDetail,
   fetchForm,
   fetchList,
+  getTeachingTask,
 } from '@/api/position';
 
 export interface PositionDetailProps {
@@ -66,6 +67,7 @@ export interface PositionState {
    * Form
    */
   form: Form;
+  teachingTaskSelections: any[];
 }
 
 const defaultState: PositionState = {
@@ -102,9 +104,10 @@ const defaultState: PositionState = {
     initialFieldsValue: {},
     rowProps: {},
   },
+  teachingTaskSelections: [],
 };
 
-const SuccessActions = payload => [
+const SuccessActions = (payload: any) => [
   {
     text: formatMessage({ id: 'word.back-to-list' }),
     type: 'replace',
@@ -214,6 +217,11 @@ const model: PositionModel = {
           },
         });
       }
+    },
+    *getTeachingTask({ payload }, { call, put }) {
+      const teachingTaskSelections = yield call(getTeachingTask, payload);
+      if (Array.isArray(teachingTaskSelections))
+        yield put({ type: 'setState', payload: { teachingTaskSelections } });
     },
   },
   reducers: {

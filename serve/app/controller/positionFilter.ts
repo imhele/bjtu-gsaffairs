@@ -12,7 +12,7 @@ export const filtersMap: { [K in keyof Partial<typeof PositionAttr>]: FilterItem
     id: 'semester',
     title: '学年学期',
     type: SimpleFormItemType.Select,
-    selectOptions: ['2018-2019学年 第一学期', '2018-2019学年 第二学期'].map(value => ({ value })),
+    selectOptions: ['2018-2019学年 第二学期'].map(value => ({ value })),
   },
   department_code: {
     id: 'department_code',

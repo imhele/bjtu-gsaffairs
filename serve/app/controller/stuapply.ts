@@ -52,6 +52,7 @@ export default class UserController extends Controller {
      */
     const dataSource = dbRes.positions.map(item => {
       const availableActions = service.stuapply.authorizeWithoutPrefix(item, auth, type);
+      availableActions.delete(CellAction.Apply);
       const action: StandardTableActionProps = Array.from(availableActions.entries())
         .map(([actionItem, enable]) => ({ ...ActionText[actionItem], disabled: !enable }))
         .concat(ActionText[CellAction.Preview] as any);
@@ -97,11 +98,14 @@ export default class UserController extends Controller {
     /* position id */
     const { type, id } = params as { type: keyof typeof PositionType; id: string };
     if (!Object.keys(PositionType).includes(type) || id === void 0) return;
-    const position = await service.position.findOne(parseInt(id, 10));
+    const position = await service.position.findOne(parseInt(id, 10), type);
     const availableAction = service.position.getPositionAction(position, request.auth, type);
     if (!availableAction.get(CellAction.Apply)) throw new AuthorizeError('你暂时无法申请此岗位');
-    if (service.stuapply.hasApplied(parseInt(id, 10), request.auth.user.loginname))
-      throw new AuthorizeError('你已经申请过这个岗位了，去找找其他岗位吧');
+    const hasApplied: boolean = await service.stuapply.hasApplied(
+      parseInt(id, 10),
+      request.auth.user.loginname,
+    );
+    if (hasApplied) throw new AuthorizeError('你已经申请过这个岗位了，去找找其他岗位吧');
 
     const formItems = model.Interships.Stuapply.toForm(excludeFormFields as any, true);
     response.body = { formItems };
@@ -115,11 +119,14 @@ export default class UserController extends Controller {
     /* position id */
     const { type, id } = params as { type: keyof typeof PositionType; id: string };
     if (!Object.keys(PositionType).includes(type) || id === void 0) return;
-    const position = await service.position.findOne(parseInt(id, 10));
+    const position = await service.position.findOne(parseInt(id, 10), type);
     const availableAction = service.position.getPositionAction(position, request.auth, type);
     if (!availableAction.get(CellAction.Apply)) throw new AuthorizeError('你暂时无法申请此岗位');
-    if (service.stuapply.hasApplied(parseInt(id, 10), request.auth.user.loginname))
-      throw new AuthorizeError('你已经申请过这个岗位了，去找找其他岗位吧');
+    const hasApplied: boolean = await service.stuapply.hasApplied(
+      parseInt(id, 10),
+      request.auth.user.loginname,
+    );
+    if (hasApplied) throw new AuthorizeError('你已经申请过这个岗位了，去找找其他岗位吧');
 
     const values = model.Interships.Stuapply.formatBack({
       ...request.body,
@@ -217,8 +224,8 @@ export default class UserController extends Controller {
       case '审核通过':
         auditStatusIndex++;
         break;
-      case '审核不通过':
-        values.status = '审核不通过';
+      case '废除':
+        values.status = '废除';
         break;
       case '退回':
         auditStatusIndex = 0;

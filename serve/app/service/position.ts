@@ -1,11 +1,11 @@
 import moment from 'moment';
 import { Service } from 'egg';
 import { ScopeList } from './user';
-import { parseJSON } from '../utils';
 import { CellAction } from '../link';
 import { WhereOptions } from 'sequelize';
 import { DataNotFound } from '../errcode';
 import { AuthResult } from '../extend/request';
+import { getFromIntEnum, parseJSON } from '../utils';
 import { Staff as StaffModel } from '../model/client/staff';
 import { attr as StaffInfoAttr } from '../model/people/staff';
 import { attr as DepartmentAttr, Department as DepartmentModel } from '../model/dicts/department';
@@ -38,12 +38,19 @@ export default class PositionService extends Service {
    * Return information of a position with staff and department information
    * formatted as `staff_${key}` and `department_${key}`
    */
-  public async findOne(id: number, teach: boolean = false): Promise<PositionWithFK> {
+  public async findOne(
+    id: number,
+    type: keyof typeof PositionType,
+    includeTeachingTask: boolean = false,
+  ): Promise<PositionWithFK> {
     const { model } = this.ctx;
     if (id === void 0) throw new DataNotFound('岗位信息不存在');
     const include = [model.Dicts.Department, model.People.Staff];
-    if (teach) include.push(model.Task.Teaching as any);
-    const position: any = await model.Interships.Position.findByPk(id, { include });
+    if (includeTeachingTask) include.push(model.Task.Teaching as any);
+    const position: any = await model.Interships.Position.findByPk(id, {
+      include,
+      where: { types: getFromIntEnum(PositionAttr, 'types', null, PositionType[type]) },
+    });
     if (position === null) throw new DataNotFound('岗位信息不存在');
     return this.formatPosition(position) as PositionWithFK;
   }
@@ -147,8 +154,11 @@ export default class PositionService extends Service {
           position.audit === '用人单位审核' && position.status === '待审核',
         );
       }
-      if (auditLink.includes(position.audit)) {
-        action.set(CellAction.Audit, position.status === '待审核');
+      if (auditLink.length) {
+        action.set(
+          CellAction.Audit,
+          position.status === '待审核' && auditLink.includes(position.audit),
+        );
       }
     }
     return action;

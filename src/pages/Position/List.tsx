@@ -71,7 +71,7 @@ class List extends Component<ListProps, ListState> {
     currentRow: null,
     currentRowKey: null,
     detailVisible: false,
-    size: ListSize.Default,
+    size: ListSize.Middle,
   };
 
   private selectedRows: object = {};

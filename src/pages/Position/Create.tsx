@@ -1,21 +1,23 @@
 import { connect } from 'dva';
 import router from 'umi/router';
+import debounce from 'debounce';
 import classNames from 'classnames';
 import QueueAnim from 'rc-queue-anim';
 import React, { Component } from 'react';
 import commonStyles from '../common.less';
-import SimpleForm from '@/components/SimpleForm';
 import Exception404 from '@/pages/Exception/404';
 import { Button, Col, message, Skeleton } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { buttonColProps, PositionType, TopbarAction } from './consts';
-import { CreatePositionPayload, FetchFormPayload } from '@/api/position';
+import SimpleForm, { SimpleFormItemProps } from '@/components/SimpleForm';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
+import { CreatePositionPayload, FetchFormPayload, TeachingTaskPayload } from '@/api/position';
 
 export interface CreateProps extends ConnectProps<{ type: PositionType }> {
   loading?: {
     createPosition?: boolean;
     fetchForm?: boolean;
+    getTeachingTask?: boolean;
   };
   position?: PositionState;
 }
@@ -23,6 +25,14 @@ export interface CreateProps extends ConnectProps<{ type: PositionType }> {
 const backToList = () => router.push('list');
 
 class Create extends Component<CreateProps> {
+  onTeachingTaskSearch = debounce((search: string) => {
+    const { dispatch } = this.props;
+    dispatch<TeachingTaskPayload>({
+      type: 'position/getTeachingTask',
+      payload: { query: { search } },
+    });
+  }, 500);
+
   constructor(props: CreateProps) {
     super(props);
     const {
@@ -67,6 +77,19 @@ class Create extends Component<CreateProps> {
     );
   };
 
+  setTeachingTask = (item: SimpleFormItemProps): SimpleFormItemProps => {
+    const {
+      loading: { getTeachingTask: loading },
+      position: { teachingTaskSelections },
+    } = this.props;
+    if (item.id !== 'task_teaching_id') return item;
+    return {
+      ...item,
+      itemProps: { loading, onSearch: this.onTeachingTaskSearch },
+      selectOptions: teachingTaskSelections,
+    };
+  };
+
   onSubmit = (fieldsValue: object) => {
     const {
       dispatch,
@@ -103,6 +126,7 @@ class Create extends Component<CreateProps> {
       <QueueAnim type="left" className={className}>
         <Skeleton active key="Skeleton" loading={loading.fetchForm} paragraph={{ rows: 7 }}>
           <SimpleForm
+            changeFormItems={this.setTeachingTask}
             colProps={createForm.colProps}
             formItemProps={createForm.formItemProps}
             formItems={createForm.formItems}
@@ -124,6 +148,7 @@ export default connect(
     loading: {
       createPosition: loading.effects['position/createPosition'],
       fetchForm: loading.effects['position/fetchForm'],
+      getTeachingTask: loading.effects['position/getTeachingTask'],
     },
     position,
   }),

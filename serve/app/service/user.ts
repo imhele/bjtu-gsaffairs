@@ -101,7 +101,7 @@ export default class UserService extends Service {
     let auditLink: string[] = parseJSON(user.audit_link);
     const auditableDep = await this.isIntershipAdmin(loginname);
     if (!Array.isArray(auditLink)) auditLink = [];
-    if (auditLink.includes('admin')) {
+    if (auditLink.includes('admin') || auditLink.includes('研工部审核')) {
       scope = ['scope.admin'];
       auditLink = [];
     } else {

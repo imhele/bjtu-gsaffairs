@@ -1,5 +1,5 @@
 import { Controller } from 'egg';
-import { ScopeList } from '../service/user';
+import { ScopeList, UserType } from '../service/user';
 import { Op, WhereOptions } from 'sequelize';
 import { AuthResult } from '../extend/request';
 import { getFromIntEnum, parseJSON } from '../utils';
@@ -52,12 +52,13 @@ export default class PositionController extends Controller {
 
     let columns = [...tableColumns];
     let filtersKey = filtersKeyMap[type].withStatus;
-    // if (type !== 'teach') columns = columns.filter(({ dataIndex }) => dataIndex !== 'class_type');
+    if (auth.type === UserType.Postgraduate)
+      columns = columns.filter(({ dataIndex }) => !['audit', 'status'].includes(dataIndex));
 
     /**
      * Construct `filtersValue`
      */
-    let attributes = tableQueryFields.withStatus;
+    let attributes = tableQueryFields;
     const hasAuditScope = auth.scope.some(
       i => i === ScopeList.admin || i === ScopeList.position[type].audit,
     );
@@ -79,7 +80,7 @@ export default class PositionController extends Controller {
         });
       } else {
         /* 既没有审核权限，也没有创建权限 */
-        attributes = tableQueryFields.withoutStatus;
+        attributes = tableQueryFields;
         filtersKey = filtersKeyMap[type].withoutStatus;
         columns = columns.filter(i => i.dataIndex !== 'status');
         filters[0].status = ctx.model.Interships.Position.formatBack({ status: '已发布' }).status;
@@ -146,7 +147,7 @@ export default class PositionController extends Controller {
     if (!Object.keys(PositionType).includes(type) || id === void 0) return;
 
     let columnsKey: string[] = [...detailColumns.withoutAuditLog];
-    const position = await service.position.findOne(parseInt(id, 10), type === 'teach');
+    const position = await service.position.findOne(parseInt(id, 10), type, type === 'teach');
     position.audit_log = service.position.formatAuditLog(position.audit_log);
 
     /**
@@ -260,7 +261,7 @@ export default class PositionController extends Controller {
     /**
      * Authorize
      */
-    const position = await service.position.findOne(parseInt(id, 10));
+    const position = await service.position.findOne(parseInt(id, 10), type);
     const availableActions = service.position.getPositionAction(position, auth, type);
     if (!availableActions.get(CellAction.Delete))
       throw new AuthorizeError('你暂时没有权限删除这个岗位');
@@ -278,7 +279,7 @@ export default class PositionController extends Controller {
     /**
      * Authorize
      */
-    const position = await service.position.findOne(parseInt(id, 10));
+    const position = await service.position.findOne(parseInt(id, 10), type);
     const availableActions = service.position.getPositionAction(position, auth, type);
     if (!availableActions.get(CellAction.Edit))
       throw new AuthorizeError('你暂时没有权限编辑这个岗位');
@@ -308,7 +309,7 @@ export default class PositionController extends Controller {
     /**
      * Authorize
      */
-    const position = await service.position.findOne(parseInt(id, 10), type === 'teach');
+    const position = await service.position.findOne(parseInt(id, 10), type, type === 'teach');
     const availableActions = service.position.getPositionAction(position, auth, type);
     if (!availableActions.get(CellAction.Audit))
       throw new AuthorizeError('你暂时没有权限审核这个岗位');
@@ -324,8 +325,8 @@ export default class PositionController extends Controller {
         )
           auditStatusIndex++;
         break;
-      case '审核不通过':
-        values.status = '审核不通过';
+      case '废除':
+        values.status = '废除';
         break;
       case '退回':
         auditStatusIndex = 0;
@@ -392,7 +393,7 @@ export default class PositionController extends Controller {
       }
       formItems.unshift(...this.getUserStaticFormItems(auth));
     } else {
-      const position = await service.position.findOne(parseInt(id, 10), type === 'teach');
+      const position = await service.position.findOne(parseInt(id, 10), type, type === 'teach');
       const availableActions = service.position.getPositionAction(position, auth, type);
       switch (action) {
         case CellAction.Edit:
@@ -447,16 +448,24 @@ export default class PositionController extends Controller {
       }
     }
 
-    if (type === 'teach' && (action === TopbarAction.Create || action === CellAction.Edit)) {
-      const tasks = await service.teaching.getTeachingTaskSelection();
-      formItems.splice(4, 0, tasks);
-    }
+    if (type === 'teach' && (action === TopbarAction.Create || action === CellAction.Edit))
+      formItems.splice(4, 0, service.teaching.getTeachingTaskFormItem());
 
     ctx.response.body = {
       ...formLayoutProps,
       formItems,
       initialFieldsValue,
     };
+  }
+
+  public async getTeachingTask() {
+    const { ctx, service } = this;
+    const { auth } = ctx.request;
+    const { search } = ctx.params as { search: string };
+    ctx.response.body = await service.teaching.getTeachingTaskSelection(
+      search,
+      auth.auditLink.length ? void 0 : auth.user.username,
+    );
   }
 
   /**

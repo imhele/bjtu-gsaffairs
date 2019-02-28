@@ -54,6 +54,7 @@ export const FormEventStore: {
 };
 
 export interface BaseFormProps<P> extends FormComponentProps {
+  changeFormItems?: (formItem: SimpleFormItemProps) => SimpleFormItemProps;
   className?: string;
   colProps?: ColProps;
   formItemProps?: FormItemProps;
@@ -130,8 +131,10 @@ export const renderFormItem = (
   form: WrappedFormUtils | null,
   formItemProps: FormItemProps,
   initialFieldsValue: object,
+  changeFormItems?: (formItem: SimpleFormItemProps) => SimpleFormItemProps,
 ): React.ReactNode => {
   if (typeof formItem !== 'object') return null;
+  if (changeFormItems) formItem = changeFormItems(formItem);
   let item: React.ReactNode;
   const { selectOptions = [] } = formItem;
   switch (formItem.type) {

@@ -15,7 +15,7 @@ export const PositionType = {
 export const PositionStatus = {
   待审核: 'process',
   审核通过: 'finish',
-  审核不通过: 'error',
+  废除: 'error',
   草稿: 'process',
   已发布: 'finish',
 };

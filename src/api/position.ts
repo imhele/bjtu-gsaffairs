@@ -134,3 +134,15 @@ export async function applyPosition({ body, query }: ApplyPositionPayload) {
     method: 'POST',
   });
 }
+
+export interface TeachingTaskQuery {
+  search: string;
+}
+
+export interface TeachingTaskPayload {
+  query: TeachingTaskQuery;
+}
+
+export async function getTeachingTask({ query }: TeachingTaskPayload) {
+  return requests(`${APIPrefix}/position/task/${query.search}`, { method: 'POST' });
+}

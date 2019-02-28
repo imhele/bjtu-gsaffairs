@@ -1,22 +1,24 @@
 import { connect } from 'dva';
 import router from 'umi/router';
+import debounce from 'debounce';
 import classNames from 'classnames';
 import QueueAnim from 'rc-queue-anim';
 import React, { Component } from 'react';
 import commonStyles from '../common.less';
-import SimpleForm from '@/components/SimpleForm';
 import Exception404 from '@/pages/Exception/404';
 import { formatStrOrNumQuery } from '@/utils/format';
 import { Button, Col, Empty, message, Skeleton } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { buttonColProps, CellAction, PositionType } from './consts';
-import { EditPositionPayload, FetchFormPayload } from '@/api/position';
+import SimpleForm, { SimpleFormItemProps } from '@/components/SimpleForm';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
+import { EditPositionPayload, FetchFormPayload, TeachingTaskPayload } from '@/api/position';
 
 export interface EditProps extends ConnectProps<{ type: PositionType }> {
   loading?: {
     editPosition?: boolean;
     fetchForm?: boolean;
+    getTeachingTask?: boolean;
   };
   position?: PositionState;
 }
@@ -31,6 +33,14 @@ class Edit extends Component<EditProps> {
       </Button>
     </Empty>
   );
+
+  onTeachingTaskSearch = debounce((search: string) => {
+    const { dispatch } = this.props;
+    dispatch<TeachingTaskPayload>({
+      type: 'position/getTeachingTask',
+      payload: { query: { search } },
+    });
+  }, 500);
 
   /**
    * key of current position
@@ -84,6 +94,19 @@ class Edit extends Component<EditProps> {
     );
   };
 
+  setTeachingTask = (item: SimpleFormItemProps): SimpleFormItemProps => {
+    const {
+      loading: { getTeachingTask: loading },
+      position: { teachingTaskSelections },
+    } = this.props;
+    if (item.id !== 'task_teaching_id') return item;
+    return {
+      ...item,
+      itemProps: { loading, onSearch: this.onTeachingTaskSearch },
+      selectOptions: teachingTaskSelections,
+    };
+  };
+
   onSubmit = (fieldsValue: object) => {
     const {
       dispatch,
@@ -120,6 +143,7 @@ class Edit extends Component<EditProps> {
       <QueueAnim type="left" className={className}>
         <Skeleton active key="Skeleton" loading={loading.fetchForm} paragraph={{ rows: 7 }}>
           <SimpleForm
+            changeFormItems={this.setTeachingTask}
             colProps={editForm.colProps}
             empty={Edit.Empty}
             formItemProps={editForm.formItemProps}
@@ -142,6 +166,7 @@ export default connect(
     loading: {
       editPosition: loading.effects['position/editPosition'],
       fetchForm: loading.effects['position/fetchForm'],
+      getTeachingTask: loading.effects['position/getTeachingTask'],
     },
     position,
   }),
