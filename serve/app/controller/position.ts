@@ -209,6 +209,13 @@ export default class PositionController extends Controller {
     )
       throw new AuthorizeError('你暂时没有权限创建岗位');
 
+    if (type === 'teach') {
+      const hasCreated = await service.teaching.hasCreatedPosition(
+        ctx.request.body.task_teaching_id,
+      );
+      if (hasCreated) throw new AuthorizeError('此课程已申请过岗位');
+    }
+
     const values = ctx.model.Interships.Position.formatBack({
       ...ctx.request.body,
       audit: PositionAuditStatus[type][1],
@@ -464,7 +471,7 @@ export default class PositionController extends Controller {
     const { search } = ctx.params as { search: string };
     ctx.response.body = await service.teaching.getTeachingTaskSelection(
       search,
-      auth.auditLink.length ? void 0 : auth.user.username,
+      auth.auditLink.length || auth.scope.includes(ScopeList.admin) ? void 0 : auth.user.loginname,
     );
   }
 
