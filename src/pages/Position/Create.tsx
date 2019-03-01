@@ -31,7 +31,7 @@ class Create extends Component<CreateProps> {
       type: 'position/getTeachingTask',
       payload: { query: { search } },
     });
-  }, 500);
+  }, 200);
 
   constructor(props: CreateProps) {
     super(props);
@@ -85,8 +85,8 @@ class Create extends Component<CreateProps> {
     if (item.id !== 'task_teaching_id') return item;
     return {
       ...item,
-      itemProps: { loading, onSearch: this.onTeachingTaskSearch },
       selectOptions: teachingTaskSelections,
+      itemProps: { ...item.itemProps, loading, onSearch: this.onTeachingTaskSearch },
     };
   };
 

@@ -124,4 +124,25 @@ export default class AdminController extends Controller {
     await model.update(updateFields, { where: { loginname: id } });
     ctx.response.body = { errmsg: '修改成功' };
   }
+
+  public async timeConfig() {
+    const { ctx } = this;
+    const { scope } = ctx.request.auth;
+    if (!scope.includes(ScopeList.admin)) throw new AuthorizeError();
+    const { action } = ctx.params;
+    switch (action) {
+      case CellAction.Preview:
+        const config: any = await ctx.model.Interships.Config.findOne();
+        ctx.response.body = config === null ? { errcode: 0 } : config.get();
+        break;
+      case CellAction.Edit:
+        const id = ctx.request.body.id;
+        delete ctx.request.body.id;
+        await ctx.model.Interships.Config.update(ctx.request.body, { where: { id } });
+        ctx.response.body = { errmsg: '修改成功' };
+        break;
+      default:
+        return;
+    }
+  }
 }

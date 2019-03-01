@@ -46,11 +46,13 @@ class Filter extends BaseForm<FilterProps, FilterStates> {
     onFieldsChange: () => {},
     onSubmit: () => {},
     onValuesChange: () => {},
+    resetDisabled: false,
     resetLoading: false,
     resetText: 'Reset',
     rowProps: {
       gutter: { md: 8, lg: 24, xl: 48 },
     },
+    submitDisabled: false,
     submitLoading: false,
     submitText: 'Query',
   };
@@ -85,15 +87,32 @@ class Filter extends BaseForm<FilterProps, FilterStates> {
     const { expandText, operationArea, resetText, submitText } = this.props;
     if (operationArea || operationArea === null) return operationArea;
     const { expanded } = this.state;
-    const { filters, groupAmount, resetLoading, submitLoading } = this.props;
+    const {
+      filters,
+      groupAmount,
+      resetDisabled,
+      resetLoading,
+      submitDisabled,
+      submitLoading,
+    } = this.props;
     const expandVisible: boolean = filters.length >= groupAmount;
     return (
       <Col>
         <div className={styles.operationArea}>
-          <Button htmlType="submit" loading={submitLoading} type="primary">
+          <Button
+            disabled={submitDisabled}
+            htmlType="submit"
+            loading={submitLoading}
+            type="primary"
+          >
             {submitText}
           </Button>
-          <Button loading={resetLoading} onClick={this.onReset} style={{ marginLeft: 8 }}>
+          <Button
+            disabled={resetDisabled}
+            loading={resetLoading}
+            onClick={this.onReset}
+            style={{ marginLeft: 8 }}
+          >
             {resetText}
           </Button>
           {expandVisible && (

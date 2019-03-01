@@ -89,10 +89,29 @@ const route: Route<true>[] = [
       },
       {
         path: '/admin',
-        component: './Admin/List',
         icon: 'setting',
         name: 'route.admin',
         scope: ['scope.admin'],
+        routes: [
+          {
+            path: '/admin',
+            redirect: '/admin/user',
+          },
+          {
+            path: '/admin/user',
+            component: './Admin/List',
+            icon: 'team',
+            name: 'route.admin.user',
+            scope: [],
+          },
+          {
+            path: '/admin/time',
+            component: './Admin/Time',
+            icon: 'clock-circle',
+            name: 'route.admin.time',
+            scope: [],
+          },
+        ],
       },
       // result
       {

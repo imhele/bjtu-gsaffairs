@@ -4,7 +4,6 @@ import { Op, WhereOptions } from 'sequelize';
 import { getFromIntEnum, parseJSON } from '../utils';
 import { ScopeList, UserType } from '../service/user';
 import { AuthorizeError, DataNotFound } from '../errcode';
-import { SchoolCensus as SchoolCensusModel } from '../model/school/census';
 import { attr as PositionAttr, PositionType } from '../model/interships/position';
 import { excludeFormFields, applyReturn, positionDetailFields } from './stuapply.json';
 import {

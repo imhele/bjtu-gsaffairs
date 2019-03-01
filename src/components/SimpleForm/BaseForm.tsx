@@ -3,7 +3,7 @@ import { TooltipProps } from 'antd/es/tooltip';
 import { RowProps, ColProps } from 'antd/es/grid';
 import { FormComponentProps, FormItemProps } from 'antd/es/form';
 import { GetFieldDecoratorOptions, WrappedFormUtils } from 'antd/es/form/Form';
-import { Form, Input, InputNumber, Select, DatePicker, Radio, Tooltip } from 'antd';
+import { Form, Input, InputNumber, Select, DatePicker, Radio, Switch, Tooltip } from 'antd';
 
 export const enum SimpleFormItemType {
   ButtonRadio = 'ButtonRadio',
@@ -15,6 +15,7 @@ export const enum SimpleFormItemType {
   Radio = 'Radio',
   RangePicker = 'RangePicker',
   Select = 'Select',
+  Switch = 'Switch',
   TextArea = 'TextArea',
   WeekPicker = 'WeekPicker',
 }
@@ -64,10 +65,12 @@ export interface BaseFormProps<P> extends FormComponentProps {
   onReset?: (form: WrappedFormUtils) => void;
   onSubmit?: (fieldsValue: any, form: WrappedFormUtils) => void;
   onValuesChange?: OnValuesChange<P>;
+  resetDisabled?: boolean;
   resetLoading?: boolean;
   resetText?: React.ReactNode;
   rowProps?: RowProps;
   style?: React.CSSProperties;
+  submitDisabled?: boolean;
   submitLoading?: boolean;
   submitText?: React.ReactNode;
 }
@@ -185,6 +188,10 @@ export const renderFormItem = (
       break;
     case SimpleFormItemType.DatePicker:
       item = <DatePicker style={{ width: '100%' }} {...formItem.itemProps} />;
+      break;
+    case SimpleFormItemType.Switch:
+      formItem.decoratorOptions = { valuePropName: 'checked', ...formItem.decoratorOptions };
+      item = <Switch {...formItem.itemProps} />;
       break;
     case SimpleFormItemType.MonthPicker:
       item = <DatePicker.MonthPicker style={{ width: '100%' }} {...formItem.itemProps} />;

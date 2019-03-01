@@ -17,7 +17,7 @@ export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizCon
    * Middlewares and their configuration
    */
   // Enabled global middlewares
-  config.middleware = ['errcode', 'auth'];
+  config.middleware = ['errcode', 'auth', 'timerange'];
 
   config.errcode = {
     enable: true,
@@ -28,6 +28,11 @@ export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizCon
     loginAging: 7200,
     ignore: ['/api/login'],
   } as MiddlewareAuthConfig;
+
+  config.timerange = {
+    enable: true,
+    ignore: ['/api/position/:type/list', '/api/stuapply/:type/list'],
+  };
 
   // `bodyParser` will parse body to object automatically
   config.bodyParser = {

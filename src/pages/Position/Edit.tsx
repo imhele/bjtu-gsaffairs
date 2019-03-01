@@ -40,7 +40,7 @@ class Edit extends Component<EditProps> {
       type: 'position/getTeachingTask',
       payload: { query: { search } },
     });
-  }, 500);
+  }, 200);
 
   /**
    * key of current position
@@ -102,8 +102,8 @@ class Edit extends Component<EditProps> {
     if (item.id !== 'task_teaching_id') return item;
     return {
       ...item,
-      itemProps: { loading, onSearch: this.onTeachingTaskSearch },
       selectOptions: teachingTaskSelections,
+      itemProps: { ...item.itemProps, loading, onSearch: this.onTeachingTaskSearch },
     };
   };
 

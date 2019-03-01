@@ -219,7 +219,7 @@ class List extends Component<ListProps, ListState> {
 
   getOperationArea = (): StandardTableOperationAreaProps => ({
     onClick: this.onClickOperation,
-    operation: { text: '创建', icon: 'plus', type: TopbarAction.Create },
+    operation: { text: '创建', icon: 'user-add', type: TopbarAction.Create },
   });
 
   renderActionProps = (

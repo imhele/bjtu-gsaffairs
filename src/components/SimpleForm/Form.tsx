@@ -16,7 +16,13 @@ export interface SimpleFormProps extends BaseFormProps<SimpleFormProps> {
   layout?: FormLayout;
   renderOperationArea?:
     | null
-    | ((form: WrappedFormUtils, submitLoading: boolean, resetLoading: boolean) => React.ReactNode);
+    | ((
+        form: WrappedFormUtils,
+        submitLoading: boolean,
+        submitDisabled: boolean,
+        resetLoading: boolean,
+        resetDisabled: boolean,
+      ) => React.ReactNode);
 }
 
 class SimpleForm extends BaseForm<SimpleFormProps> {
@@ -26,8 +32,10 @@ class SimpleForm extends BaseForm<SimpleFormProps> {
     onFieldsChange: () => {},
     onSubmit: () => {},
     onValuesChange: () => {},
+    resetDisabled: false,
     resetLoading: false,
     resetText: 'Reset',
+    submitDisabled: false,
     submitLoading: false,
     submitText: 'Submit',
   };
@@ -37,13 +45,24 @@ class SimpleForm extends BaseForm<SimpleFormProps> {
   }
 
   renderOperationArea = (): React.ReactNode => {
-    const { renderOperationArea, resetLoading, resetText, submitLoading, submitText } = this.props;
-    if (renderOperationArea === null) {
-      return null;
-    }
-    if (renderOperationArea) {
-      return renderOperationArea(this.wrappedFormUtils, submitLoading, resetLoading);
-    }
+    const {
+      renderOperationArea,
+      resetDisabled,
+      resetLoading,
+      resetText,
+      submitDisabled,
+      submitLoading,
+      submitText,
+    } = this.props;
+    if (renderOperationArea === null) return null;
+    if (renderOperationArea)
+      return renderOperationArea(
+        this.wrappedFormUtils,
+        submitLoading,
+        submitDisabled,
+        resetLoading,
+        resetDisabled,
+      );
     return (
       <Col>
         <Form.Item
@@ -52,10 +71,20 @@ class SimpleForm extends BaseForm<SimpleFormProps> {
             sm: { span: 10, offset: 7 },
           }}
         >
-          <Button htmlType="submit" loading={submitLoading} type="primary">
+          <Button
+            disabled={submitDisabled}
+            htmlType="submit"
+            loading={submitLoading}
+            type="primary"
+          >
             {submitText}
           </Button>
-          <Button loading={resetLoading} onClick={this.onReset} style={{ marginLeft: 8 }}>
+          <Button
+            disabled={resetDisabled}
+            loading={resetLoading}
+            onClick={this.onReset}
+            style={{ marginLeft: 8 }}
+          >
             {resetText}
           </Button>
         </Form.Item>

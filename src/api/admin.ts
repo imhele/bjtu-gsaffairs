@@ -64,3 +64,21 @@ export async function editClient({ body, query }: EditClientPayload) {
     method: 'POST',
   });
 }
+
+export interface TimeConfig {
+  id?: number;
+  used: number;
+  position_start: number;
+  position_end: number;
+  apply_start: number;
+  apply_end: number;
+}
+
+export interface FetchTimePayload {
+  action: string;
+  body?: { [key: string]: any };
+}
+
+export async function timeConfig({ action, body }: FetchTimePayload) {
+  return requests(`${APIPrefix}/admin/time/${action}`, { body, method: 'POST' });
+}

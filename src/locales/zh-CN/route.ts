@@ -1,6 +1,9 @@
 export default {
   'route.admin': '管理',
-  'route.admin-title': '用户管理',
+  'route.admin.user': '用户管理',
+  'route.admin.user-title': '用户管理',
+  'route.admin.time': '开放时间',
+  'route.admin.time-title': '开放时间管理',
   'route.position': '岗位',
   'route.position.manage': '助管',
   'route.position.manage.apply': '申请岗位',
