@@ -59,16 +59,16 @@ export default class Authorized extends Component<AuthorizedProps> {
     getCurrentScope.set(props.id, this.getCurrentScope);
   }
 
-  shouldComponentUpdate = (nextProps: AuthorizedProps) => {
-    let { scope } = this.props;
-    let { scope: nextScope } = nextProps;
-    if (scope instanceof Set) scope = Array.from(scope);
-    if (!Array.isArray(scope)) scope = [];
-    if (nextScope instanceof Set) nextScope = Array.from(scope);
-    if (!Array.isArray(nextScope)) nextScope = [];
-    if (scope.length !== nextScope.length) return true;
-    return nextScope.some((item, index) => item !== scope[index]);
-  };
+  // shouldComponentUpdate = (nextProps: AuthorizedProps) => {
+  //   let { scope } = this.props;
+  //   let { scope: nextScope } = nextProps;
+  //   if (scope instanceof Set) scope = Array.from(scope);
+  //   if (!Array.isArray(scope)) scope = [];
+  //   if (nextScope instanceof Set) nextScope = Array.from(scope);
+  //   if (!Array.isArray(nextScope)) nextScope = [];
+  //   if (scope.length !== nextScope.length) return true;
+  //   return nextScope.some((item, index) => item !== scope[index]);
+  // };
 
   getCurrentScope = (): CurrentScope => this.props.currentScope;
 
