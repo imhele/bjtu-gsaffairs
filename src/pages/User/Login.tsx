@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'dva';
+import qs from 'querystring';
 import styles from './Login.less';
 import { LoginPayload } from '@/api/login';
 import { FormComponentProps } from 'antd/es/form';
@@ -47,22 +48,18 @@ const UnwrappedLoginForm: React.SFC<LoginFormProps> = ({
 
 export const LoginForm = Form.create()(UnwrappedLoginForm);
 
-export interface LoginProps extends ConnectProps<{ token?: string; redirect?: string }> {
+export interface LoginProps extends ConnectProps {
   loading?: boolean;
 }
 
-const Login: React.SFC<LoginProps> = ({
-  dispatch,
-  loading,
-  match: {
-    params: { token, redirect },
-  },
-}) => {
-  if (token) {
-    dispatch({
-      type: 'login/loginWithToken',
-      payload: { token, redirect },
-    });
+const Login: React.SFC<LoginProps> = ({ dispatch, loading, location: { search } }) => {
+  if (search) {
+    const { token, redirect } = qs.parse(search.slice(1));
+    if (token && redirect)
+      dispatch({
+        type: 'login/loginWithToken',
+        payload: { token, redirect },
+      });
   }
   return (
     <Card className={styles.card}>
