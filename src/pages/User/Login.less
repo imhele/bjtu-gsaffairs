@@ -1,13 +1,13 @@
 @import '../../default.less';
 
 .card {
-  height: 424.8px;
+  height: 482px;
   max-width: 380px;
+  min-height: 482px;
   background: #fff;
-  min-height: 424.8px;
   border-radius: @page-gap-1;
-  margin: calc(50vh - 56.4px - 212.4px) auto;
-  @media screen and (max-height: 112.8px + 424.8px + @page-gap-6) {
+  margin: calc(50vh - 56.4px - 241px) auto;
+  @media screen and (max-height: 112.8px + 482px + @page-gap-6) {
     margin: @page-gap-6 auto;
   }
   @media screen and (max-width: @screen-mobile) {
@@ -17,6 +17,9 @@
     border-radius: 0;
     height: calc(100vh - 112.8px);
     padding: calc(50vh - 56.4px - 212.4px) 0;
+  }
+  button:not(:last-child) {
+    margin-bottom: 16px;
   }
   .image {
     width: 80px;

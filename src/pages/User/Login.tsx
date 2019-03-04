@@ -1,6 +1,6 @@
 import React from 'react';
-import { connect } from 'dva';
 import qs from 'querystring';
+import { connect } from 'dva';
 import styles from './Login.less';
 import { LoginPayload } from '@/api/login';
 import { FormComponentProps } from 'antd/es/form';
@@ -42,6 +42,9 @@ const UnwrappedLoginForm: React.SFC<LoginFormProps> = ({
       <Button block htmlType="submit" loading={loading} size="large" type="primary">
         <FormattedMessage id="word.login" />
       </Button>
+      <Button block href="https://mis.bjtu.edu.cn" loading={loading} size="large">
+        <FormattedMessage id="login.mis" />
+      </Button>
     </Form>
   );
 };
@@ -55,7 +58,7 @@ export interface LoginProps extends ConnectProps {
 const Login: React.SFC<LoginProps> = ({ dispatch, loading, location: { search } }) => {
   if (search) {
     const { token, redirect } = qs.parse(search.slice(1));
-    if (token && redirect)
+    if (token)
       dispatch({
         type: 'login/loginWithToken',
         payload: { token, redirect },
