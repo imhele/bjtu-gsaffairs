@@ -10,7 +10,7 @@ export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizCon
   // Key of cookies
   config.keys = appInfo.name + '_1550500108095_1703';
 
-  config.secretKey = 'test';
+  // config.secretKey = 'test';
 
   // Nginx proxy
   config.proxy = true;
