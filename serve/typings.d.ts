@@ -6,3 +6,4 @@ declare type StandardTableActionProps = any;
 declare type SimpleFormItemProps = any;
 declare type FilterItemProps = any;
 declare type LoginPayload = any;
+declare module 'md5.js';

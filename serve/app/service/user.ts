@@ -1,3 +1,4 @@
+import MD5 from 'md5.js';
 import hash from 'hash.js';
 import moment from 'moment';
 import { Service } from 'egg';
@@ -78,6 +79,11 @@ export default class UserService extends Service {
     timestamp: number | string = moment().unix(),
   ): string {
     return this.signPassword(`${timestamp}${loginname}`, password);
+  }
+
+  public getMd5(loginname: string, timestamp: string) {
+    const { secretKey } = this.config;
+    return new MD5().update(`${loginname}${timestamp}${secretKey}`).digest('hex');
   }
 
   public getToken(

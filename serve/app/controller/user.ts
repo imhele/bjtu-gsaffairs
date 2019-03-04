@@ -7,31 +7,48 @@ export default class UserController extends Controller {
   public async login() {
     const {
       config: {
-        other: { loginRedirect: redirect },
+        other: { loginRedirect },
       },
-      ctx: { request, response },
+      ctx: { request, response, ...ctx },
       service,
     } = this;
-    const { account = '', method = '', psw = '', timestamp = 0 } = request.body as LoginPayload;
-    if (method !== 'psw' || !psw || !timestamp) {
-      return this.loginFail('登录参数缺失');
+    const { method = '' } = request.body;
+    if (method === 'psw') {
+      const { account = '', psw = '', timestamp = 0 } = request.body as LoginPayload;
+      if (!account || !psw || !timestamp) return this.loginFail('登录参数缺失');
+
+      // check timestamp
+      const timeDiff = moment().unix() - Math.floor(timestamp);
+      if (timeDiff > 60 || timeDiff < -60) return this.loginFail('密钥已失效，请重新登陆');
+
+      // find account and check signature
+      const { user, type } = await service.user.findOne(account);
+      if (user === null) return this.loginFail('账户不存在');
+      const resign = service.user.getSign(user.loginname, user.password, timestamp);
+      if (resign !== psw) return this.loginFail();
+
+      // return token
+      const token = service.user.getToken(user.loginname, user.password);
+      service.user.updateLastLogin(user.loginname, type);
+      response.body = { token, redirect: loginRedirect };
+    } else {
+      const { uid, md5, ts, redirect = loginRedirect } = request.body;
+      if (!uid || !md5 || !ts) return this.loginFail('登录参数缺失');
+
+      // check timestamp
+      const timeDiff = moment().unix() - Math.floor(parseInt(ts, 10));
+      if (timeDiff > 300 || timeDiff < -300) return this.loginFail('密钥已失效，请重新登陆');
+
+      // find account and check signature
+      const { user, type } = await service.user.findOne(uid);
+      if (user === null) return this.loginFail('账户不存在');
+      const resign = service.user.getMd5(user.loginname, ts);
+      if (resign !== md5) return this.loginFail();
+
+      const token = service.user.getToken(user.loginname, user.password);
+      service.user.updateLastLogin(user.loginname, type);
+      ctx.redirect(`http://gsaffairs.bjtu.edu.cn/user/login?token=${token}&redirect=${redirect}`);
     }
-    const timeDiff = moment().unix() - Math.floor(timestamp);
-    // 服务器有 5 秒左右时差
-    if (timeDiff > 30 || timeDiff < -5) {
-      return this.loginFail('密钥已失效，请重新登陆');
-    }
-    const { user, type } = await service.user.findOne(account);
-    if (user === null) {
-      return this.loginFail('账户不存在');
-    }
-    const resign = service.user.getSign(user.loginname, user.password, timestamp);
-    if (resign !== psw) {
-      return this.loginFail();
-    }
-    const token = service.user.getToken(user.loginname, user.password);
-    service.user.updateLastLogin(user.loginname, type);
-    response.body = { token, redirect };
   }
 
   public async scope() {

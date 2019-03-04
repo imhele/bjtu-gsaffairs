@@ -29,6 +29,18 @@ export interface LoginModel extends Model {
   state: LoginState;
 }
 
+const redirectTo = (path: string) => {
+  if (path.startsWith('https://') || path.startsWith('http://')) {
+    try {
+      const url = new URL(path);
+      if (url.origin === new URL(window.location.href).origin)
+        return router.replace(path.replace(url.origin, ''));
+      return (window.location.href = path);
+    } catch {}
+  }
+  return router.replace(path);
+};
+
 const model: LoginModel = {
   namespace: 'login',
   state: defaultState,
@@ -43,8 +55,15 @@ const model: LoginModel = {
           payload: { ...response, status: true },
         });
         const redirect = yield select((state: any) => state.login.redirect);
-        router.replace(redirect);
+        redirectTo(redirect);
       }
+    },
+    *loginWithToken({ payload }, { put }) {
+      yield put({
+        type: 'setState',
+        payload: { ...payload, status: true },
+      });
+      redirectTo(payload.redirect || '/');
     },
     *logout(_, { put }) {
       setSign(null);

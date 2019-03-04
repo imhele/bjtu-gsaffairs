@@ -27,7 +27,10 @@ export default class TeachingService extends Service {
     });
     return tasks
       .map((item: any) => item.get().TaskTeaching.format())
-      .map(item => ({ value: item.id, title: `${item.kch} [${item.kxh}] ${item.kcm}` }));
+      .map(({ id, kch, kxh, kcm, student_type: s }) => ({
+        value: id,
+        title: `[${s.slice(0, 3)}] ${kch} [${kxh}] ${kcm}`,
+      }));
   }
 
   public async hasCreatedPosition(teachingTaskId: number) {

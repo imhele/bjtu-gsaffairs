@@ -10,6 +10,8 @@ export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizCon
   // Key of cookies
   config.keys = appInfo.name + '_1550500108095_1703';
 
+  config.secretKey = 'test';
+
   // Nginx proxy
   config.proxy = true;
 
@@ -50,6 +52,7 @@ export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizCon
     csrf: {
       enable: false,
     },
+    domainWhiteList: ['.bjtu.edu.cn'],
   };
 
   /**

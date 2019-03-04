@@ -31,12 +31,12 @@ const UnwrappedLoginForm: React.SFC<LoginFormProps> = ({
       <Form.Item>
         {form.getFieldDecorator('account', {
           rules: [{ required: true, message: <FormattedMessage id="login.account-required" /> }],
-        })(<Input prefix={<Icon type="user" />} size="large" />)}
+        })(<Input disabled={loading} prefix={<Icon type="user" />} size="large" />)}
       </Form.Item>
       <Form.Item>
         {form.getFieldDecorator('password', {
           rules: [{ required: true, message: <FormattedMessage id="login.password-required" /> }],
-        })(<Input.Password prefix={<Icon type="lock" />} size="large" />)}
+        })(<Input.Password disabled={loading} prefix={<Icon type="lock" />} size="large" />)}
       </Form.Item>
       <Button block htmlType="submit" loading={loading} size="large" type="primary">
         <FormattedMessage id="word.login" />
@@ -47,32 +47,46 @@ const UnwrappedLoginForm: React.SFC<LoginFormProps> = ({
 
 export const LoginForm = Form.create()(UnwrappedLoginForm);
 
-export interface LoginProps extends ConnectProps {
+export interface LoginProps extends ConnectProps<{ token?: string; redirect?: string }> {
   loading?: boolean;
 }
 
-const Login: React.SFC<LoginProps> = ({ dispatch, loading }) => (
-  <Card className={styles.card}>
-    <div className={styles.image} />
-    <div className={styles.title}>
-      <FormattedMessage id="app.name" />
-    </div>
-    <div className={styles.description}>
-      <FormattedMessage id="app.developer" />
-    </div>
-    <LoginForm
-      className={styles.form}
-      loading={loading}
-      onLogin={(account, psw) =>
-        dispatch<LoginPayload>({
-          type: 'login/login',
-          payload: { account, method: 'psw', psw },
-        })
-      }
-    />
-  </Card>
-);
+const Login: React.SFC<LoginProps> = ({
+  dispatch,
+  loading,
+  match: {
+    params: { token, redirect },
+  },
+}) => {
+  if (token) {
+    dispatch({
+      type: 'login/loginWithToken',
+      payload: { token, redirect },
+    });
+  }
+  return (
+    <Card className={styles.card}>
+      <div className={styles.image} />
+      <div className={styles.title}>
+        <FormattedMessage id="app.name" />
+      </div>
+      <div className={styles.description}>
+        <FormattedMessage id="app.developer" />
+      </div>
+      <LoginForm
+        className={styles.form}
+        loading={loading}
+        onLogin={(account, psw) =>
+          dispatch<LoginPayload>({
+            type: 'login/login',
+            payload: { account, method: 'psw', psw },
+          })
+        }
+      />
+    </Card>
+  );
+};
 
 export default connect(({ loading }: ConnectState) => ({
-  loading: loading.effects['login/login'],
+  loading: loading.effects['login/login'] || loading.effects['login/loginWithToken'],
 }))(Login);
