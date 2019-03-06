@@ -9,12 +9,12 @@ export default class UserController extends Controller {
       config: {
         other: { loginRedirect },
       },
-      ctx: { request, response, ...ctx },
+      ctx,
       service,
     } = this;
-    const { method = '' } = request.body;
+    const { method = '' } = ctx.request.body;
     if (method === 'psw') {
-      const { account = '', psw = '', timestamp = 0 } = request.body as LoginPayload;
+      const { account = '', psw = '', timestamp = 0 } = ctx.request.body as LoginPayload;
       if (!account || !psw || !timestamp) return this.loginFail('登录参数缺失');
 
       // check timestamp
@@ -30,9 +30,9 @@ export default class UserController extends Controller {
       // return token
       const token = service.user.getToken(user.loginname, user.password);
       service.user.updateLastLogin(user.loginname, type);
-      response.body = { token, redirect: loginRedirect };
+      ctx.response.body = { token, redirect: loginRedirect };
     } else {
-      const { uid, md5, ts, redirect = loginRedirect } = request.body;
+      const { uid, md5, ts, redirect = loginRedirect } = ctx.request.body;
       if (!uid || !md5 || !ts) return this.loginFail('登录参数缺失');
 
       // check timestamp
@@ -47,7 +47,7 @@ export default class UserController extends Controller {
 
       const token = service.user.getToken(user.loginname, user.password);
       service.user.updateLastLogin(user.loginname, type);
-      response.body = { errmsg: '登陆成功' };
+      ctx.response.body = { errmsg: '登陆成功' };
       ctx.status = 302;
       ctx.set(
         'Location',
