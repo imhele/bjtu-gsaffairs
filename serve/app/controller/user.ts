@@ -47,12 +47,7 @@ export default class UserController extends Controller {
 
       const token = service.user.getToken(user.loginname, user.password);
       service.user.updateLastLogin(user.loginname, type);
-      ctx.response.body = { errmsg: '登陆成功' };
-      ctx.status = 302;
-      ctx.set(
-        'Location',
-        `http://gsaffairs.bjtu.edu.cn/user/login?token=${token}&redirect=${redirect}`,
-      );
+      ctx.redirect(`http://gsaffairs.bjtu.edu.cn/user/login?token=${token}&redirect=${redirect}`);
     }
   }
 
