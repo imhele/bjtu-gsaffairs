@@ -168,6 +168,7 @@ class List extends Component<ListProps, ListState> {
         if (!editing && !auditing) this.setState({ auditing: true, activeTabKey: columnsKeys[0] });
         break;
       case CellAction.Save:
+        this.offset = parseInt(index, 10);
         dispatch<EditStuapplyBody>({
           type: editing ? 'stuapply/editStuapply' : 'stuapply/auditStuapply',
           payload: { body: this.formValue, query: { type, key: currentKey } },
@@ -243,7 +244,7 @@ class List extends Component<ListProps, ListState> {
           onChange: (values: string[]) => (this.formValue.opinion = values),
           style: { width: '100%' },
         },
-        selectOptions: [{ value: '信息填写不准确' }, { value: '岗位人数过多' }],
+        selectOptions: [{ value: '信息填写不准确' }, { value: '不符合岗位条件' }],
       },
     ].map(item => ({
       children: renderFormItem(item, null, void 0, {}),

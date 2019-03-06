@@ -217,11 +217,11 @@ export default class UserController extends Controller {
     const availableActions = service.stuapply.authorize(apply, request.auth, type);
     if (!availableActions.get(CellAction.Audit))
       throw new AuthorizeError('你暂时没有权限审核这条申请记录');
-    let values = { status: request.body.status } as StuapplyModel;
+    let values = { status: '待审核' } as StuapplyModel;
     let auditStatusIndex: number = ApplyAuditStatus.indexOf(apply.audit);
     switch (request.body.status) {
       case '审核通过':
-        auditStatusIndex++;
+        if (++auditStatusIndex === ApplyAuditStatus.length - 1) values.status = '审核通过';
         break;
       case '废除':
         values.status = '废除';
