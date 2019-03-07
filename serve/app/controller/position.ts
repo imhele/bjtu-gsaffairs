@@ -59,9 +59,8 @@ export default class PositionController extends Controller {
      * Construct `filtersValue`
      */
     let attributes = tableQueryFields;
-    const hasAuditScope = auth.scope.some(
-      i => i === ScopeList.admin || i === ScopeList.position[type].audit,
-    );
+    const isAdmin = auth.scope.some(i => i === ScopeList.admin);
+    const hasAuditScope = isAdmin || auth.scope.some(i => i === ScopeList.position[type].audit);
     const filters: WhereOptions<PositionModel>[] = [{ ...body.filtersValue }];
     filters[0].types = positionType;
     Object.keys(filters[0]).forEach(key => {
@@ -85,7 +84,7 @@ export default class PositionController extends Controller {
         columns = columns.filter(i => i.dataIndex !== 'status');
         filters[0].status = ctx.model.Interships.Position.formatBack({ status: '已发布' }).status;
       }
-    } else if (!auth.auditLink.length) {
+    } else if (!auth.auditLink.length && !isAdmin) {
       /* 部门管理员只能看到自己单位的岗位 */
       filters.push({
         [Op.or]: [
