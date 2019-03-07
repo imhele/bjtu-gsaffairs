@@ -295,6 +295,7 @@ export default class PositionController extends Controller {
       throw new AuthorizeError('你暂时没有权限编辑这个岗位');
 
     delete ctx.request.body.id;
+    delete ctx.request.body.name;
     delete ctx.request.body.types;
     delete ctx.request.body.staff_jobnum;
     const values = ctx.model.Interships.Position.formatBack({
