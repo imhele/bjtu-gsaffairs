@@ -214,6 +214,8 @@ class List extends Component<ListProps, ListState> {
       onChange: this.onChangePage,
       onShowSizeChange: this.onShowSizeChange,
       pageSize: this.limit,
+      showQuickJumper: true,
+      showTotal: () => formatMessage({ id: 'word.total' }, { total }),
       showSizeChanger: true,
       simple: isMobile,
       total,

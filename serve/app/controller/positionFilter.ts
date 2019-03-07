@@ -8,12 +8,6 @@ const NewPositionAttr = PositionAttr as {
 };
 
 export const filtersMap: { [K in keyof Partial<typeof PositionAttr>]: FilterItemProps } = {
-  semester: {
-    id: 'semester',
-    title: '学年学期',
-    type: SimpleFormItemType.Select,
-    selectOptions: ['2018-2019学年 第二学期'].map(value => ({ value })),
-  },
   department_code: {
     id: 'department_code',
     title: '用工单位',
@@ -25,10 +19,10 @@ export const filtersMap: { [K in keyof Partial<typeof PositionAttr>]: FilterItem
     title: '岗位名称',
     type: SimpleFormItemType.Input,
   },
-  campus: {
-    id: 'campus',
-    selectOptions: NewPositionAttr.campus.values!.map((title, index) => ({ value: index, title })),
-    title: '校区',
+  audit: {
+    id: 'audit',
+    selectOptions: NewPositionAttr.audit.values!.map((title, index) => ({ value: index, title })),
+    title: '审核环节',
     type: SimpleFormItemType.Select,
   },
   status: {
@@ -37,11 +31,23 @@ export const filtersMap: { [K in keyof Partial<typeof PositionAttr>]: FilterItem
     title: '岗位状态',
     type: SimpleFormItemType.Select,
   },
+  campus: {
+    id: 'campus',
+    selectOptions: NewPositionAttr.campus.values!.map((title, index) => ({ value: index, title })),
+    title: '校区',
+    type: SimpleFormItemType.Select,
+  },
   way: {
     id: 'way',
     selectOptions: NewPositionAttr.way.values!.map((title, index) => ({ value: index, title })),
     title: '聘用方式',
     type: SimpleFormItemType.Select,
+  },
+  semester: {
+    id: 'semester',
+    title: '学年学期',
+    type: SimpleFormItemType.Select,
+    selectOptions: ['2018-2019学年 第二学期'].map(value => ({ value })),
   },
 };
 
@@ -51,12 +57,12 @@ export const filtersKeyMap: {
   }
 } = {
   manage: {
-    withStatus: ['semester', 'department_code', 'name', 'campus', 'status', 'way'],
-    withoutStatus: ['semester', 'department_code', 'name', 'campus', 'way'],
+    withStatus: ['department_code', 'audit', 'status', 'name', 'campus', 'way'],
+    withoutStatus: ['department_code', 'name', 'campus', 'way'],
   },
   teach: {
-    withStatus: ['semester', 'department_code', 'name', 'campus', 'status', 'way'],
-    withoutStatus: ['semester', 'department_code', 'name', 'campus', 'way'],
+    withStatus: ['department_code', 'audit', 'status', 'name', 'campus', 'way'],
+    withoutStatus: ['department_code', 'name', 'campus', 'way'],
   },
 };
 

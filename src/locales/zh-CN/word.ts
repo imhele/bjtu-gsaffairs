@@ -29,5 +29,6 @@ export default {
   'word.second': '秒',
   'word.skip-this-item': '跳过此项',
   'word.submit': '提交',
+  'word.total': '共 {total} 条数据',
   'word.unknown-page': '未知页',
 };

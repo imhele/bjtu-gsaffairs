@@ -85,6 +85,14 @@ export default class PositionController extends Controller {
         columns = columns.filter(i => i.dataIndex !== 'status');
         filters[0].status = ctx.model.Interships.Position.formatBack({ status: '已发布' }).status;
       }
+    } else if (!auth.auditLink.length) {
+      /* 部门管理员只能看到自己单位的岗位 */
+      filters.push({
+        [Op.or]: [
+          { department_code: { [Op.or]: auth.auditableDep } },
+          { staff_jobnum: auth.user.loginname },
+        ],
+      });
     }
 
     /**
