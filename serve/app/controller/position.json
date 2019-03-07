@@ -57,12 +57,12 @@
   },
   "detailColumns": {
     "withAuditLog": [
+      "staff_name",
+      "department_name",
       "semester",
       "name",
-      "need",
       "types",
       "need_num",
-      "content",
       "address",
       "work_time_d",
       "work_time_l",
@@ -72,17 +72,17 @@
       "end_t",
       "status",
       "audit",
-      "audit_log",
-      "staff_name",
-      "department_name"
+      "content",
+      "need",
+      "audit_log"
     ],
     "withoutAuditLog": [
+      "staff_name",
+      "department_name",
       "semester",
       "name",
-      "need",
       "types",
       "need_num",
-      "content",
       "address",
       "work_time_d",
       "work_time_l",
@@ -90,8 +90,8 @@
       "way",
       "start_t",
       "end_t",
-      "staff_name",
-      "department_name"
+      "content",
+      "need"
     ]
   },
   "createReturn": {
@@ -122,7 +122,6 @@
       "end_t"
     ],
     "teach": [
-      "name",
       "need_num",
       "need",
       "content",

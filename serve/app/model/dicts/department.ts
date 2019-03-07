@@ -63,7 +63,7 @@ export default (app: Application) => {
     /* 后端启动时，从数据库取出所有部门的名称，添加到 `filtersMap` 中 */
     const departments = await app.model.Dicts.Department.findAll({
       attributes: ['code', 'name', 'level'],
-      where: { level: 3 },
+      where: { level: 3, used: 1 },
     });
     filtersMap.department_code!.selectOptions = departments.map((item: any) => ({
       title: item.get('name'),

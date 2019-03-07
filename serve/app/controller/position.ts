@@ -214,6 +214,9 @@ export default class PositionController extends Controller {
         ctx.request.body.task_teaching_id,
       );
       if (hasCreated) throw new AuthorizeError('此课程已申请过岗位');
+      ctx.request.body.name = await service.teaching.getTeachingTaskName(
+        ctx.request.body.task_teaching_id,
+      );
     }
 
     const values = ctx.model.Interships.Position.formatBack({
@@ -469,6 +472,7 @@ export default class PositionController extends Controller {
     const { ctx, service } = this;
     const { auth } = ctx.request;
     const { search } = ctx.params as { search: string };
+    if (!search) return (ctx.response.body = []);
     ctx.response.body = await service.teaching.getTeachingTaskSelection(
       search,
       auth.auditLink.length || auth.scope.includes(ScopeList.admin) ? void 0 : auth.user.loginname,

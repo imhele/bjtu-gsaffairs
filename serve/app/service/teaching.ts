@@ -1,5 +1,6 @@
 import { Service } from 'egg';
 import { Op } from 'sequelize';
+import { DataNotFound } from '../errcode';
 import { getFromIntEnum } from '../utils';
 import { SimpleFormItemType } from '../link';
 import { attr as PositionAttr } from '../model/interships/position';
@@ -13,6 +14,18 @@ export default class TeachingService extends Service {
       title: '助教课程',
       type: SimpleFormItemType.Select,
     };
+  }
+
+  public async getTeachingTaskName(taskId: number) {
+    const { model } = this.ctx;
+    const task: any = await model.Task.Teaching.findByPk(taskId);
+    if (task === null) throw new DataNotFound('找不到课程，请重新选择');
+    const teacherId: any = await model.Task.Teacher.findOne({
+      where: { task_teaching_id: taskId },
+    });
+    if (teacherId === null) throw new DataNotFound('该课程没有任课教师');
+    const teacher: any = await model.People.Staff.findByPk(teacherId.get('jsh'));
+    return `${task.get('kcm')} - ${teacher.get('name')}`;
   }
 
   public async getTeachingTaskSelection(search: string, teacher?: string) {
