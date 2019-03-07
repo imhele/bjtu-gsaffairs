@@ -117,6 +117,9 @@ export default class UserService extends Service {
           ScopeList.position.teach.audit as ScopeValue,
           ScopeList.position.manage.audit as ScopeValue,
         );
+      } else {
+        const manageScope = scope.indexOf(ScopeList.position.manage.create as ScopeValue);
+        if (manageScope !== -1) scope.splice(manageScope, 1);
       }
     }
     return {
