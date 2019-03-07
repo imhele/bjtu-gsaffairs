@@ -103,7 +103,7 @@ export default class UserService extends Service {
       user = await model.Client.Staff.findByPrimary(loginname);
     }
     if (user === null) throw new DataNotFound('用户不存在');
-    let scope = UserScope[type];
+    let scope = [...UserScope[type]];
     let auditLink: string[] = parseJSON(user.audit_link);
     const auditableDep = await this.isIntershipAdmin(loginname);
     if (!Array.isArray(auditLink)) auditLink = [];
