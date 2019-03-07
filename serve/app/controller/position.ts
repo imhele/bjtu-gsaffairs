@@ -136,13 +136,11 @@ export default class PositionController extends Controller {
       dataSource,
       total,
       rowKey: 'id',
+      operationArea,
+      filters: getFilters(filtersKey),
       actionKey: ['action', 'name'],
       selectable: hasAuditScope && { columnWidth: 57 },
     };
-    if (!offset) result.operationArea = operationArea;
-    if (!body.filtersValue || !Object.keys(body.filtersValue).length) {
-      result.filters = getFilters(filtersKey);
-    }
 
     ctx.response.body = result;
   }
