@@ -29,6 +29,7 @@ export enum StorageId {
    * sessionStorage
    */
   PARowKes = 'Position/Audit-0',
+  PLFilter = 'Position/List-0',
   /**
    * localStorage
    */

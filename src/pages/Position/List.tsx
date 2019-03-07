@@ -104,6 +104,12 @@ class List extends Component<ListProps, ListState> {
   constructor(props: ListProps) {
     super(props);
     this.type = props.match.params.type;
+    try {
+      const savedValue = sessionStorage.getItem(StorageId.PLFilter);
+      if (savedValue) this.filtersValue = JSON.parse(savedValue);
+    } catch {
+      this.filtersValue = {};
+    }
     this.fetchList();
     if (props.isMobile) {
       this.state.size = ListSize.Small;
@@ -463,6 +469,7 @@ class List extends Component<ListProps, ListState> {
             filters={filters}
             onSubmit={this.onSubmitFilter}
             resetText={<FormattedMessage id="word.reset" />}
+            saveToSession={StorageId.PLFilter}
             submitLoading={loading.fetchList}
             submitText={<FormattedMessage id="word.query" />}
           />

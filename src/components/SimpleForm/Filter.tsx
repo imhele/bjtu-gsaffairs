@@ -24,6 +24,11 @@ export interface FilterProps extends BaseFormProps<FilterProps> {
   };
   filters?: FilterItemProps[];
   operationArea?: React.ReactNode | null;
+  /**
+   * save values of filters to SessionStorage onSubmit
+   * @param saveToSession: key of SessionStorage
+   */
+  saveToSession?: string;
 }
 
 interface FilterStates {
@@ -72,7 +77,28 @@ class Filter extends BaseForm<FilterProps, FilterStates> {
 
   constructor(props: FilterProps) {
     super(props);
+    const { saveToSession } = props;
+    if (saveToSession) {
+      try {
+        const savedValue = sessionStorage.getItem(saveToSession);
+        if (savedValue) this.tempFieldsValue = JSON.parse(savedValue);
+      } catch {
+        this.tempFieldsValue = props.initialFieldsValue;
+      }
+    }
   }
+
+  onSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const { form, onSubmit, saveToSession } = this.props;
+    form.validateFieldsAndScroll((err, fieldsValue) => {
+      if (err) return;
+      onSubmit(fieldsValue, this.wrappedFormUtils);
+      if (saveToSession) {
+        sessionStorage.setItem(saveToSession, JSON.stringify(fieldsValue));
+      }
+    });
+  };
 
   onChangeExpand = () => {
     const { expanded } = this.props;
