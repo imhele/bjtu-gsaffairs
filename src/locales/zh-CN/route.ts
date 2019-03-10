@@ -1,5 +1,7 @@
 export default {
   'route.admin': '管理',
+  'route.admin.depadmin': '单位管理员',
+  'route.admin.depadmin-title': '单位管理员',
   'route.admin.user': '用户管理',
   'route.admin.user-title': '用户管理',
   'route.admin.time': '开放时间',

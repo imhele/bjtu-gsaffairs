@@ -1,5 +1,5 @@
 import { connect } from 'dva';
-import styles from './List.less';
+import styles from './Client.less';
 import { GlobalId } from '@/global';
 import React, { Component } from 'react';
 import commonStyles from '../common.less';

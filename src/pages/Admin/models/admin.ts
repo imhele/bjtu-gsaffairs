@@ -6,8 +6,11 @@ import { SimpleFormItemProps } from '@/components/SimpleForm';
 import { DescriptionProps } from '@/components/DescriptionList';
 import {
   fetchClientList,
+  fetchDepAdminList,
   createClient,
+  createDepAdmin,
   deleteClient,
+  deleteDepAdmin,
   editClient,
   timeConfig,
   TimeConfig,
@@ -84,6 +87,29 @@ const model: AdminModel = {
       if (response && !response.errcode) {
         message.success(response.errmsg);
         Utils.safeFun(callback, null, { action: CellAction.Edit, body: payload });
+      }
+    },
+    *fetchDepAdminList({ callback, payload }, { call, put }) {
+      const response = yield call(fetchDepAdminList, payload);
+      yield put({
+        type: 'setState',
+        payload: response,
+      });
+      Utils.safeFun(callback, null, payload);
+    },
+    *deleteDepAdmin({ callback, payload }, { call }) {
+      const response = yield call(deleteDepAdmin, payload);
+      if (response && !response.errcode) {
+        message.success(response.errmsg);
+      }
+      Utils.safeFun(callback, null, payload);
+    },
+    *createDepAdmin({ callback, payload }, { call }) {
+      // payload.body = Utils.formatMomentInFieldsValue(payload.body, Utils.formatMoment.YMDHms);
+      const response = yield call(createDepAdmin, payload);
+      if (response && !response.errcode) {
+        message.success(response.errmsg);
+        Utils.safeFun(callback, null, payload);
       }
     },
   },

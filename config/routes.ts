@@ -99,9 +99,16 @@ const route: Route<true>[] = [
           },
           {
             path: '/admin/user',
-            component: './Admin/List',
+            component: './Admin/Client',
             icon: 'team',
             name: 'route.admin.user',
+            scope: [],
+          },
+          {
+            path: '/admin/depadmin',
+            component: './Admin/DepAdmin',
+            icon: 'idcard',
+            name: 'route.admin.depadmin',
             scope: [],
           },
           {

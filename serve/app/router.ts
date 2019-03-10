@@ -27,4 +27,7 @@ export default (app: Application) => {
   router.post('/api/admin/client/:type/delete/:id', controller.admin.clientDelete);
   router.post('/api/admin/client/:type/edit/:id', controller.admin.clientEdit);
   router.post('/api/admin/time/:action', controller.admin.timeConfig);
+  router.post('/api/admin/depadmin/list', controller.admin.depAdminList);
+  router.post('/api/admin/depadmin/create', controller.admin.depAdminCreate);
+  router.post('/api/admin/depadmin/delete/:id', controller.admin.depAdminDelete);
 };

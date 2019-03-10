@@ -11,6 +11,7 @@ export interface Department {
   level: number;
   used: number;
   szdwh: string;
+  affairs_used: number;
 }
 
 export const attr: DefineModelAttributes<Department> = {
@@ -50,6 +51,11 @@ export const attr: DefineModelAttributes<Department> = {
     allowNull: false,
     type: STRING(30),
   },
+  affairs_used: {
+    allowNull: false,
+    comment: '可申报岗位',
+    type: TINYINT(1),
+  },
 };
 
 export default (app: Application) => {
@@ -62,13 +68,12 @@ export default (app: Application) => {
   Model.associate = async () => {
     /* 后端启动时，从数据库取出所有部门的名称，添加到 `filtersMap` 中 */
     const departments = await app.model.Dicts.Department.findAll({
-      attributes: ['code', 'name', 'level'],
-      where: { level: 3, used: 1 },
+      attributes: ['code', 'name'],
+      where: { affairs_used: 1 },
     });
     filtersMap.department_code!.selectOptions = departments.map((item: any) => ({
       title: item.get('name'),
       value: item.get('code'),
-      level: item.get('level'),
     }));
   };
   return Model;

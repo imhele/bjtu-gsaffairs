@@ -385,11 +385,11 @@ export default class PositionController extends Controller {
       )
         throw new AuthorizeError('你暂时没有权限创建岗位');
       else if (!auth.scope.includes(ScopeList.admin)) {
-        if (auth.auditLink.length)
-          formItems[0].selectOptions = formItems[0].selectOptions!.filter(
-            (i: any) => i.level === 3,
-          );
-        else if (auth.auditableDep.length)
+        // if (auth.auditLink.length)
+        //   formItems[0].selectOptions = formItems[0].selectOptions!.filter(
+        //     (i: any) => i.level === 3,
+        //   ); else if
+        if (auth.auditableDep.length)
           formItems[0].selectOptions = formItems[0].selectOptions!.filter(i =>
             auth.auditableDep.includes(i.value as any),
           );

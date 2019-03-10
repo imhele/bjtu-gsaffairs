@@ -3,6 +3,7 @@ import { parseJSON } from '../utils';
 import { ScopeList } from '../service/user';
 import { AuthorizeError } from '../errcode';
 import { Op, WhereOptions } from 'sequelize';
+import { filtersMap } from './positionFilter';
 import { CellAction, SimpleFormItemType } from '../link';
 import { Staff as StaffModel } from '../model/client/staff';
 import { Postgraduate as PostgraduateModel } from '../model/client/postgraduate';
@@ -136,6 +137,72 @@ export default class AdminController extends Controller {
       Object.assign(updateFields, { audit_link: JSON.stringify(audit_link) });
     await model.update(updateFields, { where: { loginname: id } });
     ctx.response.body = { errmsg: '修改成功' };
+  }
+
+  public async depAdminList() {
+    const { ctx } = this;
+    const { scope } = ctx.request.auth;
+    const { offset = 0, limit = 10 } = ctx.request.body;
+    if (!scope.includes(ScopeList.admin)) throw new AuthorizeError();
+    const dbRes = await ctx.model.Interships.Admins.findAndCountAll({
+      include: [
+        { model: ctx.model.People.Staff, attributes: ['name'] },
+        { model: ctx.model.Dicts.Department, attributes: ['name'] },
+      ],
+      offset,
+      limit,
+    });
+    ctx.response.body = {
+      rowKey: 'id',
+      columns: [
+        { dataIndex: 'staff_jobnum', title: '工号' },
+        { dataIndex: 'staff_name', title: '姓名' },
+        { dataIndex: 'department_name', title: '负责部门' },
+        { dataIndex: 'action', title: '操作' },
+      ],
+      dataSource: dbRes.rows.map((item: any) => ({
+        ...item.get(),
+        staff_name: item.get().PeopleStaff.get('name'),
+        department_name: item.get().DictsDepartment.get('name'),
+        action: {
+          text: '删除',
+          type: CellAction.Delete,
+        },
+      })),
+      total: dbRes.count,
+      form: [
+        {
+          id: 'staff_jobnum',
+          title: '工号',
+          type: SimpleFormItemType.Input,
+          decoratorOptions: { rules: [{ required: true, message: '必填项' }] },
+        },
+        {
+          ...filtersMap.department_code,
+          title: '管理单位',
+          decoratorOptions: { rules: [{ required: true, message: '必填项' }] },
+        },
+      ],
+    };
+  }
+
+  public async depAdminCreate() {
+    const { ctx } = this;
+    const { scope } = ctx.request.auth;
+    const { staff_jobnum, department_code } = ctx.request.body;
+    if (!scope.includes(ScopeList.admin)) throw new AuthorizeError();
+    await ctx.model.Interships.Admins.create({ staff_jobnum, department_code });
+    ctx.response.body = { errmsg: '创建成功' };
+  }
+
+  public async depAdminDelete() {
+    const { ctx } = this;
+    const { id } = ctx.params;
+    const { scope } = ctx.request.auth;
+    if (!id) return;
+    if (!scope.includes(ScopeList.admin)) throw new AuthorizeError();
+    await ctx.model.Interships.Admins.destroy({ where: { id: parseInt(id, 10) } });
+    ctx.response.body = { errmsg: '删除成功' };
   }
 
   public async timeConfig() {
