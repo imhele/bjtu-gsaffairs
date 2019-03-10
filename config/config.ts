@@ -8,7 +8,7 @@ const config: IConfig = {
   treeShaking: true,
   ignoreMomentLocale: true,
   targets: {
-    ie: 11,
+    ie: 10,
     android: 4,
   },
   plugins: [
