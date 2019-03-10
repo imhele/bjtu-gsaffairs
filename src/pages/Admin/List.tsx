@@ -6,8 +6,8 @@ import commonStyles from '../common.less';
 import PageHeader from '@/layouts/PageHeader';
 import { getUseMedia } from 'react-media-hook2';
 import { RadioChangeEvent } from 'antd/es/radio';
-import { message, Modal, Radio, Tabs } from 'antd';
 import MemorableModal from '@/components/MemorableModal';
+import { Input, message, Modal, Radio, Tabs } from 'antd';
 import { CellAction, TopbarAction } from '@/pages/Position/consts';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { ConnectProps, ConnectState, AdminState } from '@/models/connect';
@@ -74,6 +74,7 @@ class List extends Component<ListProps, ListState> {
   private deletingRows: Set<number | string> = new Set();
   private limit: number = 10;
   private offset: number = 0;
+  private search: string = '';
   private type: 'staff' | 'postgraduate' = 'staff';
 
   constructor(props: ListProps) {
@@ -86,12 +87,12 @@ class List extends Component<ListProps, ListState> {
 
   fetchList = () => {
     const { dispatch } = this.props;
-    const { type, limit, offset } = this;
+    const { search, type, limit, offset } = this;
     dispatch<FetchClientListPayload>({
       type: 'admin/fetchClientList',
       payload: {
         body: { limit, offset },
-        query: { type },
+        query: { search, type },
       },
       callback: this.correctOffset,
     });
@@ -251,11 +252,28 @@ class List extends Component<ListProps, ListState> {
       initailValue: {},
     });
 
+  onSearch = (search: string) => {
+    this.search = search;
+    this.fetchList();
+  };
+
   headerExtra = (): React.ReactNode => (
-    <Tabs className={styles.tabs} onChange={this.onPageHeaderTabChange}>
-      <Tabs.TabPane key="staff" tab="教职工" />
-      <Tabs.TabPane key="postgraduate" tab="研究生" />
-    </Tabs>
+    <React.Fragment>
+      <div style={{ margin: '32px auto 16px', textAlign: 'center' }}>
+        <Input.Search
+          allowClear
+          defaultValue={this.search}
+          enterButton
+          onSearch={this.onSearch}
+          placeholder="输入工号、姓名、权限以查找用户"
+          style={{ maxWidth: 480 }}
+        />
+      </div>
+      <Tabs className={styles.tabs} onChange={this.onPageHeaderTabChange}>
+        <Tabs.TabPane key="staff" tab="教职工" />
+        <Tabs.TabPane key="postgraduate" tab="研究生" />
+      </Tabs>
+    </React.Fragment>
   );
 
   submitCallback = () => {

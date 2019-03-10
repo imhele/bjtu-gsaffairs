@@ -8,6 +8,7 @@ export interface FetchClientListBody extends RequestBody {
 
 export interface FetchClientQuery {
   type: 'staff' | 'postgraduate';
+  search?: string;
   key?: string;
 }
 
@@ -16,9 +17,9 @@ export interface FetchClientListPayload {
   query: FetchClientQuery;
 }
 
-export async function fetchClientList(payload: FetchClientListPayload) {
-  return requests<FetchClientListBody>(`${APIPrefix}/admin/client/${payload.query.type}/list`, {
-    body: payload.body,
+export async function fetchClientList({ query: { type, search }, body }: FetchClientListPayload) {
+  return requests<FetchClientListBody>(`${APIPrefix}/admin/client/${type}/list/${search || ''}`, {
+    body,
     method: 'POST',
   });
 }

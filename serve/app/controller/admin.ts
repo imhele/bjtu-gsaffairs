@@ -2,22 +2,35 @@ import { Controller } from 'egg';
 import { parseJSON } from '../utils';
 import { ScopeList } from '../service/user';
 import { AuthorizeError } from '../errcode';
+import { Op, WhereOptions } from 'sequelize';
 import { CellAction, SimpleFormItemType } from '../link';
+import { Staff as StaffModel } from '../model/client/staff';
+import { Postgraduate as PostgraduateModel } from '../model/client/postgraduate';
 
 export default class AdminController extends Controller {
   public async clientList() {
     const { ctx } = this;
-    const { type } = ctx.params;
     const { scope } = ctx.request.auth;
+    const { search, type } = ctx.params;
     const { offset = 0, limit = 10 } = ctx.request.body;
     if (!type) return;
     if (!scope.includes(ScopeList.admin)) throw new AuthorizeError();
     const loginnameText = type === 'staff' ? '工号' : '学号';
     const model = type === 'staff' ? ctx.model.Client.Staff : ctx.model.Client.Postgraduate;
+    const where: any = {};
+    if (search) {
+      const searchQuery = { [Op.like]: `%${search}%` };
+      where[Op.or] = {
+        loginname: searchQuery,
+        username: searchQuery,
+        audit_link: searchQuery,
+      } as WhereOptions<StaffModel & PostgraduateModel>;
+    }
     const dbRes = await model.findAndCountAll({
       attributes: ['loginname', 'password', 'username', 'audit_link'],
       offset,
       limit,
+      where,
     });
     ctx.response.body = {
       rowKey: 'loginname',
