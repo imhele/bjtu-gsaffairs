@@ -26,6 +26,7 @@ env
 # editor
 /server/.idea/dictionaries
 /server/.idea/workspace.xml
+/.idea
 
 # Sensitive information
 /server/application/settings/database.py
