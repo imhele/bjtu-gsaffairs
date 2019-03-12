@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import { DataNotFound } from '../errcode';
 import { getFromIntEnum } from '../utils';
 import { SimpleFormItemType } from '../link';
+import { AuthResult } from '../extend/request';
 import { attr as PositionAttr } from '../model/interships/position';
 
 export default class TeachingService extends Service {
@@ -16,16 +17,21 @@ export default class TeachingService extends Service {
     };
   }
 
-  public async getTeachingTaskName(taskId: number) {
+  public async getTeachingTaskInfo(taskId: number, auth: AuthResult) {
     const { model } = this.ctx;
-    const task: any = await model.Task.Teaching.findByPk(taskId);
-    if (task === null) throw new DataNotFound('找不到课程，请重新选择');
-    const teacherId: any = await model.Task.Teacher.findOne({
+    const tasks: any[] = await model.Task.Teacher.findAll({
       where: { task_teaching_id: taskId },
+      include: [model.Task.Teaching],
     });
-    if (teacherId === null) throw new DataNotFound('该课程没有任课教师');
-    const teacher: any = await model.People.Staff.findByPk(teacherId.get('jsh'));
-    return `${task.get('kcm')} - ${teacher.get('name')}`;
+    const task: any =
+      tasks.find(item => item.get('jsh') === auth.user.loginname) || tasks[0] || null;
+    if (task === null) throw new DataNotFound('找不到课程，请重新选择');
+    const teacher: any = await model.People.Staff.findByPk(task.get('jsh'));
+    return {
+      name: `${task.get().TaskTeaching.get('kcm')} - ${teacher.get('name')}`,
+      jsh: task.get('jsh'),
+      dep: task.get().TaskTeaching.get('department_code'),
+    };
   }
 
   public async getTeachingTaskSelection(search: string, teacher?: string) {

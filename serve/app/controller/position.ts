@@ -215,29 +215,17 @@ export default class PositionController extends Controller {
     )
       throw new AuthorizeError('你暂时没有权限创建岗位');
 
-    if (type === 'teach') {
-      const hasCreated = await service.teaching.hasCreatedPosition(
-        ctx.request.body.task_teaching_id,
-      );
-      if (hasCreated) throw new AuthorizeError('此课程已申请过岗位');
-      ctx.request.body.name = await service.teaching.getTeachingTaskName(
-        ctx.request.body.task_teaching_id,
-      );
-    }
-
     let staffJobnum: string = auth.user.loginname;
     let departmentCode: string | null = null;
     if (auth.auditableDep.length) departmentCode = ctx.request.body.department_code;
     if (type === 'teach') {
       const { task_teaching_id } = ctx.request.body;
-      const task: any = await ctx.model.Task.Teacher.findOne({
-        where: { task_teaching_id },
-        include: [ctx.model.Task.Teaching],
-      });
-      if (task !== null) {
-        staffJobnum = task.get('jsh');
-        departmentCode = task.get().TaskTeaching.get('department_code');
-      }
+      const hasCreated = await service.teaching.hasCreatedPosition(task_teaching_id);
+      if (hasCreated) throw new AuthorizeError('此课程已申请过岗位');
+      const taskInfo = await service.teaching.getTeachingTaskInfo(task_teaching_id, auth);
+      ctx.request.body.name = taskInfo.name;
+      staffJobnum = taskInfo.jsh;
+      departmentCode = taskInfo.dep;
     }
     if (!departmentCode) {
       const dep: any = await ctx.model.People.Staff.findByPk(auth.user.loginname, {
