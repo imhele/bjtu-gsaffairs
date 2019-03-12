@@ -1,8 +1,8 @@
-sudo git pull
-sudo yarn install
-sudo yarn build
+git pull
+yarn install
+yarn build
 cd ./serve
-sudo yarn stop
-sudo npm install --production
-sudo tsc -p tsconfig.json
-sudo yarn start
+yarn stop
+npm install --production
+tsc -p tsconfig.json
+yarn start
