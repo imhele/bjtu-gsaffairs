@@ -125,9 +125,9 @@
       "need_num",
       "need",
       "content",
+      "work_time_l",
       "address",
       "work_time_d",
-      "work_time_l",
       "cellphone",
       "campus",
       "way",
@@ -139,7 +139,8 @@
     "teaching_kch",
     "teaching_kcm",
     "teaching_kxh",
-    "teaching_jkzxs",
+    "teaching_zxs",
+    "teaching_krl",
     "teaching_student_type"
   ],
   "formLayoutProps": {

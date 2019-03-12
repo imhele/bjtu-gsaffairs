@@ -100,7 +100,7 @@ export default class UserService extends Service {
     let user: any = await model.Client.Postgraduate.findByPk(loginname);
     if (user === null) {
       type = UserType.Staff;
-      user = await model.Client.Staff.findByPrimary(loginname);
+      user = await model.Client.Staff.findByPk(loginname);
     }
     if (user === null) throw new DataNotFound('用户不存在');
     let scope = [...UserScope[type]];

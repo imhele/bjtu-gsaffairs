@@ -100,9 +100,13 @@ class Edit extends Component<EditProps> {
       position: { teachingTaskSelections },
     } = this.props;
     if (item.id !== 'task_teaching_id') return item;
+    const selectOptions =
+      teachingTaskSelections.length || !item.selectOptions
+        ? teachingTaskSelections
+        : item.selectOptions;
     return {
       ...item,
-      selectOptions: teachingTaskSelections,
+      selectOptions,
       itemProps: { ...item.itemProps, loading, onSearch: this.onTeachingTaskSearch },
     };
   };

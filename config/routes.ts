@@ -33,7 +33,7 @@ const route: Route<true>[] = [
         routes: [
           {
             path: '/position',
-            redirect: '/position/manage/list',
+            redirect: '/position/teach/list',
           },
           {
             path: '/position/:type',

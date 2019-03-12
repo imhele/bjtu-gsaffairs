@@ -60,7 +60,7 @@ export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizCon
    */
   const bizConfig = {
     other: {
-      loginRedirect: '/position/manage/list',
+      loginRedirect: '/position/teach/list',
     },
   };
 

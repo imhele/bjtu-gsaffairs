@@ -46,6 +46,24 @@ export default class TeachingService extends Service {
       }));
   }
 
+  public getTeachingTaskFormItemByPosition(position: { [key: string]: any }) {
+    return {
+      id: 'task_teaching_id',
+      decoratorOptions: { rules: [{ required: true, message: '必填项' }] },
+      itemProps: { placeholder: '输入课程号或课程名以查询课程' },
+      title: '助教课程',
+      type: SimpleFormItemType.Select,
+      selectOptions: [
+        {
+          value: position.teaching_id,
+          title: `[${position.teaching_student_type.slice(0, 3)}] ${position.teaching_kch} [${
+            position.teaching_kxh
+          }] ${position.teaching_kcm}`,
+        },
+      ],
+    };
+  }
+
   public async hasCreatedPosition(teachingTaskId: number) {
     const { model } = this.ctx;
     const position = await model.Interships.Position.findAll({
