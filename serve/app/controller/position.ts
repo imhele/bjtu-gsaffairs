@@ -398,7 +398,10 @@ export default class PositionController extends Controller {
         throw new AuthorizeError('你暂时没有权限创建岗位');
       formItems.unshift({ ...filtersMap.semester!, decoratorOptions });
       if (auth.scope.includes(ScopeList.admin)) {
-        formItems.unshift({ ...filtersMap.department_code!, decoratorOptions });
+        formItems.unshift({
+          ...filtersMap.department_code!,
+          decoratorOptions: type === 'teach' ? void 0 : decoratorOptions,
+        });
       } else if (type === 'manage') {
         if (auth.auditableDep.length) {
           formItems.unshift({
