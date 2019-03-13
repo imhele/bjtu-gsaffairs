@@ -10,7 +10,6 @@ export default class TeachingService extends Service {
   public getTeachingTaskFormItem() {
     return {
       id: 'task_teaching_id',
-      decoratorOptions: { rules: [{ required: true, message: '必填项' }] },
       itemProps: { placeholder: '输入课程号或课程名以查询课程' },
       title: '助教课程',
       type: SimpleFormItemType.Select,
@@ -55,7 +54,6 @@ export default class TeachingService extends Service {
   public getTeachingTaskFormItemByPosition(position: { [key: string]: any }) {
     return {
       id: 'task_teaching_id',
-      decoratorOptions: { rules: [{ required: true, message: '必填项' }] },
       itemProps: { placeholder: '输入课程号或课程名以查询课程' },
       title: '助教课程',
       type: SimpleFormItemType.Select,

@@ -222,10 +222,18 @@ export default class PositionController extends Controller {
       const { task_teaching_id } = ctx.request.body;
       const hasCreated = await service.teaching.hasCreatedPosition(task_teaching_id);
       if (hasCreated) throw new AuthorizeError('此课程已申请过岗位');
-      const taskInfo = await service.teaching.getTeachingTaskInfo(task_teaching_id, auth);
-      ctx.request.body.name = taskInfo.name;
-      staffJobnum = taskInfo.jsh;
-      departmentCode = taskInfo.dep;
+      if (
+        task_teaching_id ||
+        (!auth.auditableDep.length && !auth.scope.includes(ScopeList.admin))
+      ) {
+        const taskInfo = await service.teaching.getTeachingTaskInfo(task_teaching_id, auth);
+        ctx.request.body.name = taskInfo.name;
+        staffJobnum = taskInfo.jsh;
+        departmentCode = taskInfo.dep;
+      } else {
+        staffJobnum = ctx.request.body.staff_jobnum || staffJobnum;
+        departmentCode = ctx.request.body.department_code;
+      }
     }
     if (!departmentCode) {
       const dep: any = await ctx.model.People.Staff.findByPk(auth.user.loginname, {
@@ -304,9 +312,12 @@ export default class PositionController extends Controller {
       throw new AuthorizeError('你暂时没有权限编辑这个岗位');
 
     delete ctx.request.body.id;
-    delete ctx.request.body.name;
     delete ctx.request.body.types;
-    delete ctx.request.body.staff_jobnum;
+    if (type === 'teach')
+      if (!auth.scope.includes(ScopeList.admin) && !auth.auditableDep.length) {
+        delete ctx.request.body.name;
+        delete ctx.request.body.staff_jobnum;
+      }
     const values = ctx.model.Interships.Position.formatBack({
       ...ctx.request.body,
       audit: PositionAuditStatus[type][1],
@@ -390,6 +401,15 @@ export default class PositionController extends Controller {
           ...filtersMap.department_code!,
           decoratorOptions: type === 'teach' ? void 0 : decoratorOptions,
         });
+        if (type === 'teach')
+          formItems.unshift(
+            {
+              id: 'staff_jobnum',
+              type: SimpleFormItemType.Input,
+              title: '负责人工号',
+            },
+            ...ctx.model.Interships.Position.toForm(['name']),
+          );
       } else if (type === 'manage') {
         if (auth.auditableDep.length) {
           formItems.unshift({
@@ -412,8 +432,22 @@ export default class PositionController extends Controller {
             title: '用工单位',
           });
         }
+      } else if (auth.auditableDep.length) {
+        formItems.unshift(
+          {
+            id: 'staff_jobnum',
+            type: SimpleFormItemType.Input,
+            title: '负责人工号',
+          },
+          ...ctx.model.Interships.Position.toForm(['name']),
+        );
       }
-      if (type === 'teach') formItems.splice(4, 0, service.teaching.getTeachingTaskFormItem());
+
+      if (type === 'teach')
+        formItems.splice(4, 0, {
+          ...service.teaching.getTeachingTaskFormItem(),
+          decoratorOptions: auth.auditableDep.length ? void 0 : decoratorOptions,
+        });
     } else {
       const position = await service.position.findOne(parseInt(id, 10), type, type === 'teach');
       const availableActions = service.position.getPositionAction(position, auth, type);
@@ -422,8 +456,13 @@ export default class PositionController extends Controller {
           if (!availableActions.get(CellAction.Edit))
             throw new AuthorizeError('你暂时没有权限编辑这个岗位');
           initialFieldsValue = ctx.model.Interships.Position.formatBack(position);
-          formItems.unshift(...this.getUserStaticFormItems(position, auth, true));
-          formItems.splice(4, 0, service.teaching.getTeachingTaskFormItemByPosition(position));
+          if (auth.auditableDep.length || auth.scope.includes(ScopeList.admin))
+            formItems.unshift(...ctx.model.Interships.Position.toForm(['name']));
+          formItems.unshift(...this.getUserStaticFormItems(position, auth, true, type === 'teach'));
+          formItems.splice(4, 0, {
+            ...service.teaching.getTeachingTaskFormItemByPosition(position),
+            decoratorOptions: auth.auditableDep.length ? void 0 : decoratorOptions,
+          });
           break;
         case CellAction.Audit:
           if (!availableActions.get(CellAction.Audit))
@@ -488,6 +527,7 @@ export default class PositionController extends Controller {
     info: PositionModelWithFK,
     auth: AuthResult,
     editable: boolean = false,
+    isTeach: boolean = false,
   ): SimpleFormItemProps[] {
     const res: SimpleFormItemProps[] = [
       {
@@ -518,11 +558,25 @@ export default class PositionController extends Controller {
     if (editable) {
       const decoratorOptions = { rules: [{ required: true, message: '必填项' }] };
       if (auth.scope.includes(ScopeList.admin)) {
+        if (isTeach)
+          res[0] = {
+            id: 'staff_jobnum',
+            type: SimpleFormItemType.Input,
+            title: '负责人工号',
+            tip: '更改工号并提交后，负责人姓名会自动更新',
+          };
         res[2] = {
           ...filtersMap.department_code!,
           decoratorOptions,
         };
       } else if (auth.auditableDep.length) {
+        if (isTeach)
+          res[0] = {
+            id: 'staff_jobnum',
+            type: SimpleFormItemType.Input,
+            title: '负责人工号',
+            tip: '更改工号并提交后，负责人姓名会自动更新',
+          };
         res[2] = {
           ...filtersMap.department_code!,
           selectOptions: filtersMap.department_code.selectOptions!.filter((i: any) =>

@@ -110,11 +110,11 @@
     "manage": [
       "name",
       "need_num",
+      "work_time_l",
       "need",
       "content",
       "address",
       "work_time_d",
-      "work_time_l",
       "cellphone",
       "campus",
       "way",
@@ -123,9 +123,9 @@
     ],
     "teach": [
       "need_num",
+      "work_time_l",
       "need",
       "content",
-      "work_time_l",
       "address",
       "work_time_d",
       "cellphone",

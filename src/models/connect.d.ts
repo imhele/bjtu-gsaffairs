@@ -18,7 +18,7 @@ export interface Loading {
   effects: object;
   models: {
     admin?: boolean;
-    globale?: boolean;
+    global?: boolean;
     login?: boolean;
     position?: boolean;
     result?: boolean;
