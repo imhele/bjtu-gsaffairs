@@ -456,13 +456,15 @@ export default class PositionController extends Controller {
           if (!availableActions.get(CellAction.Edit))
             throw new AuthorizeError('你暂时没有权限编辑这个岗位');
           initialFieldsValue = ctx.model.Interships.Position.formatBack(position);
-          if (auth.auditableDep.length || auth.scope.includes(ScopeList.admin))
-            formItems.unshift(...ctx.model.Interships.Position.toForm(['name']));
+          if (type === 'teach')
+            if (auth.auditableDep.length || auth.scope.includes(ScopeList.admin))
+              formItems.unshift(...ctx.model.Interships.Position.toForm(['name']));
           formItems.unshift(...this.getUserStaticFormItems(position, auth, true, type === 'teach'));
-          formItems.splice(4, 0, {
-            ...service.teaching.getTeachingTaskFormItemByPosition(position),
-            decoratorOptions: auth.auditableDep.length ? void 0 : decoratorOptions,
-          });
+          if (type === 'teach')
+            formItems.splice(4, 0, {
+              ...service.teaching.getTeachingTaskFormItemByPosition(position),
+              decoratorOptions: auth.auditableDep.length ? void 0 : decoratorOptions,
+            });
           break;
         case CellAction.Audit:
           if (!availableActions.get(CellAction.Audit))
