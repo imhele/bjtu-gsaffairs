@@ -149,16 +149,14 @@ export default class PositionService extends Service {
       }
       /* 根据岗位审核进度设定审核权限可用状态 */
       if (auditableDep.includes(position.department_code!)) {
-        action.set(
-          CellAction.Audit,
-          position.audit === '用人单位审核' && position.status === '待审核',
-        );
+        const enabled = position.audit === '用人单位审核' && position.status === '待审核';
+        action.set(CellAction.Audit, enabled);
+        action.set(CellAction.Edit, enabled);
       }
       if (auditLink.length) {
-        action.set(
-          CellAction.Audit,
-          position.status === '待审核' && auditLink.includes(position.audit),
-        );
+        const enabled = position.status === '待审核' && auditLink.includes(position.audit);
+        action.set(CellAction.Audit, enabled);
+        action.set(CellAction.Edit, enabled);
       }
     }
     return action;

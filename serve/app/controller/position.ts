@@ -320,11 +320,12 @@ export default class PositionController extends Controller {
       }
     const values = ctx.model.Interships.Position.formatBack({
       ...ctx.request.body,
-      audit: PositionAuditStatus[type][1],
+      // 有审核权限的员工编辑岗位后将不会改变当前审核环节
+      audit: availableActions.get(CellAction.Audit) ? position.audit : PositionAuditStatus[type][1],
       status: '待审核',
       audit_log: JSON.stringify([
         ...parseJSON(position.audit_log),
-        service.position.getAuditLogItem(auth, PositionAuditStatus[type][0]),
+        service.position.getAuditLogItem(auth, '编辑岗位'),
       ]),
     });
     await service.position.updateOne(parseInt(id, 10), values);
