@@ -30,6 +30,7 @@ export enum StorageId {
    */
   PARowKes = 'Position/Audit-0',
   PLFilter = 'Position/List-0',
+  SLFilter = 'Stuapply/List-0',
   /**
    * localStorage
    */

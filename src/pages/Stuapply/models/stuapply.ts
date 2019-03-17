@@ -39,13 +39,15 @@ const model: StuapplyModel = {
   state: defaultState,
   effects: {
     *fetchList({ callback, payload }, { call, put, select }) {
+      let updatedDataSource: object[] = [];
       const response = yield call(fetchList, payload);
       const {
         body: { offset },
       } = payload as FetchListPayload;
-      if (response && 'dataSource' in response && offset) {
+      if (response && 'dataSource' in response) {
         const { dataSource } = response;
         if (Array.isArray(dataSource) && dataSource.length) {
+          updatedDataSource = dataSource;
           const prevSource: object[] = yield select(({ stuapply }) => stuapply.dataSource);
           response.dataSource = prevSource.slice(0, offset).concat(dataSource);
         } else delete response.dataSource;
@@ -54,7 +56,7 @@ const model: StuapplyModel = {
         type: 'setState',
         payload: response,
       });
-      Utils.safeFun(callback, null, payload);
+      Utils.safeFun(callback, null, payload, updatedDataSource);
     },
     *deleteStuapply({ callback, payload }, { call }) {
       const response = yield call(deleteStuapply, payload);

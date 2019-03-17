@@ -1,7 +1,7 @@
 import { connect } from 'dva';
 import styles from './List.less';
 import Edit from '../Position/Edit';
-import { GlobalId } from '@/global';
+import { GlobalId, StorageId } from '@/global';
 import Detail from '../Position/Detail';
 import React, { Component } from 'react';
 import commonStyles from '../common.less';
@@ -13,18 +13,39 @@ import InfiniteScroll from 'react-infinite-scroller';
 import MemorableModal from '@/components/MemorableModal';
 import DescriptionList from '@/components/DescriptionList';
 import { CellAction, PositionType } from '../Position/consts';
-import { Input, message, Radio, Row, Spin, Tabs } from 'antd';
 import { StandardTableAction } from '@/components/StandardTable';
-import { Button, Card, Checkbox, Col, Collapse, Icon } from 'antd';
+import { Filter, FilterItemProps } from '@/components/SimpleForm';
+import { Button, Card, Collapse, Icon, Input, message, Spin, Tabs } from 'antd';
 import { renderFormItem, SimpleFormItemType } from '@/components/SimpleForm/BaseForm';
 import { FetchListPayload, DeleteStuapplyPayload, EditStuapplyBody } from '@/api/stuapply';
 import { ConnectProps, ConnectState, PositionState, StuapplyState } from '@/models/connect';
 
-const filtersOptions = [
-  { label: '全部', value: 'all' },
-  { label: '可编辑', value: CellAction.Edit },
-  { label: '可审核', value: CellAction.Audit },
-  { label: '可删除', value: CellAction.Delete },
+const filters: FilterItemProps[] = [
+  {
+    id: 'status',
+    title: '状态',
+    type: SimpleFormItemType.Select,
+    itemProps: { allowClear: false },
+    selectOptions: [
+      { value: '', title: '全部' },
+      { value: '草稿' },
+      { value: '待审核' },
+      { value: '审核通过' },
+      { value: '废除' },
+    ],
+  },
+  {
+    id: 'actionFilter',
+    title: '只看',
+    type: SimpleFormItemType.Select,
+    itemProps: { allowClear: false },
+    selectOptions: [
+      { title: '全部', value: '' },
+      { title: '可编辑', value: CellAction.Edit },
+      { title: '可审核', value: CellAction.Audit },
+      { title: '可删除', value: CellAction.Delete },
+    ],
+  },
 ];
 
 export interface ListProps extends ConnectProps<{ type: PositionType }> {
@@ -41,22 +62,24 @@ export interface ListProps extends ConnectProps<{ type: PositionType }> {
 }
 
 interface ListState {
+  activeCardKeys: Set<string>;
+  actionFilter: string;
   activeTabKey: string;
   auditing: boolean;
   currentKey: string;
   detailVisible: boolean;
   editing: boolean;
-  filterValue: string;
 }
 
 class List extends Component<ListProps, ListState> {
   state: ListState = {
+    activeCardKeys: new Set(),
+    actionFilter: '',
     activeTabKey: null,
     auditing: false,
     currentKey: null,
     detailVisible: false,
     editing: false,
-    filterValue: 'all',
   };
 
   auditForm = [];
@@ -85,7 +108,7 @@ class List extends Component<ListProps, ListState> {
     if (!Object.values(PositionType).includes(type)) {
       return message.error(formatMessage({ id: 'position.error.unknown.type' }));
     }
-    dispatch<FetchListPayload>({
+    dispatch<FetchListPayload, (payload: FetchListPayload, dataSource: object[]) => void>({
       type: 'stuapply/fetchList',
       payload: {
         body: { limit, offset, status },
@@ -95,9 +118,12 @@ class List extends Component<ListProps, ListState> {
     });
   };
 
-  correctOffset = () => {
+  correctOffset = (_: FetchListPayload, dataSource: object[]) => {
     const { stuapply } = this.props;
+    const { activeCardKeys } = this.state;
     this.offset = stuapply.dataSource.length;
+    dataSource.forEach(item => activeCardKeys.add(`${item[stuapply.rowKey]}`));
+    this.setState({ activeCardKeys });
   };
 
   deleteStuapply = (key: string) => {
@@ -116,9 +142,13 @@ class List extends Component<ListProps, ListState> {
     this.fetchList();
   };
 
-  cancelEditAuditState = () => {
+  cancelEditAuditState = (extra?: Partial<ListState>) => {
     this.formValue = {};
-    this.setState({ auditing: false, editing: false });
+    this.setState({ auditing: false, editing: false, ...extra } as ListState);
+  };
+
+  cancelEditAuditStateAndRefresh = () => {
+    this.cancelEditAuditState();
     this.fetchList();
   };
 
@@ -172,12 +202,11 @@ class List extends Component<ListProps, ListState> {
         dispatch<EditStuapplyBody>({
           type: editing ? 'stuapply/editStuapply' : 'stuapply/auditStuapply',
           payload: { body: this.formValue, query: { type, key: currentKey } },
-          callback: this.cancelEditAuditState,
+          callback: this.cancelEditAuditStateAndRefresh,
         });
         break;
       case CellAction.Cancel:
-        this.formValue = {};
-        this.setState({ auditing: false, editing: false });
+        this.cancelEditAuditState();
         break;
       default:
         message.warn(formatMessage({ id: 'position.error.unknown.action' }));
@@ -315,27 +344,30 @@ class List extends Component<ListProps, ListState> {
     );
   };
 
-  onChangeOpenKey = (key: string) => {
+  onChangeOpenKey = (key: string | string[]) => {
     const { currentKey, editing, auditing } = this.state;
-    if ((editing || auditing) && key !== currentKey)
-      message.warn(formatMessage({ id: 'stuapply.trigger-other-action-while-editing' }));
-    else this.setState({ currentKey: key });
+    if (!Array.isArray(key)) key = [key];
+    if ((editing || auditing) && !key.includes(currentKey)) {
+      this.cancelEditAuditState({ activeCardKeys: new Set(key) });
+    } else {
+      this.setState({ activeCardKeys: new Set(key) });
+    }
   };
 
   filterDataSource = (item: any) => {
-    const { filterValue } = this.state;
+    const { actionFilter } = this.state;
     const {
       stuapply: { actionKey },
     } = this.props;
-    if (filterValue === filtersOptions[0].value || !filterValue) return true;
+    if (!actionFilter) return true;
     if (!Array.isArray(item[actionKey])) return false;
     return item[actionKey].some(
-      (action: StandardTableAction) => action.type === filterValue && !action.disabled,
+      (action: StandardTableAction) => action.type === actionFilter && !action.disabled,
     );
   };
 
   renderFirstLoading = () => {
-    const { currentKey } = this.state;
+    const { activeCardKeys } = this.state;
     const {
       loading: { fetchList },
       stuapply: { columnsKeys, dataSource },
@@ -344,8 +376,7 @@ class List extends Component<ListProps, ListState> {
       if (dataSource.length)
         return (
           <Collapse
-            accordion
-            activeKey={currentKey}
+            activeKey={[...activeCardKeys]}
             bordered={false}
             className={styles.collapse}
             onChange={this.onChangeOpenKey}
@@ -365,6 +396,7 @@ class List extends Component<ListProps, ListState> {
 
   renderLoadButton = () => {
     const {
+      loading,
       stuapply: { dataSource, total },
     } = this.props;
     return (
@@ -372,7 +404,7 @@ class List extends Component<ListProps, ListState> {
         {dataSource.length >= total ? (
           formatMessage({ id: 'tip.loaded-all' })
         ) : (
-          <Button onClick={this.fetchList} type="primary">
+          <Button loading={loading.fetchList} onClick={this.fetchList} type="primary">
             {formatMessage({ id: 'word.load-more' })}
           </Button>
         )}
@@ -393,41 +425,31 @@ class List extends Component<ListProps, ListState> {
     </Tabs>
   );
 
-  onFilterStatusChange = ({ target: { value } }: RadioChangeEvent) => {
-    this.status = value;
-    this.offset = 0;
-    this.fetchList();
-  };
-
-  onFilterActionChange = (values: (string | number | boolean)[]) => {
-    const { filterValue } = this.state;
-    const changedRes = values.find(item => item !== filterValue);
-    if (changedRes) this.setState({ filterValue: changedRes as string });
+  onFilterChange = (value: { status: string; actionFilter: string }) => {
+    const { actionFilter } = this.state;
+    if (value.actionFilter !== actionFilter) {
+      this.setState({ actionFilter: value.actionFilter });
+    }
+    if (value.status !== this.status) {
+      this.status = value.status;
+      this.offset = 0;
+      this.fetchList();
+    }
   };
 
   renderFilters = () => {
-    const { filterValue } = this.state;
+    const { actionFilter } = this.state;
+    const { loading } = this.props;
     return (
-      <Row gutter={24}>
-        <Col className={styles.filtersCol} lg={12} md={24}>
-          <span>状态：</span>
-          <Radio.Group buttonStyle="solid" defaultValue="" onChange={this.onFilterStatusChange}>
-            <Radio.Button value="">全部</Radio.Button>
-            <Radio.Button value="草稿">草稿</Radio.Button>
-            <Radio.Button value="待审核">待审核</Radio.Button>
-            <Radio.Button value="审核通过">审核通过</Radio.Button>
-            <Radio.Button value="废除">废除</Radio.Button>
-          </Radio.Group>
-        </Col>
-        <Col className={styles.filtersCol} lg={12} md={24}>
-          <span>只看：</span>
-          <Checkbox.Group
-            onChange={this.onFilterActionChange}
-            options={filtersOptions}
-            value={[filterValue]}
-          />
-        </Col>
-      </Row>
+      <Filter
+        filters={filters}
+        initialFieldsValue={{ actionFilter, status: this.status }}
+        onSubmit={this.onFilterChange}
+        resetText={formatMessage({ id: 'word.reset' })}
+        saveToSession={StorageId.SLFilter}
+        submitLoading={loading.fetchList}
+        submitText={formatMessage({ id: 'word.query' })}
+      />
     );
   };
 
