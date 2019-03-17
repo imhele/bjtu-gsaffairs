@@ -121,7 +121,7 @@ class Filter extends BaseForm<FilterProps, FilterStates> {
       submitDisabled,
       submitLoading,
     } = this.props;
-    const expandVisible: boolean = filters.length >= groupAmount;
+    const expandVisible: boolean = filters.length > groupAmount;
     return (
       <Col>
         <div className={styles.operationArea}>

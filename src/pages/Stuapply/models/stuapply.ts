@@ -46,7 +46,7 @@ const model: StuapplyModel = {
       } = payload as FetchListPayload;
       if (response && 'dataSource' in response) {
         const { dataSource } = response;
-        if (Array.isArray(dataSource) && dataSource.length) {
+        if (Array.isArray(dataSource)) {
           updatedDataSource = dataSource;
           const prevSource: object[] = yield select(({ stuapply }) => stuapply.dataSource);
           response.dataSource = prevSource.slice(0, offset).concat(dataSource);

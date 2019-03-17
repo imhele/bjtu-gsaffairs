@@ -33,7 +33,11 @@ export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizCon
 
   config.timerange = {
     enable: true,
-    ignore: ['/api/position/:type/list', '/api/stuapply/:type/list'],
+    ignore: [
+      '/api/position/:type/list',
+      '/api/stuapply/:type/list',
+      '/api/position/:type/detail/:id',
+    ],
   };
 
   // `bodyParser` will parse body to object automatically

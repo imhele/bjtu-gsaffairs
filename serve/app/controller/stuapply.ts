@@ -4,8 +4,13 @@ import { Op, WhereOptions } from 'sequelize';
 import { getFromIntEnum, parseJSON } from '../utils';
 import { ScopeList, UserType } from '../service/user';
 import { AuthorizeError, DataNotFound } from '../errcode';
-import { attr as PositionAttr, PositionType } from '../model/interships/position';
+import { SchoolCensus as CensusModel } from '../model/school/census';
 import { excludeFormFields, applyReturn, positionDetailFields } from './stuapply.json';
+import {
+  attr as PositionAttr,
+  PositionType,
+  Position as PositionModel,
+} from '../model/interships/position';
 import {
   ApplyAuditStatus,
   IntershipsStuapply as StuapplyModel,
@@ -28,21 +33,35 @@ export default class UserController extends Controller {
     const { type } = ctx.params as { type: keyof typeof PositionType };
     const positionType = getFromIntEnum(PositionAttr, 'types', null, PositionType[type]);
     if (positionType === -1) return;
-    const { limit = 10, offset = 0, status = '' } = body;
-    const applyFilters = [] as WhereOptions<StuapplyModel>[];
-    if (auth.type === UserType.Postgraduate)
-      applyFilters.push({ student_number: auth.user.loginname });
-    if (status && Object.keys(ApplyStatus).includes(status))
-      applyFilters.push(ctx.model.Interships.Stuapply.formatBack({ status }));
+    const { limit = 10, mode = '', offset = 0, status = '' } = body;
 
     /**
      * Qurey batabase
      */
-    const include = [
-      { model: ctx.model.School.Census },
+    const options = { limit, offset };
+    const applyFilters = [] as WhereOptions<StuapplyModel>[];
+    const include: any = [
+      { model: ctx.model.School.Census, where: {} },
       { model: ctx.model.Interships.Position, where: { types: positionType } },
     ];
-    const options = { limit, offset };
+
+    if (auth.type === UserType.Postgraduate)
+      applyFilters.push({ student_number: auth.user.loginname });
+    else if (!auth.scope.includes(ScopeList.admin)) {
+      if (mode === '导师模式') {
+        include[0].where[Op.or] = {
+          teacher_code: auth.user.loginname,
+          teacher2_code: auth.user.loginname,
+        } as WhereOptions<CensusModel>;
+      } else if (!auth.auditLink.length) {
+        include[1].where[Op.or] = {
+          staff_jobnum: auth.user.loginname,
+          department_code: { [Op.or]: auth.auditableDep },
+        } as WhereOptions<PositionModel>;
+      }
+    }
+    if (status && Object.keys(ApplyStatus).includes(status))
+      applyFilters.push(ctx.model.Interships.Stuapply.formatBack({ status }));
     if (applyFilters.length) Object.assign(options, { where: applyFilters });
     const dbRes = await service.stuapply.findAndCountAll<false>(options, include, false);
 

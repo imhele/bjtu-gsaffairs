@@ -1,13 +1,14 @@
 import { connect } from 'dva';
 import styles from './List.less';
 import Edit from '../Position/Edit';
-import { GlobalId, StorageId } from '@/global';
 import Detail from '../Position/Detail';
 import React, { Component } from 'react';
 import commonStyles from '../common.less';
 import PageHeader from '@/layouts/PageHeader';
+import { GlobalId, StorageId } from '@/global';
 import { RadioChangeEvent } from 'antd/es/radio';
 import { formatMessage } from 'umi-plugin-locale';
+import { CheckAuth } from '@/components/Authorized';
 import { FetchDetailPayload } from '@/api/position';
 import InfiniteScroll from 'react-infinite-scroller';
 import MemorableModal from '@/components/MemorableModal';
@@ -20,7 +21,14 @@ import { renderFormItem, SimpleFormItemType } from '@/components/SimpleForm/Base
 import { FetchListPayload, DeleteStuapplyPayload, EditStuapplyBody } from '@/api/stuapply';
 import { ConnectProps, ConnectState, PositionState, StuapplyState } from '@/models/connect';
 
-const filters: FilterItemProps[] = [
+const allFilters: FilterItemProps[] = [
+  {
+    id: 'mode',
+    title: '模式',
+    type: SimpleFormItemType.Select,
+    itemProps: { allowClear: false },
+    selectOptions: [{ value: '导师模式' }, { value: '普通模式' }],
+  },
   {
     id: 'status',
     title: '状态',
@@ -82,9 +90,8 @@ class List extends Component<ListProps, ListState> {
     editing: false,
   };
 
-  auditForm = [];
+  filters: FilterItemProps[] = allFilters;
 
-  private loadingKeys: Set<string> = new Set();
   /**
    * When user changes value of `limit` or `offset`,
    * `onShowSizeChange` and `onChangPage` will call `fetchList`
@@ -92,26 +99,62 @@ class List extends Component<ListProps, ListState> {
    */
   private limit: number = 40;
   private offset: number = 0;
-  private type: PositionType = null;
   private status: string = '';
+  private type: PositionType = null;
+  private loadingKeys: Set<string> = new Set();
+  private mode: string = '普通模式';
   private formValue: { [key: string]: string | string[] } = {};
 
   constructor(props: ListProps) {
     super(props);
     this.type = PositionType.Manage;
+    try {
+      const savedString = sessionStorage.getItem(StorageId.SLFilter);
+      if (savedString) {
+        const savedValue = JSON.parse(savedString);
+        if (savedValue.mode) this.mode = savedValue.mode;
+        if (savedValue.status) this.status = savedValue.status;
+        if (savedValue.actionFilter) this.state.actionFilter = savedValue.actionFilter;
+      }
+    } catch {}
     this.fetchList();
   }
 
+  componentDidUpdate = () => {
+    this.filterFilter();
+  };
+
+  componentDidMount = () => {
+    this.filterFilter();
+  };
+
+  filterFilter = () => {
+    // student and admin need not to use this filter
+    const auth = !CheckAuth(
+      [`scope.position.${this.type}.apply`, 'scope.admin'],
+      null,
+      GlobalId.BasicLayout,
+    );
+    if (auth) {
+      if (this.filters.length === allFilters.length) return;
+      this.filters = allFilters;
+    } else {
+      if (this.filters.length !== allFilters.length) return;
+      this.filters = allFilters.slice(1);
+    }
+    this.forceUpdate();
+  };
+
   fetchList = () => {
     const { dispatch } = this.props;
-    const { limit, offset, status, type } = this;
+    const { limit, mode, offset, status, type } = this;
     if (!Object.values(PositionType).includes(type)) {
       return message.error(formatMessage({ id: 'position.error.unknown.type' }));
     }
     dispatch<FetchListPayload, (payload: FetchListPayload, dataSource: object[]) => void>({
       type: 'stuapply/fetchList',
       payload: {
-        body: { limit, offset, status },
+        body: { limit, mode, offset, status },
         query: { type },
       },
       callback: this.correctOffset,
@@ -425,25 +468,24 @@ class List extends Component<ListProps, ListState> {
     </Tabs>
   );
 
-  onFilterChange = (value: { status: string; actionFilter: string }) => {
+  onFilterChange = (value: { status: string; actionFilter: string; mode: string }) => {
     const { actionFilter } = this.state;
     if (value.actionFilter !== actionFilter) {
       this.setState({ actionFilter: value.actionFilter });
     }
-    if (value.status !== this.status) {
-      this.status = value.status;
-      this.offset = 0;
-      this.fetchList();
-    }
+    this.status = value.status;
+    this.mode = value.mode;
+    this.offset = 0;
+    this.fetchList();
   };
 
   renderFilters = () => {
-    const { actionFilter } = this.state;
+    const { filters } = this;
     const { loading } = this.props;
     return (
       <Filter
         filters={filters}
-        initialFieldsValue={{ actionFilter, status: this.status }}
+        initialFieldsValue={{ actionFilter: '', status: '', mode: '普通模式' }}
         onSubmit={this.onFilterChange}
         resetText={formatMessage({ id: 'word.reset' })}
         saveToSession={StorageId.SLFilter}
