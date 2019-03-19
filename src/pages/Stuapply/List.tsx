@@ -222,23 +222,27 @@ class List extends Component<ListProps, ListState> {
         });
         break;
       case CellAction.Delete:
-        this.offset = parseInt(index, 10);
-        MemorableModal.confirm({
-          defaultEnable: false,
-          id: GlobalId.DeleteStuapply,
-          onOk: this.deleteStuapply,
-          payload: currentKey,
-          title: formatMessage({ id: 'stuapply.delete.confirm' }),
-        });
+        if (!editing && !auditing) {
+          this.offset = parseInt(index, 10);
+          MemorableModal.confirm({
+            defaultEnable: false,
+            id: GlobalId.DeleteStuapply,
+            onOk: this.deleteStuapply,
+            payload: currentKey,
+            title: formatMessage({ id: 'stuapply.delete.confirm' }),
+          });
+        } else message.info('你有未保存的内容，请先保存或取消操作');
         break;
       case CellAction.Edit:
         if (!editing && !auditing) {
           this.formValue = dataSource[parseInt(index, 10)][columnsKeys[0]];
-          this.setState({ editing: true, activeTabKey: columnsKeys[0] });
-        }
+          this.setState({ editing: true, activeTabKey: columnsKeys[0], currentKey });
+        } else message.info('你有未保存的内容，请先保存或取消操作');
         break;
       case CellAction.Audit:
-        if (!editing && !auditing) this.setState({ auditing: true, activeTabKey: columnsKeys[0] });
+        if (!editing && !auditing)
+          this.setState({ auditing: true, activeTabKey: columnsKeys[0], currentKey });
+        else message.info('你有未保存的内容，请先保存或取消操作');
         break;
       case CellAction.Save:
         this.offset = parseInt(index, 10);
@@ -282,7 +286,8 @@ class List extends Component<ListProps, ListState> {
     if (id) this.formValue[id] = value;
   };
 
-  renderAuditForm = () => {
+  renderAuditForm = (enable: boolean) => {
+    if (!enable) return [];
     const { activeTabKey, auditing } = this.state;
     const {
       stuapply: { columnsKeys },
@@ -327,17 +332,21 @@ class List extends Component<ListProps, ListState> {
     }));
   };
 
+  onCardTabChange = (key: string, itemKey: string) => {
+    this.cancelEditAuditState({ activeTabKey: key, currentKey: itemKey });
+  };
+
   renderCardItem = (item: any, cardIndex: number) => {
-    const { activeTabKey, editing, auditing } = this.state;
+    const { activeTabKey, currentKey, editing, auditing } = this.state;
     const {
       stuapply: { actionKey, rowKey, columnsKeys, columnsText, columns },
     } = this.props;
     let header = item.title;
     const itemKey = `${item[rowKey]}`;
     const loading = this.loadingKeys.has(itemKey);
-    const realActiveKey = activeTabKey || columnsKeys[0];
     let actions: (StandardTableAction)[] = item[actionKey] || [];
-    if (editing || auditing)
+    const realActiveKey = activeTabKey && currentKey === itemKey ? activeTabKey : columnsKeys[0];
+    if (currentKey === itemKey && (editing || auditing))
       actions = [
         { type: CellAction.Save, text: formatMessage({ id: 'word.save' }) },
         { type: CellAction.Cancel, text: formatMessage({ id: 'word.cancel' }) },
@@ -357,7 +366,7 @@ class List extends Component<ListProps, ListState> {
             activeTabKey={realActiveKey}
             bordered={false}
             className={styles.card}
-            onTabChange={key => this.setState({ activeTabKey: key })}
+            onTabChange={key => this.onCardTabChange(key, itemKey)}
             size="small"
             tabList={columnsKeys.map(col => ({ key: col, tab: columnsText[col] || col }))}
           >
@@ -365,7 +374,10 @@ class List extends Component<ListProps, ListState> {
               description={columns[realActiveKey]
                 .map(({ dataIndex, editDisabled, title, ...restProps }) => ({
                   children:
-                    editing && realActiveKey === columnsKeys[0] && !editDisabled ? (
+                    editing &&
+                    currentKey === itemKey &&
+                    realActiveKey === columnsKeys[0] &&
+                    !editDisabled ? (
                       <Input.TextArea
                         autosize
                         defaultValue={this.formValue[dataIndex]}
@@ -379,7 +391,7 @@ class List extends Component<ListProps, ListState> {
                   term: title,
                   ...restProps,
                 }))
-                .concat(this.renderAuditForm())}
+                .concat(this.renderAuditForm(currentKey === itemKey))}
             />
           </Card>
         </Spin>
