@@ -153,10 +153,10 @@ export const attr: DefineModelAttributes<Position<true>> = {
     comment: '审核进度',
     type: INTEGER,
     defaultValue: 0,
-    values: ([] as any).concat(...Object.values(PositionAuditStatus)),
+    values: [...PositionAuditStatus.manage, ...PositionAuditStatus.teach],
     validate: {
       notEmpty: true,
-      ...intEnumValid(([] as any).concat(...Object.values(PositionAuditStatus))),
+      ...intEnumValid([...PositionAuditStatus.manage, ...PositionAuditStatus.teach]),
     },
   },
   audit_log: {

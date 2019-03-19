@@ -21,7 +21,7 @@ export const filtersMap: { [K in keyof Partial<typeof PositionAttr>]: FilterItem
   },
   audit: {
     id: 'audit',
-    selectOptions: NewPositionAttr.audit.values!.map((title, index) => ({ value: index, title })),
+    selectOptions: [],
     title: '审核环节',
     type: SimpleFormItemType.Select,
   },
@@ -67,4 +67,4 @@ export const filtersKeyMap: {
 };
 
 export const getFilters = (keys: (keyof typeof filtersMap)[]): FilterItemProps[] =>
-  keys.map(key => filtersMap[key]!);
+  keys.map(key => ({ ...filtersMap[key]! }));

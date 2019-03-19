@@ -161,12 +161,12 @@ class List extends Component<ListProps, ListState> {
     });
   };
 
-  correctOffset = (_: FetchListPayload, dataSource: object[]) => {
+  correctOffset = (_: FetchListPayload) => {
     const { stuapply } = this.props;
-    const { activeCardKeys } = this.state;
+    // const { activeCardKeys } = this.state;
     this.offset = stuapply.dataSource.length;
-    dataSource.forEach(item => activeCardKeys.add(`${item[stuapply.rowKey]}`));
-    this.setState({ activeCardKeys });
+    // dataSource.forEach(item => activeCardKeys.add(`${item[stuapply.rowKey]}`));
+    // this.setState({ activeCardKeys });
   };
 
   deleteStuapply = (key: string) => {
@@ -399,15 +399,15 @@ class List extends Component<ListProps, ListState> {
     );
   };
 
-  onChangeOpenKey = (key: string | string[]) => {
-    const { currentKey, editing, auditing } = this.state;
-    if (!Array.isArray(key)) key = [key];
-    if ((editing || auditing) && !key.includes(currentKey)) {
-      this.cancelEditAuditState({ activeCardKeys: new Set(key) });
-    } else {
-      this.setState({ activeCardKeys: new Set(key) });
-    }
-  };
+  // onChangeOpenKey = (key: string | string[]) => {
+  //   const { currentKey, editing, auditing } = this.state;
+  //   if (!Array.isArray(key)) key = [key];
+  //   if ((editing || auditing) && !key.includes(currentKey)) {
+  //     this.cancelEditAuditState({ activeCardKeys: new Set(key) });
+  //   } else {
+  //     this.setState({ activeCardKeys: new Set(key) });
+  //   }
+  // };
 
   filterDataSource = (item: any) => {
     const { actionFilter } = this.state;
@@ -422,7 +422,7 @@ class List extends Component<ListProps, ListState> {
   };
 
   renderFirstLoading = () => {
-    const { activeCardKeys } = this.state;
+    // const { activeCardKeys } = this.state;
     const {
       loading: { fetchList },
       stuapply: { columnsKeys, dataSource },
@@ -431,10 +431,10 @@ class List extends Component<ListProps, ListState> {
       if (dataSource.length)
         return (
           <Collapse
-            activeKey={[...activeCardKeys]}
+            // activeKey={[...activeCardKeys]}
             bordered={false}
             className={styles.collapse}
-            onChange={this.onChangeOpenKey}
+            // onChange={this.onChangeOpenKey}
           >
             {dataSource.filter(this.filterDataSource).map(this.renderCardItem)}
           </Collapse>

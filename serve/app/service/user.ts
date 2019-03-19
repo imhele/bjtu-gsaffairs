@@ -19,12 +19,14 @@ export type ScopeValue =
   | 'scope.position.manage.edit'
   | 'scope.position.manage.export'
   | 'scope.position.manage.audit'
+  | 'scope.position.manage.audit-pass'
   | 'scope.position.manage.apply'
   | 'scope.position.teach.list'
   | 'scope.position.teach.create'
   | 'scope.position.teach.edit'
   | 'scope.position.teach.export'
   | 'scope.position.teach.audit'
+  | 'scope.position.teach.audit-pass'
   | 'scope.position.teach.apply';
 
 /**
@@ -38,6 +40,7 @@ export const ScopeList = {
       create: 'scope.position.manage.create',
       export: 'scope.position.manage.export',
       audit: 'scope.position.manage.audit',
+      auditPass: 'scope.position.manage.audit-pass',
       apply: 'scope.position.manage.apply',
     },
     teach: {
@@ -46,6 +49,7 @@ export const ScopeList = {
       edit: 'scope.position.teach.edit',
       export: 'scope.position.teach.export',
       audit: 'scope.position.teach.audit',
+      auditPass: 'scope.position.teach.audit-pass',
       apply: 'scope.position.teach.apply',
     },
   },
@@ -115,7 +119,9 @@ export default class UserService extends Service {
         /* Scope of audit */
         scope.push(
           ScopeList.position.teach.audit as ScopeValue,
+          ScopeList.position.teach.auditPass as ScopeValue,
           ScopeList.position.manage.audit as ScopeValue,
+          ScopeList.position.manage.auditPass as ScopeValue,
         );
       } else {
         const manageScope = scope.indexOf(ScopeList.position.manage.create as ScopeValue);

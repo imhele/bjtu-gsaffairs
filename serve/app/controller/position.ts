@@ -143,6 +143,13 @@ export default class PositionController extends Controller {
       selectable: hasAuditScope && { columnWidth: 57 },
     };
 
+    const auditFilter = result.filters.find((item: SimpleFormItemProps) => item.id === 'audit');
+    if (auditFilter)
+      auditFilter.selectOptions = PositionAuditStatus[type].map((title, index) => ({
+        value: type === 'manage' ? index : index + PositionAuditStatus.manage.length,
+        title,
+      }));
+
     ctx.response.body = result;
   }
 
@@ -332,11 +339,9 @@ export default class PositionController extends Controller {
     ctx.response.body = { errmsg: '提交成功' };
   }
 
-  public async audit() {
+  public async auditItem(id: string, type: keyof typeof PositionType) {
     const { ctx, service } = this;
     const { auth } = ctx.request;
-    const { type, id } = ctx.params as { type: keyof typeof PositionType; id: string };
-    if (!Object.keys(PositionType).includes(type) || id === void 0) return;
 
     /**
      * Authorize
@@ -375,7 +380,21 @@ export default class PositionController extends Controller {
     ]);
     values = ctx.model.Interships.Position.formatBack(values);
     await service.position.updateOne(parseInt(id, 10), values as any);
-    ctx.response.body = { errmsg: '审核成功' };
+  }
+
+  public async audit() {
+    const { type, id } = this.ctx.params as { type: keyof typeof PositionType; id: string };
+    if (!Object.keys(PositionType).includes(type) || id === void 0) return;
+    await this.auditItem(id, type);
+    this.ctx.response.body = { errmsg: '审核成功' };
+  }
+
+  public async batchAudit() {
+    const { type } = this.ctx.params as { type: keyof typeof PositionType };
+    const { keys } = this.ctx.request.body;
+    if (!Object.keys(PositionType).includes(type) || !Array.isArray(keys)) return;
+    for (const id of keys) await this.auditItem(id, type);
+    this.ctx.response.body = { errmsg: '审核成功' };
   }
 
   public async form() {

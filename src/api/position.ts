@@ -109,6 +109,13 @@ export async function auditPosition({ body, query }: AuditPositionPayload) {
   });
 }
 
+export async function batchAuditPosition({ body, query }: AuditPositionPayload) {
+  return requests<AuditPositionBody>(`${APIPrefix}/position/${query.type}/batch-audit`, {
+    body,
+    method: 'POST',
+  });
+}
+
 export interface ApplyFormPayload {
   query: FetchQuery;
 }

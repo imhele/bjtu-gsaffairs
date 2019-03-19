@@ -22,6 +22,7 @@ export const enum TopbarAction {
    * When user selected any row without an audit `CellAction`, the "batch audit" button hides.
    */
   Audit = 'audit',
+  AuditPass = 'audit-pass',
   Create = 'create',
   Export = 'export',
 }
@@ -32,6 +33,7 @@ export const enum TopbarAction {
  */
 export const HideWithouSelection: Set<TopbarAction | CellAction> = new Set([
   TopbarAction.Audit,
+  TopbarAction.AuditPass,
   TopbarAction.Export,
 ]);
 

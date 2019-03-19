@@ -180,7 +180,8 @@ class Filter extends BaseForm<FilterProps, FilterStates> {
   };
 
   onReset = () => {
-    const { onReset, onSubmit, submitLoading } = this.props;
+    const { onReset, onSubmit, saveToSession, submitLoading } = this.props;
+    if (saveToSession) sessionStorage.removeItem(saveToSession);
     if (onReset) return onReset(this.wrappedFormUtils);
     this.resetFields();
     if (!submitLoading) onSubmit({}, this.wrappedFormUtils);

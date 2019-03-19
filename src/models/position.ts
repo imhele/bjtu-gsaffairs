@@ -12,6 +12,7 @@ import { FilterItemProps, SimpleFormItemProps } from '@/components/SimpleForm';
 import {
   applyPosition,
   auditPosition,
+  batchAuditPosition,
   createPosition,
   deletePosition,
   editPosition,
@@ -203,6 +204,29 @@ const model: PositionModel = {
         message.success(response.errmsg);
         Utils.safeFun(callback, null, payload);
       }
+    },
+    *batchAuditPosition({ callback, payload }, { call }) {
+      // payload.body = Utils.formatMomentInFieldsValue(payload.body, Utils.formatMoment.YMDHms);
+      const { keys } = payload.body;
+      if (Array.isArray(keys)) {
+        let offset: number = 0;
+        while (true) {
+          const response = yield call(batchAuditPosition, {
+            ...payload,
+            body: { ...payload.body, keys: keys.slice(offset, offset + 10) },
+          });
+          offset = offset + 10;
+          if (response && !response.errcode) {
+            if (offset >= keys.length) {
+              yield message.success('审核完成');
+              break;
+            } else {
+              yield message.info(`当前已审核 ${offset} 条`);
+            }
+          } else break;
+        }
+      }
+      yield Utils.safeFun(callback, null, payload);
     },
     *applyPosition({ payload }, { call, put }) {
       payload.body = Utils.formatMomentInFieldsValue(payload.body, Utils.formatMoment.YMDHms);

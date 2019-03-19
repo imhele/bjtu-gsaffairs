@@ -87,7 +87,6 @@ export default class Header extends Component<HeaderProps> {
             </div>
           ) : (
             <Menu
-              theme="dark"
               mode="horizontal"
               onClick={this.handleClickMenu}
               selectedKeys={menuSelectedKeys}

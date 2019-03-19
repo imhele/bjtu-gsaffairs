@@ -52,7 +52,8 @@
   "operationArea": {
     "operation": [
       { "icon": "plus", "text": "新建", "type": "create" },
-      { "icon": "audit", "text": "审核", "type": "audit" }
+      { "icon": "audit", "text": "审核", "type": "audit" },
+      { "icon": "check-circle", "text": "一键通过", "type": "audit-pass" }
     ]
   },
   "detailColumns": {

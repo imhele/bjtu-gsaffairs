@@ -19,7 +19,12 @@ import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import { CellAction, HideWithouSelection, PositionType, TopbarAction } from './consts';
 import { NoviceTutorialWrapper, NoviceTutorialContext } from '@/components/NoviceTutorial';
-import { FetchListPayload, FetchDetailPayload, DeletePositionPayload } from '@/api/position';
+import {
+  AuditPositionPayload,
+  FetchListPayload,
+  FetchDetailPayload,
+  DeletePositionPayload,
+} from '@/api/position';
 import StandardTable, {
   PaginationConfig,
   StandardTableAction,
@@ -123,6 +128,8 @@ class List extends Component<ListProps, ListState> {
     if (params.type !== this.type) {
       this.type = params.type;
       this.offset = 0;
+      sessionStorage.removeItem(StorageId.PLFilter);
+      this.filtersValue = {};
       if (this.filterFormUtils) {
         safeFun(this.filterFormUtils.resetFields);
       }
@@ -350,6 +357,18 @@ class List extends Component<ListProps, ListState> {
     }, 50);
   };
 
+  onBatchAudit = (keys: string[] | number[]) => {
+    const { dispatch } = this.props;
+    dispatch<AuditPositionPayload>({
+      type: 'position/batchAuditPosition',
+      payload: {
+        body: { status: '审核通过', keys },
+        query: { type: this.type },
+      },
+      callback: this.fetchList,
+    });
+  };
+
   onClickOperation = (selectedRowKeys: string[] | number[], operationType: string) => {
     safeFun(this.tableMethods.clearSelectedRowKeys);
     switch (operationType) {
@@ -362,6 +381,9 @@ class List extends Component<ListProps, ListState> {
         });
         sessionStorage.setItem(StorageId.PARowKes, JSON.stringify(selectedRowKeys));
         router.push('audit');
+        break;
+      case TopbarAction.AuditPass:
+        this.onBatchAudit(selectedRowKeys);
         break;
       default:
         message.warn(formatMessage({ id: 'position.error.unknown.action' }));
@@ -384,7 +406,7 @@ class List extends Component<ListProps, ListState> {
     // If no rows are selected, buttons in `HideWithouSelection` will not be displayed.
     if (HideWithouSelection.has(operation.type as any) && !selectedRowKeys.length) return false;
     // Audit button.
-    if (operation.type === TopbarAction.Audit) {
+    if ([TopbarAction.Audit, TopbarAction.AuditPass].includes(operation.type as TopbarAction)) {
       const hideAudit = Object.values(this.selectedRows).some(row => {
         return !actionKey.some(key => {
           if (Array.isArray(row[key]))
