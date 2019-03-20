@@ -439,9 +439,9 @@ class List extends Component<ListProps, ListState> {
             {dataSource.filter(this.filterDataSource).map(this.renderCardItem)}
           </Collapse>
         );
-      return Edit.Empty;
+      return Edit.Empty();
     }
-    if (!fetchList) return Edit.Empty;
+    if (!fetchList) return Edit.Empty();
     return (
       <div style={{ width: '100%', textAlign: 'center' }}>
         <Spin size="large" />

@@ -111,7 +111,7 @@ class Apply extends Component<ApplyProps> {
         <Skeleton active key="Skeleton" loading={loading.fetchApplyForm} paragraph={{ rows: 7 }}>
           <SimpleForm
             colProps={applyForm.colProps}
-            empty={Edit.Empty}
+            empty={Edit.Empty(type)}
             formItemProps={applyForm.formItemProps}
             formItems={applyForm.formItems}
             groupAmount={applyForm.groupAmount}

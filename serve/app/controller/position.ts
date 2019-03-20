@@ -146,7 +146,7 @@ export default class PositionController extends Controller {
     const auditFilter = result.filters.find((item: SimpleFormItemProps) => item.id === 'audit');
     if (auditFilter)
       auditFilter.selectOptions = PositionAuditStatus[type].map((title, index) => ({
-        value: type === 'manage' ? index : index + PositionAuditStatus.manage.length,
+        value: this.getPostAuditVal(type, index),
         title,
       }));
 
@@ -252,7 +252,7 @@ export default class PositionController extends Controller {
     const values = ctx.model.Interships.Position.formatBack({
       ...ctx.request.body,
       department_code: departmentCode,
-      audit: PositionAuditStatus[type][1],
+      audit: this.getPostAuditVal(type, 1),
       staff_jobnum: staffJobnum,
       status: '待审核',
       types: PositionType[type],
@@ -328,7 +328,9 @@ export default class PositionController extends Controller {
     const values = ctx.model.Interships.Position.formatBack({
       ...ctx.request.body,
       // 有审核权限的员工编辑岗位后将不会改变当前审核环节
-      audit: availableActions.get(CellAction.Audit) ? position.audit : PositionAuditStatus[type][1],
+      audit: availableActions.get(CellAction.Audit)
+        ? position.audit
+        : this.getPostAuditVal(type, 1),
       status: '待审核',
       audit_log: JSON.stringify([
         ...parseJSON(position.audit_log),
@@ -351,34 +353,36 @@ export default class PositionController extends Controller {
     if (!availableActions.get(CellAction.Audit))
       throw new AuthorizeError('你暂时没有权限审核这个岗位');
 
-    let values = {} as PositionModel;
+    const values = {} as PositionModel<true>;
     let auditStatusIndex: number = PositionAuditStatus[type].indexOf(position.audit);
     switch (ctx.request.body.status) {
       case '审核通过':
-        if (++auditStatusIndex === PositionAuditStatus[type].length - 1) values.status = '已发布';
-        if (
-          (position.teaching_student_type === '研究生课程' && position.audit === '用人单位审核') ||
-          (position.teaching_student_type === '本科生课程' && position.audit === '教务处审核')
-        )
-          auditStatusIndex++;
+        if (++auditStatusIndex === PositionAuditStatus[type].length - 1)
+          values.status = '已发布' as any;
+        if (type === 'teach')
+          if (
+            position.audit === '教务处审核' ||
+            (position.teaching_student_type === '研究生课程' && position.audit === '用人单位审核')
+          )
+            auditStatusIndex++;
         break;
       case '废除':
-        values.status = '废除';
+        values.status = '废除' as any;
         break;
       case '退回':
         auditStatusIndex = 0;
-        values.status = '草稿';
+        values.status = '草稿' as any;
         break;
       default:
         throw new DataNotFound('无效的审核选项');
     }
-    values.audit = PositionAuditStatus[type][auditStatusIndex];
     const opinion = Array.isArray(ctx.request.body.opinion) ? ctx.request.body.opinion : [];
     values.audit_log = JSON.stringify([
       ...parseJSON(position.audit_log),
       service.position.getAuditLogItem(auth, position.audit, ctx.request.body.status, ...opinion),
     ]);
-    values = ctx.model.Interships.Position.formatBack(values);
+    values.status = ctx.model.Interships.Position.formatBack({ status: values.status }).status;
+    values.audit = this.getPostAuditVal(type, auditStatusIndex);
     await service.position.updateOne(parseInt(id, 10), values as any);
   }
 
@@ -540,6 +544,12 @@ export default class PositionController extends Controller {
       search,
       auth.auditLink.length || auth.scope.includes(ScopeList.admin) ? void 0 : auth.user.loginname,
     );
+  }
+
+  public getPostAuditVal(type: keyof typeof PositionType, value: string | number) {
+    if (typeof value === 'number')
+      return type === 'manage' ? value : PositionAuditStatus.manage.length + value;
+    else return this.getPostAuditVal(type, PositionAuditStatus[type].indexOf(value));
   }
 
   /**

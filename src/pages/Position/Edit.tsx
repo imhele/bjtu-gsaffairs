@@ -23,12 +23,13 @@ export interface EditProps extends ConnectProps<{ type: PositionType }> {
   position?: PositionState;
 }
 
-const backToList = () => router.push('/position/manage/list');
+const backToList = (type?: PositionType) => () =>
+  router.push(type ? `/position/${type}/list` : '/');
 
 class Edit extends Component<EditProps> {
-  static Empty = (
+  static Empty = (type?: PositionType) => (
     <Empty style={{ margin: '48px 0 64px' }}>
-      <Button onClick={backToList} type="primary">
+      <Button onClick={backToList(type)} type="primary">
         {formatMessage({ id: 'word.back-to-list' })}
       </Button>
     </Empty>
@@ -149,7 +150,7 @@ class Edit extends Component<EditProps> {
           <SimpleForm
             changeFormItems={this.setTeachingTask}
             colProps={editForm.colProps}
-            empty={Edit.Empty}
+            empty={Edit.Empty(type)}
             formItemProps={editForm.formItemProps}
             formItems={editForm.formItems}
             groupAmount={editForm.groupAmount}

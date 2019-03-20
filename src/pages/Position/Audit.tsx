@@ -246,7 +246,7 @@ class Audit extends Component<AuditProps, AuditState> {
         <Skeleton active key="Skeleton" loading={loading.fetchForm} paragraph={{ rows: 16 }}>
           <SimpleForm
             colProps={auditForm.colProps}
-            empty={Edit.Empty}
+            empty={Edit.Empty(type)}
             formItemProps={auditForm.formItemProps}
             formItems={auditForm.formItems}
             groupAmount={auditForm.groupAmount}
