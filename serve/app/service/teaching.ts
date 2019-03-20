@@ -52,20 +52,23 @@ export default class TeachingService extends Service {
   }
 
   public getTeachingTaskFormItemByPosition(position: { [key: string]: any }) {
-    return {
+    const res = {
       id: 'task_teaching_id',
       itemProps: { placeholder: '输入课程号或课程名以查询课程' },
       title: '助教课程',
       type: SimpleFormItemType.Select,
-      selectOptions: [
+      selectOptions: [],
+    };
+    if (position.teaching_id) {
+      res.selectOptions = [
         {
           value: position.teaching_id,
-          title: `[${position.teaching_student_type.slice(0, 3)}] ${position.teaching_kch} [${
-            position.teaching_kxh
-          }] ${position.teaching_kcm}`,
+          title: `[${(position.teaching_student_type || '未知类型').slice(0, 3)}] ${position.teaching_kch ||
+            '课程号'} [${position.teaching_kxh || '课序号'}] ${position.teaching_kcm || ''}`,
         },
-      ],
-    };
+      ] as any;
+    }
+    return res;
   }
 
   public async hasCreatedPosition(teachingTaskId: number) {
