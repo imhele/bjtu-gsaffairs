@@ -82,13 +82,16 @@ class Edit extends Component<EditProps> {
       position: {
         form: { groupAmount },
       },
+      match: {
+        params: { type },
+      },
     } = this.props;
     return (
       <Col {...(groupAmount === 1 ? buttonColProps[0] : buttonColProps[1])}>
         <Button htmlType="submit" loading={submitLoading} type="primary">
           <FormattedMessage id="word.submit" />
         </Button>
-        <Button onClick={backToList} style={{ marginLeft: 8 }}>
+        <Button onClick={backToList(type)} style={{ marginLeft: 8 }}>
           <FormattedMessage id="word.back" />
         </Button>
       </Col>
