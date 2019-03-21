@@ -72,12 +72,13 @@ export default class PositionController extends Controller {
     if (!hasAuditScope) {
       if (auth.scope.includes(ScopeList.position[type].create)) {
         /* 没有审核权限的用户只能检索到已发布的岗位或自己创建的岗位 */
-        filters.push({
-          [Op.or]: [
-            { status: ctx.model.Interships.Position.formatBack({ status: '已发布' }).status },
-            { staff_jobnum: auth.user.loginname },
-          ],
-        });
+        // filters.push({
+        //   [Op.or]: [
+        //     { status: ctx.model.Interships.Position.formatBack({ status: '已发布' }).status },
+        //     { staff_jobnum: auth.user.loginname },
+        //   ],
+        // });
+        filters.push({ staff_jobnum: auth.user.loginname });
       } else {
         /* 既没有审核权限，也没有创建权限 */
         attributes = tableQueryFields;
