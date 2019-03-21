@@ -123,9 +123,12 @@ export default class UserService extends Service {
           ScopeList.position.manage.audit as ScopeValue,
           ScopeList.position.manage.auditPass as ScopeValue,
         );
-      } else {
+      } else if (type === UserType.Staff) {
         const { manage } = ScopeList.position;
         scope = scope.filter(i => ![manage.create, manage.list].includes(i));
+      } else {
+        const manageScope = scope.indexOf(ScopeList.position.manage.create as ScopeValue);
+        if (manageScope !== -1) scope.splice(manageScope, 1);
       }
     }
     return {
