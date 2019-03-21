@@ -29,6 +29,10 @@
       "dataIndex": "need_num"
     },
     {
+      "title": "申请成功人数",
+      "dataIndex": "pass_num"
+    },
+    {
       "title": "校区",
       "dataIndex": "campus"
     },

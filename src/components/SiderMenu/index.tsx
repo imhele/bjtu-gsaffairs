@@ -34,7 +34,8 @@ export default class SiderMenu extends PureComponent<SiderMenuProps> {
     }
   };
 
-  routeToMenu = (routes: Route[], submenu: boolean = false): React.ReactNode[] => routes
+  routeToMenu = (routes: Route[], submenu: boolean = false): React.ReactNode[] =>
+    routes
       .filter(route => !route.hideInMenu && route.path && route.routes !== null)
       .map(route =>
         submenu || !Array.isArray(route.routes) || !route.routes.length ? (

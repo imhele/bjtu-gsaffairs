@@ -2,10 +2,10 @@ import moment from 'moment';
 import { Service } from 'egg';
 import { ScopeList } from './user';
 import { CellAction } from '../link';
-import { WhereOptions } from 'sequelize';
 import { DataNotFound } from '../errcode';
 import { AuthResult } from '../extend/request';
 import { getFromIntEnum, parseJSON } from '../utils';
+import { WhereOptions, IncludeOptions } from 'sequelize';
 import { Staff as StaffModel } from '../model/client/staff';
 import { attr as StaffInfoAttr } from '../model/people/staff';
 import { attr as DepartmentAttr, Department as DepartmentModel } from '../model/dicts/department';
@@ -84,6 +84,7 @@ export default class PositionService extends Service {
     where,
     depAttributes,
     count,
+    include = [],
   }: {
     limit: number;
     offset: number;
@@ -91,6 +92,7 @@ export default class PositionService extends Service {
     where?: WhereOptions<PositionModel<true> & TCustomAttributes>;
     depAttributes?: (keyof DepartmentModel)[];
     count?: C;
+    include?: Array<IncludeOptions>;
   }) {
     const { model } = this.ctx;
     const result = await (model.Interships.Position[count ? 'findAndCountAll' : 'findAll'] as any)({
@@ -98,7 +100,7 @@ export default class PositionService extends Service {
       offset,
       attributes,
       where,
-      include: [{ model: model.Dicts.Department, attributes: depAttributes }],
+      include: [{ model: model.Dicts.Department, attributes: depAttributes }, ...include],
     });
     return {
       positions: (count ? result.rows : result).map(item =>

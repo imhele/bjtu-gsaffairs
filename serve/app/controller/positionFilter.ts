@@ -1,5 +1,6 @@
 import { SimpleFormItemType } from '../link';
 import { DefineAttributeColumnOptions } from 'sequelize';
+import { attr as TaskTeachingAttr } from '../model/task/teaching';
 import { attr as PositionAttr, PositionType } from '../model/interships/position';
 // import { FilterItemProps, SimpleFormItemType } from '../../../src/components/SimpleForm';
 
@@ -7,7 +8,7 @@ const NewPositionAttr = PositionAttr as {
   [key: string]: DefineAttributeColumnOptions;
 };
 
-export const filtersMap: { [K in keyof Partial<typeof PositionAttr>]: FilterItemProps } = {
+export const filtersMap: { [K: string]: FilterItemProps } = {
   department_code: {
     id: 'department_code',
     title: '用工单位',
@@ -43,6 +44,14 @@ export const filtersMap: { [K in keyof Partial<typeof PositionAttr>]: FilterItem
     title: '聘用方式',
     type: SimpleFormItemType.Select,
   },
+  student_type: {
+    id: 'student_type',
+    selectOptions: (TaskTeachingAttr.student_type as DefineAttributeColumnOptions).values!.map(
+      (title, index) => ({ value: index, title }),
+    ),
+    title: '课程类型',
+    type: SimpleFormItemType.Select,
+  },
   semester: {
     id: 'semester',
     title: '学年学期',
@@ -61,8 +70,8 @@ export const filtersKeyMap: {
     withoutStatus: ['department_code', 'name', 'campus', 'way'],
   },
   teach: {
-    withStatus: ['department_code', 'audit', 'status', 'name', 'campus', 'way'],
-    withoutStatus: ['department_code', 'name', 'campus', 'way'],
+    withStatus: ['department_code', 'audit', 'status', 'name', 'campus', 'way', 'student_type'],
+    withoutStatus: ['department_code', 'name', 'campus', 'way', 'student_type'],
   },
 };
 

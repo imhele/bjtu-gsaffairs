@@ -1,9 +1,9 @@
 import { Controller } from 'egg';
-import { Op, WhereOptions } from 'sequelize';
 import { AuthResult } from '../extend/request';
 import { getFromIntEnum, parseJSON } from '../utils';
 import { ScopeList, UserType } from '../service/user';
 import { AuthorizeError, DataNotFound } from '../errcode';
+import { Op, WhereOptions, IncludeOptions } from 'sequelize';
 // import { StepsProps } from '../../../src/components/Steps';
 // import { PositionState } from '../../../src/models/connect';
 import { attr as TaskTeachingAttr } from '../model/task/teaching';
@@ -62,6 +62,9 @@ export default class PositionController extends Controller {
     let attributes = tableQueryFields;
     const isAdmin = auth.scope.some(i => i === ScopeList.admin);
     const hasAuditScope = isAdmin || auth.scope.some(i => i === ScopeList.position[type].audit);
+    body.filtersValue = body.filtersValue || {};
+    const { student_type } = body.filtersValue;
+    delete body.filtersValue.student_type;
     const filters: WhereOptions<PositionModel>[] = [{ ...body.filtersValue }];
     filters[0].types = positionType;
     Object.keys(filters[0]).forEach(key => {
@@ -95,6 +98,23 @@ export default class PositionController extends Controller {
         ],
       });
     }
+    const include: IncludeOptions[] = [];
+    if (type === 'teach') {
+      if (student_type === void 0)
+        include.push({
+          model: ctx.model.Task.Teaching,
+          attributes: ['student_type'],
+        });
+      else if (student_type) {
+        include.push({
+          model: ctx.model.Task.Teaching,
+          attributes: ['student_type'],
+          where: { student_type },
+        });
+      } else {
+        filters.push({ task_teaching_id: null });
+      }
+    }
 
     /**
      * Qurey batabase
@@ -102,6 +122,7 @@ export default class PositionController extends Controller {
     const { positions, total } = await service.position.findSomeWithDep({
       limit,
       offset,
+      include,
       attributes,
       count: true,
       where: { [Op.and]: filters },
@@ -122,6 +143,7 @@ export default class PositionController extends Controller {
         }));
       return {
         ...item,
+        pass_num: 0,
         name: {
           type: CellAction.Preview,
           text: item.name,
@@ -129,6 +151,11 @@ export default class PositionController extends Controller {
         action: action.length ? action : '--',
       };
     });
+
+    // tslint:disable-next-line: forin
+    for (const index in dataSource) {
+      dataSource[index].pass_num = await service.stuapply.countApplySuccess(dataSource[index].id!);
+    }
 
     /**
      * Construct result
@@ -139,6 +166,7 @@ export default class PositionController extends Controller {
       total,
       rowKey: 'id',
       operationArea,
+      scroll: { x: 1200 },
       filters: getFilters(filtersKey),
       actionKey: ['action', 'name'],
       selectable: hasAuditScope && { columnWidth: 57 },

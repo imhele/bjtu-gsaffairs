@@ -51,7 +51,7 @@ export const attr: DefineModelAttributes<TaskTeaching> = {
     allowNull: true,
     comment: '课程学生类型',
     type: INTEGER,
-    values: ['', '研究生课程', '本科生课程'],
+    values: ['其他', '研究生课程', '本科生课程'],
     validate: { ...intEnumValid(3, 1) },
   },
   krl: {

@@ -32,6 +32,17 @@ export interface StuapplyWithoutPrefix {
  * Service of stuapply
  */
 export default class StuapplyService extends Service {
+  public async countApplySuccess(postId: number) {
+    const { model } = this.ctx;
+    const num: number = await model.Interships.Stuapply.count({
+      where: {
+        position_id: postId,
+        ...model.Interships.Stuapply.formatBack({ audit: '申请成功' }),
+      },
+    });
+    return num;
+  }
+
   public async findOne(id: number): Promise<StuapplyWithFK> {
     const { model } = this.ctx;
     const stuapply: any = await model.Interships.Stuapply.findByPk(id, {
