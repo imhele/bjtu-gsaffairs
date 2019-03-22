@@ -102,7 +102,7 @@ class List extends Component<ListProps, ListState> {
   private status: string = '';
   private type: PositionType = null;
   private loadingKeys: Set<string> = new Set();
-  private mode: string = '普通模式';
+  private mode: string = '导师模式';
   private formValue: { [key: string]: string | string[] } = {};
 
   constructor(props: ListProps) {
