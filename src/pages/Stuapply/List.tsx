@@ -497,7 +497,7 @@ class List extends Component<ListProps, ListState> {
     return (
       <Filter
         filters={filters}
-        initialFieldsValue={{ actionFilter: '', status: '', mode: '普通模式' }}
+        initialFieldsValue={{ actionFilter: '', status: '', mode: '导师模式' }}
         onSubmit={this.onFilterChange}
         resetText={formatMessage({ id: 'word.reset' })}
         saveToSession={StorageId.SLFilter}
