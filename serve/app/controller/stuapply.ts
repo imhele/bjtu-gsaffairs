@@ -33,7 +33,7 @@ export default class UserController extends Controller {
     const { type } = ctx.params as { type: keyof typeof PositionType };
     const positionType = getFromIntEnum(PositionAttr, 'types', null, PositionType[type]);
     if (positionType === -1) return;
-    const { limit = 10, mode = '', offset = 0, status = '' } = body;
+    const { limit = 10, mode, offset = 0, student_number, status } = body;
 
     /**
      * Qurey batabase
@@ -47,17 +47,22 @@ export default class UserController extends Controller {
 
     if (auth.type === UserType.Postgraduate)
       applyFilters.push({ student_number: auth.user.loginname });
-    else if (!auth.scope.includes(ScopeList.admin)) {
-      if (mode === '导师模式') {
-        include[0].where[Op.or] = {
-          teacher_code: auth.user.loginname,
-          teacher2_code: auth.user.loginname,
-        } as WhereOptions<CensusModel>;
-      } else if (!auth.auditLink.length) {
-        include[1].where[Op.or] = {
-          staff_jobnum: auth.user.loginname,
-          department_code: { [Op.or]: auth.auditableDep },
-        } as WhereOptions<PositionModel>;
+    else {
+      if (student_number) applyFilters.push({ student_number });
+      if (body.student_name) include[0].where.name = body.student_name;
+      if (body.position_name) include[1].where.name = { [Op.like]: `%${body.position_name}%` };
+      if (!auth.scope.includes(ScopeList.admin)) {
+        if (mode === '导师模式') {
+          include[0].where[Op.or] = {
+            teacher_code: auth.user.loginname,
+            teacher2_code: auth.user.loginname,
+          } as WhereOptions<CensusModel>;
+        } else if (!auth.auditLink.length) {
+          include[1].where[Op.or] = {
+            staff_jobnum: auth.user.loginname,
+            department_code: { [Op.or]: auth.auditableDep },
+          } as WhereOptions<PositionModel>;
+        }
       }
     }
     if (status && Object.keys(ApplyStatus).includes(status))

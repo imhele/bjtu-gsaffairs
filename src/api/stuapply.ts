@@ -6,6 +6,9 @@ export interface FetchListBody extends RequestBody {
   limit?: number;
   mode?: string,
   offset?: number;
+  position_name?: string;
+  student_name?: string;
+  student_number?: string;
   status?: string;
 }
 

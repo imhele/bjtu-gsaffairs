@@ -54,7 +54,31 @@ const allFilters: FilterItemProps[] = [
       { title: '可删除', value: CellAction.Delete },
     ],
   },
+  {
+    id: 'student_number',
+    title: '学号',
+    type: SimpleFormItemType.Input,
+  },
+  {
+    id: 'student_name',
+    title: '学生姓名',
+    type: SimpleFormItemType.Input,
+  },
+  {
+    id: 'position_name',
+    title: '岗位名称',
+    type: SimpleFormItemType.Input,
+  },
 ];
+
+const initValues = {
+  status: '',
+  actionFilter: '',
+  mode: '导师模式',
+  position_name: '',
+  student_name: '',
+  student_number: '',
+};
 
 export interface ListProps extends ConnectProps<{ type: PositionType }> {
   loading?: {
@@ -100,6 +124,12 @@ class List extends Component<ListProps, ListState> {
   private limit: number = 40;
   private offset: number = 0;
   private status: string = '';
+  // tslint:disable-next-line
+  private student_name: string = '';
+  // tslint:disable-next-line
+  private student_number: string = '';
+  // tslint:disable-next-line
+  private position_name: string = '';
   private type: PositionType = null;
   private loadingKeys: Set<string> = new Set();
   private mode: string = '导师模式';
@@ -111,10 +141,14 @@ class List extends Component<ListProps, ListState> {
     try {
       const savedString = sessionStorage.getItem(StorageId.SLFilter);
       if (savedString) {
-        const savedValue = JSON.parse(savedString);
-        if (savedValue.mode) this.mode = savedValue.mode;
-        if (savedValue.status) this.status = savedValue.status;
-        if (savedValue.actionFilter) this.state.actionFilter = savedValue.actionFilter;
+        const parsed = JSON.parse(savedString);
+        const savedValue = {} as typeof initValues;
+        Object.entries(initValues).forEach(
+          ([key, value]) => (savedValue[key] = parsed[key] || value),
+        );
+        this.state.actionFilter = savedValue.actionFilter;
+        delete savedValue.actionFilter;
+        Object.assign(this, savedValue);
       }
     } catch {}
     this.fetchList();
@@ -129,32 +163,33 @@ class List extends Component<ListProps, ListState> {
   };
 
   filterFilter = () => {
-    // student and admin need not to use this filter
-    const auth = !CheckAuth(
-      [`scope.position.${this.type}.apply`, 'scope.admin'],
-      null,
-      GlobalId.BasicLayout,
-    );
-    if (auth) {
+    const isAdmin = CheckAuth(['scope.admin'], null, GlobalId.BasicLayout);
+    const isStudent = CheckAuth([`scope.position.${this.type}.apply`], null, GlobalId.BasicLayout);
+    if (isAdmin) {
+      if (this.filters.length === allFilters.length - 1) return;
+      this.filters = allFilters.slice(1);
+    } else if (isStudent) {
+      if (this.filters.length === 2) return;
+      this.filters = allFilters.slice(1, 3);
+    } else {
       if (this.filters.length === allFilters.length) return;
       this.filters = allFilters;
-    } else {
-      if (this.filters.length !== allFilters.length) return;
-      this.filters = allFilters.slice(1);
     }
     this.forceUpdate();
   };
 
   fetchList = () => {
     const { dispatch } = this.props;
-    const { limit, mode, offset, status, type } = this;
+    const { limit, offset, type } = this;
+    const filterValue = {} as typeof initValues;
+    this.filters.forEach(({ id }) => (filterValue[id] = this[id]));
     if (!Object.values(PositionType).includes(type)) {
       return message.error(formatMessage({ id: 'position.error.unknown.type' }));
     }
     dispatch<FetchListPayload, (payload: FetchListPayload, dataSource: object[]) => void>({
       type: 'stuapply/fetchList',
       payload: {
-        body: { limit, mode, offset, status },
+        body: { limit, offset, ...filterValue },
         query: { type },
       },
       callback: this.correctOffset,
@@ -480,13 +515,20 @@ class List extends Component<ListProps, ListState> {
     </Tabs>
   );
 
-  onFilterChange = (value: { status: string; actionFilter: string; mode: string }) => {
+  onFilterChange = (value: {
+    status: string;
+    actionFilter: string;
+    mode: string;
+    position_name: string;
+    student_name: string;
+    student_number: string;
+  }) => {
     const { actionFilter } = this.state;
     if (value.actionFilter !== actionFilter) {
       this.setState({ actionFilter: value.actionFilter });
     }
-    this.status = value.status;
-    this.mode = value.mode;
+    delete value.actionFilter;
+    Object.assign(this, value);
     this.offset = 0;
     this.fetchList();
   };
@@ -497,7 +539,7 @@ class List extends Component<ListProps, ListState> {
     return (
       <Filter
         filters={filters}
-        initialFieldsValue={{ actionFilter: '', status: '', mode: '导师模式' }}
+        initialFieldsValue={initValues}
         onSubmit={this.onFilterChange}
         resetText={formatMessage({ id: 'word.reset' })}
         saveToSession={StorageId.SLFilter}
