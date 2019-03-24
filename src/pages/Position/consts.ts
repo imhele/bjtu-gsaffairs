@@ -25,6 +25,7 @@ export const enum TopbarAction {
   AuditPass = 'audit-pass',
   Create = 'create',
   Export = 'export',
+  MoveApply = 'move-apply',
 }
 
 /**
@@ -35,6 +36,7 @@ export const HideWithouSelection: Set<TopbarAction | CellAction> = new Set([
   TopbarAction.Audit,
   TopbarAction.AuditPass,
   TopbarAction.Export,
+  TopbarAction.MoveApply,
 ]);
 
 export const buttonColProps: ColProps[] = [

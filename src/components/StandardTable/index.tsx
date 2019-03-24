@@ -6,9 +6,10 @@ import { ClickParam } from 'antd/es/menu';
 import { AlertProps } from 'antd/es/alert';
 import { ButtonProps } from 'antd/es/button';
 import { sandwichArray } from '@/utils/utils';
+import { TooltipProps } from 'antd/es/tooltip';
 import { DropDownProps } from 'antd/es/dropdown';
 import QueueAnim, { IProps as QueueAnimProps } from 'rc-queue-anim';
-import { Alert, Button, Divider, Dropdown, Icon, Menu, Table } from 'antd';
+import { Alert, Button, Divider, Dropdown, Icon, Menu, Table, Tooltip } from 'antd';
 import { ColumnProps, PaginationConfig, TableRowSelection, TableSize } from 'antd/es/table';
 
 // Ref `antd/es/menu/MenuItem`
@@ -30,6 +31,8 @@ export interface StandardTableAction {
   icon?: string;
   loading?: boolean;
   text?: string | number | React.ReactNode;
+  tooltip?: string | React.ReactNode | ((action: StandardTableAction) => React.ReactNode);
+  tooltipProps?: TooltipProps;
   type: string;
   visible?: boolean;
 }
@@ -39,6 +42,7 @@ export { ColumnProps, PaginationConfig, TableRowSelection, TableSize };
 export interface StandardTableOperation extends StandardTableAction {
   buttonProps?: ButtonProps;
   menuItemProps?: MenuItemProps;
+  tooltip?: string | React.ReactNode | ((action: StandardTableOperation) => React.ReactNode);
 }
 
 export interface StandardTableOperationAreaProps {
@@ -262,7 +266,7 @@ export default class StandardTable<T = object> extends Component<
       actions
         .map(item => this.getActionItemProps(item, record, index))
         .filter(item => item.visible === void 0 || item.visible)
-        .map(item => this.renderActionItem(item, record, index)),
+        .map(item => this.renderTooltipWrapper(item, this.renderActionItem(item, record, index))),
       Divider,
       1,
       false,
@@ -316,23 +320,36 @@ export default class StandardTable<T = object> extends Component<
     };
   };
 
+  renderTooltipWrapper = (item: StandardTableAction, children: React.ReactNode) => {
+    if (!item.tooltip && !item.tooltipProps) return children;
+    const title = typeof item.tooltip === 'function' ? item.tooltip(item) : item.tooltip;
+    return (
+      <Tooltip title={title} {...item.tooltipProps}>
+        {children}
+      </Tooltip>
+    );
+  };
+
   renderOperationButtonItem = (item: StandardTableOperation, index: number): React.ReactNode => {
     /**
      * Add a layer of `<div />` to avoid `transition` contamination from `<Button />`
      */
+    const button = (
+      <Button
+        data-type={item.type}
+        disabled={item.disabled}
+        icon={item.icon}
+        loading={item.loading}
+        onClick={this.onClickOperationItem}
+        type={index ? 'default' : 'primary'}
+        {...item.buttonProps}
+      >
+        {item.text || item.type}
+      </Button>
+    );
     return (
       <div className={styles.operation} key={item.type} style={{ display: 'inline-block' }}>
-        <Button
-          data-type={item.type}
-          disabled={item.disabled}
-          icon={item.icon}
-          loading={item.loading}
-          onClick={this.onClickOperationItem}
-          type={index ? 'default' : 'primary'}
-          {...item.buttonProps}
-        >
-          {item.text || item.type}
-        </Button>
+        {this.renderTooltipWrapper(item, button)}
       </div>
     );
   };

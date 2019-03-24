@@ -7,15 +7,15 @@ import commonStyles from '../common.less';
 import PageHeader from '@/layouts/PageHeader';
 import { GlobalId, StorageId } from '@/global';
 import { RadioChangeEvent } from 'antd/es/radio';
-import { formatMessage } from 'umi-plugin-locale';
 import { CheckAuth } from '@/components/Authorized';
 import { FetchDetailPayload } from '@/api/position';
 import InfiniteScroll from 'react-infinite-scroller';
 import MemorableModal from '@/components/MemorableModal';
 import DescriptionList from '@/components/DescriptionList';
-import { CellAction, PositionType } from '../Position/consts';
+import { CellAction, PositionType, TopbarAction } from '../Position/consts';
 import { StandardTableAction } from '@/components/StandardTable';
 import { Filter, FilterItemProps } from '@/components/SimpleForm';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { Button, Card, Collapse, Icon, Input, message, Spin, Tabs } from 'antd';
 import { renderFormItem, SimpleFormItemType } from '@/components/SimpleForm/BaseForm';
 import { FetchListPayload, DeleteStuapplyPayload, EditStuapplyBody } from '@/api/stuapply';
@@ -134,6 +134,10 @@ class List extends Component<ListProps, ListState> {
   private loadingKeys: Set<string> = new Set();
   private mode: string = '导师模式';
   private formValue: { [key: string]: string | string[] } = {};
+  private filterExpandText = {
+    expand: <FormattedMessage id="word.expand" />,
+    retract: <FormattedMessage id="word.retract" />,
+  };
 
   constructor(props: ListProps) {
     super(props);
@@ -240,7 +244,7 @@ class List extends Component<ListProps, ListState> {
     } = this.props;
     const { editing, auditing } = this.state;
     const {
-      dataset: { index, key, type: actionType, position },
+      dataset: { index, key, type: actionType, position: positionId },
     } = currentTarget as HTMLElement;
     const currentKey = `${key}`;
     switch (actionType) {
@@ -253,7 +257,7 @@ class List extends Component<ListProps, ListState> {
         });
         dispatch<FetchDetailPayload>({
           type: 'position/fetchDetail',
-          payload: { query: { type, key: position } },
+          payload: { query: { type, key: positionId } },
         });
         break;
       case CellAction.Delete:
@@ -289,6 +293,19 @@ class List extends Component<ListProps, ListState> {
         break;
       case CellAction.Cancel:
         this.cancelEditAuditState();
+        break;
+      case TopbarAction.MoveApply:
+        this.offset = parseInt(index, 10);
+        const { position } = this.props;
+        if (position.moveApply)
+          dispatch<EditStuapplyBody>({
+            type: 'stuapply/editStuapply',
+            payload: {
+              body: { position_id: position.moveApply },
+              query: { type, key: currentKey },
+            },
+            callback: this.fetchList,
+          });
         break;
       default:
         message.warn(formatMessage({ id: 'position.error.unknown.action' }));
@@ -374,6 +391,7 @@ class List extends Component<ListProps, ListState> {
   renderCardItem = (item: any, cardIndex: number) => {
     const { activeTabKey, currentKey, editing, auditing } = this.state;
     const {
+      position: { moveApply },
       stuapply: { actionKey, rowKey, columnsKeys, columnsText, columns },
     } = this.props;
     let header = item.title;
@@ -386,6 +404,11 @@ class List extends Component<ListProps, ListState> {
         { type: CellAction.Save, text: formatMessage({ id: 'word.save' }) },
         { type: CellAction.Cancel, text: formatMessage({ id: 'word.cancel' }) },
       ];
+    else if (moveApply)
+      actions = actions.concat({
+        type: TopbarAction.MoveApply,
+        text: formatMessage({ id: 'stuapply.move-apply' }),
+      });
     if (loading)
       header = (
         <span>
@@ -523,6 +546,7 @@ class List extends Component<ListProps, ListState> {
     student_name: string;
     student_number: string;
   }) => {
+    value = { ...initValues, ...value };
     const { actionFilter } = this.state;
     if (value.actionFilter !== actionFilter) {
       this.setState({ actionFilter: value.actionFilter });
@@ -538,6 +562,7 @@ class List extends Component<ListProps, ListState> {
     const { loading } = this.props;
     return (
       <Filter
+        expandText={this.filterExpandText}
         filters={filters}
         initialFieldsValue={initValues}
         onSubmit={this.onFilterChange}

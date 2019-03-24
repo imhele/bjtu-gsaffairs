@@ -56,6 +56,12 @@
   "operationArea": {
     "operation": [
       { "icon": "plus", "text": "新建", "type": "create" },
+      {
+        "icon": "swap",
+        "text": "移动申请",
+        "type": "move-apply",
+        "tooltip": "将已有的学生申请移动到此岗位"
+      },
       { "icon": "audit", "text": "审核", "type": "audit" },
       { "icon": "check-circle", "text": "一键通过", "type": "audit-pass" }
     ]

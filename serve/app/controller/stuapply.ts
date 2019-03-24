@@ -207,22 +207,20 @@ export default class UserController extends Controller {
     const { type, id } = params as { type: keyof typeof PositionType; id: string };
     if (!Object.keys(PositionType).includes(type) || id === void 0) return;
     const apply = await service.stuapply.findOne(parseInt(id, 10));
-    if (
-      apply.student_number !== request.auth.user.loginname &&
-      !request.auth.scope.includes(ScopeList.admin)
-    )
+    const isAdmin = request.auth.scope.includes(ScopeList.admin);
+    if (apply.student_number !== request.auth.user.loginname && !isAdmin)
       throw new AuthorizeError('你暂时没有权限编辑这条申请记录');
 
     delete request.body.id;
-    delete request.body.position_id;
+    if (!isAdmin) delete request.body.position_id;
     delete request.body.student_number;
     const values = model.Interships.Stuapply.formatBack({
       ...request.body,
-      status: '待审核',
-      audit: ApplyAuditStatus[1],
+      status: isAdmin ? apply.status : '待审核',
+      audit: isAdmin ? apply.audit : ApplyAuditStatus[1],
       audit_log: JSON.stringify([
         ...parseJSON(apply.audit_log), // some bugs here
-        service.position.getAuditLogItem(request.auth, ApplyAuditStatus[0]),
+        service.position.getAuditLogItem(request.auth, '修改信息'),
       ]),
     } as StuapplyModel<true>);
 

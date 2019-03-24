@@ -69,6 +69,7 @@ export interface PositionState {
    */
   form: Form;
   teachingTaskSelections: any[];
+  moveApply: string | number | null;
 }
 
 const defaultState: PositionState = {
@@ -106,6 +107,7 @@ const defaultState: PositionState = {
     rowProps: {},
   },
   teachingTaskSelections: [],
+  moveApply: null,
 };
 
 const SuccessActions = (payload: any) => [

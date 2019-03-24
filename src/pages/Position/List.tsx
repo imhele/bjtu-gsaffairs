@@ -7,7 +7,6 @@ import React, { Component } from 'react';
 import commonStyles from '../common.less';
 import { ButtonProps } from 'antd/es/button';
 import { getUseMedia } from 'react-media-hook2';
-import { message, Radio, Skeleton } from 'antd';
 import { Filter } from '@/components/SimpleForm';
 import { RadioChangeEvent } from 'antd/es/radio';
 import { CheckAuth } from '@/components/Authorized';
@@ -15,6 +14,7 @@ import { WrappedFormUtils } from 'antd/es/form/Form';
 import { formatStrOrNumQuery } from '@/utils/format';
 import MemorableModal from '@/components/MemorableModal';
 import { GlobalId, StorageId, TypeSpaceChar } from '@/global';
+import { message, notification, Radio, Skeleton } from 'antd';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { ConnectProps, ConnectState, PositionState } from '@/models/connect';
 import { CellAction, HideWithouSelection, PositionType, TopbarAction } from './consts';
@@ -385,6 +385,24 @@ class List extends Component<ListProps, ListState> {
       case TopbarAction.AuditPass:
         this.onBatchAudit(selectedRowKeys);
         break;
+      case TopbarAction.MoveApply:
+        const { position, dispatch } = this.props;
+        const post: any = position.dataSource.find(
+          item => item[position.rowKey] === selectedRowKeys[0],
+        );
+        dispatch({ type: 'position/setState', payload: { moveApply: selectedRowKeys[0] } });
+        notification.info({
+          message: '正在移动学生申请',
+          description: `岗位名称：${post.name.text}`,
+          duration: 0,
+          key: 'move-apply',
+          onClose: () => {
+            dispatch({ type: 'position/setState', payload: { moveApply: null } });
+            message.info('你已退出移动学生申请功能');
+          },
+        });
+        router.push('/stuapply');
+        break;
       default:
         message.warn(formatMessage({ id: 'position.error.unknown.action' }));
     }
@@ -405,6 +423,7 @@ class List extends Component<ListProps, ListState> {
     if (operation.visible === false) return false;
     // If no rows are selected, buttons in `HideWithouSelection` will not be displayed.
     if (HideWithouSelection.has(operation.type as any) && !selectedRowKeys.length) return false;
+    if (operation.type === TopbarAction.MoveApply && selectedRowKeys.length !== 1) return false;
     // Audit button.
     if ([TopbarAction.Audit, TopbarAction.AuditPass].includes(operation.type as TopbarAction)) {
       const hideAudit = Object.values(this.selectedRows).some(row => {
