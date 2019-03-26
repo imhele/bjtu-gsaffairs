@@ -19,6 +19,10 @@ export class DataNotFound extends BaseError {
   public type = 'DataNotFound';
 }
 
+export class OperationIgnored extends BaseError {
+  public type = 'OperationIgnored';
+}
+
 export class SystemClosed extends BaseError {
   public type = 'SystemClosed';
 }
@@ -30,6 +34,7 @@ const Errcode: { [key: string]: ErrorMessage } = {
   AuthorizeError: { errcode: 40001, errmsg: '权限校验失败' },
   DataNotFound: { errcode: 40002, errmsg: '数据不存在' },
   SystemClosed: { errcode: 40003, errmsg: '系统暂未开放' },
+  OperationIgnored: { errcode: 40004, errmsg: '系统暂未开放' },
 };
 
 export default Errcode;

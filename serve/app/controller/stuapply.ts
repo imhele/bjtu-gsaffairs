@@ -248,6 +248,13 @@ export default class UserController extends Controller {
     const { type, id } = params as { type: keyof typeof PositionType; id: string };
     if (!Object.keys(PositionType).includes(type) || id === void 0) return;
     const apply = await service.stuapply.findOne(parseInt(id, 10));
+    const hasOnePassed = await service.stuapply.hasOnePassedApplication(apply.student_number!);
+    if (hasOnePassed) {
+      response.body = {
+        errmsg: `学号为 ${apply.student_number} 的学生已成功申请过一个岗位，当前审核操作被忽略`,
+      };
+      return;
+    }
     const availableActions = service.stuapply.authorize(apply, request.auth, type);
     if (!availableActions.get(CellAction.Audit))
       throw new AuthorizeError('你暂时没有权限审核这条申请记录');
