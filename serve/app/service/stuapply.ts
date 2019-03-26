@@ -3,7 +3,7 @@ import { ScopeList } from './user';
 import { CellAction } from '../link';
 import { DataNotFound } from '../errcode';
 import { AuthResult } from '../extend/request';
-import { FindOptions, IncludeOptions, Model } from 'sequelize';
+import { FindOptions, IncludeOptions, Model, Op } from 'sequelize';
 import { attr as SchoolCensusAttr, SchoolCensus as CensusModel } from '../model/school/census';
 import {
   attr as StuapplyAttr,
@@ -73,14 +73,22 @@ export default class StuapplyService extends Service {
 
   public async hasApplied(positionId: number, student: string) {
     const { model } = this.ctx;
-    const stuapply = await model.Interships.Stuapply.findAll({
-      limit: 1,
-      attributes: ['id'],
+    const stuapply = await model.Interships.Stuapply.findOne({
       where: { student_number: student, position_id: positionId },
     });
-    return stuapply.length ? true : false;
+    return !!stuapply;
   }
 
+  public async hasOnePassedApplication(student: string) {
+    const { model } = this.ctx;
+    const stuapply = await model.Interships.Stuapply.findOne({
+      where: {
+        student_number: student,
+        ...model.Interships.Stuapply.formatBack({ audit: '申请成功' }),
+      },
+    });
+    return !!stuapply;
+  }
   /**
    * 不包含 CellAction.Preview 的判断
    */

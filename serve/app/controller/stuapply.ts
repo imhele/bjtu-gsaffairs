@@ -121,13 +121,19 @@ export default class UserController extends Controller {
     /* position id */
     const { type, id } = params as { type: keyof typeof PositionType; id: string };
     if (!Object.keys(PositionType).includes(type) || id === void 0) return;
+    const positionId = parseInt(id, 10);
     const position = await service.position.findOne(parseInt(id, 10), type);
-    const availableAction = service.position.getPositionAction(position, request.auth, type);
-    if (!availableAction.get(CellAction.Apply)) throw new AuthorizeError('你暂时无法申请此岗位');
-    const hasApplied: boolean = await service.stuapply.hasApplied(
-      parseInt(id, 10),
-      request.auth.user.loginname,
+    let applyunable: boolean = true;
+    if (request.auth.scope.includes(ScopeList.position[type].apply))
+      applyunable = await service.stuapply.hasOnePassedApplication(request.auth.user.loginname);
+    const availableAction = service.position.getPositionAction(
+      position,
+      request.auth,
+      type,
+      applyunable,
     );
+    if (!availableAction.get(CellAction.Apply)) throw new AuthorizeError('你暂时无法申请此岗位');
+    const hasApplied = await service.stuapply.hasApplied(positionId, request.auth.user.loginname);
     if (hasApplied) throw new AuthorizeError('你已经申请过这个岗位了，去找找其他岗位吧');
 
     const formItems = model.Interships.Stuapply.toForm(excludeFormFields as any, true);
@@ -142,13 +148,19 @@ export default class UserController extends Controller {
     /* position id */
     const { type, id } = params as { type: keyof typeof PositionType; id: string };
     if (!Object.keys(PositionType).includes(type) || id === void 0) return;
+    const positionId = parseInt(id, 10);
     const position = await service.position.findOne(parseInt(id, 10), type);
-    const availableAction = service.position.getPositionAction(position, request.auth, type);
-    if (!availableAction.get(CellAction.Apply)) throw new AuthorizeError('你暂时无法申请此岗位');
-    const hasApplied: boolean = await service.stuapply.hasApplied(
-      parseInt(id, 10),
-      request.auth.user.loginname,
+    let applyunable: boolean = true;
+    if (request.auth.scope.includes(ScopeList.position[type].apply))
+      applyunable = await service.stuapply.hasOnePassedApplication(request.auth.user.loginname);
+    const availableAction = service.position.getPositionAction(
+      position,
+      request.auth,
+      type,
+      applyunable,
     );
+    if (!availableAction.get(CellAction.Apply)) throw new AuthorizeError('你暂时无法申请此岗位');
+    const hasApplied = await service.stuapply.hasApplied(positionId, request.auth.user.loginname);
     if (hasApplied) throw new AuthorizeError('你已经申请过这个岗位了，去找找其他岗位吧');
 
     const values = model.Interships.Stuapply.formatBack({

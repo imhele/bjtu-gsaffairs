@@ -121,6 +121,7 @@ export default class PositionService extends Service {
     position: PositionModel,
     { auditableDep, auditLink, scope, user }: AuthResult,
     type: keyof typeof PositionType,
+    applyunable: boolean,
   ) {
     const action: Map<CellAction, boolean> = new Map();
     if (scope.includes(ScopeList.admin)) {
@@ -133,10 +134,8 @@ export default class PositionService extends Service {
       if (position.status === '已发布') {
         action.set(CellAction.Preview, true);
         /* 学生可申请已发布的岗位 */
-        if (scope.includes(ScopeList.position[type].apply)) {
-          // @TODO 学生已申请岗位时，状态不可用，目前直接在用户进入申请页时判断权限
-          action.set(CellAction.Apply, true);
-        }
+        if (scope.includes(ScopeList.position[type].apply))
+          action.set(CellAction.Apply, !applyunable);
       }
       /* 有审核权限的管理员可以查看非 `已发布` 状态的岗位 */
       if (scope.includes(ScopeList.position[type].audit)) {

@@ -132,8 +132,11 @@ export default class PositionController extends Controller {
     /**
      * Format dataSource
      */
+    let applyunable: boolean = true;
+    if (auth.scope.includes(ScopeList.position[type].apply))
+      applyunable = await service.stuapply.hasOnePassedApplication(auth.user.loginname);
     const dataSource = positions.map(item => {
-      const availableActions = service.position.getPositionAction(item, auth, type);
+      const availableActions = service.position.getPositionAction(item, auth, type, applyunable);
       availableActions.delete(CellAction.Preview);
       const action: StandardTableActionProps = Array.from(availableActions.entries())
         .filter(([_, enable]) => enable)
@@ -203,7 +206,7 @@ export default class PositionController extends Controller {
     /**
      * Authorize
      */
-    const availableActions = service.position.getPositionAction(position, auth, type);
+    const availableActions = service.position.getPositionAction(position, auth, type, true);
     if (!availableActions.get(CellAction.Preview))
       throw new AuthorizeError('你暂时没有权限查看这个岗位的信息');
     if (availableActions.has(CellAction.Audit) || availableActions.has(CellAction.Edit)) {
@@ -325,7 +328,7 @@ export default class PositionController extends Controller {
      * Authorize
      */
     const position = await service.position.findOne(parseInt(id, 10), type);
-    const availableActions = service.position.getPositionAction(position, auth, type);
+    const availableActions = service.position.getPositionAction(position, auth, type, true);
     if (!availableActions.get(CellAction.Delete))
       throw new AuthorizeError('你暂时没有权限删除这个岗位');
 
@@ -343,7 +346,7 @@ export default class PositionController extends Controller {
      * Authorize
      */
     const position = await service.position.findOne(parseInt(id, 10), type);
-    const availableActions = service.position.getPositionAction(position, auth, type);
+    const availableActions = service.position.getPositionAction(position, auth, type, true);
     if (!availableActions.get(CellAction.Edit))
       throw new AuthorizeError('你暂时没有权限编辑这个岗位');
 
@@ -378,7 +381,7 @@ export default class PositionController extends Controller {
      * Authorize
      */
     const position = await service.position.findOne(parseInt(id, 10), type, type === 'teach');
-    const availableActions = service.position.getPositionAction(position, auth, type);
+    const availableActions = service.position.getPositionAction(position, auth, type, true);
     if (!availableActions.get(CellAction.Audit))
       throw new AuthorizeError('你暂时没有权限审核这个岗位');
 
@@ -503,7 +506,7 @@ export default class PositionController extends Controller {
         });
     } else {
       const position = await service.position.findOne(parseInt(id, 10), type, type === 'teach');
-      const availableActions = service.position.getPositionAction(position, auth, type);
+      const availableActions = service.position.getPositionAction(position, auth, type, true);
       switch (action) {
         case CellAction.Edit:
           if (!availableActions.get(CellAction.Edit))
