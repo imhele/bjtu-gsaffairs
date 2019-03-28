@@ -6,18 +6,19 @@ import React, { Component } from 'react';
 import commonStyles from '../common.less';
 import PageHeader from '@/layouts/PageHeader';
 import { GlobalId, StorageId } from '@/global';
+import { CheckboxProps, CheckboxChangeEvent } from 'antd/es/checkbox';
 import { RadioChangeEvent } from 'antd/es/radio';
 import { CheckAuth } from '@/components/Authorized';
 import { FetchDetailPayload } from '@/api/position';
 import InfiniteScroll from 'react-infinite-scroller';
 import MemorableModal from '@/components/MemorableModal';
 import DescriptionList from '@/components/DescriptionList';
-import { CellAction, PositionType, TopbarAction } from '../Position/consts';
 import { StandardTableAction } from '@/components/StandardTable';
 import { Filter, FilterItemProps } from '@/components/SimpleForm';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import { Button, Card, Collapse, Icon, Input, message, Spin, Tabs } from 'antd';
+import { CellAction, PositionType, TopbarAction } from '../Position/consts';
 import { renderFormItem, SimpleFormItemType } from '@/components/SimpleForm/BaseForm';
+import { Button, Card, Checkbox, Collapse, Icon, Input, message, Spin, Tabs } from 'antd';
 import { FetchListPayload, DeleteStuapplyPayload, EditStuapplyBody } from '@/api/stuapply';
 import { ConnectProps, ConnectState, PositionState, StuapplyState } from '@/models/connect';
 
@@ -138,6 +139,7 @@ class List extends Component<ListProps, ListState> {
     expand: <FormattedMessage id="word.expand" />,
     retract: <FormattedMessage id="word.retract" />,
   };
+  private selectedKeys: Set<string> = new Set();
 
   constructor(props: ListProps) {
     super(props);
@@ -166,18 +168,28 @@ class List extends Component<ListProps, ListState> {
     this.filterFilter();
   };
 
+  // tslint:disable-next-line
+  __renderPanelExtra = (props: CheckboxProps) => (
+    <div onClick={event => event.stopPropagation()}>
+      <Checkbox {...props} />
+    </div>
+  );
+
   filterFilter = () => {
     const isAdmin = CheckAuth(['scope.admin'], null, GlobalId.BasicLayout);
     const isStudent = CheckAuth([`scope.position.${this.type}.apply`], null, GlobalId.BasicLayout);
     if (isAdmin) {
       if (this.filters.length === allFilters.length - 1) return;
       this.filters = allFilters.slice(1);
+      this.renderPanelExtra = this.__renderPanelExtra;
     } else if (isStudent) {
       if (this.filters.length === 2) return;
       this.filters = allFilters.slice(1, 3);
+      this.renderPanelExtra = (_: CheckboxProps) => void 0;
     } else {
       if (this.filters.length === allFilters.length) return;
       this.filters = allFilters;
+      this.renderPanelExtra = (_: CheckboxProps) => void 0;
     }
     this.forceUpdate();
   };
@@ -388,6 +400,13 @@ class List extends Component<ListProps, ListState> {
     this.cancelEditAuditState({ activeTabKey: key, currentKey: itemKey });
   };
 
+  renderPanelExtra = (_: CheckboxProps) => void 0;
+
+  onSelectionChange = ({ target: { checked, name } }: CheckboxChangeEvent) => {
+    if (checked) this.selectedKeys.add(name);
+    else this.selectedKeys.delete(name);
+  };
+
   renderCardItem = (item: any, cardIndex: number) => {
     const { activeTabKey, currentKey, editing, auditing } = this.state;
     const {
@@ -417,7 +436,11 @@ class List extends Component<ListProps, ListState> {
         </span>
       );
     return (
-      <Collapse.Panel header={header} key={itemKey}>
+      <Collapse.Panel
+        header={header}
+        key={itemKey}
+        extra={this.renderPanelExtra({ name: itemKey, onChange: this.onSelectionChange })}
+      >
         <Spin spinning={loading}>
           <Card
             actions={actions.map(a => this.renderActionItem(a, item, cardIndex))}
