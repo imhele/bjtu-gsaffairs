@@ -6,7 +6,6 @@ import React, { Component } from 'react';
 import commonStyles from '../common.less';
 import PageHeader from '@/layouts/PageHeader';
 import { GlobalId, StorageId } from '@/global';
-import { CheckboxProps, CheckboxChangeEvent } from 'antd/es/checkbox';
 import { RadioChangeEvent } from 'antd/es/radio';
 import { CheckAuth } from '@/components/Authorized';
 import { FetchDetailPayload } from '@/api/position';
@@ -16,9 +15,10 @@ import DescriptionList from '@/components/DescriptionList';
 import { StandardTableAction } from '@/components/StandardTable';
 import { Filter, FilterItemProps } from '@/components/SimpleForm';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { CheckboxProps, CheckboxChangeEvent } from 'antd/es/checkbox';
 import { CellAction, PositionType, TopbarAction } from '../Position/consts';
 import { renderFormItem, SimpleFormItemType } from '@/components/SimpleForm/BaseForm';
-import { Button, Card, Checkbox, Collapse, Icon, Input, message, Spin, Tabs } from 'antd';
+import { Button, Card, Checkbox, Collapse, Icon, Input, message, Modal, Spin, Tabs } from 'antd';
 import { FetchListPayload, DeleteStuapplyPayload, EditStuapplyBody } from '@/api/stuapply';
 import { ConnectProps, ConnectState, PositionState, StuapplyState } from '@/models/connect';
 
@@ -134,12 +134,12 @@ class List extends Component<ListProps, ListState> {
   private type: PositionType = null;
   private loadingKeys: Set<string> = new Set();
   private mode: string = '导师模式';
+  private selectedKeys: Set<string> = new Set();
   private formValue: { [key: string]: string | string[] } = {};
   private filterExpandText = {
     expand: <FormattedMessage id="word.expand" />,
     retract: <FormattedMessage id="word.retract" />,
   };
-  private selectedKeys: Set<string> = new Set();
 
   constructor(props: ListProps) {
     super(props);
@@ -407,6 +407,39 @@ class List extends Component<ListProps, ListState> {
     else this.selectedKeys.delete(name);
   };
 
+  onBatchAudit = () => {
+    Modal.confirm({
+      title: '批量审核',
+      content: `已选中 ${this.selectedKeys.size} 个岗位`,
+      okText: '开始审核',
+      cancelText: '取消',
+      onOk: () =>
+        new Promise(async resolve => {
+          let index: number = 0;
+          const { type } = this;
+          const { dispatch } = this.props;
+          for (const key of this.selectedKeys) {
+            await dispatch<EditStuapplyBody>({
+              type: 'stuapply/auditStuapply',
+              payload: { body: { status: '审核通过' }, query: { type, key } },
+              callback: this.cancelEditAuditStateAndRefresh,
+            });
+            index++;
+            if (index % 10 === 0) message.success(`已审核 ${index} 条申请`);
+          }
+          this.selectedKeys = new Set();
+          this.offset = 0;
+          await dispatch({
+            type: 'stuapply/setState',
+            payload: { dataSource: [] },
+          });
+          message.success('批量审核完成');
+          this.fetchList();
+          resolve();
+        }),
+    });
+  };
+
   renderCardItem = (item: any, cardIndex: number) => {
     const { activeTabKey, currentKey, editing, auditing } = this.state;
     const {
@@ -416,7 +449,7 @@ class List extends Component<ListProps, ListState> {
     let header = item.title;
     const itemKey = `${item[rowKey]}`;
     const loading = this.loadingKeys.has(itemKey);
-    let actions: (StandardTableAction)[] = item[actionKey] || [];
+    let actions: StandardTableAction[] = item[actionKey] || [];
     const realActiveKey = activeTabKey && currentKey === itemKey ? activeTabKey : columnsKeys[0];
     if (currentKey === itemKey && (editing || auditing))
       actions = [
@@ -608,6 +641,16 @@ class List extends Component<ListProps, ListState> {
       <PageHeader headerExtra={this.headerExtra()}>
         <div className={commonStyles.contentBody}>
           {this.renderFilters()}
+          {CheckAuth(['scope.admin'], null, GlobalId.BasicLayout) && (
+            <Button
+              loading={loading.model}
+              onClick={this.onBatchAudit}
+              style={{ marginBottom: 24 }}
+              type="primary"
+            >
+              一键通过
+            </Button>
+          )}
           <InfiniteScroll
             className={styles.scrollContainer}
             initialLoad={false}
