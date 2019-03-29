@@ -407,10 +407,10 @@ class List extends Component<ListProps, ListState> {
     else this.selectedKeys.delete(name);
   };
 
-  onBatchAudit = () => {
+  onBatchAudit = (keys: Set<string>) => {
     Modal.confirm({
       title: '批量审核',
-      content: `已选中 ${this.selectedKeys.size} 个岗位`,
+      content: `已选中 ${keys.size} 个岗位`,
       okText: '开始审核',
       cancelText: '取消',
       onOk: () =>
@@ -418,7 +418,7 @@ class List extends Component<ListProps, ListState> {
           let index: number = 0;
           const { type } = this;
           const { dispatch } = this.props;
-          for (const key of this.selectedKeys) {
+          for (const key of keys) {
             await dispatch<EditStuapplyBody>({
               type: 'stuapply/auditStuapply',
               payload: { body: { status: '审核通过' }, query: { type, key } },
@@ -427,7 +427,9 @@ class List extends Component<ListProps, ListState> {
             index++;
             if (index % 10 === 0) message.success(`已审核 ${index} 条申请`);
           }
-          this.selectedKeys = new Set();
+          if (keys === this.selectedKeys) {
+            this.selectedKeys = new Set();
+          }
           this.offset = 0;
           await dispatch({
             type: 'stuapply/setState',
@@ -630,6 +632,14 @@ class List extends Component<ListProps, ListState> {
     );
   };
 
+  onBatchAuditAll = () => {
+    const { stuapply } = this.props;
+    const keys: Set<string> = new Set(
+      stuapply.dataSource.filter(this.filterDataSource).map(item => item[stuapply.rowKey]),
+    );
+    this.onBatchAudit(keys);
+  };
+
   render() {
     const { detailVisible } = this.state;
     const {
@@ -642,14 +652,23 @@ class List extends Component<ListProps, ListState> {
         <div className={commonStyles.contentBody}>
           {this.renderFilters()}
           {CheckAuth(['scope.admin'], null, GlobalId.BasicLayout) && (
-            <Button
-              loading={loading.model}
-              onClick={this.onBatchAudit}
-              style={{ marginBottom: 24 }}
-              type="primary"
-            >
-              一键通过
-            </Button>
+            <React.Fragment>
+              <Button
+                loading={loading.model}
+                onClick={() => this.onBatchAudit(this.selectedKeys)}
+                style={{ marginBottom: 24 }}
+                type="primary"
+              >
+                通过已选
+              </Button>
+              <Button
+                loading={loading.model}
+                onClick={this.onBatchAuditAll}
+                style={{ marginLeft: 8 }}
+              >
+                通过已加载内容
+              </Button>
+            </React.Fragment>
           )}
           <InfiniteScroll
             className={styles.scrollContainer}
