@@ -4,7 +4,7 @@ import requests, { RequestBody } from '@/utils/requests';
 
 export interface FetchListBody extends RequestBody {
   limit?: number;
-  mode?: string,
+  mode?: string;
   offset?: number;
   position_name?: string;
   student_name?: string;
@@ -62,6 +62,16 @@ export interface AuditStuapplyPayload {
 export async function auditStuapply({ body, query }: AuditStuapplyPayload) {
   return requests<AuditStuapplyBody>(`${APIPrefix}/stuapply/${query.type}/audit/${query.key}`, {
     body,
+    method: 'POST',
+  });
+}
+
+export interface StuapplyFilePayload {
+  query: FetchQuery;
+}
+
+export async function getStuapplyFile({ query }: StuapplyFilePayload) {
+  return requests(`${APIPrefix}/stuapply/${query.type}/file/${query.key}`, {
     method: 'POST',
   });
 }

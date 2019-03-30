@@ -43,13 +43,15 @@ export default class StuapplyService extends Service {
     return num;
   }
 
-  public async findOne(id: number): Promise<StuapplyWithFK> {
+  public async findOne<T extends boolean = false>(id: number, withoutPrefix?: T) {
     const { model } = this.ctx;
     const stuapply: any = await model.Interships.Stuapply.findByPk(id, {
       include: [model.School.Census, model.Interships.Position],
     });
     if (stuapply === null) throw new DataNotFound('申请信息不存在');
-    return this.formatStuapply(stuapply) as StuapplyWithFK;
+    return this.formatStuapply(stuapply, !withoutPrefix) as T extends true
+      ? StuapplyWithoutPrefix
+      : StuapplyWithFK;
   }
 
   public async updateOne(id: number, values: Partial<StuapplyModel<true>>) {
@@ -79,6 +81,17 @@ export default class StuapplyService extends Service {
     return !!stuapply;
   }
 
+  public async getTeacherAndDep({ SchoolCensus, IntershipsPosition }: StuapplyWithoutPrefix) {
+    const { model } = this.ctx;
+    const teacherId = SchoolCensus.teacher_code || SchoolCensus.teacher2_code;
+    const dep: any = await model.Dicts.Department.findByPk(IntershipsPosition.department_code);
+    const teacher: any = await model.People.Staff.findByPk(teacherId);
+    return {
+      department_name: dep ? dep.get('name') : '',
+      teacher_name: teacher ? teacher.get('name') : '',
+    };
+  }
+
   public async hasOnePassedApplication(student: string) {
     const { model } = this.ctx;
     const stuapply = await model.Interships.Stuapply.findOne({
@@ -102,6 +115,8 @@ export default class StuapplyService extends Service {
       action.set(CellAction.Delete, true);
       action.set(CellAction.Edit, true);
       action.set(CellAction.Audit, stuapply.status === '待审核');
+      /* 申请成功下可以下载协议书 */
+      action.set(CellAction.File, stuapply.audit === '申请成功');
     } else {
       if (scope.includes(ScopeList.position[type].apply)) action.set(CellAction.Apply, true);
       /* 用户可以访问和删除自己发布的岗位 */
@@ -109,21 +124,31 @@ export default class StuapplyService extends Service {
         action.set(CellAction.Delete, true);
         /* 草稿状态下可以编辑 */
         action.set(CellAction.Edit, stuapply.status === '草稿');
+        /* 申请成功下可以下载协议书 */
+        action.set(CellAction.File, stuapply.audit === '申请成功');
       }
       /* 根据岗位审核进度设定审核权限可用状态 */
       if (auditableDep.includes(stuapply.position_department_code!)) {
+        /* 申请成功下可以下载协议书 */
+        action.set(CellAction.File, stuapply.audit === '申请成功');
         action.set(
           CellAction.Audit,
           stuapply.audit === '用人单位审核' && stuapply.status === '待审核',
         );
       }
-      if (auditLink.includes(stuapply.audit))
+      if (auditLink.includes(stuapply.audit)) {
+        /* 申请成功下可以下载协议书 */
+        action.set(CellAction.File, stuapply.audit === '申请成功');
         action.set(CellAction.Audit, stuapply.status === '待审核');
+      }
       if (
         stuapply.student_teacher_code === user.loginname ||
         stuapply.student_teacher2_code === user.loginname
-      )
+      ) {
+        /* 申请成功下可以下载协议书 */
+        action.set(CellAction.File, stuapply.audit === '申请成功');
         action.set(CellAction.Audit, stuapply.audit === '导师确认' && stuapply.status === '待审核');
+      }
     }
     return action;
   }
@@ -141,6 +166,8 @@ export default class StuapplyService extends Service {
       action.set(CellAction.Delete, true);
       action.set(CellAction.Edit, true);
       action.set(CellAction.Audit, stuapply.IntershipsStuapply.status === '待审核');
+      /* 申请成功下可以下载协议书 */
+      action.set(CellAction.File, stuapply.IntershipsStuapply.audit === '申请成功');
     } else {
       if (scope.includes(ScopeList.position[type].apply)) action.set(CellAction.Apply, true);
       /* 用户可以访问和删除自己发布的岗位 */
@@ -148,26 +175,36 @@ export default class StuapplyService extends Service {
         action.set(CellAction.Delete, true);
         /* 草稿状态下可以编辑 */
         action.set(CellAction.Edit, stuapply.IntershipsStuapply.status === '草稿');
+        /* 申请成功下可以下载协议书 */
+        action.set(CellAction.File, stuapply.IntershipsStuapply.audit === '申请成功');
       }
       /* 根据岗位审核进度设定审核权限可用状态 */
       if (auditableDep.includes(stuapply.IntershipsPosition.department_code!)) {
+        /* 申请成功下可以下载协议书 */
+        action.set(CellAction.File, stuapply.IntershipsStuapply.audit === '申请成功');
         action.set(
           CellAction.Audit,
           stuapply.IntershipsStuapply.audit === '用人单位审核' &&
             stuapply.IntershipsStuapply.status === '待审核',
         );
       }
-      if (auditLink.includes(stuapply.IntershipsStuapply.audit))
+      if (auditLink.includes(stuapply.IntershipsStuapply.audit)) {
+        /* 申请成功下可以下载协议书 */
+        action.set(CellAction.File, stuapply.IntershipsStuapply.audit === '申请成功');
         action.set(CellAction.Audit, stuapply.IntershipsStuapply.status === '待审核');
+      }
       if (
         stuapply.SchoolCensus.teacher_code === user.loginname ||
         stuapply.SchoolCensus.teacher2_code === user.loginname
-      )
+      ) {
+        /* 申请成功下可以下载协议书 */
+        action.set(CellAction.File, stuapply.IntershipsStuapply.audit === '申请成功');
         action.set(
           CellAction.Audit,
           stuapply.IntershipsStuapply.audit === '导师确认' &&
             stuapply.IntershipsStuapply.status === '待审核',
         );
+      }
     }
     return action;
   }
@@ -223,7 +260,10 @@ export default class StuapplyService extends Service {
     const formatted = stuapply.format();
     if (formatLog && formatted.audit_log)
       formatted.audit_log = this.service.position.formatAuditLog(formatted.audit_log);
-    if (formatted.SchoolCensu) formatted.SchoolCensus = formatted.SchoolCensu;
+    if (formatted.SchoolCensu) {
+      formatted.SchoolCensus = formatted.SchoolCensu;
+      delete formatted.SchoolCensu;
+    }
     if (formatted.IntershipsPosition) {
       formatted.IntershipsPosition = formatted.IntershipsPosition.format();
       const { audit_log } = formatted.IntershipsPosition;

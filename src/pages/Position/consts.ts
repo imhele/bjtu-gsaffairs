@@ -14,6 +14,7 @@ export const enum CellAction {
   Preview = 'preview',
   Save = 'save',
   Cancel = 'cancel',
+  File = 'file',
 }
 
 export const enum TopbarAction {

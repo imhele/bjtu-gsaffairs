@@ -5,6 +5,9 @@ export const enum CellAction {
   Download = 'download',
   Edit = 'edit',
   Preview = 'preview',
+  Save = 'save',
+  Cancel = 'cancel',
+  File = 'file',
 }
 
 export const enum TopbarAction {
@@ -13,8 +16,10 @@ export const enum TopbarAction {
    * When user selected any row without an audit `CellAction`, the "batch audit" button hides.
    */
   Audit = 'audit',
+  AuditPass = 'audit-pass',
   Create = 'create',
   Export = 'export',
+  MoveApply = 'move-apply',
 }
 
 export const enum SimpleFormItemType {

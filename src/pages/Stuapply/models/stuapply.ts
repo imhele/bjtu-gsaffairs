@@ -7,6 +7,7 @@ import {
   editStuapply,
   auditStuapply,
   deleteStuapply,
+  getStuapplyFile,
   FetchListPayload,
 } from '@/api/stuapply';
 
@@ -66,7 +67,7 @@ const model: StuapplyModel = {
       Utils.safeFun(callback, null, payload);
     },
     *editStuapply({ callback, payload }, { call }) {
-      payload.body = Utils.formatMomentInFieldsValue(payload.body, Utils.formatMoment.YMDHms);
+      // payload.body = Utils.formatMomentInFieldsValue(payload.body, Utils.formatMoment.YMDHms);
       const response = yield call(editStuapply, payload);
       if (response && !response.errcode) {
         message.success(response.errmsg);
@@ -74,12 +75,15 @@ const model: StuapplyModel = {
       }
     },
     *auditStuapply({ callback, payload }, { call }) {
-      payload.body = Utils.formatMomentInFieldsValue(payload.body, Utils.formatMoment.YMDHms);
+      // payload.body = Utils.formatMomentInFieldsValue(payload.body, Utils.formatMoment.YMDHms);
       const response = yield call(auditStuapply, payload);
       if (response && !response.errcode) {
         message.success(response.errmsg);
         Utils.safeFun(callback, null, payload);
       }
+    },
+    *getStuapplyFile({ payload }, { call }) {
+      yield call(getStuapplyFile, payload);
     },
   },
   reducers: {

@@ -19,7 +19,12 @@ import { CheckboxProps, CheckboxChangeEvent } from 'antd/es/checkbox';
 import { CellAction, PositionType, TopbarAction } from '../Position/consts';
 import { renderFormItem, SimpleFormItemType } from '@/components/SimpleForm/BaseForm';
 import { Button, Card, Checkbox, Collapse, Icon, Input, message, Modal, Spin, Tabs } from 'antd';
-import { FetchListPayload, DeleteStuapplyPayload, EditStuapplyBody } from '@/api/stuapply';
+import {
+  FetchListPayload,
+  DeleteStuapplyPayload,
+  EditStuapplyBody,
+  StuapplyFilePayload,
+} from '@/api/stuapply';
 import { ConnectProps, ConnectState, PositionState, StuapplyState } from '@/models/connect';
 
 const allFilters: FilterItemProps[] = [
@@ -305,6 +310,12 @@ class List extends Component<ListProps, ListState> {
         break;
       case CellAction.Cancel:
         this.cancelEditAuditState();
+        break;
+      case CellAction.File:
+        dispatch<StuapplyFilePayload>({
+          type: 'stuapply/getStuapplyFile',
+          payload: { query: { type, key: currentKey } },
+        });
         break;
       case TopbarAction.MoveApply:
         this.offset = parseInt(index, 10);

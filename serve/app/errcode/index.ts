@@ -27,6 +27,10 @@ export class SystemClosed extends BaseError {
   public type = 'SystemClosed';
 }
 
+export class CreateFileFailed extends BaseError {
+  public type = 'CreateFileFailed';
+}
+
 const Errcode: { [key: string]: ErrorMessage } = {
   SystemBusy: { errcode: -1, errmsg: '系统繁忙' },
   Success: { errcode: 0, errmsg: '请求成功' },
@@ -35,6 +39,7 @@ const Errcode: { [key: string]: ErrorMessage } = {
   DataNotFound: { errcode: 40002, errmsg: '数据不存在' },
   SystemClosed: { errcode: 40003, errmsg: '系统暂未开放' },
   OperationIgnored: { errcode: 40004, errmsg: '系统暂未开放' },
+  CreateFileFailed: { errcode: 40005, errmsg: '生成文件失败' },
 };
 
 export default Errcode;

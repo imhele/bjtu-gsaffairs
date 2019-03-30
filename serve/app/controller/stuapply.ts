@@ -1,10 +1,14 @@
+import fs from 'fs';
+import path from 'path';
+import lodash from 'lodash';
 import { Controller } from 'egg';
 import { CellAction } from '../link';
+import HTML2PDF from '../utils/HTML2PDF.js';
 import { Op, WhereOptions } from 'sequelize';
 import { getFromIntEnum, parseJSON } from '../utils';
 import { ScopeList, UserType } from '../service/user';
-import { AuthorizeError, DataNotFound } from '../errcode';
 import { SchoolCensus as CensusModel } from '../model/school/census';
+import { AuthorizeError, CreateFileFailed, DataNotFound } from '../errcode';
 import { excludeFormFields, applyReturn, positionDetailFields } from './stuapply.json';
 import {
   attr as PositionAttr,
@@ -22,7 +26,7 @@ const ActionText = {
   [CellAction.Apply]: { text: '申请', type: CellAction.Apply },
   [CellAction.Audit]: { text: '审核', type: CellAction.Audit },
   [CellAction.Delete]: { text: '删除', type: CellAction.Delete },
-  [CellAction.Download]: { text: '下载', type: CellAction.Download }, // uncompleted function
+  [CellAction.File]: { text: '下载协议书', type: CellAction.File },
   [CellAction.Edit]: { text: '编辑', type: CellAction.Edit },
 };
 
@@ -283,5 +287,35 @@ export default class UserController extends Controller {
     values = model.Interships.Stuapply.formatBack(values);
     await service.stuapply.updateOne(parseInt(id, 10), values as any);
     response.body = { errmsg: '审核成功' };
+  }
+
+  public async file() {
+    const {
+      ctx: { request, response, params },
+      service,
+    } = this;
+    const { type, id } = params as { type: keyof typeof PositionType; id: string };
+    if (!Object.keys(PositionType).includes(type) || id === void 0) return;
+    const apply = await service.stuapply.findOne(parseInt(id, 10), true);
+    if (apply.IntershipsStuapply.audit !== '申请成功')
+      throw new AuthorizeError('申请成功后才能下载岗位协议书');
+    const availableActions = service.stuapply.authorizeWithoutPrefix(apply, request.auth, type);
+    if (!availableActions.get(CellAction.File))
+      throw new AuthorizeError('你暂时没有权限下载岗位协议书');
+
+    lodash.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
+    const templatePath = path.join(__dirname, './applyTemplate.html');
+    const compiled = lodash.template(fs.readFileSync(templatePath, 'utf8'));
+    const template = compiled({
+      ...apply,
+      ...(await service.stuapply.getTeacherAndDep(apply)),
+    });
+    try {
+      this.ctx.attachment('agreement.pdf');
+      this.ctx.set('Content-Type', 'application/octet-stream');
+      response.body = HTML2PDF(template);
+    } catch {
+      throw new CreateFileFailed();
+    }
   }
 }

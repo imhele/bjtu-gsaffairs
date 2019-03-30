@@ -25,9 +25,12 @@ export default (): any => {
   return async (ctx: Context, next: () => Promise<any>) => {
     try {
       await next();
-      if (!Array.isArray(ctx.body) && typeof ctx.body === 'object') {
-        ctx.body = { ...errcode.Success, ...ctx.body } as ErrorMessage;
-      }
+      try {
+        if (!Array.isArray(ctx.body) && typeof ctx.body === 'object') {
+          const newBody = { ...errcode.Success, ...ctx.body } as ErrorMessage;
+          ctx.body = newBody;
+        }
+      } catch {}
     } catch (err) {
       if (err instanceof ValidationError) {
         const { errors } = err as ValidationError;

@@ -1,7 +1,7 @@
 import hash from 'hash.js';
 import router from 'umi/router';
 import { getSign } from './auth';
-import { notification } from 'antd';
+import { notification, message } from 'antd';
 import fetch from 'isomorphic-fetch'; // @issue: https://github.com/dvajs/dva/issues/2000
 
 export interface RequestBody {}
@@ -9,7 +9,7 @@ export interface RequestBody {}
 export interface ResponseBody {
   errcode?: number;
   errmsg?: string;
-  [key: string]: any
+  [key: string]: any;
 }
 
 export type RequestOptions<T extends RequestBody> = {
@@ -117,6 +117,17 @@ export default async function request<T>(
   const formattedResponse = await fetch(url, newOptions)
     .then(response => cachedSave(response, hashcode))
     .then<ResponseBody | string>(response => {
+      if (response.headers.get('Content-Type').includes('stream'))
+        return response.blob().then(blob => {
+          const a = document.createElement('a');
+          const fileUrl = URL.createObjectURL(blob);
+          a.href = fileUrl;
+          const disposition = response.headers.get('Content-Disposition');
+          const filename = /filename[\s\S]?="([\s\S]*?)"/.exec(disposition) || ['', disposition];
+          a.download = decodeURIComponent(filename[1]);
+          a.click();
+          URL.revokeObjectURL(fileUrl);
+        });
       if (newOptions.method === 'DELETE' || response.status === 204) {
         return response.text();
       }
@@ -130,11 +141,11 @@ export default async function request<T>(
       if (status >= 404 && status < 422) return router.push('/exception/404');
     });
   if (typeof formattedResponse !== 'object' || !formattedResponse || !formattedResponse.errcode)
-    return new Promise(resolve => resolve(formattedResponse));
+    return Promise.resolve(formattedResponse);
   if (!newOptions.ignoreErrcode)
     notification.error({
       description: formattedResponse.errmsg,
       message: `Error code: ${formattedResponse.errcode}`,
     });
-  return new Promise(resolve => resolve(null));
+  return Promise.resolve(null);
 }
