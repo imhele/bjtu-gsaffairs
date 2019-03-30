@@ -8,6 +8,20 @@ export const lenToArr = (arr: any[] | number) =>
 
 type changeCaseType = 'camel' | 'snack';
 
+export function randomStr(): string {
+  // tslint:disable-next-line
+  return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+}
+
+export function UUID(length = 32, join = ''): string {
+  const sec: number = join.length + 4;
+  const num: number = Math.ceil(length / sec);
+  return Array.from({ length: num })
+    .map(randomStr)
+    .join(join)
+    .slice(0, length);
+}
+
 export const changeCase = (type: changeCaseType, data: object | (object | string)[] | string) => {
   if (typeof data === 'string') return ChangeCase[type](data);
   if (Array.isArray(data)) return data.map(item => changeCase(type, item));

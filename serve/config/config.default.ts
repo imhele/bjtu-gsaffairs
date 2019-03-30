@@ -23,6 +23,7 @@ export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizCon
 
   config.errcode = {
     enable: true,
+    successIgnore: ['/api/stuapply/:type/file/:id?'],
   };
 
   config.auth = {

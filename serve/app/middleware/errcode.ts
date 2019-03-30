@@ -1,4 +1,5 @@
 import { Context } from 'egg';
+import pathToRegexp from 'path-to-regexp';
 import { ValidationError, ValidationErrorItem } from 'sequelize';
 import errcode, { ErrorMessage, ValidationMessage, BaseError } from '../errcode';
 
@@ -25,12 +26,13 @@ export default (): any => {
   return async (ctx: Context, next: () => Promise<any>) => {
     try {
       await next();
-      try {
-        if (!Array.isArray(ctx.body) && typeof ctx.body === 'object') {
-          const newBody = { ...errcode.Success, ...ctx.body } as ErrorMessage;
-          ctx.body = newBody;
-        }
-      } catch {}
+      const successIgnore: string[] = ctx.app.config.errcode.successIgnore || [];
+      // tslint:disable-next-line: no-unused-expression
+      if (successIgnore.some(path => pathToRegexp(path).test(ctx.path))) void 0;
+      else if (!Array.isArray(ctx.body) && typeof ctx.body === 'object') {
+        const newBody = { ...errcode.Success, ...ctx.body } as ErrorMessage;
+        ctx.body = newBody;
+      }
     } catch (err) {
       if (err instanceof ValidationError) {
         const { errors } = err as ValidationError;
