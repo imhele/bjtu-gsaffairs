@@ -72,6 +72,7 @@ const wkhtmltopdf = (input: string, options: any = {}, callback?: any) => {
   args.push(output ? quote(output) : '-'); // stdout if no output file
   // show the command that is being run if debug opion is passed
   if (options.debug && !(options instanceof Function)) {
+    // tslint:disable-next-line no-console
     console.log('[node-wkhtmltopdf] [debug] [command] ' + args.join(' '));
   }
 
@@ -133,6 +134,7 @@ const wkhtmltopdf = (input: string, options: any = {}, callback?: any) => {
     if (options.debug instanceof Function) {
       options.debug(data);
     } else if (options.debug) {
+      // tslint:disable-next-line no-console
       console.log('[node-wkhtmltopdf] [debug] ' + data.toString());
     }
   });
@@ -146,6 +148,7 @@ const wkhtmltopdf = (input: string, options: any = {}, callback?: any) => {
       if (options.debug instanceof Function) {
         options.debug(data);
       } else if (options.debug) {
+        // tslint:disable-next-line no-console
         console.log('[node-wkhtmltopdf] [debugStdOut] ' + data.toString());
       }
     });

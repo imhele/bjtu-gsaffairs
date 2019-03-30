@@ -86,7 +86,11 @@ export default class StuapplyService extends Service {
     const teacherId = SchoolCensus.teacher_code || SchoolCensus.teacher2_code;
     const dep: any = await model.Dicts.Department.findByPk(IntershipsPosition.department_code);
     const teacher: any = await model.People.Staff.findByPk(teacherId);
+    const college: any = await model.Dicts.College.findByPk(SchoolCensus.college_id);
+    const discipline: any = await model.Discipline.Discipline.findByPk(SchoolCensus.discipline);
     return {
+      college: college ? college.get('name') : '',
+      discipline: discipline ? discipline.get('name') : '',
       department_name: dep ? dep.get('name') : '',
       teacher_name: teacher ? teacher.get('name') : '',
     };

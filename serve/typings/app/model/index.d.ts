@@ -6,6 +6,7 @@ import ExportClientPostgraduate from '../../../app/model/client/postgraduate';
 import ExportClientStaff from '../../../app/model/client/staff';
 import ExportDictsCollege from '../../../app/model/dicts/college';
 import ExportDictsDepartment from '../../../app/model/dicts/department';
+import ExportDisciplineDiscipline from '../../../app/model/discipline/discipline';
 import ExportIntershipsAdmins from '../../../app/model/interships/admins';
 import ExportIntershipsConfig from '../../../app/model/interships/config';
 import ExportIntershipsPosition from '../../../app/model/interships/position';
@@ -24,6 +25,9 @@ declare module 'sequelize' {
     Dicts: {
       College: ReturnType<typeof ExportDictsCollege>;
       Department: ReturnType<typeof ExportDictsDepartment>;
+    }
+    Discipline: {
+      Discipline: ReturnType<typeof ExportDisciplineDiscipline>;
     }
     Interships: {
       Admins: ReturnType<typeof ExportIntershipsAdmins>;
