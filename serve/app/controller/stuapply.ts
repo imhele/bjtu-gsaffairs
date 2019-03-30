@@ -3,7 +3,7 @@ import path from 'path';
 import lodash from 'lodash';
 import { Controller } from 'egg';
 import { CellAction } from '../link';
-import HTML2PDF from '../utils/HTML2PDF.js';
+import HTML2PDF from '../utils/HTML2PDF';
 import { Op, WhereOptions } from 'sequelize';
 import { getFromIntEnum, parseJSON } from '../utils';
 import { ScopeList, UserType } from '../service/user';

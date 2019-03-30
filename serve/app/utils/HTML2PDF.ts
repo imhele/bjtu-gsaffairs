@@ -165,4 +165,4 @@ const wkhtmltopdf = (input: string, options: any = {}, callback?: any) => {
 
 wkhtmltopdf.command = 'wkhtmltopdf';
 wkhtmltopdf.shell = '/bin/bash';
-module.exports = wkhtmltopdf;
+export default wkhtmltopdf;
