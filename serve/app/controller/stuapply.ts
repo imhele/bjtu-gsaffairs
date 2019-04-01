@@ -37,7 +37,7 @@ export default class UserController extends Controller {
     const { type } = ctx.params as { type: keyof typeof PositionType };
     const positionType = getFromIntEnum(PositionAttr, 'types', null, PositionType[type]);
     if (positionType === -1) return;
-    const { limit = 10, mode, offset = 0, student_number, status } = body;
+    const { limit = 10, mode, offset = 0, student_number, status, audit } = body;
 
     /**
      * Qurey batabase
@@ -71,6 +71,8 @@ export default class UserController extends Controller {
     }
     if (status && Object.keys(ApplyStatus).includes(status))
       applyFilters.push(ctx.model.Interships.Stuapply.formatBack({ status }));
+    if (audit && ApplyAuditStatus.includes(audit))
+      applyFilters.push(ctx.model.Interships.Stuapply.formatBack({ audit }));
     if (applyFilters.length) Object.assign(options, { where: applyFilters });
     const dbRes = await service.stuapply.findAndCountAll<false>(options, include, false);
 

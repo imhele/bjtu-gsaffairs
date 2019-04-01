@@ -49,6 +49,20 @@ const allFilters: FilterItemProps[] = [
     ],
   },
   {
+    id: 'audit',
+    title: '审核环节',
+    type: SimpleFormItemType.Select,
+    itemProps: { allowClear: false },
+    selectOptions: [
+      { value: '', title: '全部' },
+      { value: '学生申请' },
+      { value: '导师确认' },
+      { value: '用人单位审核' },
+      { value: '研工部审核' },
+      { value: '申请成功' },
+    ],
+  },
+  {
     id: 'actionFilter',
     title: '只看',
     type: SimpleFormItemType.Select,
@@ -129,6 +143,9 @@ class List extends Component<ListProps, ListState> {
    */
   private limit: number = 40;
   private offset: number = 0;
+  // tslint:disable-next-line
+  private audit: string = '';
+  // tslint:disable-next-line
   private status: string = '';
   // tslint:disable-next-line
   private student_name: string = '';
@@ -189,7 +206,7 @@ class List extends Component<ListProps, ListState> {
       this.renderPanelExtra = this.__renderPanelExtra;
     } else if (isStudent) {
       if (this.filters.length === 2) return;
-      this.filters = allFilters.slice(1, 3);
+      this.filters = allFilters.slice(1, 4);
       this.renderPanelExtra = (_: CheckboxProps) => void 0;
     } else {
       if (this.filters.length === allFilters.length) return;
@@ -608,6 +625,7 @@ class List extends Component<ListProps, ListState> {
   );
 
   onFilterChange = (value: {
+    audit: string;
     status: string;
     actionFilter: string;
     mode: string;

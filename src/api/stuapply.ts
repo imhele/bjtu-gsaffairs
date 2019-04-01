@@ -3,6 +3,7 @@ import { FetchQuery } from './position';
 import requests, { RequestBody } from '@/utils/requests';
 
 export interface FetchListBody extends RequestBody {
+  audit?: string;
   limit?: number;
   mode?: string;
   offset?: number;
