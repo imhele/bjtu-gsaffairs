@@ -8,8 +8,8 @@ import { Op, WhereOptions } from 'sequelize';
 import { getFromIntEnum, parseJSON } from '../utils';
 import { ScopeList, UserType } from '../service/user';
 import { SchoolCensus as CensusModel } from '../model/school/census';
-import { AuthorizeError, CreateFileFailed, DataNotFound } from '../errcode';
 import { excludeFormFields, applyReturn, positionDetailFields } from './stuapply.json';
+import { AuthorizeError, CreateFileFailed, DataNotFound, OperationIgnored } from '../errcode';
 import {
   attr as PositionAttr,
   PositionType,
@@ -130,6 +130,9 @@ export default class UserController extends Controller {
     const positionId = parseInt(id, 10);
     const position = await service.position.findOne(parseInt(id, 10), type);
     let applyunable: boolean = true;
+    const passedNum: number = await service.stuapply.countApplySuccess(position.id!);
+    if (passedNum >= position.need_num)
+      throw new OperationIgnored('岗位申请人数已满，去找找其他岗位吧');
     if (request.auth.scope.includes(ScopeList.position[type].apply))
       applyunable = await service.stuapply.hasOnePassedApplication(request.auth.user.loginname);
     const availableAction = service.position.getPositionAction(
@@ -140,7 +143,7 @@ export default class UserController extends Controller {
     );
     if (!availableAction.get(CellAction.Apply)) throw new AuthorizeError('你暂时无法申请此岗位');
     const hasApplied = await service.stuapply.hasApplied(positionId, request.auth.user.loginname);
-    if (hasApplied) throw new AuthorizeError('你已经申请过这个岗位了，去找找其他岗位吧');
+    if (hasApplied) throw new OperationIgnored('你已经申请过这个岗位了，去找找其他岗位吧');
 
     const formItems = model.Interships.Stuapply.toForm(excludeFormFields as any, true);
     response.body = { formItems };
@@ -157,6 +160,9 @@ export default class UserController extends Controller {
     const positionId = parseInt(id, 10);
     const position = await service.position.findOne(parseInt(id, 10), type);
     let applyunable: boolean = true;
+    const passedNum: number = await service.stuapply.countApplySuccess(position.id!);
+    if (passedNum >= position.need_num)
+      throw new OperationIgnored('岗位申请人数已满，去找找其他岗位吧');
     if (request.auth.scope.includes(ScopeList.position[type].apply))
       applyunable = await service.stuapply.hasOnePassedApplication(request.auth.user.loginname);
     const availableAction = service.position.getPositionAction(

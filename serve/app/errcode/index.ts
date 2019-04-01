@@ -38,7 +38,7 @@ const Errcode: { [key: string]: ErrorMessage } = {
   AuthorizeError: { errcode: 40001, errmsg: '权限校验失败' },
   DataNotFound: { errcode: 40002, errmsg: '数据不存在' },
   SystemClosed: { errcode: 40003, errmsg: '系统暂未开放' },
-  OperationIgnored: { errcode: 40004, errmsg: '系统暂未开放' },
+  OperationIgnored: { errcode: 40004, errmsg: '操作被忽略' },
   CreateFileFailed: { errcode: 40005, errmsg: '生成文件失败' },
 };
 
