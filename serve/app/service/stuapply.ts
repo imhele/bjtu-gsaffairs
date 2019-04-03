@@ -2,8 +2,9 @@ import { Service } from 'egg';
 import { ScopeList } from './user';
 import { CellAction } from '../link';
 import { DataNotFound } from '../errcode';
+import { getFromIntEnum } from '../utils';
 import { AuthResult } from '../extend/request';
-import { FindOptions, IncludeOptions, Model, Op } from 'sequelize';
+import { FindOptions, IncludeOptions, Model } from 'sequelize';
 import { attr as SchoolCensusAttr, SchoolCensus as CensusModel } from '../model/school/census';
 import {
   attr as StuapplyAttr,
@@ -96,14 +97,16 @@ export default class StuapplyService extends Service {
     };
   }
 
-  public async hasOnePassedApplication(student: string, types: keyof typeof PositionType) {
+  public async hasOnePassedApplication(student: string, postType: string) {
+    const types = getFromIntEnum(PositionAttr, 'types', null, PositionType[postType]);
     const { model } = this.ctx;
     const stuapply = await model.Interships.Stuapply.findOne({
+      attributes: ['id'],
       where: {
         student_number: student,
         ...model.Interships.Stuapply.formatBack({ audit: '申请成功' }),
       },
-      include: [{ model: model.Interships.Position, where: { types } }],
+      include: [{ model: model.Interships.Position, where: { types }, attributes: ['types'] }],
     });
     return !!stuapply;
   }

@@ -182,10 +182,6 @@ class List extends Component<ListProps, ListState> {
     this.fetchList();
   }
 
-  componentDidUpdate = () => {
-    this.filterFilter();
-  };
-
   componentDidMount = () => {
     this.filterFilter();
   };
