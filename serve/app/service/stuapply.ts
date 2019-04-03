@@ -96,13 +96,14 @@ export default class StuapplyService extends Service {
     };
   }
 
-  public async hasOnePassedApplication(student: string) {
+  public async hasOnePassedApplication(student: string, types: keyof typeof PositionType) {
     const { model } = this.ctx;
     const stuapply = await model.Interships.Stuapply.findOne({
       where: {
         student_number: student,
         ...model.Interships.Stuapply.formatBack({ audit: '申请成功' }),
       },
+      include: [{ model: model.Interships.Position, where: { types } }],
     });
     return !!stuapply;
   }

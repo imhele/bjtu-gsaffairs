@@ -134,7 +134,7 @@ export default class UserController extends Controller {
     if (passedNum >= position.need_num)
       throw new OperationIgnored('岗位申请人数已满，去找找其他岗位吧');
     if (request.auth.scope.includes(ScopeList.position[type].apply))
-      applyunable = await service.stuapply.hasOnePassedApplication(request.auth.user.loginname);
+      applyunable = await service.stuapply.hasOnePassedApplication(request.auth.user.loginname, type);
     const availableAction = service.position.getPositionAction(
       position,
       request.auth,
@@ -164,7 +164,7 @@ export default class UserController extends Controller {
     if (passedNum >= position.need_num)
       throw new OperationIgnored('岗位申请人数已满，去找找其他岗位吧');
     if (request.auth.scope.includes(ScopeList.position[type].apply))
-      applyunable = await service.stuapply.hasOnePassedApplication(request.auth.user.loginname);
+      applyunable = await service.stuapply.hasOnePassedApplication(request.auth.user.loginname, type);
     const availableAction = service.position.getPositionAction(
       position,
       request.auth,
@@ -260,7 +260,7 @@ export default class UserController extends Controller {
     const { type, id } = params as { type: keyof typeof PositionType; id: string };
     if (!Object.keys(PositionType).includes(type) || id === void 0) return;
     const apply = await service.stuapply.findOne(parseInt(id, 10));
-    const hasOnePassed = await service.stuapply.hasOnePassedApplication(apply.student_number!);
+    const hasOnePassed = await service.stuapply.hasOnePassedApplication(apply.student_number!, type);
     if (hasOnePassed) {
       response.body = {
         errmsg: `学号为 ${apply.student_number} 的学生已成功申请过一个岗位，当前审核操作被忽略`,

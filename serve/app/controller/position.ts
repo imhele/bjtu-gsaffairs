@@ -134,7 +134,7 @@ export default class PositionController extends Controller {
      */
     let applyunable: boolean = true;
     if (auth.scope.includes(ScopeList.position[type].apply))
-      applyunable = await service.stuapply.hasOnePassedApplication(auth.user.loginname);
+      applyunable = await service.stuapply.hasOnePassedApplication(auth.user.loginname, type);
     const dataSource = positions.map(item => {
       const availableActions = service.position.getPositionAction(item, auth, type, applyunable);
       availableActions.delete(CellAction.Preview);
