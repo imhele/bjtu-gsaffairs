@@ -7,6 +7,7 @@ import commonStyles from '@/pages/common.less';
 import { Tabs } from 'antd';
 import { TableRowSelection, SelectionSelectFn } from 'antd/es/table';
 import { connect } from 'dva';
+import moment from 'moment';
 import React, { useRef, useState } from 'react';
 import { getUseMedia } from 'react-media-hook2';
 import { formatMessage, FormattedMessage } from 'umi-plugin-react/locale';
@@ -38,6 +39,7 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
   const postType = useRef('manage');
   const selectedRows = useRef({});
   const pageSet = useRef({ limit: 10, offset: 0 });
+  const yearAndMonth = useRef(moment().format('YYYYMM'));
 
   const fetchList = () => {
     dispatch<FetchListPayload>({
@@ -46,6 +48,7 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
         body: {
           limit: pageSet.current.limit,
           offset: pageSet.current.offset,
+          time: yearAndMonth.current,
           type: postType.current,
         },
       },

@@ -79,7 +79,7 @@ export default class StuapplyController extends Controller {
     /**
      * Format dataSource
      */
-    const dataSource = dbRes.positions.map(item => {
+    const dataSource = dbRes.applications.map(item => {
       const availableActions = service.stuapply.authorizeWithoutPrefix(item, auth, type);
       availableActions.delete(CellAction.Apply);
       const action: StandardTableActionProps = Array.from(availableActions.entries())

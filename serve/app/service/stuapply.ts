@@ -226,7 +226,7 @@ export default class StuapplyService extends Service {
     const { model } = this.ctx;
     const result = await model.Interships.Stuapply.findAndCountAll({ ...options, include });
     return {
-      positions: result.rows.map((item: any) =>
+      applications: result.rows.map((item: any) =>
         this.formatStuapply(item, toPrefix, formatLog),
       ) as (P extends true ? StuapplyWithFK : StuapplyWithoutPrefix)[],
       total: result.count,

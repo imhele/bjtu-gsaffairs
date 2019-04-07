@@ -1,6 +1,7 @@
 // import fs from 'fs';
 // import path from 'path';
 // import lodash from 'lodash';
+import moment from 'moment';
 import { Controller } from 'egg';
 // import HTML2PDF from '../utils/HTML2PDF';
 import { Op, WhereOptions } from 'sequelize';
@@ -21,7 +22,7 @@ export default class WorkloadController extends Controller {
   public async list() {
     const { ctx, service } = this;
     const { auth, body } = ctx.request;
-    const { limit = 10, offset = 0, type } = body as {
+    const { limit = 10, offset = 0, time = moment().format('YYYYMM'), type } = body as {
       type: keyof typeof PositionType;
       [K: string]: any;
     };
@@ -56,7 +57,18 @@ export default class WorkloadController extends Controller {
     /**
      * Format dataSource
      */
-    const dataSource = dbRes.positions;
+    const dataSource: typeof dbRes.applications = [];
+    for (const item of dbRes.applications) {
+      const workload: any = await ctx.model.Interships.Workload.findOne({
+        where: { stuapply_id: item.id, time },
+      });
+      dataSource.push({
+        ...item,
+        position_work_time_l: (item.position_work_time_l || 0) * 4,
+        workload_amount: workload ? workload.get('amount') : 0,
+        workload_status: workload ? workload.get('status') : '未上报',
+      });
+    }
 
     const result = {
       rowKey: 'id',

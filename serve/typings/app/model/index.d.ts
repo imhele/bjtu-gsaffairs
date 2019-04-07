@@ -11,6 +11,7 @@ import ExportIntershipsAdmins from '../../../app/model/interships/admins';
 import ExportIntershipsConfig from '../../../app/model/interships/config';
 import ExportIntershipsPosition from '../../../app/model/interships/position';
 import ExportIntershipsStuapply from '../../../app/model/interships/stuapply';
+import ExportIntershipsWorkload from '../../../app/model/interships/workload';
 import ExportPeopleStaff from '../../../app/model/people/staff';
 import ExportSchoolCensus from '../../../app/model/school/census';
 import ExportTaskTeacher from '../../../app/model/task/teacher';
@@ -34,6 +35,7 @@ declare module 'sequelize' {
       Config: ReturnType<typeof ExportIntershipsConfig>;
       Position: ReturnType<typeof ExportIntershipsPosition>;
       Stuapply: ReturnType<typeof ExportIntershipsStuapply>;
+      Workload: ReturnType<typeof ExportIntershipsWorkload>;
     }
     People: {
       Staff: ReturnType<typeof ExportPeopleStaff>;

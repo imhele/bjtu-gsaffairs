@@ -38,8 +38,16 @@
       "dataIndex": "position_name"
     },
     {
-      "title": "周工作量",
+      "title": "月工作量",
       "dataIndex": "position_work_time_l"
+    },
+    {
+      "title": "实际月工作量",
+      "dataIndex": "workload_amount"
+    },
+    {
+      "title": "上报状态",
+      "dataIndex": "workload_status"
     }
   ]
 }
