@@ -31,6 +31,10 @@ export class CreateFileFailed extends BaseError {
   public type = 'CreateFileFailed';
 }
 
+export class ValidationError extends BaseError {
+  public type = 'ValidationError';
+}
+
 const Errcode: { [key: string]: ErrorMessage } = {
   SystemBusy: { errcode: -1, errmsg: '系统繁忙' },
   Success: { errcode: 0, errmsg: '请求成功' },
