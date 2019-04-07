@@ -4,8 +4,9 @@ import { ResultState } from './result';
 import { PositionState } from '@/models/position';
 import { AdminState } from '@/pages/Admin/models/admin';
 import { StuapplyState } from '@/pages/Stuapply/models/stuapply';
+import { WorkloadState } from '@/pages/Stuapply/models/workload';
 
-export { AdminState, GlobalState, LoginState, PositionState, ResultState, StuapplyState };
+export { AdminState, GlobalState, LoginState, PositionState, ResultState, StuapplyState, WorkloadState };
 
 export type Dispatch = <T = any, U = (payload: T) => void>(action: {
   type: string;
@@ -23,6 +24,7 @@ export interface Loading {
     position?: boolean;
     result?: boolean;
     stuapply?: boolean;
+    workload?: boolean;
   };
 }
 
@@ -34,6 +36,7 @@ export interface ConnectState {
   position: PositionState;
   result: ResultState;
   stuapply?: StuapplyState;
+  workload?: WorkloadState;
 }
 
 export interface ConnectProps<T extends object = {}> extends React.Props<any> {

@@ -30,7 +30,7 @@ const ActionText = {
   [CellAction.Edit]: { text: '编辑', type: CellAction.Edit },
 };
 
-export default class UserController extends Controller {
+export default class StuapplyController extends Controller {
   public async list() {
     const { ctx, service } = this;
     const { auth, body } = ctx.request;
