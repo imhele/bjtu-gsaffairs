@@ -1,9 +1,12 @@
+import { fetchList, createWorkload, editWorkload, auditWorkload } from '@/api/workload';
+import { safeFun } from '@/utils/utils';
+import { message } from 'antd';
+import { ColumnProps } from 'antd/es/table';
 import { Model } from 'dva';
-import { fetchList } from '@/api/workload';
 
 export interface WorkloadState {
   actionKey: string;
-  columns: object[];
+  columns: ColumnProps<object>[];
   dataSource: object[];
   total: number;
   rowKey: string;
@@ -31,8 +34,29 @@ const model: WorkloadModel = {
   effects: {
     *fetchList({ payload }, { call, put }) {
       const response = yield call(fetchList, payload);
-      if (fetchList) {
+      if (response) {
         yield put({ type: 'setState', payload: response });
+      }
+    },
+    *createWorkload({ payload, callback }, { call }) {
+      const response = yield call(createWorkload, payload);
+      if (response) {
+        message.success(response.errmsg);
+        safeFun(callback);
+      }
+    },
+    *editWorkload({ payload, callback }, { call }) {
+      const response = yield call(editWorkload, payload);
+      if (response) {
+        message.success(response.errmsg);
+        safeFun(callback);
+      }
+    },
+    *auditWorkload({ payload, callback }, { call }) {
+      const response = yield call(auditWorkload, payload);
+      if (response) {
+        message.success(response.errmsg);
+        safeFun(callback);
       }
     },
   },

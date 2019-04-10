@@ -5,6 +5,7 @@ import { DataNotFound } from '../errcode';
 import { getFromIntEnum } from '../utils';
 import { AuthResult } from '../extend/request';
 import { FindOptions, IncludeOptions, Model } from 'sequelize';
+import { IntershipsWorkload } from '../model/interships/workload';
 import { attr as SchoolCensusAttr, SchoolCensus as CensusModel } from '../model/school/census';
 import {
   attr as StuapplyAttr,
@@ -20,6 +21,10 @@ export interface StuapplyWithFK<D extends boolean = false, S extends boolean = f
   extends StuapplyModel {
   IntershipsPosition: D extends true ? PositionModel : never;
   SchoolCensus: S extends true ? CensusModel : never;
+  [key: string]: any;
+}
+
+export interface WorkloadWithFK extends Required<IntershipsWorkload> {
   [key: string]: any;
 }
 
@@ -72,6 +77,13 @@ export default class StuapplyService extends Service {
   public async deleteOne(id: number) {
     const { model } = this.ctx;
     await model.Interships.Stuapply.destroy({ where: { id } });
+  }
+
+  public async findOneWorkload(id: number) {
+    const { model } = this.ctx;
+    const res = await model.Interships.Workload.findByPk(id);
+    if (res === null) throw new DataNotFound('申报信息不存在');
+    return this.formatWorkload(res) as Required<IntershipsWorkload>;
   }
 
   public async hasApplied(positionId: number, student: string) {
@@ -262,6 +274,18 @@ export default class StuapplyService extends Service {
       });
     }
     return columnsObj;
+  }
+
+  private formatWorkload(workload: any) {
+    const formatted = workload.get();
+    if (formatted.IntershipsStuapply) {
+      formatted.IntershipsStuapply = formatted.IntershipsStuapply.get();
+      Object.entries(formatted.IntershipsStuapply).forEach(([key, value]) => {
+        formatted[`stuapply_${key}`] = value;
+      });
+      delete formatted.IntershipsStuapply;
+    }
+    return formatted as any;
   }
 
   private formatStuapply(stuapply: any, toPrefix: boolean = true, formatLog: boolean = false) {
