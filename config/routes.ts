@@ -83,26 +83,19 @@ const route: Route<true>[] = [
       },
       {
         path: '/stuapply',
-        icon: 'snippets',
-        name: 'route.stuapply',
-        routes: [
-          {
-            path: '/stuapply',
-            redirect: '/stuapply/list',
-          },
-          {
-            path: '/stuapply/list',
-            component: './Stuapply/List',
-            name: 'route.stuapply.list',
-            icon: 'bars',
-          },
-          {
-            path: '/stuapply/workload',
-            component: './Stuapply/Workload',
-            name: 'route.stuapply.workload',
-            icon: 'project',
-          },
-        ],
+        redirect: '/stuapply/list',
+      },
+      {
+        path: '/stuapply/list',
+        component: './Stuapply/List',
+        name: 'route.stuapply.list',
+        icon: 'bars',
+      },
+      {
+        path: '/stuapply/workload',
+        component: './Stuapply/Workload',
+        name: 'route.stuapply.workload',
+        icon: 'project',
       },
       {
         path: '/admin',
