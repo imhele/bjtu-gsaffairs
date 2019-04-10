@@ -86,6 +86,37 @@ export default class StuapplyService extends Service {
     return this.formatWorkload(res) as Required<IntershipsWorkload>;
   }
 
+  public async findOneWorkloadForExport(workloadId: number) {
+    const { model } = this.ctx;
+    const workload = await model.Interships.Workload.findByPk(workloadId, {
+      attributes: ['amount', 'time'],
+      include: [
+        {
+          model: model.Interships.Stuapply,
+          attributes: ['id'],
+          include: [
+            { model: model.Interships.Position, attributes: ['name'] },
+            {
+              model: model.School.Census,
+              attributes: ['name', 'number'],
+              include: [{ model: model.Dicts.College, attributes: ['name'], required: false }],
+            },
+          ],
+        },
+      ],
+    });
+    if (!workload) return;
+    const res = this.formatWorkload(workload) as {
+      amount: number;
+      time: string;
+      position_name: string;
+      student_name: string;
+      student_number: string;
+      student_college_name: string;
+    };
+    return res;
+  }
+
   public async hasApplied(positionId: number, student: string) {
     const { model } = this.ctx;
     const stuapply = await model.Interships.Stuapply.findOne({
@@ -287,6 +318,32 @@ export default class StuapplyService extends Service {
     const formatted = workload.get();
     if (formatted.IntershipsStuapply) {
       formatted.IntershipsStuapply = formatted.IntershipsStuapply.get();
+      if (formatted.IntershipsStuapply.SchoolCensu) {
+        formatted.IntershipsStuapply.SchoolCensus = formatted.IntershipsStuapply.SchoolCensu;
+        delete formatted.IntershipsStuapply.SchoolCensu;
+      }
+
+      if (formatted.IntershipsStuapply.IntershipsPosition) {
+        const post = formatted.IntershipsStuapply.IntershipsPosition.get();
+        Object.entries(post).forEach(([key, value]) => {
+          formatted[`position_${key}`] = value;
+        });
+        delete formatted.IntershipsStuapply.IntershipsPosition;
+      }
+      if (formatted.IntershipsStuapply.SchoolCensus) {
+        const census = formatted.IntershipsStuapply.SchoolCensus.get();
+        if (census.DictsCollege) {
+          const college = census.DictsCollege.get();
+          Object.entries(college).forEach(([key, value]) => {
+            formatted[`student_college_${key}`] = value;
+          });
+          delete census.DictsCollege;
+        }
+        Object.entries(census).forEach(([key, value]) => {
+          formatted[`student_${key}`] = value;
+        });
+        delete formatted.IntershipsStuapply.SchoolCensus;
+      }
       Object.entries(formatted.IntershipsStuapply).forEach(([key, value]) => {
         formatted[`stuapply_${key}`] = value;
       });

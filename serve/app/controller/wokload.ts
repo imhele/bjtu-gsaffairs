@@ -1,13 +1,13 @@
-// import fs from 'fs';
-// import path from 'path';
-// import lodash from 'lodash';
+import fs from 'fs';
+import path from 'path';
+import lodash from 'lodash';
 import moment from 'moment';
 import { Controller } from 'egg';
 import { CellAction } from '../link';
-// import HTML2PDF from '../utils/HTML2PDF';
+import HTML2PDF from '../utils/HTML2PDF';
 import { Op, WhereOptions } from 'sequelize';
 import { getFromIntEnum } from '../utils';
-import { ValidationError, AuthorizeError } from '../errcode';
+import { ValidationError, AuthorizeError, CreateFileFailed } from '../errcode';
 import { ScopeList, UserType } from '../service/user';
 import { workloadColumns } from './stuapply.json';
 import {
@@ -166,6 +166,34 @@ export default class WorkloadController extends Controller {
     if (!actions.get(CellAction.Audit)) throw new AuthorizeError('你暂时不能审核此记录的工作量');
     await ctx.model.Interships.Workload.update({ status }, { where: { id } });
     ctx.response.body = { errmsg: '审核成功' };
+  }
+
+  public async export() {
+    const {
+      ctx: { request, response },
+      service,
+    } = this;
+    const { body, auth } = request;
+    if (!auth.scope.includes(ScopeList.admin) || !auth.auditableDep.length)
+      throw new AuthorizeError('你暂时没有权限下载岗位协议书');
+
+    const templatePath = path.join(__dirname, './workloadTemplate.html');
+    const compiled = lodash.template(fs.readFileSync(templatePath, 'utf8'));
+    const idList: number[] = body.workloadIdList;
+    if (!idList.length || !body.type) return;
+    const dbRes = await Promise.all(idList.map(i => service.stuapply.findOneWorkloadForExport(i)));
+    const workloadList = dbRes.filter(i => i);
+    const year = workloadList[0]!.time.slice(0, 4);
+    const month = workloadList[0]!.time.slice(4);
+    const type = PositionType[body.type];
+    const template = compiled({ year, month, type, workloadList, dep: auth.auditableDep[0] || '' });
+    try {
+      this.ctx.attachment(`workload-${workloadList[0]!.time}.pdf`);
+      this.ctx.set('Content-Type', 'application/octet-stream');
+      response.body = HTML2PDF(template);
+    } catch {
+      throw new CreateFileFailed();
+    }
   }
 
   private async getWorkloadFromApply(stuapply: StuapplyWithFK | number, time: string) {

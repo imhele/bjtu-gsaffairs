@@ -6,12 +6,21 @@ import { AdminState } from '@/pages/Admin/models/admin';
 import { StuapplyState } from '@/pages/Stuapply/models/stuapply';
 import { WorkloadState } from '@/pages/Stuapply/models/workload';
 
-export { AdminState, GlobalState, LoginState, PositionState, ResultState, StuapplyState, WorkloadState };
+export {
+  AdminState,
+  GlobalState,
+  LoginState,
+  PositionState,
+  ResultState,
+  StuapplyState,
+  WorkloadState,
+};
 
 export type Dispatch = <T = any, U = (payload: T) => void>(action: {
   type: string;
   payload?: T;
   callback?: U;
+  [key: string]: any;
 }) => any;
 
 export interface Loading {

@@ -3,13 +3,17 @@ import {
   CreateWorkloadBody,
   EditWorkloadBody,
   AuditWorkloadBody,
+  ExportWorkloadFileBody,
 } from '@/api/workload';
-import StandardTable, { StandardTableMethods } from '@/components/StandardTable';
+import StandardTable, {
+  StandardTableMethods,
+  StandardTableOperation,
+} from '@/components/StandardTable';
 import { GlobalId } from '@/global';
 import PageHeader from '@/layouts/PageHeader';
 import { ConnectProps, ConnectState, WorkloadState, Dispatch } from '@/models/connect';
 import commonStyles from '@/pages/common.less';
-import { CellAction } from '@/pages/Position/consts';
+import { CellAction, PositionType } from '@/pages/Position/consts';
 import { safeFun } from '@/utils/utils';
 import { DatePicker, Input, message, Modal, InputNumber, Tabs } from 'antd';
 import { TableRowSelection } from 'antd/es/table';
@@ -22,8 +26,13 @@ import styles from './List.less';
 
 const { MonthPicker } = DatePicker;
 
-const Operations = [
-  { icon: 'cloud-download', text: '导出', type: CellAction.Download },
+const Operations: StandardTableOperation[] = [
+  {
+    icon: 'cloud-download',
+    text: '导出',
+    tooltip: '导出已上报的申报记录',
+    type: CellAction.Download,
+  },
   { icon: 'check-circle', text: '审核通过', type: CellAction.Audit },
 ];
 
@@ -126,7 +135,7 @@ const onBatchAudit = (
 ) => {
   Modal.confirm({
     title: '批量审核',
-    content: `已选中 ${keys.length} 条记录`,
+    content: `已选中 ${keys.length} 条待审核记录`,
     okText: '开始审核',
     cancelText: '取消',
     onOk: () =>
@@ -135,6 +144,7 @@ const onBatchAudit = (
         for (const key of keys) {
           const id = typeof key === 'string' ? parseInt(key, 10) : key;
           await dispatch<AuditWorkloadBody>({
+            hideMsg: true,
             type: 'workload/auditWorkload',
             payload: { status: '已上报', type, id },
           });
@@ -149,22 +159,36 @@ const onBatchAudit = (
 };
 
 const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
-  const postType = useRef('manage');
+  const postType = useRef('manage' as PositionType);
   const tableMethods = useRef<StandardTableMethods>({} as any);
   const amountRef = useRef(0);
   const pageSet = useRef({ limit: 10, offset: 0, time: initTime, student: '' });
   const [activeRowKey, setActiveRowKey] = useState(null as number);
   const onClickOperation = (selectedRowKeys: any[], type: string) => {
     if (type === CellAction.Audit) {
-      const workloadKeys: number[] = selectedRowKeys
+      const workloadIdList: number[] = selectedRowKeys
         .map((k: number) => workload.dataSource.find(d => d[workload.rowKey] === k) as any)
-        .filter(i => i && i.workload_id)
+        .filter(i => i && i.workload_status === '待审核')
         .map(i => i.workload_id);
-      onBatchAudit(workloadKeys, postType.current, dispatch, () => {
+      if (!workloadIdList.length) return message.warn('选中的记录中没有待审核的内容');
+      return onBatchAudit(workloadIdList, postType.current, dispatch, () => {
         pageSet.current.offset = 0;
         setActiveRowKey(null!);
         safeFun(tableMethods.current.clearSelectedRowKeys);
         fetchList();
+      });
+    }
+    if (type === CellAction.Download) {
+      const workloadIdList: number[] = selectedRowKeys
+        .map((k: number) => workload.dataSource.find(d => d[workload.rowKey] === k) as any)
+        .filter(i => i && i.workload_status === '已上报')
+        .map(i => i.workload_id);
+      if (!workloadIdList.length) return message.warn('选中的记录中没有可导出的内容');
+      const timeStr = ` ${pageSet.current.time.slice(0, 4)} 年 ${pageSet.current.time.slice(4)} 月`;
+      message.info(`正在导出${timeStr}的 ${workloadIdList.length} 条已上报记录`);
+      return dispatch<ExportWorkloadFileBody>({
+        type: 'workload/exportWorkloadFile',
+        payload: { workloadIdList, type: postType.current },
       });
     }
   };
@@ -245,7 +269,7 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
         className={styles.tabs}
         onChange={key => {
           safeFun(tableMethods.current.clearSelectedRowKeys);
-          postType.current = key;
+          postType.current = key as PositionType;
           fetchList();
         }}
       >

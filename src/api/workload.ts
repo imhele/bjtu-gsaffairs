@@ -1,4 +1,5 @@
 import { APIPrefix } from '@/global';
+import { PositionType } from '@/pages/Position/consts';
 import requests, { RequestBody } from '@/utils/requests';
 
 export interface FetchListBody extends RequestBody {
@@ -51,6 +52,18 @@ export interface AuditWorkloadBody extends RequestBody {
 
 export async function auditWorkload(body: AuditWorkloadBody) {
   return requests<AuditWorkloadBody>(`${APIPrefix}/stuapply/workload/audit`, {
+    body,
+    method: 'POST',
+  });
+}
+
+export interface ExportWorkloadFileBody {
+  workloadIdList: number[];
+  type: PositionType;
+}
+
+export async function exportWorkloadFile(body: ExportWorkloadFileBody) {
+  return requests(`${APIPrefix}/stuapply/workload/export`, {
     body,
     method: 'POST',
   });

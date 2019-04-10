@@ -1,4 +1,10 @@
-import { fetchList, createWorkload, editWorkload, auditWorkload } from '@/api/workload';
+import {
+  fetchList,
+  createWorkload,
+  editWorkload,
+  auditWorkload,
+  exportWorkloadFile,
+} from '@/api/workload';
 import { safeFun } from '@/utils/utils';
 import { message } from 'antd';
 import { ColumnProps, TableRowSelection } from 'antd/es/table';
@@ -52,12 +58,15 @@ const model: WorkloadModel = {
         safeFun(callback);
       }
     },
-    *auditWorkload({ payload, callback }, { call }) {
+    *auditWorkload({ payload, callback, hideMsg }, { call }) {
       const response = yield call(auditWorkload, payload);
-      if (response) {
+      if (response && !hideMsg) {
         message.success(response.errmsg);
         safeFun(callback);
       }
+    },
+    *exportWorkloadFile({ payload }, { call }) {
+      yield call(exportWorkloadFile, payload);
     },
   },
   reducers: {
