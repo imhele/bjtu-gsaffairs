@@ -16,11 +16,11 @@ export default (app: Application) => {
   router.post('/api/position/:type/batch-audit', controller.position.batchAudit);
   router.post('/api/position/:type/edit/:id', controller.position.edit);
 
-  router.post('/api/stuapply/workload/list', controller.wokload.list);
-  router.post('/api/stuapply/workload/create', controller.wokload.create);
-  router.post('/api/stuapply/workload/edit', controller.wokload.edit);
-  router.post('/api/stuapply/workload/audit', controller.wokload.audit);
-  router.post('/api/stuapply/workload/export', controller.wokload.export);
+  router.post('/api/stuapply/workload/list', controller.workload.list);
+  router.post('/api/stuapply/workload/create', controller.workload.create);
+  router.post('/api/stuapply/workload/edit', controller.workload.edit);
+  router.post('/api/stuapply/workload/audit', controller.workload.audit);
+  router.post('/api/stuapply/workload/export', controller.workload.export);
 
   router.post('/api/stuapply/:type/list', controller.stuapply.list);
   router.post('/api/stuapply/:type/form/:id', controller.stuapply.form);

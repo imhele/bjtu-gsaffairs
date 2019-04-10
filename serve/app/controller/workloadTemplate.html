@@ -70,8 +70,8 @@
         <td width="80" nowrap="nowrap" align="center">序号</td>
         <td width="240" nowrap="nowrap" align="center">岗位名称</td>
         <td width="120" nowrap="nowrap" align="center">学号</td>
-        <td width="120" nowrap="nowrap" align="center">姓名</td>
-        <td width="160" nowrap="nowrap" align="center">学生所在学院</td>
+        <td width="100" nowrap="nowrap" align="center">姓名</td>
+        <td width="180" nowrap="nowrap" align="center">学生所在学院</td>
         <td width="80" nowrap="nowrap" align="center">实际月工作量</td>
       </tr>
       <% _.forEach(workloadList, function(workload, index) { %>
@@ -79,8 +79,8 @@
         <td width="80" nowrap="nowrap" align="center"><%- index + 1 %></td>
         <td width="240" nowrap="nowrap" align="center"><%- workload.position_name %></td>
         <td width="120" nowrap="nowrap" align="center"><%- workload.student_number %></td>
-        <td width="120" nowrap="nowrap" align="center"><%- workload.student_name %></td>
-        <td width="160" nowrap="nowrap" align="center"><%- workload.student_college_name %></td>
+        <td width="100" nowrap="nowrap" align="center"><%- workload.student_name %></td>
+        <td width="180" nowrap="nowrap" align="center"><%- workload.student_college_name %></td>
         <td width="80" nowrap="nowrap" align="center"><%- workload.amount %></td>
       </tr>
       <% }); %>

@@ -177,8 +177,6 @@ export default class WorkloadController extends Controller {
     if (!auth.scope.includes(ScopeList.admin) && !auth.auditableDep.length)
       throw new AuthorizeError('你暂时没有权限下载岗位协议书');
 
-    const templatePath = path.join(__dirname, './workloadTemplate.html');
-    const compiled = lodash.template(fs.readFileSync(templatePath, 'utf8'));
     const idList: number[] = body.workloadIdList;
     if (!idList.length || !body.type) return;
     const dbRes = await Promise.all(idList.map(i => service.stuapply.findOneWorkloadForExport(i)));
@@ -186,9 +184,11 @@ export default class WorkloadController extends Controller {
     const year = workloadList[0]!.time.slice(0, 4);
     const month = workloadList[0]!.time.slice(4);
     const type = PositionType[body.type];
+    const templatePath = path.join(__dirname, './workloadTemplate.html');
+    const compiled = lodash.template(fs.readFileSync(templatePath, 'utf8'));
     const template = compiled({ year, month, type, workloadList, dep: auth.auditableDep[0] || '' });
     try {
-      this.ctx.attachment(`workload_${workloadList[0]!.time}.pdf`);
+      this.ctx.attachment('workload.pdf');
       this.ctx.set('Content-Type', 'application/octet-stream');
       response.body = HTML2PDF(template);
     } catch {

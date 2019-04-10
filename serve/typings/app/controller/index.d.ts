@@ -7,7 +7,7 @@ import ExportPosition from '../../../app/controller/position';
 import ExportPositionFilter from '../../../app/controller/positionFilter';
 import ExportStuapply from '../../../app/controller/stuapply';
 import ExportUser from '../../../app/controller/user';
-import ExportWokload from '../../../app/controller/wokload';
+import ExportWorkload from '../../../app/controller/workload';
 
 declare module 'egg' {
   interface IController {
@@ -16,6 +16,6 @@ declare module 'egg' {
     positionFilter: ExportPositionFilter;
     stuapply: ExportStuapply;
     user: ExportUser;
-    wokload: ExportWokload;
+    workload: ExportWorkload;
   }
 }

@@ -15,8 +15,8 @@ import { ConnectProps, ConnectState, WorkloadState, Dispatch } from '@/models/co
 import commonStyles from '@/pages/common.less';
 import { CellAction, PositionType } from '@/pages/Position/consts';
 import { safeFun } from '@/utils/utils';
-import { DatePicker, Input, message, Modal, InputNumber, Tabs } from 'antd';
-import { TableRowSelection } from 'antd/es/table';
+import { Button, DatePicker, Input, InputNumber, message, Modal, Tabs, Tooltip } from 'antd';
+import { SelectionSelectFn, TableRowSelection } from 'antd/es/table';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { useRef, useState, Fragment } from 'react';
@@ -26,16 +26,6 @@ import styles from './List.less';
 
 const { MonthPicker } = DatePicker;
 
-const Operations: StandardTableOperation[] = [
-  {
-    icon: 'cloud-download',
-    text: '导出',
-    tooltip: '导出已上报的申报记录',
-    type: CellAction.Download,
-  },
-  { icon: 'check-circle', text: '审核通过', type: CellAction.Audit },
-];
-
 export interface WorkloadProps extends Required<ConnectProps> {
   workload: WorkloadState;
   loading: {
@@ -43,12 +33,18 @@ export interface WorkloadProps extends Required<ConnectProps> {
   };
 }
 
-const getSelectableProps = (workload: WorkloadState): TableRowSelection<object> | null => {
+const getSelectableProps = (
+  workload: WorkloadState,
+  onSelect: SelectionSelectFn<object>,
+  onSelectAll: (selected: boolean, selectedRows: object[], changeRows: object[]) => void,
+): TableRowSelection<object> | null => {
   const { selectable, unSelectableKey } = workload;
   if (!selectable) return null;
   return {
     ...(selectable === true ? {} : selectable),
     getCheckboxProps: record => ({ disabled: record[unSelectableKey] }),
+    onSelect,
+    onSelectAll,
   };
 };
 
@@ -160,37 +156,41 @@ const onBatchAudit = (
 
 const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
   const postType = useRef('manage' as PositionType);
+  const selectedRows = useRef({} as { [key: string]: any });
   const tableMethods = useRef<StandardTableMethods>({} as any);
   const amountRef = useRef(0);
   const pageSet = useRef({ limit: 10, offset: 0, time: initTime, student: '' });
   const [activeRowKey, setActiveRowKey] = useState(null as number);
-  const onClickOperation = (selectedRowKeys: any[], type: string) => {
-    if (type === CellAction.Audit) {
-      const workloadIdList: number[] = selectedRowKeys
-        .map((k: number) => workload.dataSource.find(d => d[workload.rowKey] === k) as any)
-        .filter(i => i && i.workload_status === '待审核')
-        .map(i => i.workload_id);
-      if (!workloadIdList.length) return message.warn('选中的记录中没有待审核的内容');
-      return onBatchAudit(workloadIdList, postType.current, dispatch, () => {
-        pageSet.current.offset = 0;
-        setActiveRowKey(null!);
-        safeFun(tableMethods.current.clearSelectedRowKeys);
-        fetchList();
-      });
-    }
-    if (type === CellAction.Download) {
-      const workloadIdList: number[] = selectedRowKeys
-        .map((k: number) => workload.dataSource.find(d => d[workload.rowKey] === k) as any)
-        .filter(i => i && i.workload_status === '已上报')
-        .map(i => i.workload_id);
-      if (!workloadIdList.length) return message.warn('选中的记录中没有可导出的内容');
-      const timeStr = ` ${pageSet.current.time.slice(0, 4)} 年 ${pageSet.current.time.slice(4)} 月`;
-      message.info(`正在导出${timeStr}的 ${workloadIdList.length} 条已上报记录`);
-      return dispatch<ExportWorkloadFileBody>({
-        type: 'workload/exportWorkloadFile',
-        payload: { workloadIdList, type: postType.current },
-      });
-    }
+  const onSelect = (record: object, selected: boolean) => {
+    const { rowKey } = workload;
+    if (selected) selectedRows.current[record[rowKey]] = record;
+    else delete selectedRows.current[record[rowKey]];
+  };
+  const onSelectAll = (selected: boolean, _: object[], changeRows: object[]) =>
+    changeRows.forEach(record => onSelect(record, selected));
+  const onClickBatchAudit = () => {
+    const workloadIdList: number[] = Object.values(selectedRows.current)
+      .filter(i => i && i.workload_status === '待审核')
+      .map(i => i.workload_id);
+    if (!workloadIdList.length) return message.warn('选中的记录中没有待审核的内容');
+    return onBatchAudit(workloadIdList, postType.current, dispatch, () => {
+      pageSet.current.offset = 0;
+      setActiveRowKey(null!);
+      safeFun(tableMethods.current.clearSelectedRowKeys);
+      fetchList();
+    });
+  };
+  const onClickExportFile = () => {
+    const workloadIdList: number[] = Object.values(selectedRows.current)
+      .filter(i => i && i.workload_status === '已上报')
+      .map(i => i.workload_id);
+    if (!workloadIdList.length) return message.warn('选中的记录中没有可导出的内容');
+    const timeStr = ` ${pageSet.current.time.slice(0, 4)} 年 ${pageSet.current.time.slice(4)} 月`;
+    message.info(`正在导出${timeStr}的 ${workloadIdList.length} 条已上报记录`);
+    return dispatch<ExportWorkloadFileBody>({
+      type: 'workload/exportWorkloadFile',
+      payload: { workloadIdList, type: postType.current },
+    });
   };
   const onClickRowAction = ({ currentTarget }: React.MouseEvent) => {
     const { dataset } = currentTarget as HTMLElement;
@@ -198,7 +198,6 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
     if (dataset.type === CellAction.Edit) return setActiveRowKey(numKey);
     if (dataset.type === CellAction.Cancel) return setActiveRowKey(null!);
     const callback = () => {
-      pageSet.current.offset = parseInt(dataset.index, 10);
       setActiveRowKey(null!);
       fetchList();
     };
@@ -305,6 +304,18 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
             style={{ margin: '0 1em 16px' }}
             value={moment(pageSet.current.time, 'YYYYMM')}
           />
+          {workload.selectable && (
+            <Tooltip title="导出已上报的申报记录">
+              <Button icon="cloud-download" onClick={onClickExportFile} type="primary">
+                导出
+              </Button>
+            </Tooltip>
+          )}
+          {workload.selectable && postType.current !== 'manage' && (
+            <Button icon="check-circle" onClick={onClickBatchAudit} style={{ marginLeft: '1em' }}>
+              审核通过
+            </Button>
+          )}
         </div>
         <StandardTable
           actionKey={null}
@@ -319,15 +330,6 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
           getMenthods={m => (tableMethods.current = m)}
           key="Table"
           loading={loading.fetchList}
-          operationArea={
-            !!workload.selectable && {
-              moreText: <FormattedMessage id="word.more" />,
-              onClick: onClickOperation,
-              operation: Operations,
-              visible: operation =>
-                operation.type !== CellAction.Audit || postType.current !== 'manage',
-            }
-          }
           pagination={{
             onChange: (page: number, pageSize: number) => {
               pageSet.current.limit = pageSize;
@@ -347,7 +349,7 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
           }}
           rowKey={workload.rowKey}
           scroll={{ x: 900 }}
-          selectable={getSelectableProps(workload)}
+          selectable={getSelectableProps(workload, onSelect, onSelectAll)}
         />
       </div>
     </PageHeader>
