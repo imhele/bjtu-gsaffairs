@@ -42,7 +42,11 @@ export default class WorkloadController extends Controller {
       { audit: getFromIntEnum(StuapplyAttr, 'audit', null, '申请成功') },
     ] as WhereOptions<StuapplyModel>[];
     const include: any = [
-      { model: ctx.model.School.Census, attributes: ['name', 'number'], where: {} },
+      {
+        model: ctx.model.School.Census,
+        attributes: ['name', 'number'],
+        where: {},
+      },
       {
         model: ctx.model.Interships.Position,
         attributes: ['staff_jobnum', 'department_code', 'name', 'work_time_l'],
@@ -86,6 +90,7 @@ export default class WorkloadController extends Controller {
     ctx.response.body = {
       rowKey: 'id',
       dataSource,
+      selectable: isAdmin || !!auth.auditableDep.length,
       total: dbRes.total,
       columns: workloadColumns,
     };

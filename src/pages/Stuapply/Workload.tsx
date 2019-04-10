@@ -4,14 +4,15 @@ import {
   EditWorkloadBody,
   AuditWorkloadBody,
 } from '@/api/workload';
-import StandardTable from '@/components/StandardTable';
+import StandardTable, { StandardTableMethods } from '@/components/StandardTable';
 import { GlobalId } from '@/global';
 import PageHeader from '@/layouts/PageHeader';
-import { ConnectProps, ConnectState, WorkloadState } from '@/models/connect';
+import { ConnectProps, ConnectState, WorkloadState, Dispatch } from '@/models/connect';
 import commonStyles from '@/pages/common.less';
 import { CellAction } from '@/pages/Position/consts';
-import { DatePicker, Input, InputNumber, Tabs, Select } from 'antd';
-import { TableRowSelection, SelectionSelectFn } from 'antd/es/table';
+import { safeFun } from '@/utils/utils';
+import { DatePicker, Input, message, Modal, InputNumber, Tabs } from 'antd';
+import { TableRowSelection } from 'antd/es/table';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { useRef, useState, Fragment } from 'react';
@@ -33,18 +34,12 @@ export interface WorkloadProps extends Required<ConnectProps> {
   };
 }
 
-const getSelectableProps = (
-  workload: WorkloadState,
-  onSelect: SelectionSelectFn<object>,
-  onSelectAll: (selected: boolean, selectedRows: object[], changeRows: object[]) => void,
-): TableRowSelection<object> | null => {
+const getSelectableProps = (workload: WorkloadState): TableRowSelection<object> | null => {
   const { selectable, unSelectableKey } = workload;
   if (!selectable) return null;
   return {
     ...(selectable === true ? {} : selectable),
     getCheckboxProps: record => ({ disabled: record[unSelectableKey] }),
-    onSelect,
-    onSelectAll,
   };
 };
 
@@ -123,13 +118,56 @@ const renderWorkloadStatus = (
 
 const initTime = moment().format('YYYYMM');
 
+const onBatchAudit = (
+  keys: string[] | number[],
+  type: string,
+  dispatch: Dispatch,
+  callback: () => void,
+) => {
+  Modal.confirm({
+    title: '批量审核',
+    content: `已选中 ${keys.length} 条记录`,
+    okText: '开始审核',
+    cancelText: '取消',
+    onOk: () =>
+      new Promise(async resolve => {
+        let index: number = 0;
+        for (const key of keys) {
+          const id = typeof key === 'string' ? parseInt(key, 10) : key;
+          await dispatch<AuditWorkloadBody>({
+            type: 'workload/auditWorkload',
+            payload: { status: '已上报', type, id },
+          });
+          index++;
+          if (index % 10 === 0) message.success(`已审核 ${index} 条工作量申报记录`);
+        }
+        message.success('批量审核完成');
+        callback();
+        resolve();
+      }),
+  });
+};
+
 const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
   const postType = useRef('manage');
-  const selectedRows = useRef({});
+  const tableMethods = useRef<StandardTableMethods>({} as any);
   const amountRef = useRef(0);
   const pageSet = useRef({ limit: 10, offset: 0, time: initTime, student: '' });
   const [activeRowKey, setActiveRowKey] = useState(null as number);
-  const onClickOperation = () => {};
+  const onClickOperation = (selectedRowKeys: any[], type: string) => {
+    if (type === CellAction.Audit) {
+      const workloadKeys: number[] = selectedRowKeys
+        .map((k: number) => workload.dataSource.find(d => d[workload.rowKey] === k) as any)
+        .filter(i => i && i.workload_id)
+        .map(i => i.workload_id);
+      onBatchAudit(workloadKeys, postType.current, dispatch, () => {
+        pageSet.current.offset = 0;
+        setActiveRowKey(null!);
+        safeFun(tableMethods.current.clearSelectedRowKeys);
+        fetchList();
+      });
+    }
+  };
   const onClickRowAction = ({ currentTarget }: React.MouseEvent) => {
     const { dataset } = currentTarget as HTMLElement;
     const numKey = dataset.key ? parseInt(dataset.key, 10) : null;
@@ -175,7 +213,8 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
     });
   };
 
-  const fetchList = () => {
+  const fetchList = (..._: any[]) => {
+    if (_.length) safeFun(tableMethods.current.clearSelectedRowKeys);
     dispatch<FetchListBody>({
       type: 'workload/fetchList',
       payload: {
@@ -191,27 +230,21 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
       },
     });
   };
-  const onSelect = (record: object, selected: boolean) => {
-    const { rowKey } = workload;
-    if (selected) selectedRows.current[record[rowKey]] = record;
-    else delete selectedRows.current[record[rowKey]];
-  };
-  const onSelectAll = (selected: boolean, _: object[], changeRows: object[]) =>
-    changeRows.forEach(record => onSelect(record, selected));
   const PageHeaderExtra = (
     <Fragment>
       <div style={{ margin: '32px auto 16px', textAlign: 'center' }}>
         <Input.Search
           defaultValue={pageSet.current.student}
           enterButton
-          onSearch={v => (pageSet.current.student = v) && fetchList()}
+          onSearch={v => fetchList((pageSet.current.student = v))}
           placeholder="输入学号、学生姓名以搜索"
-          style={{ maxWidth: 480 }}
+          style={{ maxWidth: 480, marginRight: 16 }}
         />
       </div>
       <Tabs
         className={styles.tabs}
         onChange={key => {
+          safeFun(tableMethods.current.clearSelectedRowKeys);
           postType.current = key;
           fetchList();
         }}
@@ -237,7 +270,7 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
   return (
     <PageHeader headerExtra={PageHeaderExtra}>
       <div className={commonStyles.contentBody}>
-        <div>
+        <div key="MonthPicker">
           <span>申报月份</span>
           <MonthPicker
             allowClear={false}
@@ -259,14 +292,18 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
           }}
           columns={columns}
           dataSource={workload.dataSource}
-          // getMenthods={this.getTableMethods}
+          getMenthods={m => (tableMethods.current = m)}
+          key="Table"
           loading={loading.fetchList}
-          // onClickAction={this.onClickAction}
-          operationArea={{
-            moreText: <FormattedMessage id="word.more" />,
-            onClick: onClickOperation,
-            operation: workload.operation,
-          }}
+          operationArea={
+            !!workload.selectable && {
+              moreText: <FormattedMessage id="word.more" />,
+              onClick: onClickOperation,
+              operation: Operations,
+              visible: operation =>
+                operation.type !== CellAction.Audit || postType.current !== 'manage',
+            }
+          }
           pagination={{
             onChange: (page: number, pageSize: number) => {
               pageSet.current.limit = pageSize;
@@ -286,7 +323,7 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
           }}
           rowKey={workload.rowKey}
           scroll={{ x: 900 }}
-          selectable={getSelectableProps(workload, onSelect, onSelectAll)}
+          selectable={getSelectableProps(workload)}
         />
       </div>
     </PageHeader>
