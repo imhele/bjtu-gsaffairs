@@ -174,7 +174,7 @@ export default class WorkloadController extends Controller {
       service,
     } = this;
     const { body, auth } = request;
-    if (!auth.scope.includes(ScopeList.admin) || !auth.auditableDep.length)
+    if (!auth.scope.includes(ScopeList.admin) && !auth.auditableDep.length)
       throw new AuthorizeError('你暂时没有权限下载岗位协议书');
 
     const templatePath = path.join(__dirname, './workloadTemplate.html');
