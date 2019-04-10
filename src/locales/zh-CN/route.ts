@@ -30,7 +30,7 @@ export default {
   'route.position.teach.list': '助教列表',
   'route.position.teach.list-title': '助教列表',
   'route.stuapply': '申请',
-  'route.stuapply.list': '申请列表',
+  'route.stuapply.list': '学生申请',
   'route.stuapply.list-title': '学生申请列表',
   'route.stuapply.workload': '工作量申报',
   'route.stuapply.workload-title': '岗位工作量申报',
