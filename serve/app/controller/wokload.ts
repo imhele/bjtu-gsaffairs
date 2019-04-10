@@ -188,7 +188,7 @@ export default class WorkloadController extends Controller {
     const type = PositionType[body.type];
     const template = compiled({ year, month, type, workloadList, dep: auth.auditableDep[0] || '' });
     try {
-      this.ctx.attachment(`workload-${workloadList[0]!.time}.pdf`);
+      this.ctx.attachment(`workload_${workloadList[0]!.time}.pdf`);
       this.ctx.set('Content-Type', 'application/octet-stream');
       response.body = HTML2PDF(template);
     } catch {
