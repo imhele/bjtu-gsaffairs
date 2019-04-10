@@ -1,4 +1,5 @@
 import { fetchList, createWorkload, editWorkload, auditWorkload } from '@/api/workload';
+import { StandardTableOperation } from '@/components/StandardTable';
 import { safeFun } from '@/utils/utils';
 import { message } from 'antd';
 import { ColumnProps } from 'antd/es/table';
@@ -8,9 +9,10 @@ export interface WorkloadState {
   actionKey: string;
   columns: ColumnProps<object>[];
   dataSource: object[];
-  total: number;
+  operation: StandardTableOperation[];
   rowKey: string;
   selectable: boolean;
+  total: number;
   unSelectableKey: string;
 }
 
@@ -18,9 +20,10 @@ const defaultState: WorkloadState = {
   actionKey: 'action',
   columns: [],
   dataSource: [],
-  total: 0,
+  operation: [],
   rowKey: 'key',
   selectable: true,
+  total: 0,
   unSelectableKey: 'unSelectable',
 };
 

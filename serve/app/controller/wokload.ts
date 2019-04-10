@@ -26,7 +26,7 @@ export default class WorkloadController extends Controller {
   public async list() {
     const { ctx, service } = this;
     const { auth, body } = ctx.request;
-    const { limit = 10, offset = 0, time = moment().format('YYYYMM'), type } = body as {
+    const { limit = 10, offset = 0, time = moment().format('YYYYMM'), type, student } = body as {
       type: keyof typeof PositionType;
       [K: string]: any;
     };
@@ -50,6 +50,12 @@ export default class WorkloadController extends Controller {
       },
     ];
 
+    if (student) {
+      include[0].where[Op.or] = {
+        name: { [Op.like]: `%${student}%` },
+        number: { [Op.like]: `%${student}%` },
+      };
+    }
     if (auth.type === UserType.Postgraduate)
       applyFilters.push({ student_number: auth.user.loginname });
     else {

@@ -4,6 +4,7 @@ import requests, { RequestBody } from '@/utils/requests';
 export interface FetchListBody extends RequestBody {
   limit?: number;
   offset?: number;
+  student?: string;
   time?: string;
   type?: string;
 }
