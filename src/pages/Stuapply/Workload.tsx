@@ -198,7 +198,7 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
     if (dataset.type === CellAction.Cancel) return setActiveRowKey(null!);
     const callback = () => {
       setActiveRowKey(null!);
-      fetchList();
+      fetchList('clearSelection');
     };
     if (dataset.type === CellAction.Audit) {
       if (!dataset.workload) return;
@@ -236,7 +236,7 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
   };
 
   const fetchList = (..._: any[]) => {
-    safeFun(tableMethods.current.clearSelectedRowKeys);
+    if (_.length) safeFun(tableMethods.current.clearSelectedRowKeys);
     dispatch<FetchListBody>({
       type: 'workload/fetchList',
       payload: {
@@ -267,7 +267,7 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
         className={styles.tabs}
         onChange={key => {
           postType.current = key as PositionType;
-          fetchList();
+          fetchList('clearSelection');
         }}
       >
         <Tabs.TabPane key="manage" tab={formatMessage({ id: 'position.manage' })} />
@@ -297,7 +297,7 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
             allowClear={false}
             onChange={date => {
               pageSet.current.time = date.format('YYYYMM');
-              fetchList();
+              fetchList('clearSelection');
             }}
             style={{ margin: '0 1em 16px' }}
             value={moment(pageSet.current.time, 'YYYYMM')}
