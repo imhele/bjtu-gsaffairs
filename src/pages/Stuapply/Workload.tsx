@@ -340,6 +340,7 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
             },
             pageSize: pageSet.current.limit,
             pageSizeOptions: ['10', '20', '50', '100'],
+            position: 'both',
             showQuickJumper: true,
             showTotal: () => formatMessage({ id: 'word.total' }, { total: workload.total }),
             showSizeChanger: true,
