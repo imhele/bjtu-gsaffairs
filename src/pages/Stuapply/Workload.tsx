@@ -176,7 +176,6 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
     return onBatchAudit(workloadIdList, postType.current, dispatch, () => {
       pageSet.current.offset = 0;
       setActiveRowKey(null!);
-      safeFun(tableMethods.current.clearSelectedRowKeys);
       fetchList();
     });
   };
@@ -237,7 +236,7 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
   };
 
   const fetchList = (..._: any[]) => {
-    if (_.length) safeFun(tableMethods.current.clearSelectedRowKeys);
+    safeFun(tableMethods.current.clearSelectedRowKeys);
     dispatch<FetchListBody>({
       type: 'workload/fetchList',
       payload: {
@@ -267,7 +266,6 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
       <Tabs
         className={styles.tabs}
         onChange={key => {
-          safeFun(tableMethods.current.clearSelectedRowKeys);
           postType.current = key as PositionType;
           fetchList();
         }}
@@ -341,6 +339,7 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
               fetchList();
             },
             pageSize: pageSet.current.limit,
+            pageSizeOptions: ['10', '20', '50', '100'],
             showQuickJumper: true,
             showTotal: () => formatMessage({ id: 'word.total' }, { total: workload.total }),
             showSizeChanger: true,
