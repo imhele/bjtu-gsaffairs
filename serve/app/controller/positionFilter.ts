@@ -13,7 +13,7 @@ export const filtersMap = {
     id: 'department_code',
     title: '用工单位',
     type: SimpleFormItemType.Select,
-    selectOptions: [],
+    selectOptions: [] as any[],
   },
   name: {
     id: 'name',
@@ -22,7 +22,7 @@ export const filtersMap = {
   },
   audit: {
     id: 'audit',
-    selectOptions: [],
+    selectOptions: [] as any[],
     title: '审核环节',
     type: SimpleFormItemType.Select,
   },
