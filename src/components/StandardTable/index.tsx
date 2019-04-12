@@ -452,6 +452,7 @@ export default class StandardTable<T = object> extends Component<
       size,
       style,
     } = this.props;
+    const alertHasMarginBtm: boolean = pagination && pagination.position !== 'both';
     return (
       <div className={className} style={style}>
         {operationArea && (
@@ -465,7 +466,7 @@ export default class StandardTable<T = object> extends Component<
           <Alert
             message={this.renderAlertMessage()}
             showIcon
-            style={{ marginBottom: 16 }}
+            style={alertHasMarginBtm ? { marginBottom: 16 } : {}}
             type="info"
             {...alert}
           />

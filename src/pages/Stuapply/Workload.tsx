@@ -5,17 +5,27 @@ import {
   AuditWorkloadBody,
   ExportWorkloadFileBody,
 } from '@/api/workload';
-import StandardTable, {
-  StandardTableMethods,
-  StandardTableOperation,
-} from '@/components/StandardTable';
+import StandardTable, { StandardTableMethods } from '@/components/StandardTable';
 import { GlobalId } from '@/global';
 import PageHeader from '@/layouts/PageHeader';
 import { ConnectProps, ConnectState, WorkloadState, Dispatch } from '@/models/connect';
 import commonStyles from '@/pages/common.less';
 import { CellAction, PositionType } from '@/pages/Position/consts';
 import { safeFun } from '@/utils/utils';
-import { Button, DatePicker, Input, InputNumber, message, Modal, Tabs, Tooltip } from 'antd';
+import {
+  Button,
+  Col,
+  DatePicker,
+  Input,
+  InputNumber,
+  message,
+  Modal,
+  Row,
+  Select,
+  Tabs,
+  Tooltip,
+} from 'antd';
+import { ColProps } from 'antd/es/col';
 import { SelectionSelectFn, TableRowSelection } from 'antd/es/table';
 import { connect } from 'dva';
 import moment from 'moment';
@@ -121,7 +131,18 @@ const renderWorkloadStatus = (
   );
 };
 
-const initTime = moment().format('YYYYMM');
+const RenderFilterItem: React.FC<{ label: string }> = ({ label, children }) => (
+  <Row>
+    <Col span={8} style={{ lineHeight: '32px' }}>
+      {label}
+    </Col>
+    <Col span={16}>{children}</Col>
+  </Row>
+);
+
+const initTime = moment()
+  .subtract(1, 'M')
+  .format('YYYYMM');
 
 const onBatchAudit = (
   keys: string[] | number[],
@@ -155,11 +176,11 @@ const onBatchAudit = (
 };
 
 const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
+  const amountRef = useRef(0);
   const postType = useRef('manage' as PositionType);
   const selectedRows = useRef({} as { [key: string]: any });
   const tableMethods = useRef<StandardTableMethods>({} as any);
-  const amountRef = useRef(0);
-  const pageSet = useRef({ limit: 10, offset: 0, time: initTime, student: '' });
+  const pageSet = useRef({ limit: 10, offset: 0, time: initTime, student: '', status: '' });
   const [activeRowKey, setActiveRowKey] = useState(null as number);
   const onSelect = (record: object, selected: boolean) => {
     const { rowKey } = workload;
@@ -288,33 +309,51 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
 
   useState(fetchList);
 
+  const filterColProps: ColProps = { lg: 8, md: 12, sm: 24, style: { marginBottom: 16 } };
+
   return (
     <PageHeader headerExtra={PageHeaderExtra}>
       <div className={commonStyles.contentBody}>
-        <div key="MonthPicker">
-          <span>申报月份</span>
-          <MonthPicker
-            allowClear={false}
-            onChange={date => {
-              pageSet.current.time = date.format('YYYYMM');
-              fetchList('clearSelection');
-            }}
-            style={{ margin: '0 1em 16px' }}
-            value={moment(pageSet.current.time, 'YYYYMM')}
-          />
+        <Row gutter={{ md: 8, lg: 16, xl: 32 }} key="Filter">
+          <Col {...filterColProps}>
+            <RenderFilterItem label="申报月份">
+              <MonthPicker
+                allowClear={false}
+                onChange={date => fetchList((pageSet.current.time = date.format('YYYYMM')))}
+                style={{ width: '100%' }}
+                value={moment(pageSet.current.time, 'YYYYMM')}
+              />
+            </RenderFilterItem>
+          </Col>
+          <Col {...filterColProps}>
+            <RenderFilterItem label="上报状态">
+              <Select
+                defaultValue=""
+                onChange={status => fetchList((pageSet.current.status = status))}
+                style={{ width: '100%' }}
+              >
+                <Select.Option value="">全部</Select.Option>
+                <Select.Option value="草稿">草稿</Select.Option>
+                <Select.Option value="待审核">待审核</Select.Option>
+                <Select.Option value="已上报">已上报</Select.Option>
+              </Select>
+            </RenderFilterItem>
+          </Col>
           {workload.selectable && (
-            <Tooltip title="导出已上报的申报记录">
-              <Button icon="cloud-download" onClick={onClickExportFile} type="primary">
-                导出
-              </Button>
-            </Tooltip>
+            <Col {...filterColProps}>
+              <Tooltip title="导出已上报的申报记录">
+                <Button icon="cloud-download" onClick={onClickExportFile} type="primary">
+                  导出
+                </Button>
+              </Tooltip>
+              {postType.current !== 'manage' && (
+                <Button onClick={onClickBatchAudit} style={{ marginLeft: '1em' }}>
+                  审核通过
+                </Button>
+              )}
+            </Col>
           )}
-          {workload.selectable && postType.current !== 'manage' && (
-            <Button icon="check-circle" onClick={onClickBatchAudit} style={{ marginLeft: '1em' }}>
-              审核通过
-            </Button>
-          )}
-        </div>
+        </Row>
         <StandardTable
           actionKey={null}
           alert={{

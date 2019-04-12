@@ -4,7 +4,7 @@ import { CellAction } from '../link';
 import { DataNotFound } from '../errcode';
 import { getFromIntEnum } from '../utils';
 import { AuthResult } from '../extend/request';
-import { FindOptions, IncludeOptions, Model } from 'sequelize';
+import { FindOptions, IncludeOptions, Model, Op } from 'sequelize';
 import { IntershipsWorkload } from '../model/interships/workload';
 import { attr as SchoolCensusAttr, SchoolCensus as CensusModel } from '../model/school/census';
 import {
@@ -92,11 +92,13 @@ export default class StuapplyService extends Service {
       attributes: ['amount', 'time'],
       include: [
         {
+          required: true,
           model: model.Interships.Stuapply,
           attributes: ['id'],
           include: [
-            { model: model.Interships.Position, attributes: ['name'] },
+            { required: true, model: model.Interships.Position, attributes: ['name'] },
             {
+              required: true,
               model: model.School.Census,
               attributes: ['name', 'number'],
               include: [{ model: model.Dicts.College, attributes: ['name'], required: false }],
@@ -115,6 +117,63 @@ export default class StuapplyService extends Service {
       student_college_name: string;
     };
     return res;
+  }
+
+  public async findAndCountWorkload(
+    filter: { time: string; type: number; student?: string; status: string },
+    options: { limit: number; offset: number },
+    extraFormatter: (item: any) => any = i => i,
+  ) {
+    const { model } = this.ctx;
+    const dbRes = await model.Interships.Workload.findAndCountAll({
+      ...options,
+      attributes: ['amount'],
+      where: { status: filter.status, time: filter.time },
+      include: [
+        {
+          required: true,
+          model: model.Interships.Stuapply,
+          attributes: ['id'],
+          include: [
+            {
+              required: true,
+              model: model.Interships.Position,
+              attributes: ['name', 'department_code', 'staff_jobnum', 'work_time_l'],
+              where: { types: filter.type },
+            },
+            {
+              required: true,
+              model: model.School.Census,
+              attributes: ['name', 'number'],
+              where: filter.student
+                ? {
+                    [Op.or]: {
+                      name: { [Op.like]: `%${filter.student}%` },
+                      number: { [Op.like]: `%${filter.student}%` },
+                    },
+                  }
+                : void 0,
+            },
+          ],
+        },
+      ],
+    });
+    return {
+      total: dbRes.count,
+      dataSource: dbRes.rows.map((row: any) => {
+        row = this.formatWorkload(row);
+        return extraFormatter({
+          ...row,
+          id: row.stuapply_id,
+          workload_time: filter.time,
+          workload_amount: row.amount,
+          workload_status: filter.status,
+          time: void 0,
+          amount: void 0,
+          stuapply_id: void 0,
+        });
+      }),
+    };
   }
 
   public async hasApplied(positionId: number, student: string) {

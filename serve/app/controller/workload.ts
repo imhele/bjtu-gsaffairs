@@ -26,13 +26,39 @@ export default class WorkloadController extends Controller {
   public async list() {
     const { ctx, service } = this;
     const { auth, body } = ctx.request;
-    const { limit = 10, offset = 0, time = moment().format('YYYYMM'), type, student } = body as {
+    const initTime = moment()
+      .subtract(1, 'M')
+      .format('YYYYMM');
+    const { limit = 10, offset = 0, time = initTime, type, student } = body as {
       type: keyof typeof PositionType;
       [K: string]: any;
     };
     const isAdmin = auth.scope.includes(ScopeList.admin);
     const positionType = getFromIntEnum(PositionAttr, 'types', null, PositionType[type]);
     if (positionType === -1) return;
+
+    if (body.status) {
+      const res = await service.stuapply.findAndCountWorkload(
+        { time, student, status: body.status, type: positionType as number },
+        { limit, offset },
+        item => {
+          const actions = this.getAction(item, auth, isAdmin, type);
+          return {
+            ...item,
+            editable: !!actions.get(CellAction.Edit),
+            auditable: !!actions.get(CellAction.Audit),
+            position_work_time_l: (item.position_work_time_l || 0) * 4,
+          };
+        },
+      );
+      ctx.response.body = {
+        ...res,
+        rowKey: 'id',
+        columns: workloadColumns,
+        selectable: isAdmin || !!auth.auditableDep.length,
+      };
+      return;
+    }
 
     /**
      * Qurey batabase
