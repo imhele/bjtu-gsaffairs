@@ -34,6 +34,10 @@
       "dataIndex": "student_name"
     },
     {
+      "title": "用工单位",
+      "dataIndex": "position_department_code"
+    },
+    {
       "title": "岗位名称",
       "dataIndex": "position_name"
     },

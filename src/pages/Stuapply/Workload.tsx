@@ -257,7 +257,10 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
   };
 
   const fetchList = (..._: any[]) => {
-    if (_.length) safeFun(tableMethods.current.clearSelectedRowKeys);
+    if (_.length) {
+      selectedRows.current = {};
+      safeFun(tableMethods.current.clearSelectedRowKeys);
+    }
     dispatch<FetchListBody>({
       type: 'workload/fetchList',
       payload: {
@@ -343,7 +346,7 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
           </Col>
           {workload.selectable && (
             <Col {...filterColProps}>
-              <Tooltip title="导出已上报的申报记录">
+              <Tooltip title="导出选中的已上报的申报记录">
                 <Button icon="cloud-download" onClick={onClickExportFile} type="primary">
                   导出
                 </Button>

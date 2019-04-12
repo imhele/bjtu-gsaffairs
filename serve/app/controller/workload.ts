@@ -21,6 +21,7 @@ import {
 } from '../model/interships/stuapply';
 import { StuapplyWithFK } from '../service/stuapply';
 import { AuthResult } from '../extend/request';
+import { getFilters } from './positionFilter';
 
 export default class WorkloadController extends Controller {
   public async list() {
@@ -104,13 +105,19 @@ export default class WorkloadController extends Controller {
     /**
      * Format dataSource
      */
+    const depMap: { title: string; value: string }[] = getFilters(['department_code'])[0]
+      .selectOptions;
     const dataSource: typeof dbRes.applications = [];
     for (const item of dbRes.applications) {
       const data = await this.getWorkloadFromApply(item, time);
       const actions = this.getAction(data, auth, isAdmin, type);
-      data.editable = !!actions.get(CellAction.Edit);
-      data.auditable = !!actions.get(CellAction.Audit);
-      dataSource.push(data);
+      const dep = depMap.find(i => i.value === (data as any).position_department_code);
+      dataSource.push({
+        ...data,
+        editable: !!actions.get(CellAction.Edit),
+        auditable: !!actions.get(CellAction.Audit),
+        position_department_code: dep && dep.title,
+      });
     }
 
     ctx.response.body = {
@@ -203,7 +210,7 @@ export default class WorkloadController extends Controller {
     if (!auth.scope.includes(ScopeList.admin) && !auth.auditableDep.length)
       throw new AuthorizeError('你暂时没有权限下载岗位协议书');
 
-    const idList: number[] = body.workloadIdList;
+    const idList: number[] = body.workloadIdList.filter((i: number) => i);
     if (!idList.length || !body.type) return;
     const dbRes = await Promise.all(idList.map(i => service.stuapply.findOneWorkloadForExport(i)));
     const workloadList = dbRes.filter(i => i);

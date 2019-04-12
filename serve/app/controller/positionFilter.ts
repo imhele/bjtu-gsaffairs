@@ -8,7 +8,7 @@ const NewPositionAttr = PositionAttr as {
   [key: string]: DefineAttributeColumnOptions;
 };
 
-export const filtersMap: { [K: string]: FilterItemProps } = {
+export const filtersMap = {
   department_code: {
     id: 'department_code',
     title: '用工单位',

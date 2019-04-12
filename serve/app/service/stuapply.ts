@@ -16,6 +16,7 @@ import {
   attr as PositionAttr,
   Position as PositionModel,
 } from '../model/interships/position';
+import { getFilters } from '../controller/positionFilter';
 
 export interface StuapplyWithFK<D extends boolean = false, S extends boolean = false>
   extends StuapplyModel {
@@ -127,7 +128,7 @@ export default class StuapplyService extends Service {
     const { model } = this.ctx;
     const dbRes = await model.Interships.Workload.findAndCountAll({
       ...options,
-      attributes: ['amount'],
+      attributes: ['amount', 'id'],
       where: { status: filter.status, time: filter.time },
       include: [
         {
@@ -158,16 +159,21 @@ export default class StuapplyService extends Service {
         },
       ],
     });
+    const depMap: { title: string; value: string }[] = getFilters(['department_code'])[0]
+      .selectOptions;
     return {
       total: dbRes.count,
       dataSource: dbRes.rows.map((row: any) => {
         row = this.formatWorkload(row);
+        const dep = depMap.find(i => i.value === row.position_department_code);
         return extraFormatter({
           ...row,
           id: row.stuapply_id,
+          workload_id: row.id,
           workload_time: filter.time,
           workload_amount: row.amount,
           workload_status: filter.status,
+          position_department_code: dep && dep.title,
           time: void 0,
           amount: void 0,
           stuapply_id: void 0,
