@@ -334,7 +334,9 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
               >
                 <Select.Option value="">全部</Select.Option>
                 <Select.Option value="草稿">草稿</Select.Option>
-                <Select.Option value="待审核">待审核</Select.Option>
+                <Select.Option disabled={postType.current !== 'teach'} value="待审核">
+                  待审核
+                </Select.Option>
                 <Select.Option value="已上报">已上报</Select.Option>
               </Select>
             </RenderFilterItem>

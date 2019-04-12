@@ -452,7 +452,8 @@ export default class StandardTable<T = object> extends Component<
       size,
       style,
     } = this.props;
-    const alertHasMarginBtm: boolean = pagination && pagination.position !== 'both';
+    const alertHasMarginBtm: boolean =
+      !pagination || !pagination.total || pagination.position !== 'both';
     return (
       <div className={className} style={style}>
         {operationArea && (
