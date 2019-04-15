@@ -19,7 +19,7 @@ export default class UserController extends Controller {
 
       // check timestamp
       const timeDiff = moment().unix() - Math.floor(timestamp);
-      if (timeDiff > 60 || timeDiff < -60) return this.loginFail('密钥已失效，请重新登陆');
+      if (timeDiff > 300 || timeDiff < -300) return this.loginFail('密钥已失效，请重新登陆');
 
       // find account and check signature
       const { user, type } = await service.user.findOne(account);
