@@ -49,6 +49,9 @@ export default class WorkloadController extends Controller {
             editable: !!actions.get(CellAction.Edit),
             auditable: !!actions.get(CellAction.Audit),
             position_work_time_l: (item.position_work_time_l || 0) * 4,
+            position_end_t: void 0,
+            position_start_t: void 0,
+            position_staff_jobnum: void 0,
           };
         },
       );
@@ -76,7 +79,7 @@ export default class WorkloadController extends Controller {
       },
       {
         model: ctx.model.Interships.Position,
-        attributes: ['staff_jobnum', 'department_code', 'name', 'work_time_l'],
+        attributes: ['staff_jobnum', 'department_code', 'name', 'work_time_l', 'start_t', 'end_t'],
         where: { types: positionType },
       },
     ];
@@ -110,13 +113,16 @@ export default class WorkloadController extends Controller {
     const dataSource: typeof dbRes.applications = [];
     for (const item of dbRes.applications) {
       const data = await this.getWorkloadFromApply(item, time);
-      const actions = this.getAction(data, auth, isAdmin, type);
+      const actions = this.getAction(data, auth, isAdmin, type, time);
       const dep = depMap.find(i => i.value === (data as any).position_department_code);
       dataSource.push({
         ...data,
         editable: !!actions.get(CellAction.Edit),
         auditable: !!actions.get(CellAction.Audit),
         position_department_code: dep && dep.title,
+        position_end_t: void 0,
+        position_start_t: void 0,
+        position_staff_jobnum: void 0,
       });
     }
 
@@ -261,16 +267,18 @@ export default class WorkloadController extends Controller {
     const timeRange = [stuapply.position_start_t || '0', stuapply.position_end_t || '9'];
     timeRange[0] = timeRange[0].slice(0, 4);
     timeRange[1] = timeRange[1].slice(0, 4);
-    const editDisabled = !!time && (timeRange[0] > time || time > timeRange[1]);
+    const editDisabled =
+      !['未上报', '草稿'].includes(stuapply.workload_status!) ||
+      (!!time && (timeRange[0] > time || time > timeRange[1]));
     if (isAdmin) {
-      actions.set(CellAction.Edit, ['未上报', '草稿'].includes(stuapply.workload_status!) && !editDisabled);
+      actions.set(CellAction.Edit, !editDisabled);
       actions.set(CellAction.Audit, !['未上报', '草稿'].includes(stuapply.workload_status!));
     } else {
       if (type === 'teach' && auth.auditableDep.includes(stuapply.position_department_code)) {
-        actions.set(CellAction.Edit, ['未上报', '草稿'].includes(stuapply.workload_status!) && !editDisabled);
+        actions.set(CellAction.Edit, !editDisabled);
         actions.set(CellAction.Audit, stuapply.workload_status === '待审核');
       } else if (stuapply.position_staff_jobnum === auth.user.loginname)
-        actions.set(CellAction.Edit, ['未上报', '草稿'].includes(stuapply.workload_status!) && !editDisabled);
+        actions.set(CellAction.Edit, !editDisabled);
     }
     return actions;
   }

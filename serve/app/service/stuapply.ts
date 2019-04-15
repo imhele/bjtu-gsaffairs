@@ -139,7 +139,14 @@ export default class StuapplyService extends Service {
             {
               required: true,
               model: model.Interships.Position,
-              attributes: ['name', 'department_code', 'staff_jobnum', 'work_time_l'],
+              attributes: [
+                'name',
+                'department_code',
+                'staff_jobnum',
+                'work_time_l',
+                'start_t',
+                'end_t',
+              ],
               where: { types: filter.type },
             },
             {
