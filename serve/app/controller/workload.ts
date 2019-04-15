@@ -265,8 +265,8 @@ export default class WorkloadController extends Controller {
     time = time && `${time.slice(0, 4)}-${time.slice(4)}`;
     const actions: Map<CellAction, boolean> = new Map();
     const timeRange = [stuapply.position_start_t || '0', stuapply.position_end_t || '9'];
-    timeRange[0] = timeRange[0].slice(0, 4);
-    timeRange[1] = timeRange[1].slice(0, 4);
+    timeRange[0] = timeRange[0].slice(0, 7);
+    timeRange[1] = timeRange[1].slice(0, 7);
     const editDisabled =
       !['未上报', '草稿'].includes(stuapply.workload_status!) ||
       (!!time && (timeRange[0] > time || time > timeRange[1]));
