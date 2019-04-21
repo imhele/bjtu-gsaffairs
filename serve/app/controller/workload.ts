@@ -275,16 +275,16 @@ export default class WorkloadController extends Controller {
       this.ctx.set('Content-Type', 'application/octet-stream');
       this.ctx.attachment(`workload_${data.workloadList[0]!.time}.xlsx`);
       const workloadArray = data.workloadList.map((item, index) => [
-        `${index}`,
+        index + 1,
         item.position_name,
         item.student_number,
         item.student_name,
         item.student_college_name,
         item.amount,
       ]);
-      workloadArray.unshift([`${data.year} 年 ${data.month} 月研究生“${data.type}”考核汇总表`]);
-      workloadArray.unshift([`用人单位名称（盖章）：${data.dep}`]);
       workloadArray.unshift(['序号', '岗位名称', '学号', '姓名', '学生所在学院', '实际月工作量']);
+      workloadArray.unshift([`用人单位名称（盖章）：${data.dep}`]);
+      workloadArray.unshift([`${data.year} 年 ${data.month} 月研究生“${data.type}”考核汇总表`]);
       workloadArray.push(['负责人签字：']);
       const workload = XLSX.utils.aoa_to_sheet(workloadArray);
       workload['!merges'] = [{ s: { c: 0, r: 0 }, e: { c: 5, r: 0 } }];
@@ -295,7 +295,7 @@ export default class WorkloadController extends Controller {
       });
       this.ctx.response.body = XLSX.write(
         { Sheets: { workload }, SheetNames: ['workload'] },
-        { type: 'binary' },
+        { type: 'buffer' },
       );
     } catch {
       throw new CreateFileFailed();

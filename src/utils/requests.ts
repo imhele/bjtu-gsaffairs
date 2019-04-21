@@ -117,12 +117,12 @@ export default async function request<T>(
   const formattedResponse = await fetch(url, newOptions)
     .then(response => cachedSave(response, hashcode))
     .then<ResponseBody | string>(response => {
-      if (response.headers.get('Content-Type').includes('stream'))
+      const disposition = response.headers.get('Content-Disposition');
+      if (disposition && disposition.includes('attachment'))
         return response.blob().then(blob => {
           const a = document.createElement('a');
           const fileUrl = URL.createObjectURL(blob);
           a.href = fileUrl;
-          const disposition = response.headers.get('Content-Disposition');
           const filename = /filename[\s\S]?="([\s\S]*?)"/.exec(disposition) || ['', disposition];
           a.download = decodeURIComponent(filename[1]);
           a.click();
