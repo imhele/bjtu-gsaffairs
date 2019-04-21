@@ -33,7 +33,7 @@ import React, { useRef, useState, Fragment } from 'react';
 import { getUseMedia } from 'react-media-hook2';
 import { formatMessage, FormattedMessage } from 'umi-plugin-react/locale';
 import styles from './List.less';
-import ExcelImageSrc from '@/assets/image/excel-color.svg';
+import ExcelImageSrc from '@/assets/image/excel-color.png';
 import PDFImageSrc from '@/assets/image/pdf-color.svg';
 
 const { MonthPicker } = DatePicker;
