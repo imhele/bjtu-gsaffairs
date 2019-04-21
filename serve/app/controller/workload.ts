@@ -273,7 +273,7 @@ export default class WorkloadController extends Controller {
   }) {
     try {
       this.ctx.set('Content-Type', 'application/octet-stream');
-      this.ctx.attachment(`workload_${data.workloadList[0]!.time}.pdf`);
+      this.ctx.attachment(`workload_${data.workloadList[0]!.time}.xlsx`);
       const workloadArray = data.workloadList.map((item, index) => [
         `${index}`,
         item.position_name,
