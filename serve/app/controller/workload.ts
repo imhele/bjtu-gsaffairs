@@ -43,12 +43,15 @@ export default class WorkloadController extends Controller {
         { time, student, status: body.status, type: positionType as number },
         { limit, offset },
         item => {
-          const actions = this.getAction(item, auth, isAdmin, type);
+          const actions = this.getAction(item, auth, isAdmin, type, time);
           return {
             ...item,
             editable: !!actions.get(CellAction.Edit),
             auditable: !!actions.get(CellAction.Audit),
             position_work_time_l: (item.position_work_time_l || 0) * 4,
+            position_end_t: void 0,
+            position_start_t: void 0,
+            position_staff_jobnum: void 0,
           };
         },
       );
@@ -76,7 +79,7 @@ export default class WorkloadController extends Controller {
       },
       {
         model: ctx.model.Interships.Position,
-        attributes: ['staff_jobnum', 'department_code', 'name', 'work_time_l'],
+        attributes: ['staff_jobnum', 'department_code', 'name', 'work_time_l', 'start_t', 'end_t'],
         where: { types: positionType },
       },
     ];
@@ -110,13 +113,16 @@ export default class WorkloadController extends Controller {
     const dataSource: typeof dbRes.applications = [];
     for (const item of dbRes.applications) {
       const data = await this.getWorkloadFromApply(item, time);
-      const actions = this.getAction(data, auth, isAdmin, type);
+      const actions = this.getAction(data, auth, isAdmin, type, time);
       const dep = depMap.find(i => i.value === (data as any).position_department_code);
       dataSource.push({
         ...data,
         editable: !!actions.get(CellAction.Edit),
         auditable: !!actions.get(CellAction.Audit),
         position_department_code: dep && dep.title,
+        position_end_t: void 0,
+        position_start_t: void 0,
+        position_staff_jobnum: void 0,
       });
     }
 
@@ -147,7 +153,7 @@ export default class WorkloadController extends Controller {
       throw new ValidationError(
         `此岗位允许申报的工作量区间为 0 ~ ${stuapply.position_work_time_l}`,
       );
-    const actions = this.getAction(stuapply, auth, isAdmin, type);
+    const actions = this.getAction(stuapply, auth, isAdmin, type, time);
     if (!actions.get(CellAction.Edit)) throw new AuthorizeError('你暂时不能申报此记录的工作量');
     const status = actions.get(CellAction.Audit) || type === 'manage' ? '已上报' : '待审核';
     await ctx.model.Interships.Workload.create({ amount, status, time, stuapply_id: stuapplyId });
@@ -203,7 +209,7 @@ export default class WorkloadController extends Controller {
 
   public async export() {
     const {
-      ctx: { request, response },
+      ctx: { request, response, model },
       service,
     } = this;
     const { body, auth } = request;
@@ -219,7 +225,9 @@ export default class WorkloadController extends Controller {
     const type = PositionType[body.type];
     const templatePath = path.join(__dirname, './workloadTemplate.html');
     const compiled = lodash.template(fs.readFileSync(templatePath, 'utf8'));
-    const template = compiled({ year, month, type, workloadList, dep: auth.auditableDep[0] || '' });
+    const dep: any = await (auth.auditableDep[0] &&
+      model.Dicts.Department.findByPk(auth.auditableDep[0], { attributes: ['name'] }));
+    const template = compiled({ year, month, type, workloadList, dep: dep ? dep.get('name') : '' });
     try {
       this.ctx.attachment(`workload_${workloadList[0]!.time}.pdf`);
       this.ctx.set('Content-Type', 'application/octet-stream');
@@ -244,7 +252,7 @@ export default class WorkloadController extends Controller {
       workload_amount: workload ? workload.get('amount') : 0,
       workload_status: workload ? workload.get('status') : '未上报',
     };
-    return data;
+    return data as typeof data & { [K: string]: any };
   }
 
   private getAction(
@@ -252,17 +260,25 @@ export default class WorkloadController extends Controller {
     auth: AuthResult,
     isAdmin: boolean,
     type: keyof typeof PositionType,
+    time?: string,
   ) {
+    time = time && `${time.slice(0, 4)}-${time.slice(4)}`;
     const actions: Map<CellAction, boolean> = new Map();
+    const timeRange = [stuapply.position_start_t || '0', stuapply.position_end_t || '9'];
+    timeRange[0] = timeRange[0].slice(0, 7);
+    timeRange[1] = timeRange[1].slice(0, 7);
+    const editDisabled =
+      !['未上报', '草稿'].includes(stuapply.workload_status!) ||
+      (!!time && (timeRange[0] > time || time > timeRange[1]));
     if (isAdmin) {
-      actions.set(CellAction.Edit, ['未上报', '草稿'].includes(stuapply.workload_status!));
+      actions.set(CellAction.Edit, !editDisabled);
       actions.set(CellAction.Audit, !['未上报', '草稿'].includes(stuapply.workload_status!));
     } else {
       if (type === 'teach' && auth.auditableDep.includes(stuapply.position_department_code)) {
-        actions.set(CellAction.Edit, ['未上报', '草稿'].includes(stuapply.workload_status!));
+        actions.set(CellAction.Edit, !editDisabled);
         actions.set(CellAction.Audit, stuapply.workload_status === '待审核');
       } else if (stuapply.position_staff_jobnum === auth.user.loginname)
-        actions.set(CellAction.Edit, ['未上报', '草稿'].includes(stuapply.workload_status!));
+        actions.set(CellAction.Edit, !editDisabled);
     }
     return actions;
   }
