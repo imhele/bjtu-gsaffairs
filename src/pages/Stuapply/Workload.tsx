@@ -33,6 +33,7 @@ import React, { useRef, useState, Fragment } from 'react';
 import { getUseMedia } from 'react-media-hook2';
 import { formatMessage, FormattedMessage } from 'umi-plugin-react/locale';
 import styles from './List.less';
+import ExcelImageSrc from '@/assets/image/excel-color.svg';
 import PDFImageSrc from '@/assets/image/pdf-color.svg';
 
 const { MonthPicker } = DatePicker;
@@ -197,9 +198,9 @@ const ExportSelectiont: React.FC<{
         <span className={styles.ext}>.pdf</span>
       </div>
     </div>
-    <div className={styles.fileType} onClick={() => onSelect('pdf')}>
+    <div className={styles.fileType} onClick={() => onSelect('excel')}>
       <div className={styles.icon}>
-        <img src={PDFImageSrc} />
+        <img src={ExcelImageSrc} />
       </div>
       <div className={styles.meta}>
         <span className={styles.name}>Excel</span>
