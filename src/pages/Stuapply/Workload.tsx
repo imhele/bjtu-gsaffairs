@@ -33,6 +33,7 @@ import React, { useRef, useState, Fragment } from 'react';
 import { getUseMedia } from 'react-media-hook2';
 import { formatMessage, FormattedMessage } from 'umi-plugin-react/locale';
 import styles from './List.less';
+import PDFImageSrc from '@/assets/image/pdf-color.svg';
 
 const { MonthPicker } = DatePicker;
 
@@ -175,8 +176,42 @@ const onBatchAudit = (
   });
 };
 
+const ExportSelectiont: React.FC<{
+  visible: boolean;
+  onCancel: () => void;
+  onSelect: (fileType: 'excel' | 'pdf') => Promise<any> | void;
+}> = ({ onCancel, onSelect, visible }) => (
+  <Modal
+    wrapClassName={styles.exportModal}
+    footer={false}
+    onCancel={onCancel}
+    title="导出"
+    visible={visible}
+  >
+    <div className={styles.fileType} onClick={() => onSelect('pdf')}>
+      <div className={styles.icon}>
+        <img src={PDFImageSrc} />
+      </div>
+      <div className={styles.meta}>
+        <span className={styles.name}>PDF</span>
+        <span className={styles.ext}>.pdf</span>
+      </div>
+    </div>
+    <div className={styles.fileType} onClick={() => onSelect('pdf')}>
+      <div className={styles.icon}>
+        <img src={PDFImageSrc} />
+      </div>
+      <div className={styles.meta}>
+        <span className={styles.name}>Excel</span>
+        <span className={styles.ext}>.xlsx</span>
+      </div>
+    </div>
+  </Modal>
+);
+
 const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
   const amountRef = useRef(0);
+  const [exportVisible, setExportVisible] = useState(false);
   const postType = useRef('manage' as PositionType);
   const selectedRows = useRef({} as { [key: string]: any });
   const tableMethods = useRef<StandardTableMethods>({} as any);
@@ -200,7 +235,8 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
       fetchList();
     });
   };
-  const onClickExportFile = () => {
+  const onClickExportFile = (fileType: 'excel' | 'pdf') => {
+    setExportVisible(false);
     const workloadIdList: number[] = Object.values(selectedRows.current)
       .filter(i => i && i.workload_status === '已上报')
       .map(i => i.workload_id);
@@ -209,7 +245,7 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
     message.info(`正在导出${timeStr}的 ${workloadIdList.length} 条已上报记录`);
     return dispatch<ExportWorkloadFileBody>({
       type: 'workload/exportWorkloadFile',
-      payload: { workloadIdList, type: postType.current },
+      payload: { workloadIdList, type: postType.current, fileType },
     });
   };
   const onClickRowAction = ({ currentTarget }: React.MouseEvent) => {
@@ -347,7 +383,7 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
           {workload.selectable && (
             <Col {...filterColProps}>
               <Tooltip title="导出选中的已上报的申报记录">
-                <Button icon="cloud-download" onClick={onClickExportFile} type="primary">
+                <Button icon="cloud-download" onClick={() => setExportVisible(true)} type="primary">
                   导出
                 </Button>
               </Tooltip>
@@ -356,6 +392,11 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
                   审核通过
                 </Button>
               )}
+              <ExportSelectiont
+                onCancel={() => setExportVisible(false)}
+                onSelect={onClickExportFile}
+                visible={exportVisible}
+              />
             </Col>
           )}
         </Row>

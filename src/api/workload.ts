@@ -58,6 +58,7 @@ export async function auditWorkload(body: AuditWorkloadBody) {
 }
 
 export interface ExportWorkloadFileBody {
+  fileType: 'excel' | 'pdf';
   workloadIdList: number[];
   type: PositionType;
 }

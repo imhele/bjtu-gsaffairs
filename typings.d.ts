@@ -1,5 +1,6 @@
 declare module '*.css';
 declare module '*.png';
+declare module '*.svg';
 declare module '*.less';
 declare interface Route<D extends boolean = false> {
   component?: string;

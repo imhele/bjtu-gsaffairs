@@ -11,12 +11,7 @@ logs/
 *.swp
 *.lock
 *.js
+*.map
 !.autod.conf.js
+!jslib/**/*.js
 config/config.prod.ts
-
-app/**/*.js
-test/**/*.js
-config/**/*.js
-app/**/*.map
-test/**/*.map
-config/**/*.map
