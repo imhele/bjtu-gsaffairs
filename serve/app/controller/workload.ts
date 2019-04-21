@@ -209,7 +209,7 @@ export default class WorkloadController extends Controller {
 
   public async export() {
     const {
-      ctx: { request, response, model },
+      ctx: { request, model },
       service,
     } = this;
     const { body, auth } = request;
@@ -223,15 +223,33 @@ export default class WorkloadController extends Controller {
     const year = workloadList[0]!.time.slice(0, 4);
     const month = workloadList[0]!.time.slice(4);
     const type = PositionType[body.type];
-    const templatePath = path.join(__dirname, './workloadTemplate.html');
-    const compiled = lodash.template(fs.readFileSync(templatePath, 'utf8'));
     const dep: any = await (auth.auditableDep[0] &&
       model.Dicts.Department.findByPk(auth.auditableDep[0], { attributes: ['name'] }));
-    const template = compiled({ year, month, type, workloadList, dep: dep ? dep.get('name') : '' });
+    if (body.fileType === 'pdf')
+      this.toPDF({ year, month, type, workloadList, dep: dep ? dep.get('name') : '' });
+  }
+
+  private async toPDF(data: {
+    year: string;
+    month: string;
+    type: string;
+    workloadList: {
+      amount: number;
+      time: string;
+      position_name: string;
+      student_name: string;
+      student_number: string;
+      student_college_name: string;
+    }[];
+    dep: string;
+  }) {
+    const templatePath = path.join(__dirname, './workloadTemplate.html');
+    const compiled = lodash.template(fs.readFileSync(templatePath, 'utf8'));
+    const template = compiled(data);
     try {
-      this.ctx.attachment(`workload_${workloadList[0]!.time}.pdf`);
+      this.ctx.attachment(`workload_${data.workloadList[0]!.time}.pdf`);
       this.ctx.set('Content-Type', 'application/octet-stream');
-      response.body = HTML2PDF(template);
+      this.ctx.response.body = HTML2PDF(template);
     } catch {
       throw new CreateFileFailed();
     }

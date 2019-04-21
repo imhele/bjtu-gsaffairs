@@ -108,8 +108,7 @@ export default class StuapplyService extends Service {
         },
       ],
     });
-    if (!workload) return;
-    const res = this.formatWorkload(workload) as {
+    const res = (workload ? this.formatWorkload(workload) : void 0) as {
       amount: number;
       time: string;
       position_name: string;
