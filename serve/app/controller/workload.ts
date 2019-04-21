@@ -22,6 +22,7 @@ import {
 import { StuapplyWithFK } from '../service/stuapply';
 import { AuthResult } from '../extend/request';
 import { getFilters } from './positionFilter';
+import XLSX from '../../jslib/xlsx';
 
 export default class WorkloadController extends Controller {
   public async list() {
@@ -225,8 +226,9 @@ export default class WorkloadController extends Controller {
     const type = PositionType[body.type];
     const dep: any = await (auth.auditableDep[0] &&
       model.Dicts.Department.findByPk(auth.auditableDep[0], { attributes: ['name'] }));
-    if (body.fileType === 'pdf')
-      this.toPDF({ year, month, type, workloadList, dep: dep ? dep.get('name') : '' });
+    const data = { year, month, type, workloadList, dep: dep ? dep.get('name') : '' };
+    if (body.fileType === 'excel') this.toExcel(data);
+    else this.toPDF(data);
   }
 
   private async toPDF(data: {
@@ -247,9 +249,54 @@ export default class WorkloadController extends Controller {
     const compiled = lodash.template(fs.readFileSync(templatePath, 'utf8'));
     const template = compiled(data);
     try {
-      this.ctx.attachment(`workload_${data.workloadList[0]!.time}.pdf`);
       this.ctx.set('Content-Type', 'application/octet-stream');
+      this.ctx.attachment(`workload_${data.workloadList[0]!.time}.pdf`);
       this.ctx.response.body = HTML2PDF(template);
+    } catch {
+      throw new CreateFileFailed();
+    }
+  }
+
+  private async toExcel(data: {
+    year: string;
+    month: string;
+    type: string;
+    workloadList: {
+      amount: number;
+      time: string;
+      position_name: string;
+      student_name: string;
+      student_number: string;
+      student_college_name: string;
+    }[];
+    dep: string;
+  }) {
+    try {
+      this.ctx.set('Content-Type', 'application/octet-stream');
+      this.ctx.attachment(`workload_${data.workloadList[0]!.time}.pdf`);
+      const workloadArray = data.workloadList.map((item, index) => [
+        `${index}`,
+        item.position_name,
+        item.student_number,
+        item.student_name,
+        item.student_college_name,
+        item.amount,
+      ]);
+      workloadArray.unshift([`${data.year} 年 ${data.month} 月研究生“${data.type}”考核汇总表`]);
+      workloadArray.unshift([`用人单位名称（盖章）：${data.dep}`]);
+      workloadArray.unshift(['序号', '岗位名称', '学号', '姓名', '学生所在学院', '实际月工作量']);
+      workloadArray.push(['负责人签字：']);
+      const workload = XLSX.utils.aoa_to_sheet(workloadArray);
+      workload['!merges'] = [{ s: { c: 0, r: 0 }, e: { c: 5, r: 0 } }];
+      workload['!merges'].push({ s: { c: 0, r: 1 }, e: { c: 5, r: 1 } });
+      workload['!merges'].push({
+        s: { c: 0, r: workloadArray.length - 1 },
+        e: { c: 5, r: workloadArray.length - 1 },
+      });
+      this.ctx.response.body = XLSX.write(
+        { Sheets: { workload }, SheetNames: ['workload'] },
+        { type: 'binary' },
+      );
     } catch {
       throw new CreateFileFailed();
     }

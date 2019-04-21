@@ -329,8 +329,8 @@ export default class StuapplyController extends Controller {
       ...(await service.stuapply.getTeacherAndDep(apply)),
     });
     try {
-      this.ctx.attachment('agreement.pdf');
       this.ctx.set('Content-Type', 'application/octet-stream');
+      this.ctx.attachment('agreement.pdf');
       response.body = HTML2PDF(template);
     } catch {
       throw new CreateFileFailed();
