@@ -219,8 +219,15 @@ export default class WorkloadController extends Controller {
 
     const idList: number[] = body.workloadIdList.filter((i: number) => i);
     if (!idList.length || !body.type) return;
+    const depMap: { title: string; value: string }[] = getFilters(['department_code'])[0]
+      .selectOptions;
     const dbRes = await Promise.all(idList.map(i => service.stuapply.findOneWorkloadForExport(i)));
-    const workloadList = dbRes.filter(i => i);
+    const workloadList = dbRes
+      .filter(i => i)
+      .map(item => {
+        const depname = depMap.find(i => i.value === item.position_department_code);
+        return { ...item, position_department_code: depname ? depname.title : '' };
+      });
     const year = workloadList[0]!.time.slice(0, 4);
     const month = workloadList[0]!.time.slice(4);
     const type = PositionType[body.type];
@@ -242,6 +249,7 @@ export default class WorkloadController extends Controller {
       student_name: string;
       student_number: string;
       student_college_name: string;
+      position_department_code: string;
     }[];
     dep: string;
   }) {
@@ -268,6 +276,7 @@ export default class WorkloadController extends Controller {
       student_name: string;
       student_number: string;
       student_college_name: string;
+      position_department_code: string;
     }[];
     dep: string;
   }) {
@@ -276,22 +285,24 @@ export default class WorkloadController extends Controller {
       this.ctx.attachment(`workload_${data.workloadList[0]!.time}.xlsx`);
       const workloadArray = data.workloadList.map((item, index) => [
         index + 1,
+        item.position_department_code,
         item.position_name,
         item.student_number,
         item.student_name,
         item.student_college_name,
         item.amount,
       ]);
-      workloadArray.unshift(['序号', '岗位名称', '学号', '姓名', '学生所在学院', '实际月工作量']);
+      const hder = ['序号', '用人单位', '岗位名称', '学号', '姓名', '学生所在学院', '实际月工作量'];
+      workloadArray.unshift(hder);
       workloadArray.unshift([`用人单位名称（盖章）：${data.dep}`]);
       workloadArray.unshift([`${data.year} 年 ${data.month} 月研究生“${data.type}”考核汇总表`]);
       workloadArray.push(['负责人签字：']);
       const workload = XLSX.utils.aoa_to_sheet(workloadArray);
-      workload['!merges'] = [{ s: { c: 0, r: 0 }, e: { c: 5, r: 0 } }];
-      workload['!merges'].push({ s: { c: 0, r: 1 }, e: { c: 5, r: 1 } });
+      workload['!merges'] = [{ s: { c: 0, r: 0 }, e: { c: 6, r: 0 } }];
+      workload['!merges'].push({ s: { c: 0, r: 1 }, e: { c: 6, r: 1 } });
       workload['!merges'].push({
         s: { c: 0, r: workloadArray.length - 1 },
-        e: { c: 5, r: workloadArray.length - 1 },
+        e: { c: 6, r: workloadArray.length - 1 },
       });
       this.ctx.response.body = XLSX.write(
         { Sheets: { workload }, SheetNames: ['workload'] },

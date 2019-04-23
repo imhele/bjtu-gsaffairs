@@ -97,7 +97,11 @@ export default class StuapplyService extends Service {
           model: model.Interships.Stuapply,
           attributes: ['id'],
           include: [
-            { required: true, model: model.Interships.Position, attributes: ['name'] },
+            {
+              required: true,
+              model: model.Interships.Position,
+              attributes: ['name', 'department_code'],
+            },
             {
               required: true,
               model: model.School.Census,
@@ -115,6 +119,7 @@ export default class StuapplyService extends Service {
       student_name: string;
       student_number: string;
       student_college_name: string;
+      position_department_code: string;
     };
     return res;
   }
