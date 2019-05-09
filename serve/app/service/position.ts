@@ -71,7 +71,6 @@ export default class PositionService extends Service {
 
   public async deleteOne(id: number) {
     const { model } = this.ctx;
-    await model.Interships.Stuapply.destroy({ where: { position_id: id } });
     await model.Interships.Position.destroy({ where: { id } });
   }
 

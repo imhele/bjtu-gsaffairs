@@ -299,6 +299,7 @@ class List extends Component<ListProps, ListState> {
             onOk: this.deleteStuapply,
             payload: currentKey,
             title: formatMessage({ id: 'stuapply.delete.confirm' }),
+            content: '将连带删除工作量记录',
           });
         } else message.info('你有未保存的内容，请先保存或取消操作');
         break;

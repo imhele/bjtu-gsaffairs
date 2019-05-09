@@ -2,7 +2,6 @@ import { Controller } from 'egg';
 import { AuthResult } from '../extend/request';
 import { getFromIntEnum, parseJSON } from '../utils';
 import { ScopeList, UserType } from '../service/user';
-import { AuthorizeError, DataNotFound } from '../errcode';
 import { Op, WhereOptions, IncludeOptions } from 'sequelize';
 // import { StepsProps } from '../../../src/components/Steps';
 // import { PositionState } from '../../../src/models/connect';
@@ -11,6 +10,7 @@ import { CellAction, SimpleFormItemType, TopbarAction } from '../link';
 // import { FetchListBody, FetchFormBody } from '../../../src/api/position';
 import { filtersKeyMap, filtersMap, getFilters } from './positionFilter';
 import { PositionWithFK as PositionModelWithFK } from '../service/position';
+import { AuthorizeError, DataNotFound, OperationIgnored } from '../errcode';
 // import { StandardTableActionProps } from '../../../src/components/StandardTable';
 // import { SimpleFormItemProps } from '../../../src/components/SimpleForm';
 import {
@@ -331,6 +331,10 @@ export default class PositionController extends Controller {
     const availableActions = service.position.getPositionAction(position, auth, type, true);
     if (!availableActions.get(CellAction.Delete))
       throw new AuthorizeError('你暂时没有权限删除这个岗位');
+    const hasApply = await ctx.model.Interships.Stuapply.findOne({
+      where: { position_id: parseInt(id, 10) },
+    });
+    if (hasApply) throw new OperationIgnored('请先删除此岗位的学生申请记录');
 
     await service.position.deleteOne(parseInt(id, 10));
     ctx.response.body = { errmsg: '删除成功' };

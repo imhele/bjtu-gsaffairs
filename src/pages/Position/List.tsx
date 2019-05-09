@@ -304,7 +304,6 @@ class List extends Component<ListProps, ListState> {
           onOk: this.deletePosition,
           payload: currentRowKey,
           title: formatMessage({ id: 'position.delete.confirm' }),
-          content: '如果岗位已发布，则会连带删除此岗位的所有学生申记录',
         });
         break;
       case CellAction.Edit:
