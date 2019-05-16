@@ -22,6 +22,7 @@ export async function fetchList(payload: FetchListPayload) {
   return requests<FetchListBody>(`${APIPrefix}/stuapply/${payload.query.type}/list`, {
     body: payload.body,
     method: 'POST',
+    noCache: true,
   });
 }
 

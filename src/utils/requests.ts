@@ -16,6 +16,7 @@ export type RequestOptions<T extends RequestBody> = {
   body?: T | string;
   expirys?: number;
   ignoreErrcode?: boolean;
+  noCache?: boolean;
 } & {
   [P in
     | 'cache'
@@ -44,8 +45,10 @@ const cachedSave = (response: Response, hashcode: string): Response => {
       .clone()
       .text()
       .then(content => {
-        sessionStorage.setItem(hashcode, content);
-        sessionStorage.setItem(`${hashcode}:timestamp`, Date.now().toString());
+        try {
+          sessionStorage.setItem(hashcode, content);
+          sessionStorage.setItem(`${hashcode}:timestamp`, Date.now().toString());
+        } catch {}
       });
   }
   return response;
@@ -115,7 +118,7 @@ export default async function request<T>(
     }
   }
   const formattedResponse = await fetch(url, newOptions)
-    .then(response => cachedSave(response, hashcode))
+    .then(response => (options.noCache ? response : cachedSave(response, hashcode)))
     .then<ResponseBody | string>(response => {
       const disposition = response.headers.get('Content-Disposition');
       if (disposition && disposition.includes('attachment'))

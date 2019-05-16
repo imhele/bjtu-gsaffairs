@@ -361,13 +361,15 @@ export default class PositionController extends Controller {
         delete ctx.request.body.name;
         delete ctx.request.body.staff_jobnum;
       }
+    const hasPublished = position.status === '已发布';
     const values = ctx.model.Interships.Position.formatBack({
       ...ctx.request.body,
       // 有审核权限的员工编辑岗位后将不会改变当前审核环节
-      audit: availableActions.get(CellAction.Audit)
-        ? position.audit
-        : this.getPostAuditVal(type, 1),
-      status: '待审核',
+      audit:
+        availableActions.get(CellAction.Audit) || hasPublished
+          ? position.audit
+          : this.getPostAuditVal(type, 1),
+      status: hasPublished ? position.status : '待审核',
       audit_log: JSON.stringify([
         ...parseJSON(position.audit_log),
         service.position.getAuditLogItem(auth, '编辑岗位'),

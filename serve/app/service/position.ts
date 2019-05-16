@@ -127,7 +127,7 @@ export default class PositionService extends Service {
     if (scope.includes(ScopeList.admin)) {
       action.set(CellAction.Preview, true);
       action.set(CellAction.Delete, true);
-      action.set(CellAction.Edit, position.status === '待审核');
+      action.set(CellAction.Edit, true);
       action.set(CellAction.Audit, position.status === '待审核');
     } else {
       /* 已发布的岗位所有人可见 */

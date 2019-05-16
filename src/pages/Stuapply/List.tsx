@@ -600,7 +600,14 @@ class List extends Component<ListProps, ListState> {
         {dataSource.length >= total ? (
           formatMessage({ id: 'tip.loaded-all' })
         ) : (
-          <Button loading={loading.fetchList} onClick={this.fetchList} type="primary">
+          <Button
+            loading={loading.fetchList}
+            onClick={() => {
+              if (this.limit < 160) this.limit += 40;
+              this.fetchList();
+            }}
+            type="primary"
+          >
             {formatMessage({ id: 'word.load-more' })}
           </Button>
         )}
