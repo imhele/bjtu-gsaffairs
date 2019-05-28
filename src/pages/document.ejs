@@ -8,8 +8,6 @@
     <link rel="icon" href="<%= context.publicPath %>favicon.png" type="image/x-icon">
     <% if(context.env === 'production') { %>
       <script src="./cordova.js"></script>
-    <% } else {%>
-      <script src="http://192.168.3.111:8001/cordova.js"></script>
     <% } %>
   </head>
   <body>

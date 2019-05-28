@@ -1,16 +1,7 @@
 // ref: https://umijs.org/config/
-import routes from './routes';
 import { IConfig } from 'umi-types';
 
 const config: IConfig = {
-  hash: true,
-  routes: routes as any,
-  treeShaking: true,
-  ignoreMomentLocale: true,
-  targets: {
-    ie: 10,
-    android: 4,
-  },
   plugins: [
     // ref: https://umijs.org/plugin/umi-plugin-react.html
     [
@@ -36,6 +27,7 @@ const config: IConfig = {
     ],
     // ref: https://github.com/imhele/umi-plugin-nprogress
     'umi-plugin-nprogress',
+    'umi-plugin-cordova',
   ],
 };
 
