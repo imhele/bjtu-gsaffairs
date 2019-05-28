@@ -47,7 +47,7 @@ export default class UserController extends Controller {
 
       const token = service.user.getToken(user.loginname, user.password);
       service.user.updateLastLogin(user.loginname, type);
-      ctx.redirect(`http://gsaffairs.bjtu.edu.cn/user/login?token=${token}&redirect=${redirect}`);
+      ctx.redirect(`/user/login?token=${token}&redirect=${redirect}`);
     }
   }
 
