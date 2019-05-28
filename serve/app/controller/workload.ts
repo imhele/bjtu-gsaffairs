@@ -60,6 +60,7 @@ export default class WorkloadController extends Controller {
         ...res,
         rowKey: 'id',
         columns: workloadColumns,
+        maxWorkload: ctx.request.config.max_workload,
         selectable: isAdmin || !!auth.auditableDep.length,
       };
       return;
@@ -130,9 +131,10 @@ export default class WorkloadController extends Controller {
     ctx.response.body = {
       rowKey: 'id',
       dataSource,
-      selectable: isAdmin || !!auth.auditableDep.length,
       total: dbRes.total,
       columns: workloadColumns,
+      maxWorkload: ctx.request.config.max_workload,
+      selectable: isAdmin || !!auth.auditableDep.length,
     };
   }
 
@@ -150,10 +152,10 @@ export default class WorkloadController extends Controller {
     const isAdmin = auth.scope.includes(ScopeList.admin);
     const stuapply = await this.getWorkloadFromApply(stuapplyId, time);
     if (stuapply.workload_id) throw new AuthorizeError('此记录本月工作量已申报，只允许修改');
-    if (amount < 0 || amount > stuapply.position_work_time_l)
-      throw new ValidationError(
-        `此岗位允许申报的工作量区间为 0 ~ ${stuapply.position_work_time_l}`,
-      );
+    let { max_workload = stuapply.position_work_time_l } = ctx.request.config;
+    max_workload = Math.min(max_workload, stuapply.position_work_time_l);
+    if (amount < 0 || amount > max_workload)
+      throw new ValidationError(`此岗位允许申报的工作量区间为 0 ~ ${max_workload}`);
     const actions = this.getAction(stuapply, auth, isAdmin, type, time);
     if (!actions.get(CellAction.Edit)) throw new AuthorizeError('你暂时不能申报此记录的工作量');
     const status = actions.get(CellAction.Audit) || type === 'manage' ? '已上报' : '待审核';
@@ -176,10 +178,10 @@ export default class WorkloadController extends Controller {
       workloadRecord.stuapply_id,
       workloadRecord.time,
     );
-    if (amount < 0 || amount > stuapply.position_work_time_l)
-      throw new ValidationError(
-        `此岗位允许申报的工作量区间为 0 ~ ${stuapply.position_work_time_l}`,
-      );
+    let { max_workload = stuapply.position_work_time_l } = ctx.request.config;
+    max_workload = Math.min(max_workload, stuapply.position_work_time_l);
+    if (amount < 0 || amount > max_workload)
+      throw new ValidationError(`此岗位允许申报的工作量区间为 0 ~ ${max_workload}`);
     const actions = this.getAction(stuapply, auth, isAdmin, type);
     if (!actions.get(CellAction.Edit)) throw new AuthorizeError('你暂时不能修改此记录的工作量');
     const status = actions.get(CellAction.Audit) || type === 'manage' ? '已上报' : '待审核';

@@ -14,6 +14,7 @@ export interface WorkloadState {
   actionKey: string;
   columns: ColumnProps<object>[];
   dataSource: object[];
+  maxWorkload: number;
   rowKey: string;
   selectable: boolean | TableRowSelection<object>;
   total: number;
@@ -24,6 +25,7 @@ const defaultState: WorkloadState = {
   actionKey: 'action',
   columns: [],
   dataSource: [],
+  maxWorkload: 48,
   rowKey: 'key',
   selectable: false,
   total: 0,

@@ -65,6 +65,7 @@ const renderActualWorkloadAmount = (
   activeRowKey: number,
   onClick: (event: React.MouseEvent) => void,
   amountRef: React.MutableRefObject<number>,
+  maxWorkload: number,
 ) => (text: any, record: any, index: number) => {
   if (!record.editable) return text;
   if (activeRowKey !== record[rowKey])
@@ -82,7 +83,7 @@ const renderActualWorkloadAmount = (
         defaultValue={amountRef.current}
         onChange={v => (amountRef.current = v)}
         min={0}
-        max={record.position_work_time_l || 40}
+        max={Math.min(record.position_work_time_l || maxWorkload, maxWorkload)}
       />
       <a
         data-index={index}
@@ -340,7 +341,13 @@ const Workload: React.FC<WorkloadProps> = ({ dispatch, loading, workload }) => {
     if (col.dataIndex === 'workload_amount')
       return {
         ...col,
-        render: renderActualWorkloadAmount(workload, activeRowKey, onClickRowAction, amountRef),
+        render: renderActualWorkloadAmount(
+          workload,
+          activeRowKey,
+          onClickRowAction,
+          amountRef,
+          workload.maxWorkload,
+        ),
       };
     if (col.dataIndex === 'workload_status')
       return { ...col, render: renderWorkloadStatus(workload, onClickRowAction) };
