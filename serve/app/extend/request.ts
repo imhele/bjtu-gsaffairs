@@ -1,6 +1,7 @@
 import { UserType } from '../service/user';
 import { Staff as StaffModel } from '../model/client/staff';
 import { Postgraduate as PostgraduateModel } from '../model/client/postgraduate';
+import { IntershipsConfig } from '../model/interships/config';
 
 export interface AuthResult {
   /* 用人单位审核 auditableDep: [`${department_code}`] */
@@ -14,6 +15,7 @@ export interface AuthResult {
 
 interface RequestExtend {
   auth: AuthResult;
+  config: IntershipsConfig;
 }
 
 export default {

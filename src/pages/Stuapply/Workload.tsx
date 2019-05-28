@@ -82,7 +82,7 @@ const renderActualWorkloadAmount = (
         defaultValue={amountRef.current}
         onChange={v => (amountRef.current = v)}
         min={0}
-        max={record.position_work_time_l || 48}
+        max={record.position_work_time_l || 40}
       />
       <a
         data-index={index}

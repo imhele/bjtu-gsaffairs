@@ -27,7 +27,7 @@ import XLSX from '../../jslib/xlsx';
 export default class WorkloadController extends Controller {
   public async list() {
     const { ctx, service } = this;
-    const { auth, body } = ctx.request;
+    const { auth, body, config } = ctx.request;
     const initTime = moment()
       .subtract(1, 'M')
       .format('YYYYMM');
@@ -45,11 +45,13 @@ export default class WorkloadController extends Controller {
         { limit, offset },
         item => {
           const actions = this.getAction(item, auth, isAdmin, type, time);
+          let { position_work_time_l = 0 } = item;
+          position_work_time_l = Math.min(position_work_time_l * 4, config.max_workload);
           return {
             ...item,
             editable: !!actions.get(CellAction.Edit),
             auditable: !!actions.get(CellAction.Audit),
-            position_work_time_l: (item.position_work_time_l || 0) * 4,
+            position_work_time_l,
             position_end_t: void 0,
             position_start_t: void 0,
             position_staff_jobnum: void 0,
@@ -314,16 +316,18 @@ export default class WorkloadController extends Controller {
   }
 
   private async getWorkloadFromApply(stuapply: StuapplyWithFK | number, time: string) {
-    const { model, service } = this.ctx;
+    const { model, service, request } = this.ctx;
     if (typeof stuapply === 'number') stuapply = await service.stuapply.findOne(stuapply);
     const workload: any = await model.Interships.Workload.findOne({
       where: { stuapply_id: stuapply.id, time },
     });
+    let { position_work_time_l = 0 } = stuapply;
+    position_work_time_l = Math.min(position_work_time_l * 4, request.config.max_workload);
     const data = {
       ...stuapply,
       editable: false,
       auditable: false,
-      position_work_time_l: (stuapply.position_work_time_l || 0) * 4,
+      position_work_time_l,
       workload_id: workload ? workload.get('id') : void 0,
       workload_amount: workload ? workload.get('amount') : 0,
       workload_status: workload ? workload.get('status') : '未上报',

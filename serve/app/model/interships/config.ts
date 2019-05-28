@@ -9,6 +9,7 @@ export interface IntershipsConfig {
   position_end: number;
   apply_start: number;
   apply_end: number;
+  max_workload: number;
 }
 
 export const attr: DefineModelAttributes<IntershipsConfig> = {
@@ -41,6 +42,13 @@ export const attr: DefineModelAttributes<IntershipsConfig> = {
     allowNull: false,
     comment: '学生申请结束时间',
     type: INTEGER,
+    validate: { notEmpty: true },
+  },
+  max_workload: {
+    allowNull: false,
+    comment: '最大月工作量',
+    type: INTEGER,
+    defaultValue: 40,
     validate: { notEmpty: true },
   },
 };
