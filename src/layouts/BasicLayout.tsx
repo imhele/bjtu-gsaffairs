@@ -78,49 +78,47 @@ const BasicLayout: React.SFC<BasicLayoutProps> = ({
         title={formatMessage({ id: 'word.NT' })}
       >
         <Layout className={styles.layout} onClick={NTMethods.current.getTrigger()}>
-          <QueueAnim delay={200} type="left">
-            <Header
-              collapsed={collapsed}
-              isMobile={isMobile}
-              key="Header"
-              loading={loading}
-              location={location}
-              login={login}
-              menuSelectedKeys={menuSelectedKeys}
-              onLogout={onLogout}
-              onOpenMenu={() => onCollapse(false)}
-              route={route}
-            />
-            {loading ? (
-              <div className={styles.loading} key="Spin">
-                <Spin size="large" spinning />
-              </div>
-            ) : (
-              <Layout key="Layout">
-                <SiderMenu
-                  collapsed={collapsed}
-                  drawerTitle="app.name"
-                  isMobile={isMobile}
-                  location={location}
-                  menuSelectedKeys={menuSelectedKeys}
-                  onCollapse={onCollapse}
-                  onSelectMenu={onSelectMenu}
-                  route={route}
-                />
-                <Content className={styles.content}>
-                  <Authorized
-                    currentScope={currentScope}
-                    exception={<Exception403 />}
-                    id={GlobalId.BasicLayout}
-                    scope={Utils.pathToScope(route, location.pathname)}
-                  >
-                    {children}
-                  </Authorized>
-                  <Footer />
-                </Content>
-              </Layout>
-            )}
-          </QueueAnim>
+          <Header
+            collapsed={collapsed}
+            isMobile={isMobile}
+            key="Header"
+            loading={loading}
+            location={location}
+            login={login}
+            menuSelectedKeys={menuSelectedKeys}
+            onLogout={onLogout}
+            onOpenMenu={() => onCollapse(false)}
+            route={route}
+          />
+          {loading ? (
+            <div className={styles.loading} key="Spin">
+              <Spin size="large" spinning />
+            </div>
+          ) : (
+            <Layout key="Layout">
+              <SiderMenu
+                collapsed={collapsed}
+                drawerTitle="app.name"
+                isMobile={isMobile}
+                location={location}
+                menuSelectedKeys={menuSelectedKeys}
+                onCollapse={onCollapse}
+                onSelectMenu={onSelectMenu}
+                route={route}
+              />
+              <Content className={styles.content}>
+                <Authorized
+                  currentScope={currentScope}
+                  exception={<Exception403 />}
+                  id={GlobalId.BasicLayout}
+                  scope={Utils.pathToScope(route, location.pathname)}
+                >
+                  {children}
+                </Authorized>
+                <Footer />
+              </Content>
+            </Layout>
+          )}
         </Layout>
       </NoviceTutorial>
       <BackTop style={{ right: 50 }} />

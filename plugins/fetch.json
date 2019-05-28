@@ -6,5 +6,13 @@
     },
     "is_top_level": true,
     "variables": {}
+  },
+  "cordova-plugin-x5-webview": {
+    "source": {
+      "type": "registry",
+      "id": "cordova-plugin-x5-webview"
+    },
+    "is_top_level": true,
+    "variables": {}
   }
 }

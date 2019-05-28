@@ -1,0 +1,10 @@
+{
+  "android": {
+    "release": {
+      "keystore": "bjtu.papms.keystore",
+      "alias": "bjtu.papms.keystore",
+      "storePassword": "bjtu.papms",
+      "password": "bjtu.papms"
+    }
+  }
+}

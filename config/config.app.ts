@@ -2,7 +2,6 @@
 import { IConfig } from 'umi-types';
 
 const config: IConfig = {
-  history: 'hash',
   plugins: [
     // ref: https://umijs.org/plugin/umi-plugin-react.html
     [
@@ -15,11 +14,7 @@ const config: IConfig = {
           hmr: true,
           immer: true,
         },
-        dynamicImport: {
-          level: 5,
-          webpackChunkName: true,
-          loadingComponent: './components/PageLoading',
-        },
+        dynamicImport: false,
         locale: {
           enable: true,
           default: 'zh-CN',
@@ -28,7 +23,6 @@ const config: IConfig = {
     ],
     // ref: https://github.com/imhele/umi-plugin-nprogress
     'umi-plugin-nprogress',
-    'umi-plugin-cordova',
   ],
 };
 

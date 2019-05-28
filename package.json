@@ -4,14 +4,12 @@
   "private": true,
   "scripts": {
     "test": "umi test",
-    "start": "umi dev",
-    "build": "umi build",
+    "start": "cross-env UMI_ENV=app CORDOVA=android umi dev",
+    "build": "cross-env UMI_ENV=app CORDOVA=android umi build",
     "precommit": "lint-staged",
     "cordova-init": "umi cordova --init",
     "cordova-add-ios": "umi cordova --ios",
     "cordova-add-android": "umi cordova --android",
-    "start-cordova-android": "cross-env CORDOVA=android UMI_ENV=app umi dev",
-    "build-cordova-android": "cross-env CORDOVA=android UMI_ENV=app umi build",
     "serve": "cross-env SERVE=1 umi-serve",
     "pull:hg": "cd .. && hg pull && hg update",
     "start:mock": "cross-env UMI_ENV=serve umi dev",
@@ -26,6 +24,7 @@
     "antd": "3.15.2",
     "classnames": "~2.2.6",
     "cordova-android": "^8.0.0",
+    "cordova-plugin-x5-webview": "^3.1.3",
     "debounce": "1.2.0",
     "dva": "~2.5.0-beta.2",
     "memoize-one": "5.0.0",
@@ -84,7 +83,8 @@
   },
   "cordova": {
     "plugins": {
-      "cordova-plugin-whitelist": {}
+      "cordova-plugin-whitelist": {},
+      "cordova-plugin-x5-webview": {}
     },
     "platforms": [
       "android"

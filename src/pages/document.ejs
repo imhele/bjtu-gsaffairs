@@ -4,19 +4,16 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
     <title>BJTU PAPMS</title>
-    <link rel="icon" href="<%= context.publicPath %>favicon.png" type="image/x-icon">
-    <% if(context.env === 'production') { %>
-      <script src="./cordova.js"></script>
-    <% } %>
   </head>
   <body>
-    <!--[if lte IE 9]>
-      <script language="javascript">
-        alert('由于安全漏洞及性能原因，此站点不支持 IE9 及以下浏览器。请使用现代浏览器或更高版本的 IE 浏览器');
-      </script>
-    <![endif]-->
     <noscript>Sorry, we need js to run correctly!</noscript>
     <div id="root"></div>
   </body>
+  <% if(context.env === 'production') { %>
+    <script src="./cordova.js"></script>
+  <% } %>
 </html>

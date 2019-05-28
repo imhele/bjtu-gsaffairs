@@ -9,6 +9,9 @@
   "installed_plugins": {
     "cordova-plugin-whitelist": {
       "PACKAGE_NAME": "com.alitaexample.bjtu.papms"
+    },
+    "cordova-plugin-x5-webview": {
+      "PACKAGE_NAME": "com.alitaexample.bjtu.papms"
     }
   },
   "dependent_plugins": {}
