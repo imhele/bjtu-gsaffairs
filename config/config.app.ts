@@ -2,6 +2,7 @@
 import { IConfig } from 'umi-types';
 
 const config: IConfig = {
+  history: 'hash',
   plugins: [
     // ref: https://umijs.org/plugin/umi-plugin-react.html
     [

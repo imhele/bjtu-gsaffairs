@@ -8,7 +8,6 @@ export const dva = {
 };
 
 export function render(oldRender) {
-  if (process.env.UMI_ENV !== 'app') return oldRender();
   function onDeviceReady() {
     oldRender();
   }

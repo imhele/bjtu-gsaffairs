@@ -6,8 +6,7 @@ import { NoviceTutorialElementProps } from '@/components/NoviceTutorial';
 // tslint:disable-next-line
 console.log(`[VersionInfo] Ant Design ${version}`);
 
-export const APIPrefix: string =
-  process.env.UMI_ENV !== 'app' ? '/api' : 'http://gsaffairs.bjtu.edu.cn/api';
+export const APIPrefix: string = 'http://gsaffairs.bjtu.edu.cn/api';
 
 export const TypeSpaceChar: string = '~';
 

@@ -1,17 +1,24 @@
 import React from 'react';
 import Link from 'umi/link';
+import { connect } from 'dva';
 import { Breadcrumb } from 'antd';
+import { ConnectProps } from '@/models/connect';
 import styles from './PageHeader.less';
 import { pathnameToArr } from '@/utils/utils';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 
-export interface PageHeaderProps {
+export interface PageHeaderProps extends Partial<ConnectProps> {
   defaultMessage?: string | ((path: string) => string);
   headerExtra?: React.ReactNode;
 }
 
-const PageHeader: React.SFC<PageHeaderProps> = ({ children, defaultMessage, headerExtra }) => {
-  const { pathname } = window.location;
+const PageHeader: React.SFC<PageHeaderProps> = ({
+  children,
+  defaultMessage,
+  headerExtra,
+  location,
+}) => {
+  const { pathname } = location;
   const paths = pathnameToArr(pathname);
   const unknownMsg = formatMessage({ id: 'word.unknown-page', defaultMessage: 'Unknown page' });
   return (
@@ -50,4 +57,4 @@ const PageHeader: React.SFC<PageHeaderProps> = ({ children, defaultMessage, head
   );
 };
 
-export default PageHeader;
+export default connect(() => ({}))(PageHeader);

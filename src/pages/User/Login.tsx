@@ -42,9 +42,6 @@ const UnwrappedLoginForm: React.SFC<LoginFormProps> = ({
       <Button block htmlType="submit" loading={loading} size="large" type="primary">
         <FormattedMessage id="word.login" />
       </Button>
-      <Button block href="https://mis.bjtu.edu.cn" loading={loading} size="large">
-        <FormattedMessage id="login.mis" />
-      </Button>
     </Form>
   );
 };
