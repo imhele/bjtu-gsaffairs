@@ -17,6 +17,9 @@ const defaultConfig: MiddlewareAuthConfig = {
 
 export default (): any => {
   return async (ctx: Context, next: () => Promise<any>) => {
+    const timConfig = (await ctx.model.Interships.Config.findOne()) as any;
+    if (timConfig) ctx.request.config = timConfig.get();
+
     const config: Required<MiddlewareAuthConfig> = { ...defaultConfig, ...ctx.app.config.auth };
     const { header, loginAging, message, tokenAging } = config;
     // Token: `${timestamp} ${loginname} ${signature}`
