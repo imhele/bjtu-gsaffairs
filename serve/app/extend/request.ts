@@ -15,7 +15,7 @@ export interface AuthResult {
 
 interface RequestExtend {
   auth: AuthResult;
-  config: IntershipsConfig;
+  config: Partial<IntershipsConfig>;
 }
 
 export default {
@@ -26,4 +26,5 @@ export default {
     type: UserType.Postgraduate,
     user: {} as any,
   },
+  config: {},
 } as RequestExtend;

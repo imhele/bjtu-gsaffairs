@@ -73,6 +73,7 @@ export interface TimeConfig {
   position_end: number;
   apply_start: number;
   apply_end: number;
+  max_workload: number;
 }
 
 export interface FetchTimePayload {

@@ -45,13 +45,13 @@ export default class WorkloadController extends Controller {
         { limit, offset },
         item => {
           const actions = this.getAction(item, auth, isAdmin, type, time);
-          let { position_work_time_l = 0 } = item;
-          position_work_time_l = Math.min(position_work_time_l * 4, config.max_workload);
+          let { position_work_time_l: maxWorkload = 0 } = item;
+          maxWorkload = Math.min(maxWorkload * 4, config.max_workload || 0);
           return {
             ...item,
             editable: !!actions.get(CellAction.Edit),
             auditable: !!actions.get(CellAction.Audit),
-            position_work_time_l,
+            position_work_time_l: maxWorkload,
             position_end_t: void 0,
             position_start_t: void 0,
             position_staff_jobnum: void 0,
@@ -321,13 +321,13 @@ export default class WorkloadController extends Controller {
     const workload: any = await model.Interships.Workload.findOne({
       where: { stuapply_id: stuapply.id, time },
     });
-    let { position_work_time_l = 0 } = stuapply;
-    position_work_time_l = Math.min(position_work_time_l * 4, request.config.max_workload);
+    let { position_work_time_l: maxWorkload = 0 } = stuapply;
+    maxWorkload = Math.min(maxWorkload * 4, request.config.max_workload || 0);
     const data = {
       ...stuapply,
       editable: false,
       auditable: false,
-      position_work_time_l,
+      position_work_time_l: maxWorkload,
       workload_id: workload ? workload.get('id') : void 0,
       workload_amount: workload ? workload.get('amount') : 0,
       workload_status: workload ? workload.get('status') : '未上报',

@@ -5,6 +5,8 @@ import { SystemClosed } from '../errcode';
 
 export default (): any => {
   return async ({ model, request }: Context, next: () => Promise<any>) => {
+    const config = (await model.Interships.Config.findOne()) as any;
+    if (config) request.config = config;
     if (!request.auth.scope.includes('scope.admin')) {
       const now = moment().unix();
       const where = { used: 1 };

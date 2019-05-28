@@ -47,6 +47,13 @@ const formItems: SimpleFormItemProps[] = [
     decoratorOptions: { rules: [{ required: true, message: '必填项' }] },
     itemProps: { showTime: true, style: { maxWidth: 320, width: '100%' } },
   })),
+  {
+    id: 'max_workload',
+    title: '最大月工作量',
+    type: SimpleFormItemType.InputNumber,
+    decoratorOptions: { rules: [{ required: true, message: '必填项' }] },
+    itemProps: { style: { maxWidth: 320, width: '100%' }, min: 0 },
+  },
 ];
 
 const format = (timeConfig: TimeConfig): { [K in keyof TimeConfig]: any } => ({
@@ -55,6 +62,7 @@ const format = (timeConfig: TimeConfig): { [K in keyof TimeConfig]: any } => ({
   position_end: moment.unix(timeConfig.position_end),
   apply_start: moment.unix(timeConfig.apply_start),
   apply_end: moment.unix(timeConfig.apply_end),
+  max_workload: timeConfig.max_workload,
 });
 
 const formatBack = (fieldsValue: { [K in keyof TimeConfig]: Moment }): TimeConfig => ({
@@ -63,6 +71,7 @@ const formatBack = (fieldsValue: { [K in keyof TimeConfig]: Moment }): TimeConfi
   position_end: fieldsValue.position_end.unix(),
   apply_start: fieldsValue.apply_start.unix(),
   apply_end: fieldsValue.apply_end.unix(),
+  max_workload: fieldsValue.max_workload as any,
 });
 
 const Time: React.SFC<TimeProps> = ({ timeConfig, dispatch, loading }) => {
