@@ -9,6 +9,8 @@
 
 # production
 /dist
+/www
+/platforms/android/app/src/main/assets/www
 
 # misc
 .DS_Store
