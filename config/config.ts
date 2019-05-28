@@ -36,6 +36,7 @@ const config: IConfig = {
     ],
     // ref: https://github.com/imhele/umi-plugin-nprogress
     'umi-plugin-nprogress',
+    'umi-plugin-cordova',
   ],
 };
 
