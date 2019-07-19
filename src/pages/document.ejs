@@ -4,16 +4,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="msapplication-tap-highlight" content="no">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
     <title>BJTU PAPMS</title>
+    <% if(context.env === 'production') { %>
+      <script src="./cordova.js"></script>
+    <% } %>
   </head>
   <body>
     <noscript>Sorry, we need js to run correctly!</noscript>
     <div id="root"></div>
   </body>
-  <% if(context.env === 'production') { %>
-    <script src="./cordova.js"></script>
-  <% } %>
 </html>
