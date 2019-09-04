@@ -5,8 +5,7 @@
   "scripts": {
     "lint": "npm run lint:server && npm run lint:site",
     "lint:server": "cd ./server && npm run lint",
-    "lint:site": "cd ./site && npm run lint",
-    "precommit": "npm run lint"
+    "lint:site": "cd ./site && npm run lint"
   },
   "dependencies": {
     "husky": "^0.14.3"
