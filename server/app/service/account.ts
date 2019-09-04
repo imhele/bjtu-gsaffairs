@@ -8,10 +8,6 @@ import sequelize from 'sequelize';
  * Service of auth
  */
 export default class AccountService extends Service {
-  static RedisKey = {
-    secret: (accountId: string) => `secret:${accountId}`,
-  };
-
   public authScope(scope: AccountScope, account: Account | null = this.ctx.request.account) {
     if (!account) return false;
     if (scope & account.scope) return true;
@@ -23,7 +19,7 @@ export default class AccountService extends Service {
   public authScopeThrow(
     scope: AccountScope = AccountScope.Admin,
     message: string = '',
-    account: Account | null = this.ctx.request.account,
+    account: Account = this.ctx.request.account,
   ) {
     if (!account) throw new NotFound('invalid token or account does not exists');
     if (scope & account.scope) return;

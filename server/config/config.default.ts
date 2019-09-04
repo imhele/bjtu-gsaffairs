@@ -18,7 +18,7 @@ export default (appInfo: EggAppInfo): PowerPartial<EggAppConfig> & typeof bizCon
    * Middlewares and their configuration
    */
   // Enabled global middlewares
-  config.middleware = ['chore', 'errorcode', 'parser'];
+  config.middleware = ['chore', 'errorcode', 'auth', 'parser'];
 
   // `bodyParser` will parse body to object automatically
   config.bodyParser = {

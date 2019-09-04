@@ -1,7 +1,7 @@
 import { Account } from '@/model/account';
 
 interface RequestExtend {
-  account: Account | null;
+  account: Account;
   id: string;
 }
 
