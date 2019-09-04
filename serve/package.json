@@ -12,6 +12,7 @@
   "scripts": {
     "start": "egg-scripts start --daemon --title=egg-server-bjtu-papms-serve",
     "stop": "egg-scripts stop --title=egg-server-bjtu-papms-serve",
+    "restart:tsc": "npm run stop && npm run tsc && npm run start",
     "dev": "egg-bin dev",
     "debug": "egg-bin debug",
     "test-local": "egg-bin test",
