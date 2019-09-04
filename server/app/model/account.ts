@@ -4,48 +4,16 @@ import { Application } from 'egg';
 import { INTEGER, Instance, STRING } from 'sequelize';
 import yamlJoi from 'yaml-joi';
 
-export const enum AccountScope {
-  PLACE_HOLDER,
-  /**
-   * 管理员身份
-   */
-  Admin = 1 << 0,
-  /**
-   * 研究生身份
-   */
-  Postgraduate = 1 << 1,
-  /**
-   * 职工身份
-   */
-  Staff = 1 << 2,
-  /**
-   * 人事处审核权限
-   */
-  HRAudit = 1 << 3,
-  /**
-   * 用人单位审核权限
-   */
-  EmployerAudit = 1 << 4,
-  /**
-   * 教务处审核权限
-   */
-  DeanAudit = 1 << 5,
-  /**
-   * 研究生院审核权限
-   */
-  GraduateSchoolAudit = 1 << 6,
-  /**
-   * 研工部审核权限
-   */
-  PostgraduateWorkDepAudit = 1 << 7,
-}
-
 export interface Account {
   id: string;
+  /** 学籍信息外键 */
+  censusKey: string | null;
   loginAt: number;
+  name: string;
   password: string;
   scope: number;
-  username: string;
+  /** 教职工信息外键 */
+  staffKey: string | null;
 }
 
 export const DefineAccount: DefineModel<Account> = {
@@ -55,10 +23,19 @@ export const DefineAccount: DefineModel<Account> = {
       allowNull: false,
       primaryKey: true,
     },
+    censusKey: {
+      type: STRING(16),
+      allowNull: true,
+      defaultValue: null,
+    },
     loginAt: {
       type: INTEGER.UNSIGNED,
       allowNull: false,
       defaultValue: 0,
+    },
+    name: {
+      type: STRING(50),
+      allowNull: false,
     },
     password: {
       type: STRING(16),
@@ -69,17 +46,20 @@ export const DefineAccount: DefineModel<Account> = {
       allowNull: false,
       defaultValue: 0,
     },
-    username: {
-      type: STRING(50),
-      allowNull: false,
+    staffKey: {
+      type: STRING(16),
+      allowNull: true,
+      defaultValue: null,
     },
   },
   Sample: {
     id: SUUID(16),
+    censusKey: null,
     loginAt: 0,
+    name: 'User',
     password: SUUID(16),
     scope: 0,
-    username: 'User',
+    staffKey: null,
   },
   Validator: yamlJoi(`
 type: object
@@ -92,6 +72,13 @@ limitation:
         limitation:
           - max: 16
           - token: []
+      censusKey:
+        type: string
+        isSchema: true
+        allowEmpty: "null"
+        limitation:
+          - max: 16
+          - token: []
       loginAt:
         type: number
         isSchema: true
@@ -99,6 +86,12 @@ limitation:
           - min: 0
           - max: ${Math.pow(2, 32)}
           - integer: []
+      name:
+        type: string
+        isSchema: true
+        limitation:
+          - max: 50
+          - allow: ""
       password:
         type: string
         isSchema: true
@@ -112,18 +105,27 @@ limitation:
           - min: 0
           - max: ${Math.pow(2, 32)}
           - integer: []
-      username:
+      staffKey:
         type: string
         isSchema: true
+        allowEmpty: "null"
         limitation:
-          - max: 50
-          - allow: ""
+          - max: 16
+          - token: []
   `),
 };
 
 export default (app: Application) => {
-  const AccountModel = app.model.define<Instance<Account>, Account>('Account', DefineAccount.Attr, {
-    indexes: [{ name: 'usernameIndex', fields: ['username'] }],
-  });
+  const AccountModel = app.model.define<Instance<Account>, Account>('Account', DefineAccount.Attr);
+  AccountModel.associate = function AccountAssociate() {
+    app.model.Account.belongsTo(app.model.Census, {
+      foreignKey: 'censusKey',
+      targetKey: 'id',
+    });
+    app.model.Account.belongsTo(app.model.Staff, {
+      foreignKey: 'staffKey',
+      targetKey: 'id',
+    });
+  }
   return extendsModel(AccountModel);
 };

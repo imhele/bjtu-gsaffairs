@@ -1,6 +1,7 @@
-import { Account, AccountScope, DefineAccount } from '@/model/account';
+import { Account, DefineAccount } from '@/model/account';
 import { SUUID, validateAttr, validateModel } from '@/utils';
 import { AccessDeny, NotFound } from '@/utils/errorcode';
+import { AccountScope } from '@/utils/types';
 import { Service } from 'egg';
 import sequelize from 'sequelize';
 

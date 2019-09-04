@@ -5,5 +5,5 @@ import 'egg';
 import ExtendRequest from '../../../app/extend/request';
 type ExtendRequestType = typeof ExtendRequest;
 declare module 'egg' {
-  interface Request extends ExtendRequestType {}
+  interface Request extends ExtendRequestType { }
 }
