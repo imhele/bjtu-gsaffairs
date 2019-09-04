@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    const { STRING } = Sequelize;
+    const { INTEGER, STRING } = Sequelize;
     await queryInterface.createTable('Account', {
       id: {
         type: STRING(16),
@@ -10,7 +10,7 @@ module.exports = {
         primaryKey: true,
       },
       loginAt: {
-        type: INTEGER.UNSIGNED(),
+        type: INTEGER.UNSIGNED,
         allowNull: false,
         defaultValue: 0,
       },
@@ -19,7 +19,7 @@ module.exports = {
         allowNull: false,
       },
       scope: {
-        type: INTEGER.UNSIGNED(),
+        type: INTEGER.UNSIGNED,
         allowNull: false,
         defaultValue: 0,
       },

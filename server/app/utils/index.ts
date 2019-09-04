@@ -123,7 +123,7 @@ limitation:
 
 export function validatePagination(
   ctx: Context,
-  obj: Dictionary<any>,
+  obj: Dictionary<any> = ctx.query,
 ): { limit?: number; offset?: number } {
   return validate(ctx.app.lodash.pick(obj, 'limit', 'offset'), paginationValidator);
 }

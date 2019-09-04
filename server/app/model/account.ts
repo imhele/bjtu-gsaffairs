@@ -56,7 +56,7 @@ export const DefineAccount: DefineModel<Account> = {
       primaryKey: true,
     },
     loginAt: {
-      type: INTEGER.UNSIGNED(),
+      type: INTEGER.UNSIGNED,
       allowNull: false,
       defaultValue: 0,
     },
@@ -65,7 +65,7 @@ export const DefineAccount: DefineModel<Account> = {
       allowNull: false,
     },
     scope: {
-      type: INTEGER.UNSIGNED(),
+      type: INTEGER.UNSIGNED,
       allowNull: false,
       defaultValue: 0,
     },
