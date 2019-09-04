@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "port",
+    "password": "port",
+    "database": "gsaffairs_dev",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "operatorsAliases": false
+  },
+  "test": {
+    "username": "port",
+    "password": "port",
+    "database": "gsaffairs_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "operatorsAliases": false
+  },
+  "production": {
+    "username": "port",
+    "password": "port",
+    "database": "gsaffairs",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "operatorsAliases": false
+  }
+}

@@ -1,0 +1,35 @@
+# dependencies
+/node_modules
+/npm-debug.log*
+/yarn-error.log
+/yarn.lock
+/package-lock.json
+
+# production
+/coverage
+app/**/*.js
+test/**/*.js
+config/**/*.js
+app/**/*.map
+test/**/*.map
+config/**/*.map
+
+# misc
+.DS_Store
+
+# editor
+# /.vscode
+
+# local
+run/
+logs/
+*.log
+*.local.ts
+
+*.sh
+.editorconfig
+.env
+.gitignore
+.prettierignore
+.sequelizerc
+**/.gitkeep

@@ -1,77 +1,14 @@
 {
-  "name": "bjtu-papms",
-  "version": "1.0.0",
+  "name": "bjtu-gsaffairs",
   "private": true,
+  "version": "1.0.0",
   "scripts": {
-    "test": "umi test",
-    "start": "umi dev",
-    "build": "umi build",
-    "precommit": "lint-staged",
-    "serve": "cross-env SERVE=1 umi-serve",
-    "pull:hg": "cd .. && hg pull && hg update",
-    "start:mock": "cross-env UMI_ENV=serve umi dev",
-    "lint:front": "tslint --project . -c tslint.yml",
-    "lint:back": "cd ./serve && npm run lint && cd ..",
-    "lint": "npm run lint:front && npm run lint:back",
-    "push:hg": "cd .. && hg add . && hg commit -m \"update\" && hg push",
-    "clean": "rm -r src/pages/.umi && rm -r node_modules/.cache",
-    "clean:win": "del /Q /S src\\pages\\.umi && del /Q /S node_modules\\.cache"
+    "lint": "npm run lint:server && npm run lint:site",
+    "lint:server": "cd ./server && npm run lint",
+    "lint:site": "cd ./site && npm run lint",
+    "precommit": "npm run lint"
   },
   "dependencies": {
-    "antd": "3.15.2",
-    "classnames": "~2.2.6",
-    "debounce": "1.2.0",
-    "dva": "~2.5.0-beta.2",
-    "memoize-one": "5.0.0",
-    "path-to-regexp": "3.0.0",
-    "rc-queue-anim": "~1.6.11",
-    "react-infinite-scroller": "^1.2.4",
-    "react-media-hook2": "^1.0.0"
-  },
-  "devDependencies": {
-    "@types/classnames": "~2.2.7",
-    "@types/debounce": "1.2.0",
-    "@types/jest": "^23.3.12",
-    "@types/memoize-one": "~4.1.0",
-    "@types/react": "~16.8.3",
-    "@types/react-dom": "~16.8.1",
-    "@types/react-infinite-scroller": "^1.2.1",
-    "@types/react-test-renderer": "^16.0.3",
-    "babel-eslint": "^9.0.0",
-    "cross-env": "^5.2.0",
-    "eslint": "^5.4.0",
-    "eslint-config-umi": "^1.4.0",
-    "eslint-plugin-flowtype": "^2.50.0",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-jsx-a11y": "^5.1.1",
-    "eslint-plugin-react": "^7.11.1",
-    "husky": "^0.14.3",
-    "lint-staged": "^7.2.2",
-    "react-test-renderer": "^16.7.0",
-    "tslint": "^5.12.0",
-    "tslint-eslint-rules": "^5.4.0",
-    "tslint-react": "^3.6.0",
-    "umi": "~2.5.4",
-    "umi-plugin-nprogress": "^1.1.6",
-    "umi-plugin-react": "~1.5.2",
-    "umi-serve": "~1.0.3",
-    "umi-types": "~0.1.2"
-  },
-  "lint-staged": {
-    "{config,mock}/**/*.{js,jsx}": [
-      "eslint --fix",
-      "git add"
-    ],
-    "src/**/*.{ts,tsx}": [
-      "tslint --fix",
-      "git add"
-    ],
-    "serve/{app,config,middleware}/**/*.{ts,tsx}": [
-      "tslint --fix",
-      "git add"
-    ]
-  },
-  "engines": {
-    "node": ">=8.0.0"
+    "husky": "^0.14.3"
   }
 }

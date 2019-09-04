@@ -1,0 +1,77 @@
+{
+  "name": "bjtu-gsaffairs-server",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "egg-scripts start --daemon --title=egg-server-gsaffairs",
+    "stop": "egg-scripts stop --title=egg-server-gsaffairs",
+    "restart:tsc": "npm run stop && npm run tsc && npm run start",
+    "start:mysql": "sudo service mysql start",
+    "start:redis": "sudo redis-server /etc/redis-5.0.5/redis.conf",
+    "start:migrate": "cross-env NODE_ENV=production sequelize db:migrate",
+    "start:unmigrate": "cross-env NODE_ENV=production sequelize db:migrate:undo:all",
+    "dev:migrate": "sequelize db:migrate",
+    "dev:unmigrate": "sequelize db:migrate:undo:all",
+    "test:migrate": "cross-env NODE_ENV=test sequelize db:migrate",
+    "test:unmigrate": "cross-env NODE_ENV=test sequelize db:migrate:undo:all",
+    "dev": "egg-bin dev",
+    "debug": "egg-bin debug",
+    "test": "cross-env NODE_ENV=test EGG_SERVER_ENV=unittest egg-bin test",
+    "cov": "cross-env NODE_ENV=test EGG_SERVER_ENV=unittest egg-bin cov",
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
+    "tsc": "ets && tsc -p tsconfig.json",
+    "lint": "tslint --project . --fix",
+    "prettier": "prettier --write ./**/*",
+    "clean": "ets clean"
+  },
+  "dependencies": {
+    "@alicloud/pop-core": "^1.7.7",
+    "@imhele/radix": "^1.1.0",
+    "cross-env": "^5.2.0",
+    "crypto-js": "^3.1.9-1",
+    "egg": "^2.6.1",
+    "egg-scripts": "^2.6.0",
+    "egg-sequelize": "^5.2.0",
+    "glob": "^7.1.4",
+    "lodash": "^4.17.11",
+    "mysql2": "^1.6.5",
+    "object-search-key": "^1.0.2",
+    "redis": "^2.8.0",
+    "sequelize-cli": "^5.4.0",
+    "tablestore": "^4.3.2",
+    "tsconfig-paths": "^3.8.0",
+    "tslib": "^1.10.0",
+    "yaml-joi": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "^3.1.43",
+    "@types/joi": "^14.3.3",
+    "@types/js-yaml": "^3.12.1",
+    "@types/lodash": "^4.14.123",
+    "@types/mocha": "~2.2.40",
+    "@types/node": "^10.0.12",
+    "@types/redis": "^2.8.13",
+    "@types/sequelize": "^4.28.4",
+    "@types/supertest": "~2.0.0",
+    "autod": "^3.0.1",
+    "autod-egg": "^1.1.0",
+    "coveralls": "^3.0.2",
+    "egg-bin": "^4.6.2",
+    "egg-ci": "^1.8.0",
+    "egg-mock": "^3.16.0",
+    "egg-ts-helper": "^1.11.0",
+    "mocha": "^6.2.0",
+    "prettier": "^1.18.2",
+    "tslint": "^5.0.0",
+    "typescript": "^3.4.3"
+  },
+  "egg": {
+    "typescript": true,
+    "require": [
+      "egg-ts-helper/register"
+    ]
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  }
+}
