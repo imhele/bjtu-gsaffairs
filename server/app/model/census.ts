@@ -14,7 +14,7 @@ export interface Census {
   /** 性别 */
   gender: Gender | null;
   /** 学院 */
-  collegeId: string;
+  collegeCode: string;
   /** 学科（专业） */
   discipline: string | null;
   /** 是否校内学籍 */
@@ -52,7 +52,7 @@ export const DefineCensus: DefineModel<Census> = {
       allowNull: true,
       defaultValue: null,
     },
-    collegeId: {
+    collegeCode: {
       type: STRING(10),
       allowNull: false,
     },
@@ -90,14 +90,14 @@ export const DefineCensus: DefineModel<Census> = {
       type: TINYINT,
       allowNull: true,
       defaultValue: null,
-    }
+    },
   },
   Sample: {
     id: SUUID(16),
     name: 'User',
     studentType: null,
     gender: null,
-    collegeId: '',
+    collegeCode: '',
     discipline: null,
     schoolStatus: null,
     countryStatus: null,
@@ -138,7 +138,7 @@ limitation:
         allowEmpty: "null"
         limitation:
           - allow: [${Gender.Male}, ${Gender.Female}]
-      collegeId:
+      collegeCode:
         type: string
         isSchema: true
         limitation:
@@ -193,8 +193,8 @@ export default (app: Application) => {
   const CensusModel = app.model.define<Instance<Census>, Census>('Census', DefineCensus.Attr);
   CensusModel.associate = function CensusAssociate() {
     app.model.Census.belongsTo(app.model.College, {
-      foreignKey: 'collegeId',
-      targetKey: 'id',
+      foreignKey: 'collegeCode',
+      targetKey: 'code',
     });
   };
   return extendsModel(CensusModel);

@@ -129,9 +129,8 @@ export const DefineStaff: DefineModel<Staff> = {
       allowNull: true,
       defaultValue: null,
     },
-    // TODO
     departmentCode: {
-      type: STRING(10),
+      type: STRING(30),
       allowNull: false,
     },
     department: {
@@ -291,7 +290,7 @@ limitation:
         isSchema: true
         allowEmpty: "null"
         limitation:
-          - max: 10
+          - max: 30
           - allow: ""
       department:
         type: string
