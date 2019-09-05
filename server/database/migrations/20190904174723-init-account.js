@@ -9,7 +9,7 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
       },
-      censusKey: {
+      censusId: {
         type: STRING(16),
         allowNull: true,
         defaultValue: null,
@@ -32,7 +32,7 @@ module.exports = {
         allowNull: false,
         defaultValue: 0,
       },
-      staffKey: {
+      staffId: {
         type: STRING(16),
         allowNull: true,
         defaultValue: null,
@@ -43,7 +43,7 @@ module.exports = {
     //   name: 'PrimaryKey',
     // });
     // await queryInterface.addIndex('Account', { name: 'idIndex', fields: ['id'] });
-    await queryInterface.addConstraint('Account', ['censusKey'], {
+    await queryInterface.addConstraint('Account', ['censusId'], {
       type: 'foreign key',
       onDelete: 'SET NULL',
       onUpdate: 'CASCADE',
@@ -52,7 +52,7 @@ module.exports = {
         field: 'id',
       },
     });
-    await queryInterface.addConstraint('Account', ['staffKey'], {
+    await queryInterface.addConstraint('Account', ['staffId'], {
       type: 'foreign key',
       onDelete: 'SET NULL',
       onUpdate: 'CASCADE',

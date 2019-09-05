@@ -7,13 +7,13 @@ import yamlJoi from 'yaml-joi';
 export interface Account {
   id: string;
   /** 学籍信息外键 */
-  censusKey: string | null;
+  censusId: string | null;
   loginAt: number;
   name: string;
   password: string;
   scope: number;
   /** 教职工信息外键 */
-  staffKey: string | null;
+  staffId: string | null;
 }
 
 export const DefineAccount: DefineModel<Account> = {
@@ -23,7 +23,7 @@ export const DefineAccount: DefineModel<Account> = {
       allowNull: false,
       primaryKey: true,
     },
-    censusKey: {
+    censusId: {
       type: STRING(16),
       allowNull: true,
       defaultValue: null,
@@ -46,7 +46,7 @@ export const DefineAccount: DefineModel<Account> = {
       allowNull: false,
       defaultValue: 0,
     },
-    staffKey: {
+    staffId: {
       type: STRING(16),
       allowNull: true,
       defaultValue: null,
@@ -54,12 +54,12 @@ export const DefineAccount: DefineModel<Account> = {
   },
   Sample: {
     id: SUUID(16),
-    censusKey: null,
+    censusId: null,
     loginAt: 0,
     name: 'User',
     password: SUUID(16),
     scope: 0,
-    staffKey: null,
+    staffId: null,
   },
   Validator: yamlJoi(`
 type: object
@@ -72,7 +72,7 @@ limitation:
         limitation:
           - max: 16
           - token: []
-      censusKey:
+      censusId:
         type: string
         isSchema: true
         allowEmpty: "null"
@@ -105,7 +105,7 @@ limitation:
           - min: 0
           - max: ${Math.pow(2, 32)}
           - integer: []
-      staffKey:
+      staffId:
         type: string
         isSchema: true
         allowEmpty: "null"
@@ -119,11 +119,11 @@ export default (app: Application) => {
   const AccountModel = app.model.define<Instance<Account>, Account>('Account', DefineAccount.Attr);
   AccountModel.associate = function AccountAssociate() {
     app.model.Account.belongsTo(app.model.Census, {
-      foreignKey: 'censusKey',
+      foreignKey: 'censusId',
       targetKey: 'id',
     });
     app.model.Account.belongsTo(app.model.Staff, {
-      foreignKey: 'staffKey',
+      foreignKey: 'staffId',
       targetKey: 'id',
     });
   }
