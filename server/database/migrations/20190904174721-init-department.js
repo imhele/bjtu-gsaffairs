@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    const {  STRING } = Sequelize;
+    const { INTEGER, STRING, TINYINT } = Sequelize;
     await queryInterface.createTable('Department', {
       code: {
         type: STRING(30),
