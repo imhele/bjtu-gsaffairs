@@ -108,15 +108,15 @@ module.exports = {
         defaultValue: null,
       },
     });
-    await queryInterface.addConstraint('Staff', ['departmentCode'], {
-      type: 'foreign key',
-      onDelete: 'RESTRICT',
-      onUpdate: 'CASCADE',
-      references: {
-        table: 'Department',
-        field: 'code',
-      },
-    });
+    // await queryInterface.addConstraint('Staff', ['departmentCode'], {
+    //   type: 'foreign key',
+    //   onDelete: 'RESTRICT',
+    //   onUpdate: 'CASCADE',
+    //   references: {
+    //     table: 'Department',
+    //     field: 'code',
+    //   },
+    // });
   },
 
   down: async queryInterface => {

@@ -324,11 +324,11 @@ limitation:
 
 export default (app: Application) => {
   const StaffModel = app.model.define<Instance<Staff>, Staff>('Staff', DefineStaff.Attr);
-  StaffModel.associate = function StaffAssociate() {
-    app.model.Staff.belongsTo(app.model.Department, {
-      foreignKey: 'departmentCode',
-      targetKey: 'code',
-    });
-  };
+  // StaffModel.associate = function StaffAssociate() {
+  //   app.model.Staff.belongsTo(app.model.Department, {
+  //     foreignKey: 'departmentCode',
+  //     targetKey: 'code',
+  //   });
+  // };
   return extendsModel(StaffModel);
 };

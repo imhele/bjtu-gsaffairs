@@ -5,10 +5,15 @@ import { Instance, STRING } from 'sequelize';
 import yamlJoi from 'yaml-joi';
 
 export interface College {
+  /** 院系代码 */
   code: string;
+  /** 院系名 */
   name: string;
+  /** 简称 */
   shortName: string;
+  /** 英文名 */
   nameEn: string;
+  /** 附加码 */
   codeExtra: string;
 }
 

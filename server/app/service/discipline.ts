@@ -1,18 +1,18 @@
-import { DefineCollege } from '@/model/college';
+import { DefineDiscipline } from '@/model/discipline';
 import { validateAttr } from '@/utils';
 import { Service } from 'egg';
 import { Op } from 'sequelize';
 import { promisify } from 'util';
 
-export default class CollegeService extends Service {
-  public async getCollegesName(...codeList: string[]) {
-    codeList = codeList.map(code => validateAttr(DefineCollege, { code }).code);
+export default class DisciplineService extends Service {
+  public async getDisciplinesName(...codeList: string[]) {
+    codeList = codeList.map(code => validateAttr(DefineDiscipline, { code }).code);
     const fallabck = codeList.concat().fill(null!);
-    const collegesName = (await this.app.redis.hmget('college:name', codeList)) || fallabck;
-    if (!collegesName || collegesName.includes(null)) {
-      const codeOfNameIsNull = codeList.filter((_, index) => collegesName[index] === null);
+    const disciplinesName = (await this.app.redis.hmget('discipline:name', codeList)) || fallabck;
+    if (!disciplinesName || disciplinesName.includes(null)) {
+      const codeOfNameIsNull = codeList.filter((_, index) => disciplinesName[index] === null);
       /** try query from mysql */
-      const instances = await this.ctx.model.College.findAll({
+      const instances = await this.ctx.model.Discipline.findAll({
         attributes: ['code', 'name'],
         where: { code: { [Op.or]: codeOfNameIsNull } },
       });
@@ -21,18 +21,18 @@ export default class CollegeService extends Service {
         this.protectedLoadCache();
         instances.forEach(instance => {
           const index = codeList.indexOf(instance.get('code'));
-          if (index >= 0) collegesName[index] = instance.get('name');
+          if (index >= 0) disciplinesName[index] = instance.get('name');
         });
       }
     }
-    return collegesName;
+    return disciplinesName;
   }
 
   public async loadCache() {
     const batch = this.app.redis.$.batch();
-    const count = await this.ctx.model.College.count({});
+    const count = await this.ctx.model.Discipline.count({});
     for (let offset = 0; offset < count; offset += 500) {
-      const chunk = await this.ctx.model.College.findAll({
+      const chunk = await this.ctx.model.Discipline.findAll({
         attributes: ['code', 'name'],
         limit: 500,
         offset,
@@ -40,7 +40,7 @@ export default class CollegeService extends Service {
       const hashMap = chunk
         .map(instance => [instance.get('code'), instance.get('name')])
         .reduce<string[]>((prev, curr) => [...prev, ...curr], []);
-      batch.hmset('college:name', ...hashMap);
+      batch.hmset('discipline:name', ...hashMap);
     }
     await promisify(batch.exec.bind(this.app.redis.$))();
   }

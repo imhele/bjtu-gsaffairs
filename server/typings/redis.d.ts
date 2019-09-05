@@ -245,8 +245,8 @@ declare module 'redis' {
     /**
      * Get the values of all the given hash fields.
      */
-    hmget: OverloadedKeyCommand<string, string[], R>;
-    HMGET: OverloadedKeyCommand<string, string[], R>;
+    hmget: OverloadedKeyCommand<string, (string | null)[], R>;
+    HMGET: OverloadedKeyCommand<string, (string | null)[], R>;
 
     /**
      * Prepend one or multiple values to a list.

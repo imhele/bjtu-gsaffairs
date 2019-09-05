@@ -5,11 +5,13 @@ import 'egg';
 import ExportAccount from '../../../app/service/account';
 import ExportCollege from '../../../app/service/college';
 import ExportDepartment from '../../../app/service/department';
+import ExportDiscipline from '../../../app/service/discipline';
 
 declare module 'egg' {
   interface IService {
     account: ExportAccount;
     college: ExportCollege;
     department: ExportDepartment;
+    discipline: ExportDiscipline;
   }
 }

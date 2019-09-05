@@ -5,13 +5,20 @@ import { INTEGER, Instance, STRING, TINYINT } from 'sequelize';
 import yamlJoi from 'yaml-joi';
 
 export interface Department {
+  /** 单位代码 */
   code: string;
+  /** 单位名称 */
   name: string;
+  /** 单位简称 */
   shortName: string;
+  /** 父单位号 */
   parent: string;
+  /** 单位级别 */
   level: number | null;
+  /** 是否启用 */
   used: number;
   szdwh: string;
+  /** 可申报岗位 */
   affairsUsed: number;
 }
 

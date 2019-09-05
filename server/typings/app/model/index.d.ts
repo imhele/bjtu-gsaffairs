@@ -6,6 +6,7 @@ import ExportAccount from '../../../app/model/account';
 import ExportCensus from '../../../app/model/census';
 import ExportCollege from '../../../app/model/college';
 import ExportDepartment from '../../../app/model/department';
+import ExportDiscipline from '../../../app/model/discipline';
 import ExportStaff from '../../../app/model/staff';
 
 declare module 'egg' {
@@ -14,6 +15,7 @@ declare module 'egg' {
     Census: ReturnType<typeof ExportCensus>;
     College: ReturnType<typeof ExportCollege>;
     Department: ReturnType<typeof ExportDepartment>;
+    Discipline: ReturnType<typeof ExportDiscipline>;
     Staff: ReturnType<typeof ExportStaff>;
   }
 }

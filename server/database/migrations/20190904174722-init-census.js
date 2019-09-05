@@ -63,15 +63,15 @@ module.exports = {
         defaultValue: null,
       },
     });
-    await queryInterface.addConstraint('Census', ['collegeCode'], {
-      type: 'foreign key',
-      onDelete: 'RESTRICT',
-      onUpdate: 'CASCADE',
-      references: {
-        table: 'College',
-        field: 'code',
-      },
-    });
+    // await queryInterface.addConstraint('Census', ['collegeCode'], {
+    //   type: 'foreign key',
+    //   onDelete: 'RESTRICT',
+    //   onUpdate: 'CASCADE',
+    //   references: {
+    //     table: 'College',
+    //     field: 'code',
+    //   },
+    // });
   },
 
   down: async queryInterface => {

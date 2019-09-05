@@ -191,11 +191,11 @@ limitation:
 
 export default (app: Application) => {
   const CensusModel = app.model.define<Instance<Census>, Census>('Census', DefineCensus.Attr);
-  CensusModel.associate = function CensusAssociate() {
-    app.model.Census.belongsTo(app.model.College, {
-      foreignKey: 'collegeCode',
-      targetKey: 'code',
-    });
-  };
+  // CensusModel.associate = function CensusAssociate() {
+  //   app.model.Census.belongsTo(app.model.College, {
+  //     foreignKey: 'collegeCode',
+  //     targetKey: 'code',
+  //   });
+  // };
   return extendsModel(CensusModel);
 };
