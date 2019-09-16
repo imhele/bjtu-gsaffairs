@@ -35,6 +35,7 @@ export enum StorageId {
    * localStorage
    */
   NTPLSelectAll = 'NT-Position/List-0',
+  PreferDetailStyle = 'PreferDetailStyle',
 }
 
 export const NTElement: NoviceTutorialElementProps<StorageId>[] = [
