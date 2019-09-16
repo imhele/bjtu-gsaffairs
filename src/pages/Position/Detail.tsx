@@ -104,16 +104,17 @@ const cardGroupByKeys = {
 const getCardGroupBy = (columns: { dataIndex: string; title: string }[]) => {
   const colsObj: { [key: string]: any } = {};
   columns.forEach(col => (colsObj[col.dataIndex] = col));
+  const colsObjCopy = { ...colsObj };
   const groupBy = {} as { [key in keyof typeof cardGroupByKeys]: any[] };
   Object.keys(cardGroupByKeys).forEach((key: keyof typeof cardGroupByKeys) => {
     groupBy[key] = cardGroupByKeys[key].map(key => {
       const col = colsObj[key];
-      delete colsObj[key];
+      delete colsObjCopy[key];
       return col;
     });
     groupBy[key] = groupBy[key].filter(col => !!col);
   });
-  const restCols = Object.keys(colsObj).map(k => colsObj[k]);
+  const restCols = Object.keys(colsObjCopy).map(k => colsObjCopy[k]);
   return { colsObj, groupBy, restCols };
 };
 
@@ -138,14 +139,22 @@ const cardBadge = (dataSource: any, column?: any, color?: string, suffix?: strin
   return <Badge count={content} style={color && { backgroundColor: color }} />;
 };
 
+const cardCommonStyle = {
+  marginBottom: 16,
+};
+
 const cardRender = (props: DetailProps): React.ReactNode => {
   const { dataSource: ds = {} } = props;
   const { colsObj, groupBy, restCols } = getCardGroupBy(props.columns);
   return (
     <Skeleton active loading={props.loading} paragraph={{ rows: 2 }}>
-      {props.stepsProps && <Steps className={styles.steps} {...props.stepsProps} />}
+      {props.stepsProps && (
+        <Steps size="small" className={styles.steps} {...props.stepsProps} />
+      )}
       <Card
         loading={props.loading}
+        size="small"
+        style={cardCommonStyle}
         title={
           <div>
             <span>基本信息</span>
@@ -160,6 +169,8 @@ const cardRender = (props: DetailProps): React.ReactNode => {
       </Card>
       <Card
         loading={props.loading}
+        size="small"
+        style={cardCommonStyle}
         title={
           <div>
             <span>需求信息</span>
@@ -174,8 +185,14 @@ const cardRender = (props: DetailProps): React.ReactNode => {
           description={renderDescitem(groupBy.demands, ds)}
         />
       </Card>
-      {ds.status && (
-        <Card loading={props.loading} title="审核信息" type="inner">
+      {props.stepsProps && (
+        <Card 
+          loading={props.loading}
+          size="small"
+          style={cardCommonStyle} 
+          title="审核信息"
+          type="inner"
+        >
           <DescriptionList
             col={2}
             description={renderDescitem(groupBy.audit, ds)}
@@ -183,7 +200,13 @@ const cardRender = (props: DetailProps): React.ReactNode => {
         </Card>
       )}
       {restCols.length && (
-        <Card loading={props.loading} title="其他" type="inner">
+        <Card 
+          loading={props.loading}
+          size="small"
+          style={cardCommonStyle} 
+          title="其他"
+          type="inner"
+        >
           <DescriptionList
             col={2}
             description={renderDescitem(restCols, ds)}
@@ -196,6 +219,7 @@ const cardRender = (props: DetailProps): React.ReactNode => {
 
 const Detail: React.SFC<DetailProps> = props => (
   <Modal
+    bodyStyle={{ padding: '0 24px' }}
     className={styles.modal}
     footer={renderFooter(props)}
     onCancel={props.onClose}
