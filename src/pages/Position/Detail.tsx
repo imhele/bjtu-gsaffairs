@@ -157,7 +157,7 @@ const cardRender = (props: DetailProps): React.ReactNode => {
   const { dataSource: ds = {} } = props;
   const { colsObj, groupBy, restCols } = getCardGroupBy(props.columns);
   return (
-    <Skeleton active loading={props.loading} paragraph={{ rows: 2 }}>
+    <React.Fragment>
       {props.stepsProps && (
         <Steps size="small" className={styles.steps} {...props.stepsProps} />
       )}
@@ -223,7 +223,7 @@ const cardRender = (props: DetailProps): React.ReactNode => {
           />
         </Card>
       )}
-    </Skeleton>
+    </React.Fragment>
   );
 };
 
