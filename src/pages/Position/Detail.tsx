@@ -91,7 +91,10 @@ const renderDescitem = (
 const tableRender = (props: DetailProps): React.ReactNode => (
   <Skeleton active loading={props.loading} paragraph={{ rows: 7 }}>
     {props.stepsProps && <Steps className={styles.steps} {...props.stepsProps} />}
-    <DescriptionList description={renderDescitem(props.columns, props.dataSource)} />
+    <DescriptionList
+      description={renderDescitem(props.columns, props.dataSource)}
+      style={{ marginBottom: 16 }}
+    />
   </Skeleton>
 );
 
@@ -192,7 +195,7 @@ const cardRender = (props: DetailProps): React.ReactNode => {
           description={renderDescitem(groupBy.demands, ds)}
         />
       </Card>
-      {props.stepsProps && (
+      {!!props.stepsProps && (
         <Card 
           loading={props.loading}
           size="small"
@@ -206,7 +209,7 @@ const cardRender = (props: DetailProps): React.ReactNode => {
           />
         </Card>
       )}
-      {restCols.length && (
+      {!!restCols.length && (
         <Card 
           loading={props.loading}
           size="small"
