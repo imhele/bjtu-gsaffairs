@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './Detail.less';
 import QueueAnim from 'rc-queue-anim';
 import { ButtonProps } from 'antd/es/button';
-import { Badge, Button, Card, Modal, Skeleton, Tabs, Tag, Tooltip } from 'antd';
+import { Button, Card, Modal, Skeleton, Tabs, Tag, Tooltip } from 'antd';
 import { FormattedMessage } from 'umi-plugin-locale';
 import Steps, { StepsProps } from '@/components/Steps';
 import { PositionDetailProps } from '@/models/position';
@@ -129,18 +129,22 @@ const cardTag = (dataSource: any, column?: any, color?: string) => {
 
 const cardBadge = (dataSource: any, column?: any, color?: string, suffix?: string) => {
   if (!column) return null;
-  const content = (
-    <React.Fragment>
+  return (
+    <Tag color={color} style={{ borderRadius: 11 }}>
       <span>{column.title}：</span>
       <span>{dataSource[column.dataIndex]}</span>
       {suffix && <span style={{ marginLeft: 4 }}>{suffix}</span>}
-    </React.Fragment>
+    </Tag>
   );
-  return <Badge count={content} style={color && { backgroundColor: color }} />;
 };
 
 const cardCommonStyle = {
   marginBottom: 16,
+};
+
+const cardTitleStyle = {
+  fontWeight: 600,
+  marginRight: 8,
 };
 
 const cardRender = (props: DetailProps): React.ReactNode => {
@@ -157,7 +161,7 @@ const cardRender = (props: DetailProps): React.ReactNode => {
         style={cardCommonStyle}
         title={
           <div>
-            <span>基本信息</span>
+            <span style={cardTitleStyle}>基本信息</span>
             {cardTag(ds, colsObj.campus, '#2db7f5')}
             {cardTag(ds, colsObj.way, '#52c41a')}
             {cardTag(ds, colsObj.types, '#722ed1')}
@@ -173,7 +177,7 @@ const cardRender = (props: DetailProps): React.ReactNode => {
         style={cardCommonStyle}
         title={
           <div>
-            <span>需求信息</span>
+            <span style={cardTitleStyle}>需求信息</span>
             {cardBadge(ds, colsObj.need_num, '#13c2c2', '人')}
             {cardBadge(ds, colsObj.work_time_l, '#fa8c16', '小时 / 人周')}
           </div>
@@ -190,7 +194,7 @@ const cardRender = (props: DetailProps): React.ReactNode => {
           loading={props.loading}
           size="small"
           style={cardCommonStyle} 
-          title="审核信息"
+          title={<div style={cardTitleStyle}>审核信息</div>}
           type="inner"
         >
           <DescriptionList
@@ -204,7 +208,7 @@ const cardRender = (props: DetailProps): React.ReactNode => {
           loading={props.loading}
           size="small"
           style={cardCommonStyle} 
-          title="其他"
+          title={<div style={cardTitleStyle}>其他</div>}
           type="inner"
         >
           <DescriptionList
