@@ -4,6 +4,7 @@ import QueueAnim from 'rc-queue-anim';
 import { ButtonProps } from 'antd/es/button';
 import { Button, Card, Modal, Skeleton, Tabs, Tag, Tooltip } from 'antd';
 import { FormattedMessage } from 'umi-plugin-locale';
+import { StorageId } from '@/global';
 import Steps, { StepsProps } from '@/components/Steps';
 import { PositionDetailProps } from '@/models/position';
 import { StandardTableAction } from '@/components/StandardTable';
@@ -122,7 +123,9 @@ const cardTag = (dataSource: any, column?: any, color?: string) => {
   if (!column) return null;
   return (
     <Tooltip title={column.title}>
-      <Tag color={color}>{dataSource[column.dataIndex]}</Tag>
+      <Tag color={color} style={{ borderRadius: 11 }}>
+        {dataSource[column.dataIndex]}
+      </Tag>
     </Tooltip>
   );
 };
@@ -221,6 +224,8 @@ const cardRender = (props: DetailProps): React.ReactNode => {
   );
 };
 
+const defaultPreferDetailStyle = localStorage.getItem(StorageId.PreferDetailStyle);
+
 const Detail: React.SFC<DetailProps> = props => (
   <Modal
     bodyStyle={{ padding: '0 24px' }}
@@ -230,7 +235,10 @@ const Detail: React.SFC<DetailProps> = props => (
     title={<FormattedMessage id="position.detail" />}
     visible={props.visible}
   >
-    <Tabs defaultActiveKey="card">
+    <Tabs
+      defaultActiveKey={defaultPreferDetailStyle || 'card'}
+      onChange={key => localStorage.setItem(StorageId.PreferDetailStyle, key)}
+    >
       <Tabs.TabPane key="card" tab="新版">{cardRender(props)}</Tabs.TabPane>
       <Tabs.TabPane key="table" tab="旧版">{tableRender(props)}</Tabs.TabPane>
     </Tabs>
