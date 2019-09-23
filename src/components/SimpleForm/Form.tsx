@@ -23,6 +23,7 @@ export interface SimpleFormProps extends BaseFormProps<SimpleFormProps> {
         resetLoading: boolean,
         resetDisabled: boolean,
       ) => React.ReactNode);
+  save?: Storage | boolean;
 }
 
 class SimpleForm extends BaseForm<SimpleFormProps> {
@@ -35,6 +36,7 @@ class SimpleForm extends BaseForm<SimpleFormProps> {
     resetDisabled: false,
     resetLoading: false,
     resetText: 'Reset',
+    save: true,
     submitDisabled: false,
     submitLoading: false,
     submitText: 'Submit',
@@ -42,6 +44,33 @@ class SimpleForm extends BaseForm<SimpleFormProps> {
 
   constructor(props: SimpleFormProps) {
     super(props);
+    this.getSavedValue();
+  }
+
+  getSavedValue = () => {
+    if (!props.save) return;
+    try {
+      const { form, save } = this.props;
+      const storage = save === true ? sessionStorage : save;
+      const savedValue = storage.getItem(this.getStorageId());
+      if (!savedValue) return;
+      form.setFieldsValue(JSON.parse(savedValue));
+    } catch () {}
+  }
+  
+  getStorageId = (): string => {
+    const { formItems = [] } = this.props;
+    const identity = formItems.map(item => item.id).join('');
+    return `simpleform-${identity}`;
+  }
+  
+  saveValue = (value: object) => {
+    if (!props.save) return;
+    try {
+      const { save } = this.props;
+      const storage = save === true ? sessionStorage : save;
+      storage.setItem(this.getStorageId(), JSON.stringify(value));
+    }
   }
 
   renderOperationArea = (): React.ReactNode => {
@@ -136,6 +165,16 @@ class SimpleForm extends BaseForm<SimpleFormProps> {
     const { onReset } = this.props;
     if (onReset) return onReset(this.wrappedFormUtils);
     this.resetFields();
+  };
+
+  onSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const { form, onSubmit } = this.props;
+    form.validateFieldsAndScroll((err, fieldsValue) => {
+      if (err) return;
+      this.saveValue(fieldsValue);
+      onSubmit(fieldsValue, this.wrappedFormUtils);
+    });
   };
 
   render() {
