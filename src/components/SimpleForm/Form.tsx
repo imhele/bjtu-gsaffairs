@@ -55,7 +55,7 @@ class SimpleForm extends BaseForm<SimpleFormProps> {
       const savedValue = storage.getItem(this.getStorageId());
       if (!savedValue) return;
       form.setFieldsValue(JSON.parse(savedValue));
-    } catch () {}
+    } catch (err) {}
   }
   
   getStorageId = (): string => {
