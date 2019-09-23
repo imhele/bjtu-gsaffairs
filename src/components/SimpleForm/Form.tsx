@@ -55,7 +55,7 @@ class SimpleForm extends BaseForm<SimpleFormProps> {
       const savedValue = storage.getItem(this.getStorageId());
       if (!savedValue) return;
       form.setFieldsValue(JSON.parse(savedValue));
-    } catch (err) {}
+    } catch (_: unknown) {}
   }
   
   getStorageId = (): string => {
@@ -70,7 +70,7 @@ class SimpleForm extends BaseForm<SimpleFormProps> {
       const { save } = this.props;
       const storage = save === true ? sessionStorage : save;
       storage.setItem(this.getStorageId(), JSON.stringify(value));
-    }
+    } catch (_: unknown) {}
   }
 
   renderOperationArea = (): React.ReactNode => {
