@@ -195,7 +195,7 @@ const cardRender = (props: DetailProps): React.ReactNode => {
           description={renderDescitem(groupBy.demands, ds)}
         />
       </Card>
-      {!!props.stepsProps && (
+      {!!ds.audit && (
         <Card 
           loading={props.loading}
           size="small"
