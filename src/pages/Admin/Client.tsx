@@ -3,11 +3,12 @@ import styles from './Client.less';
 import { GlobalId } from '@/global';
 import React, { Component } from 'react';
 import commonStyles from '../common.less';
+import { ColumnProps } from 'antd/es/table';
 import PageHeader from '@/layouts/PageHeader';
 import { getUseMedia } from 'react-media-hook2';
 import { RadioChangeEvent } from 'antd/es/radio';
 import MemorableModal from '@/components/MemorableModal';
-import { Input, message, Modal, Radio, Tabs } from 'antd';
+import { Input, message, Modal, Radio, Tabs, Tag } from 'antd';
 import { CellAction, TopbarAction } from '@/pages/Position/consts';
 import { FormattedMessage, formatMessage } from 'umi-plugin-locale';
 import { ConnectProps, ConnectState, AdminState } from '@/models/connect';
@@ -302,6 +303,23 @@ class List extends Component<ListProps, ListState> {
       return { ...item, itemProps: { disabled: true } };
     return item;
   };
+
+  getColumns = (): ColumnProps[] => {
+    const { columns, dataSource } = this.props.admin;
+    return columns.map(col => {
+      // if (!dataSource.some(item => Array.isArray(item[col.dataIndex])))
+      if (!dataSource.length || !Array.isArray(dataSource[0][col.dataIndex]))
+        return col;
+      return {
+        ...col,
+        render: this.renderArrayColumn,
+      };
+    });
+  }
+  
+  renderArrayColumn = (ele: any[]): React.ReactNode => {
+    return ele.map(d => <Tag>{d}</Tag>);
+  }
 
   render() {
     const { size, formModalVisible, formType, initailValue } = this.state;
