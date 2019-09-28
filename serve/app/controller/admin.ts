@@ -86,7 +86,7 @@ export default class AdminController extends Controller {
             { value: '研究生院审核' },
             { value: '教务处审核' },
             { value: '人事处审核' },
-            { value: 'admin', title: '管理员权限' },
+            { value: 'admin', title: '超级管理员' },
           ],
         },
       ],
