@@ -325,14 +325,14 @@ class List extends Component<ListProps, ListState> {
     const { size, formModalVisible, formType, initailValue } = this.state;
     const {
       loading,
-      admin: { columns, dataSource, rowKey, form },
+      admin: { dataSource, rowKey, form },
     } = this.props;
     return (
       <PageHeader headerExtra={this.headerExtra()}>
         <div className={commonStyles.contentBody}>
           <StandardTable
             actionProps={this.renderActionProps}
-            columns={columns}
+            columns={this.getColumns()}
             dataSource={dataSource}
             footer={this.renderTableFooter}
             loading={loading.fetchClientList}
