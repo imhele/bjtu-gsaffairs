@@ -352,7 +352,7 @@ export default class WorkloadController extends Controller {
       actions.set(CellAction.Edit, !editDisabled);
       actions.set(CellAction.Audit, !['未上报', '草稿'].includes(stuapply.workload_status!));
     } else {
-      if (type === 'teach' && auth.auditableDep.includes(stuapply.position_department_code)) {
+      if (/** type === 'teach' && */ auth.auditableDep.includes(stuapply.position_department_code)) {
         actions.set(CellAction.Edit, !editDisabled);
         actions.set(CellAction.Audit, stuapply.workload_status === '待审核');
       } else if (stuapply.position_staff_jobnum === auth.user.loginname)
