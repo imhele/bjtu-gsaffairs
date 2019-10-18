@@ -96,12 +96,12 @@ export default class WorkloadController extends Controller {
       applyFilters.push({ student_number: auth.user.loginname });
     else {
       if (!auth.scope.includes(ScopeList.admin)) {
-        if (type === 'teach') {
-          include[1].where[Op.or] = {
-            staff_jobnum: auth.user.loginname,
-            department_code: { [Op.or]: auth.auditableDep },
-          } as WhereOptions<PositionModel>;
-        } else include[1].where.staff_jobnum = auth.user.loginname;
+        // if (type === 'teach') {
+        include[1].where[Op.or] = {
+          staff_jobnum: auth.user.loginname,
+          department_code: { [Op.or]: auth.auditableDep },
+        } as WhereOptions<PositionModel>;
+        // } else include[1].where.staff_jobnum = auth.user.loginname;
       }
     }
     if (applyFilters.length) Object.assign(options, { where: applyFilters });
