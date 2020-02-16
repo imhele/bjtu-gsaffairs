@@ -1,4 +1,4 @@
-// This file is created by egg-ts-helper
+// This file is created by egg-ts-helper@1.25.6
 // Do not modify this file!!!!!!!!!
 
 import 'egg';
@@ -17,8 +17,8 @@ import ExportSchoolCensus from '../../../app/model/school/census';
 import ExportTaskTeacher from '../../../app/model/task/teacher';
 import ExportTaskTeaching from '../../../app/model/task/teaching';
 
-declare module 'sequelize' {
-  interface Sequelize {
+declare module 'egg' {
+  interface IModel {
     Client: {
       Postgraduate: ReturnType<typeof ExportClientPostgraduate>;
       Staff: ReturnType<typeof ExportClientStaff>;

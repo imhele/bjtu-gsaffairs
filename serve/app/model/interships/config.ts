@@ -71,7 +71,7 @@ export default (app: Application) => {
   );
   Model.associate = async () => {
     /* 后端启动时，从数据库取出可选的学期选项，添加到 `filtersMap` 中 */
-    const config = await app.model.Interships.Config.findOne();
+    const config: any = await app.model.Interships.Config.findOne();
     const semesters = JSON.parse((config && config.get('available_semesters')) || '[]');
     filtersMap.semester!.selectOptions = semesters.map((value: string) => ({ value }));
   };

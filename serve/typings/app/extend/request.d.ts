@@ -1,9 +1,9 @@
-// This file is created by egg-ts-helper
+// This file is created by egg-ts-helper@1.25.6
 // Do not modify this file!!!!!!!!!
 
 import 'egg';
 import ExtendRequest from '../../../app/extend/request';
+type ExtendRequestType = typeof ExtendRequest;
 declare module 'egg' {
-  type ExtendRequestType = typeof ExtendRequest;
   interface Request extends ExtendRequestType { }
 }
