@@ -62,7 +62,7 @@ const formItems: SimpleFormItemProps[] = [
     itemProps: { style: { maxWidth: 320, width: '100%' }, mode: 'multiple' },
     selectOptions: new Array(20).fill(0).map((_, index) => {
       const year = Math.trunc(2019 + index / 2);
-      return { value: `${year}-${year + 1}学年 第${index % 2 ? '一' : '二'}学期` };
+      return { value: `${year}-${year + 1}学年 第${index % 2 ? '二' : '一'}学期` };
     }),
   },
 ];
