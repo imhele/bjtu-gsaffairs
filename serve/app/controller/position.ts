@@ -521,7 +521,9 @@ export default class PositionController extends Controller {
           if (type === 'teach')
             if (auth.auditableDep.length || auth.scope.includes(ScopeList.admin))
               formItems.unshift(...ctx.model.Interships.Position.toForm(['name']));
-          formItems.unshift(...this.getUserStaticFormItems(position, auth, true, type === 'teach'));
+          formItems.unshift(
+            ...(await this.getUserStaticFormItems(position, auth, true, type === 'teach')),
+          );
           if (type === 'teach')
             formItems.splice(4, 0, {
               ...service.teaching.getTeachingTaskFormItemByPosition(position),
@@ -531,7 +533,7 @@ export default class PositionController extends Controller {
         case CellAction.Audit:
           if (!availableActions.get(CellAction.Audit))
             throw new AuthorizeError('你暂时没有权限审核这个岗位');
-          formItems = this.getUserStaticFormItems(position, auth).concat(
+          formItems = (await this.getUserStaticFormItems(position, auth)).concat(
             positionFormFields[type].map(
               (key: string): SimpleFormItemProps => ({
                 id: key,
@@ -593,12 +595,12 @@ export default class PositionController extends Controller {
   /**
    * 获取不可修改的表单内容，这里是用户信息
    */
-  private getUserStaticFormItems(
+  private async getUserStaticFormItems(
     info: PositionModelWithFK,
     auth: AuthResult,
     editable: boolean = false,
     isTeach: boolean = false,
-  ): SimpleFormItemProps[] {
+  ): Promise<SimpleFormItemProps[]> {
     const res: SimpleFormItemProps[] = [
       {
         id: 'loginname',
@@ -655,7 +657,7 @@ export default class PositionController extends Controller {
           decoratorOptions,
         };
       }
-      res[3] = { ...filtersMap.semester!, decoratorOptions };
+      res[3] = await this.getSemester();
     }
     return res;
   }
