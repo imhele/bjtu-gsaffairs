@@ -42,7 +42,7 @@ export default class StuapplyController extends Controller {
     /**
      * Qurey batabase
      */
-    const options = { limit, offset, order: ['id', 'DESC'] };
+    const options = { limit, offset, order: [['id', 'DESC']] };
     const applyFilters = [] as WhereOptions<StuapplyModel>[];
     const include: any = [
       { model: ctx.model.School.Census, where: {} },
