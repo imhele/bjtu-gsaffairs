@@ -457,7 +457,7 @@ export default class PositionController extends Controller {
         !auth.scope.includes(ScopeList.admin)
       )
         throw new AuthorizeError('你暂时没有权限创建岗位');
-      formItems.unshift({ ...filtersMap.semester!, decoratorOptions });
+      formItems.unshift(await this.getSemester());
       if (auth.scope.includes(ScopeList.admin)) {
         formItems.unshift({
           ...filtersMap.department_code!,
@@ -658,5 +658,15 @@ export default class PositionController extends Controller {
       res[3] = { ...filtersMap.semester!, decoratorOptions };
     }
     return res;
+  }
+
+  private async getSemester() {
+    const config = this.ctx.model.Interships.Config.findOne();
+    const semesters = JSON.parse((config && config.get('available_semesters')) || '[]');
+    return {
+      ...filtersMap.semester!,
+      selectOptions: semesters.map((value: string) => ({ value })),
+      decoratorOptions: { rules: [{ required: true, message: '必填项' }] },
+    };
   }
 }

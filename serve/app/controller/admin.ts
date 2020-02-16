@@ -217,12 +217,8 @@ export default class AdminController extends Controller {
         break;
       case CellAction.Edit:
         const id = ctx.request.body.id;
-        const semesters = JSON.parse(ctx.request.body.available_semesters || 'null');
         delete ctx.request.body.id;
         await ctx.model.Interships.Config.update(ctx.request.body, { where: { id } });
-        if (semesters) {
-          filtersMap.semester!.selectOptions = semesters.map((value: string) => ({ value }));
-        }
         ctx.response.body = { errmsg: '修改成功' };
         break;
       default:

@@ -1,4 +1,3 @@
-import { cloneDeep } from 'lodash';
 import { SimpleFormItemType } from '../link';
 import { DefineAttributeColumnOptions } from 'sequelize';
 import { attr as TaskTeachingAttr } from '../model/task/teaching';
@@ -9,7 +8,7 @@ const NewPositionAttr = PositionAttr as {
   [key: string]: DefineAttributeColumnOptions;
 };
 
-const _filtersMap = {
+export const filtersMap = {
   department_code: {
     id: 'department_code',
     title: '用工单位',
@@ -61,19 +60,10 @@ const _filtersMap = {
   },
 };
 
-export const filtersMap = new Proxy(_filtersMap, {
-  get(target, key, receiver) {
-    return cloneDeep(Reflect.get(target, key, receiver));
-  },
-  set(target, key, value, receiver) {
-    return Reflect.set(target, key, value, receiver);
-  },
-});
-
 export const filtersKeyMap: {
   [K in keyof typeof PositionType]: {
-    [T in 'withStatus' | 'withoutStatus']: (keyof typeof filtersMap)[];
-  };
+    [T in 'withStatus' | 'withoutStatus']: (keyof typeof filtersMap)[]
+  }
 } = {
   manage: {
     withStatus: ['department_code', 'audit', 'status', 'name', 'campus', 'way'],
