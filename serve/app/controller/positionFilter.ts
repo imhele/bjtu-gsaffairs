@@ -56,7 +56,7 @@ export const filtersMap = {
     id: 'semester',
     title: '学年学期',
     type: SimpleFormItemType.Select,
-    selectOptions: ['2019-2020学年 第一学期'].map(value => ({ value })),
+    selectOptions: [],
   },
 };
 

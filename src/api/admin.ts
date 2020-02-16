@@ -74,6 +74,7 @@ export interface TimeConfig {
   apply_start: number;
   apply_end: number;
   max_workload: number;
+  available_semesters: string;
 }
 
 export interface FetchTimePayload {
