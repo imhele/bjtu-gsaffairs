@@ -661,7 +661,7 @@ export default class PositionController extends Controller {
   }
 
   private async getSemester() {
-    const config = this.ctx.model.Interships.Config.findOne();
+    const config: any = this.ctx.model.Interships.Config.findOne();
     const semesters = JSON.parse((config && config.get('available_semesters')) || '[]');
     return {
       ...filtersMap.semester!,
