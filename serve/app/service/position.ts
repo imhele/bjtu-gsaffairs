@@ -100,6 +100,7 @@ export default class PositionService extends Service {
       offset,
       attributes,
       where,
+      order: ['id', 'DESC'],
       include: [{ model: model.Dicts.Department, attributes: depAttributes }, ...include],
     });
     return {
