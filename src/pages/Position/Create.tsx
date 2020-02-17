@@ -25,7 +25,10 @@ export interface CreateProps extends ConnectProps<{ type: PositionType }> {
 const backToList = () => router.push('list');
 
 class Create extends Component<CreateProps> {
+  search: string = '';
+
   onTeachingTaskSearch = debounce((search: string) => {
+    this.search = search;
     const { dispatch } = this.props;
     dispatch<TeachingTaskPayload>({
       type: 'position/getTeachingTask',
@@ -86,7 +89,12 @@ class Create extends Component<CreateProps> {
     return {
       ...item,
       selectOptions: teachingTaskSelections,
-      itemProps: { ...item.itemProps, loading, onSearch: this.onTeachingTaskSearch },
+      itemProps: {
+        ...item.itemProps,
+        loading,
+        onSearch: this.onTeachingTaskSearch,
+        notFoundContent: this.search ? '暂无数据' : '输入以查询',
+      },
     };
   };
 
