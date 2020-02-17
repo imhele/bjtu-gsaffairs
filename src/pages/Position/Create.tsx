@@ -93,7 +93,7 @@ class Create extends Component<CreateProps> {
         ...item.itemProps,
         loading,
         onSearch: this.onTeachingTaskSearch,
-        notFoundContent: this.search ? '暂无数据' : '输入以查询',
+        notFoundContent: this.search ? undefined : '输入以查询',
       },
     };
   };
