@@ -110,7 +110,7 @@ export const attr: DefineModelAttributes<Position<true>> = {
     comment: '周工作量',
     type: INTEGER,
     tip: '单位：小时 / 人周',
-    validate: { isInt: true, min: 0, max: 12, notEmpty: true },
+    validate: { isInt: true, min: 0, max: 10, notEmpty: true },
   } as any,
   campus: {
     allowNull: false,
