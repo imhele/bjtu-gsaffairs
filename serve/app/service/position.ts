@@ -194,6 +194,14 @@ export default class PositionService extends Service {
       .join(`\n`);
   }
 
+  public async getSemesters(): Promise<string[]> {
+    const { model } = this.ctx;
+    const config: any = await model.Interships.Config.findOne({
+      attributes: ['available_semesters'],
+    });
+    return JSON.parse((config && config.get('available_semesters')) || '[]');
+  }
+
   private formatPosition(position: any) {
     const formatted = position.format();
     if (formatted.DictsDepartment) {

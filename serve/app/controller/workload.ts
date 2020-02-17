@@ -41,6 +41,7 @@ export default class WorkloadController extends Controller {
 
     if (body.status) {
       const res = await service.stuapply.findAndCountWorkload(
+        isAdmin,
         { time, student, status: body.status, type: positionType as number },
         { limit, offset },
         item => {

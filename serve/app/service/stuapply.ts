@@ -4,7 +4,7 @@ import { CellAction } from '../link';
 import { DataNotFound } from '../errcode';
 import { getFromIntEnum } from '../utils';
 import { AuthResult } from '../extend/request';
-import { FindOptions, IncludeOptions, Model, Op } from 'sequelize';
+import { FindOptions, IncludeOptions, Model, Op, WhereOptions } from 'sequelize';
 import { IntershipsWorkload } from '../model/interships/workload';
 import { attr as SchoolCensusAttr, SchoolCensus as CensusModel } from '../model/school/census';
 import {
@@ -126,11 +126,16 @@ export default class StuapplyService extends Service {
   }
 
   public async findAndCountWorkload(
+    isAdmin: boolean,
     filter: { time: string; type: number; student?: string; status: string },
     options: { limit: number; offset: number },
     extraFormatter: (item: any) => any = i => i,
   ) {
-    const { model } = this.ctx;
+    const { model, service } = this.ctx;
+    const positionFilter: WhereOptions<PositionModel> = { types: filter.type };
+    if (!isAdmin) {
+      positionFilter.semester = { [Op.or]: await service.position.getSemesters() };
+    }
     const dbRes = await model.Interships.Workload.findAndCountAll({
       ...options,
       attributes: ['amount', 'id'],
@@ -152,7 +157,7 @@ export default class StuapplyService extends Service {
                 'start_t',
                 'end_t',
               ],
-              where: { types: filter.type },
+              where: positionFilter,
             },
             {
               required: true,

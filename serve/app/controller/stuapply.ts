@@ -56,6 +56,8 @@ export default class StuapplyController extends Controller {
       if (body.student_name) include[0].where.name = body.student_name;
       if (body.position_name) include[1].where.name = { [Op.like]: `%${body.position_name}%` };
       if (!auth.scope.includes(ScopeList.admin)) {
+        include[1].where.semester = { [Op.or]: await service.position.getSemesters() };
+
         if (mode === '导师模式') {
           include[0].where[Op.or] = {
             teacher_code: auth.user.loginname,

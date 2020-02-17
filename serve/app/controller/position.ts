@@ -116,6 +116,10 @@ export default class PositionController extends Controller {
       }
     }
 
+    if (!isAdmin) {
+      filters.unshift({ semester: { [Op.or]: await service.position.getSemesters() } });
+    }
+
     /**
      * Qurey batabase
      */
@@ -457,7 +461,7 @@ export default class PositionController extends Controller {
         !auth.scope.includes(ScopeList.admin)
       )
         throw new AuthorizeError('你暂时没有权限创建岗位');
-      formItems.unshift(await this.getSemester());
+      formItems.unshift(await this.getSemesterFormItem());
       if (auth.scope.includes(ScopeList.admin)) {
         formItems.unshift({
           ...filtersMap.department_code!,
@@ -657,14 +661,13 @@ export default class PositionController extends Controller {
           decoratorOptions,
         };
       }
-      res[3] = await this.getSemester();
+      res[3] = await this.getSemesterFormItem();
     }
     return res;
   }
 
-  private async getSemester() {
-    const config: any = await this.ctx.model.Interships.Config.findOne();
-    const semesters = JSON.parse((config && config.get('available_semesters')) || '[]');
+  private async getSemesterFormItem() {
+    const semesters = await this.service.position.getSemesters();
     return {
       ...filtersMap.semester!,
       selectOptions: semesters.map((value: string) => ({ value })),
