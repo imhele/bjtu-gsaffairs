@@ -132,7 +132,7 @@ export default class StuapplyService extends Service {
     extraFormatter: (item: any) => any = i => i,
   ) {
     const { model, service } = this.ctx;
-    const positionFilter = { types: filter.type } as WhereOptions<Required<PositionModel>>;
+    const positionFilter: WhereOptions<PositionModel> = { types: filter.type };
     if (!isAdmin) {
       positionFilter.semester = { [Op.or]: await service.position.getSemesters() };
     }
@@ -157,7 +157,7 @@ export default class StuapplyService extends Service {
                 'start_t',
                 'end_t',
               ],
-              where: positionFilter,
+              where: positionFilter as any,
             },
             {
               required: true,
