@@ -23,7 +23,7 @@
     "debounce": "1.2.0",
     "dva": "~2.5.0-beta.2",
     "memoize-one": "5.0.0",
-    "path-to-regexp": "3.0.0",
+    "path-to-regexp": "8.0.0",
     "rc-queue-anim": "~1.6.11",
     "react-infinite-scroller": "^1.2.4",
     "react-media-hook2": "^1.0.0"
